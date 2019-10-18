@@ -1,25 +1,38 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from './views/Home.vue'
+import CreateApplication from './views/CreateApplication.vue'
+import ShowApplication from './views/ShowApplication.vue'
+import SubmittedApplications from './views/SubmittedApplications.vue'
+import ReceivedApplications from './views/ReceivedApplications.vue'
 
 Vue.use(Router)
 
 export default new Router({
   mode: 'history',
-  base: process.env.BASE_URL,
+  //base: process.env.BASE_URL,
+  base: '/application_form_manager/',
   routes: [
     {
-      path: '/',
-      name: 'home',
-      component: Home
+      path: '/create_application',
+      name: 'create_application',
+      component: CreateApplication
     },
     {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import(/* webpackChunkName: "about" */ './views/About.vue')
-    }
+      path: '/',
+      name: 'submitted_applications',
+      component: SubmittedApplications
+    },
+    {
+      path: '/received_applications',
+      name: 'received_applications',
+      component: ReceivedApplications
+    },
+    {
+      path: '/show_application',
+      name: 'show_application',
+      component: ShowApplication,
+    },
+
   ]
 })
