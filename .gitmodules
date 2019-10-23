@@ -1,0 +1,3 @@
+[submodule "src/components/top_bar"]
+	path = src/components/top_bar
+	url = https://github.com/maximemoreillon/top_bar.git
