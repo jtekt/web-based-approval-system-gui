@@ -292,6 +292,10 @@ form > div {
   margin: 5px 0;
 }
 
+.search select {
+  width: 100%;
+}
+
 
 
 
