@@ -1,7 +1,7 @@
 <template>
   <div id="app">
 
-    <TopBar appInfo="Application form manager v0.1"/>
+    <TopBar appInfo="申請マネージャー v0.1"/>
 
 
 
@@ -41,8 +41,6 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
-
 
 /* NAVIGATION BAR */
 #nav {
