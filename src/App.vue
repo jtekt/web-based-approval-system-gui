@@ -1,19 +1,39 @@
 <template>
   <div id="app">
 
+    <TopBar appInfo="Application form manager v0.1"/>
+
+
+
     <div id="nav">
-      <router-link to="/create_application">Create Application</router-link> |
-      <router-link to="/">Submitted Applications</router-link> |
-      <router-link to="/received_applications">Received Applications</router-link> |
+      <router-link to="/create_application">Create Application</router-link>
+      <router-link to="/">Submitted Applications</router-link>
+      <router-link to="/received_applications">Received Applications</router-link>
     </div>
+
     <router-view/>
   </div>
 </template>
+
+<script>
+// @ is an alias to /src
+import TopBar from '@/components/top_bar/TopBar.vue'
+
+export default {
+  components: {
+    TopBar,
+  },
+}
+</script>
 
 <style>
 
 * {
   box-sizing: border-box;
+}
+
+body {
+  margin: 0;
 }
 
 #app {
@@ -22,18 +42,31 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* NAVIGATION */
+
+
+/* NAVIGATION BAR */
 #nav {
-  padding: 30px;
+  background-color: #cccccc;
+
+  display: flex;
 }
 
 #nav a {
+
+  flex-grow: 1;
+  flex-basis: 0;
+
+  padding: 10px;
+  text-align: center;
+
+  text-decoration: none;
+
   font-weight: bold;
-  color: #2c3e50;
+  color: #444444;
 }
 
 #nav a.router-link-exact-active {
-  color: #42b983;
+  color: #c00000;
 }
 
 

@@ -173,12 +173,10 @@ import PcTakeOut from '@/components/forms/PcTakeOut.vue'
 import TestForm from '@/components/forms/TestForm.vue'
 import Report from '@/components/forms/Report.vue'
 
-import RecipientSelector from '@/components/RecipientSelector.vue'
 
 export default {
   name: 'EditApplication',
   components: {
-    RecipientSelector,
     PcTakeOut,
     TestForm,
     Report

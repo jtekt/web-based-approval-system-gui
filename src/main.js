@@ -12,7 +12,7 @@ Vue.use(VueAxios, axios)
 Vue.config.productionTip = false
 
 
-// Redirect to login screen if not logged in
+// Redirect to authentication anager if not logged in
 router.beforeEach((to, from, next) => {
   axios.post('http://172.16.98.151:8091/status')
   .then(response => {
@@ -20,7 +20,7 @@ router.beforeEach((to, from, next) => {
       store.commit('set_employee_number', response.data.employee_number)
       next();
     }
-    else window.location.href = "http://172.16.98.151/login_manager/";
+    else window.location.href = "http://172.16.98.151:8091/";
   })
   .catch(error => console.log(error))
 });

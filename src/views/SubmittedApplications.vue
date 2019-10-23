@@ -40,6 +40,7 @@ export default {
       this.axios.post('http://172.16.98.151:9723/get_submitted_applications', {})
       .then(response => this.parse_application_records(response.data.records))
       .catch(error => console.log(error))
+      
     },
   }
 }
