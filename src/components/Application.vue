@@ -41,7 +41,7 @@
         </tr>
         <tr v-for="value, key in JSON.parse(application.properties.form_data)">
           <td>{{key}}</td>
-          <td v-if="key === 'report_file'"><a v-bind:href="'http://172.16.98.151:9723/uploads/' + value">download</a></td>
+          <td v-if="key === 'report_file'"><a v-bind:href="'http://webhanko.mike.jtekt.maximemoreillon.com/uploads/' + value">download</a></td>
           <td v-else>{{value}}</td>
         </tr>
 
@@ -53,7 +53,10 @@
         </tr>
         <tr>
           <td colspan="2">
-            <button type="button" v-on:click="delete_application(application.identity.low)">
+            <button
+              type="button"
+              v-if="application.applicant.properties.employee_number === get_employee_number"
+              v-on:click="delete_application(application.identity.low)">
               Bye bye!
             </button>
           </td>
@@ -80,14 +83,25 @@
           v-bind:approval_id="submission.approval.identity.low"
         />
 
-        <!-- else show approve button -->
-        <button
-          v-else-if="submission.recipient.properties.employee_number === get_employee_number"
+        <!-- else show approve button, but only if in a position to approve-->
+        <div
+          class=""
+          v-else-if="submission.recipient.properties.employee_number === get_employee_number">
+
+          <button
+            type="button"
+            v-on:click="approve_application(application.identity.low)">
+            Approve
+          </button>
+
+          <button
           type="button"
-          v-on:click="approve_application(application.identity.low)"
-        >
-          Approve
-        </button>
+          v-on:click="disapprove_application(application.identity.low)">
+            disapprove
+          </button>
+
+        </div>
+
 
       </InkanBox>
     </div>
@@ -118,17 +132,22 @@ export default {
   },
   methods: {
     approve_application(application_id){
-      this.axios.post('http://172.16.98.151:9723/approve_application', {
+      this.axios.post('http://webhanko.mike.jtekt.maximemoreillon.com/approve_application', {
         application_id: application_id,
       })
       .then(response => this.$emit('reload') )
-      .catch(error => {
-        console.log(error);
-      });
+      .catch(error => console.log(error) );
+    },
+    disapprove_application(application_id){
+      this.axios.post('http://webhanko.mike.jtekt.maximemoreillon.com/disapprove_application', {
+        application_id: application_id,
+      })
+      .then(response => this.$emit('reload') )
+      .catch(error => console.log(error) );
     },
     delete_application(application_id){
       if(confirm("ホンマ？")){
-        this.axios.post('http://172.16.98.151:9723/delete_application', {
+        this.axios.post('http://webhanko.mike.jtekt.maximemoreillon.com/delete_application', {
           application_id: application_id,
         })
         .then(response => this.$emit('reload'))

@@ -41,10 +41,13 @@ export default {
   },
   methods: {
     get_application(){
-      this.axios.post('http://172.16.98.151:9723/get_application', {
+      this.axios.post('http://webhanko.mike.jtekt.maximemoreillon.com/get_application', {
         application_id: this.$route.query.id
       })
-      .then(response => this.parse_application_records(response.data.records))
+      .then(response => {
+        this.parse_application_records(response.data.records)
+        console.log(this.applications)
+      })
       .catch(error => console.log(error));
     },
   }

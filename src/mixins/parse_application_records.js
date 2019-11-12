@@ -15,12 +15,6 @@ export const parse_application_records = {
           return this._fields[this._fieldLookup[fieldName]]
         }
 
-        const application_field_index = record._fieldLookup['application'];
-        const applicant_field_index = record._fieldLookup['applicant'];
-        const recipient_field_index = record._fieldLookup['recipient'];
-
-        const submission_field_index = record._fieldLookup['submission'];
-        const approval_field_index = record._fieldLookup['approval'];
 
         var current_application = null;
 
@@ -45,11 +39,16 @@ export const parse_application_records = {
 
         // Add the info of the submission
         current_application.submissions.push({
+          submitted_to: record.getField('submitted_to'),
           recipient: record.getField('recipient'),
           approval: record.getField('approval'),
         })
 
+        current_application.submissions.sort( (a,b) => (a.submitted_to.flow_index > b.submitted_to.flow_index) ? -1: 1)
+
       })
+
+
 
     },
 

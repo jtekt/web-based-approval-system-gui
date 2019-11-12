@@ -21,7 +21,7 @@ export default {
     upload_file(){
       let formData = new FormData();
       formData.append('file_to_upload', this.$refs.file_input.files[0]);
-      this.axios.post('http://172.16.98.151:9723/file_upload', formData, {
+      this.axios.post('http://webhanko.mike.jtekt.maximemoreillon.com/file_upload', formData, {
           headers: {'Content-Type': 'multipart/form-data' }
         })
         .then(response => {

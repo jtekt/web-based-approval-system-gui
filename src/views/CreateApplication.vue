@@ -3,132 +3,48 @@
 
     <!-- Flow -->
     <div class="approval_flow_container">
-      <div class="section_tite">Approval Flow</div>
 
       <div class="search">
 
-        <div class="section_tite">Search for recipient</div>
+        <div class="corporate_structure_container" v-if="company_structure.length > 0">
 
-        <table>
-          <!-- division -->
-          <tr>
-            <td>Division</td>
-            <td>
-              <select v-model="selection.division" v-on:change="get_departments_from_division()">
-                <option
-                  v-for="division in divisions"
-                  v-bind:value="division._fields[0].identity.low">
-                  {{division._fields[0].properties.name}}
-                </option>
-              </select>
-            </td>
-          </tr>
+          <CorporateStructureNode
+          v-on:select_node="get_employees_belonging_to_node($event)"
+          v-for="division in company_structure"
+          v-bind:node_data="division"/>
+        </div>
 
-          <!-- department -->
-          <tr class="" v-if="departments.length > 0">
-            <td>Department</td>
-            <td>
-              <select
-                v-model="selection.department"
-                v-on:change="get_sections_from_department()">
-                <option
-                  v-for="department in departments"
-                  v-bind:value="department._fields[0].identity.low">
-                  {{department._fields[0].properties.name}}
-                </option>
-              </select>
-            </td>
-          </tr>
-
-          <!-- section -->
-          <tr class="" v-if="sections.length > 0">
-            <td>Section</td>
-            <td>
-              <select
-                v-model="selection.section"
-                v-on:change="get_groups_from_section()">
-                <option
-                  v-for="section in sections"
-                  v-bind:value="section._fields[0].identity.low">
-                  {{section._fields[0].properties.name}}
-                </option>
-              </select>
-            </td>
-          </tr>
-
-          <!-- group -->
-          <tr class="" v-if="groups.length > 0">
-            <td>Group</td>
-            <td>
-              <select
-                v-model="selection.group">
-                <option
-                  v-for="group in groups"
-                  v-bind:value="group._fields[0].identity.low">
-                  {{group._fields[0].properties.name}}
-                </option>
-              </select>
-            </td>
-          </tr>
-
-
-          <!-- select employee -->
-          <tr class="" v-if="employees.length > 0">
-            <td>Employee</td>
-            <td>
-              <select v-model="selection.employee">
-                <!-- WARNING: BINDING PROPERTIES AND NOT EMPLOYEE NUMBER -->
-                <option
-                  v-for="employee in employees"
-                  v-bind:value="employee._fields[0].properties">
-                  {{employee._fields[0].properties.name_kanji}}
-                </option>
-              </select>
-            </td>
-          </tr>
-
-          <tr>
-            <td colspan="2">
-              <button
-                type="button"
-                v-if="selection.employee!=='none'"
-                v-on:click="add_to_recipients(selection.employee)">
-                Add to recipients
-              </button>
-            </td>
-          </tr>
-
-        </table>
+        <!-- List for employees of selected node -->
+        <!-- ADD WHOLE EMPLOYEE MAYBE (NOT JUST PROPERTIES) -->
+        <div class="">
+          <div class="employee" v-for="employee in employees" v-on:click="add_to_recipients(employee._fields[0].properties)">
+            {{employee._fields[0].properties.name_kanji}}
+          </div>
+        </div>
 
       </div><!-- end of search area -->
 
+      <!-- Showing the approval flow -->
+      <div class="">
 
+        <div class="selected_recipients_container" v-if="recipients.length > 0">
 
-      <div>
+          <div class="selected_recipient_container" v-for="recipient, recipient_index in recipients">
 
-        <div class="section_tite">Selected recipients</div>
+            <div class="selected_recipient_details_container">
+              <div class="employee_name">{{recipient.name_kanji}}</div>
+              <div class="">{{recipient.employee_number}}</div>
+              <div class="">
+                <button type="button" v-on:click="delete_recipient(recipient_index)">delete</button>
+              </div>
+            </div>
 
+            <!-- Arrow -->
+            <div class="arrow_container" v-if="recipient_index < recipients.length -1 "> → </div>
+          </div>
 
-        <table v-if="recipients.length > 0">
-          <tr>
-            <th>Flow index</th>
-            <th>Name</th>
-            <th>Empoyee number</th>
-            <th>Role</th>
-            <th>Actions</th>
-          </tr>
-          <tr v-for="recipient, recipient_index in recipients">
-            <td>{{recipient_index + 1}} </td>
-            <td>{{recipient.name_kanji}}</td>
-            <td>{{recipient.employee_number}}</td>
-            <td>{{recipient.role}}</td>
-            <td>
-              <button type="button" v-on:click="delete_recipient(recipient_index)" >
-                delete
-              </button>
-            </td>
-          </tr>
-        </table>
+        </div>
+
         <div class="" v-else>
           No recipients yet
         </div>
@@ -147,19 +63,15 @@
           v-if="component_name !== $options.name"
           v-bind:value="component_name">{{component_name}}</option>
       </select>
-
     </div>
 
     <div class="" v-if="type !=='undefined'">
-      <component
-        v-bind:is="type"
-        ref="form"
-      />
+      <component v-bind:is="type" ref="form"/>
     </div>
 
-    <div v-if="type !=='undefined'">
+    <!-- submit application form -->
+    <div v-if="type !=='undefined' && recipients.length > 0">
       <input type="submit">
-
     </div>
 
 
@@ -169,7 +81,13 @@
 
 <script>
 // Applications come here
+
+import CorporateStructureNode from '@/components/corporate_structure_selector/CorporateStructureNode.vue'
+
+
 import PcTakeOut from '@/components/forms/PcTakeOut.vue'
+import PcBringBack from '@/components/forms/PcBringBack.vue'
+
 import TestForm from '@/components/forms/TestForm.vue'
 import Report from '@/components/forms/Report.vue'
 
@@ -179,38 +97,32 @@ export default {
   components: {
     PcTakeOut,
     TestForm,
-    Report
+    Report,
+    PcBringBack,
+    CorporateStructureNode
   },
   data(){
     return {
       type: "undefined",
       recipients: [],
 
-      divisions: [],
-      departments: [],
-      sections: [],
-      groups: [],
+      company_structure : [],
       employees: [],
+      selected_employee: null,
 
-      selection: {
-        division: "none",
-        department: "none",
-        section: "none",
-        group: "none",
-        employee: "none"
-      }
     }
   },
   mounted(){
-    this.axios.post('http://172.16.98.151:8091/get_all_divisions', {})
-    .then(response => this.divisions = response.data)
-    .catch(error => console.log(error));
+    // Get company structure to select recipients
+    this.get_company_structure();
+
   },
   methods: {
+
     create_application(){
       var form_data = this.$refs.form._data.form_data
 
-      this.axios.post('http://172.16.98.151:9723/create_application', {
+      this.axios.post('http://webhanko.mike.jtekt.maximemoreillon.com/create_application', {
         type: this.type,
         recipients: this.recipients,
         session_id: this.$store.state.session_id,
@@ -218,56 +130,44 @@ export default {
       })
       .then(response => this.$router.push({ name: 'submitted_applications' }) )
       .catch(error => console.log(error));
-
-
     },
-    get_departments_from_division(){
-      this.axios.post('http://172.16.98.151:8091/get_departments_from_division', {
-        node_id: this.selection.division,
-      })
+
+    get_company_structure(){
+      // delete current structure
+      this.company_structure.splice(0,this.company_structure.length)
+
+      this.axios.post('http://authentication.mike.jtekt.maximemoreillon.com/get_company_structure', {})
       .then(response => {
-        this.departments = response.data;
-        this.sections.splice(0,this.sections.length);
-        this.groups.splice(0,this.groups.length);
-        this.employees.splice(0,this.employees.length);
+        response.data.forEach(entry => {
+          this.company_structure.push(entry);
+        })
 
       })
       .catch(error => console.log(error));
     },
-    get_sections_from_department(){
-      this.axios.post('http://172.16.98.151:8091/get_sections_from_department', {
-        node_id: this.selection.department,
-      })
-      .then(response => {
-        this.get_employees_belonging_to_node(this.selection.department);
-        this.sections = response.data;
-        this.groups.splice(0,this.groups.length);
-      })
-      .catch(error => console.log(error));
-    },
-    get_groups_from_section(){
-      this.axios.post('http://172.16.98.151:8091/get_groups_from_section', {
-        node_id: this.selection.section,
 
-      })
-      .then(response => {
-        this.get_employees_belonging_to_node(this.selection.section);
-        this.groups = response.data;
-      })
-      .catch(error => console.log(error));
-    },
+
+
     get_employees_belonging_to_node(node_id){
-      this.axios.post('http://172.16.98.151:8091/get_employees_belonging_to_node', {
+      this.axios.post('http://authentication.mike.jtekt.maximemoreillon.com/get_employees_belonging_to_node', {
         node_id: node_id,
       })
       .then(response => this.employees = response.data)
       .catch(error => console.log(error));
     },
+
     delete_recipient(recipient_index){
       this.recipients.splice(recipient_index,1);
     },
     add_to_recipients(recipient_to_add){
-      this.recipients.push(recipient_to_add);
+
+      // Prevent duplicates
+      if(!this.recipients.includes(recipient_to_add)){
+        this.recipients.push(recipient_to_add);
+        // Add flow index
+        recipient_to_add.flow_index = this.recipients.length-1;
+      }
+
 
     },
   }
@@ -282,7 +182,7 @@ form > div {
   margin: 5px;
 }
 
-.approval_flow_container > *:not(:first-child) {
+.approval_flow_container > * {
   margin: 5px;
   border: 1px solid black;
 }
@@ -292,8 +192,60 @@ form > div {
   margin: 5px 0;
 }
 
-.search select {
-  width: 100%;
+.search {
+  display: flex;
+  max-height: 40vh;
+}
+
+.search > div {
+  border: 1px solid black;
+  margin: 10px;
+  width: 50%;
+  overflow: auto;
+}
+
+.employee {
+  padding: 2px 5px;
+  cursor: pointer;
+}
+.employee:hover {
+  background-color: #dddddd;
+}
+
+.selected_recipients_container {
+  display: flex;
+}
+
+.selected_recipient_container {
+  display: flex;
+}
+
+.selected_recipient_details_container {
+
+  border: 1px solid black;
+  border-radius: 5px;
+  padding: 5px;
+  margin: 5px;
+
+  width: 12vmin;
+
+  text-align: center;
+
+}
+
+.employee_name {
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.arrow_container {
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  font-size: 150%;
+
 }
 
 

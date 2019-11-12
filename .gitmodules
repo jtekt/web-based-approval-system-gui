@@ -1,3 +1,3 @@
-[submodule "src/components/top_bar"]
-	path = src/components/top_bar
-	url = https://github.com/maximemoreillon/top_bar.git
+[submodule "src\\components\\jtekt_vue_layouting_components"]
+	path = src\\components\\jtekt_vue_layouting_components
+	url = https://github.com/maximemoreillon/jtekt_vue_layouting_components.git

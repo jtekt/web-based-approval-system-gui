@@ -1,80 +1,78 @@
 <template>
 
-  <div class="inkan">
+  <svg
+    ref="svg"
+    v-on:click="download()"
+    viewBox="0 0 100 150"
+    >
 
-    <canvas ref="canvas" width="100"></canvas>
+    <!-- frame -->
+    <rect
+      stroke="#c00000"
+      stroke-width="2"
+      fill-opacity="0.0"
+      x="2%" y="2%" rx="10" ry="10"
+      width="96%" height="96%"/>
 
-    <svg
-      ref="svg"
-      v-on:click="download()"
-      viewBox="0 0 100 150"
-      >
-
-      <!-- frame -->
-      <rect
-        stroke="#c00000"
-        stroke-width="2"
-        fill-opacity="0.0"
-        x="2%" y="2%" rx="10" ry="10"
-        width="96%" height="96%"/>
-
-        <!-- Approver name -->
-      <text
-        fill="#c00000"
-        text-anchor="middle"
-        font-family="monospace, monospace"
-        font-weight="600"
-        v-bind:font-size="name_font_size"
-        x="50%" y="20%">
-        {{name}}
-      </text>
+      <!-- Approver name -->
+    <text
+      fill="#c00000"
+      text-anchor="middle"
+      font-family="monospace, monospace"
+      font-weight="600"
+      v-bind:font-size="name_font_size"
+      x="50%" y="20%">
+      {{name}}
+    </text>
 
 
 
-      <!-- original qr is 21 x 21, resizing to 80 x 80 -->
-      <!-- warning: ranslation is in the original reference frame (before scaline) -->
-      <!-- 100/21*0.8 = 3.80952380952 -->
-      <path
-        v-bind:d="qr_code_svg"
-        stroke="#c00000"
-        transform="
-          scale(3.80952380952)
-          translate(2.625,10.5)
-        "/>
+    <!-- original qr is 21 x 21, resizing to 80 x 80 -->
+    <!-- warning: ranslation is in the original reference frame (before scaline) -->
+    <!-- 100/21*0.8 = 3.80952380952 -->
+    <path
+      v-bind:d="qr_code_svg"
+      stroke="#c00000"
+      transform="
+        scale(3.80952380952)
+        translate(2.625,10.5)
+      "/>
 
-        <!-- Lines above and below the QR code -->
-      <line
-        stroke="#c00000"
-        stroke-width="1"
-        x1="5%" y1="36" x2="95%" y2="36"/>
-      <line
-        stroke="#c00000"
-        stroke-width="1"
-        x1="5%" y1="125" x2="95%" y2="125"/>
+      <!-- Lines above and below the QR code -->
+    <line
+      stroke="#c00000"
+      stroke-width="1"
+      x1="5%" y1="36" x2="95%" y2="36"/>
+    <line
+      stroke="#c00000"
+      stroke-width="1"
+      x1="5%" y1="125" x2="95%" y2="125"/>
 
-      <!-- date of approval -->
-      <text
-        fill="#c00000"
-        text-anchor="middle"
-        font-family="monospace, monospace"
-        font-size="90%"
-        x="50%" y="94%">
-        {{String(date.year.low).slice(2,4)}}.{{date.month.low}}.{{date.day.low}}
-      </text>
+    <!-- date of approval -->
+    <text
+      fill="#c00000"
+      text-anchor="middle"
+      font-family="monospace, monospace"
+      font-size="90%"
+      x="50%" y="94%">
+      {{String(date.year.low).slice(2,4)}}.{{date.month.low}}.{{date.day.low}}
+    </text>
 
-    </svg>
+  </svg>
 
-  </div>
+
 
 </template>
 
 <script>
 import QRCode from 'qrcode'
 
+import Canvg from 'canvg';
+
 export default {
   name: 'Inkan',
   props: {
-    name: {type: String, default: "AA"},
+    name: {type: String, default: "NO NAME"},
     approval_id: {type: Number, default: 1},
     date: {type: Object, default: {year: {low: 2000},month: {low: 1},day: {low: 1},}},
   },
@@ -106,9 +104,19 @@ export default {
     },
   },
   methods: {
+
     download(){
+      if(navigator.userAgent.indexOf('MSIE')!==-1 || navigator.appVersion.indexOf('Trident/') > -1){
+        alert("A modern web browser (Chrome, Firefox, Edge, etc.) is required to download Inkans")
+        return
+      }
+
       var svg = this.$refs.svg;
-      var canvas = this.$refs.canvas;
+      var canvas = document.createElement('canvas');
+
+      // NOT IDEAL
+      canvas.width = 100;
+      
       var ctx = canvas.getContext('2d');
       var data = (new XMLSerializer()).serializeToString(svg);
 
@@ -143,7 +151,12 @@ export default {
     img.src = url;
 
     },
+
   },
+
+
+
+
 
 
 }
@@ -162,10 +175,6 @@ svg{
   /* the SVG will keep aspect ratio and generate margins accordingly */
   height: 100%;
   width: 100%;
-}
-
-canvas {
-  display: none;
 }
 
 </style>
