@@ -10,14 +10,12 @@
         </router-link>
         <router-link to="/">
           <span class="mdi mdi-file-document-box-multiple-outline"/>
-          <span>Submissions</span>
+          <span>Applications</span>
         </router-link>
         <router-link to="/received_applications">
-          <span class="mdi mdi-file-document-box-check-outline"/>
+          <span class="mdi mdi-inbox-arrow-down"/>
           <span>Inbox</span>
         </router-link>
-
-
       </Nav>
 
       <div class="right_column">
@@ -47,11 +45,9 @@ export default {
 
 @import './components/jtekt_vue_layouting_components/master.css';
 
-* {
-  box-sizing: border-box;
+.main {
+  padding: 25px;
 }
-
-
 
 
 .application_container {
@@ -88,7 +84,7 @@ export default {
 
 
 .application_info td {
-  border-top: 1px solid #666666;
+  border-top: 1px solid #dddddd;
 }
 
 .inkans_area{
@@ -111,7 +107,7 @@ export default {
 
 
 
-
+/* CAN BE DELETED ONCE USING THE WEBHANKO COMPONENT */
 .inkan_container {
   flex-grow: 1;
   padding: 2%;

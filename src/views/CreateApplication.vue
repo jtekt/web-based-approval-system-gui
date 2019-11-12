@@ -1,60 +1,11 @@
 <template>
+
+  <!-- Wrapping everything in a form might not be a good idea... -->
   <form v-on:submit.prevent="create_application()">
-
-    <!-- Flow -->
-    <div class="approval_flow_container">
-
-      <div class="search">
-
-        <div class="corporate_structure_container" v-if="company_structure.length > 0">
-
-          <CorporateStructureNode
-          v-on:select_node="get_employees_belonging_to_node($event)"
-          v-for="division in company_structure"
-          v-bind:node_data="division"/>
-        </div>
-
-        <!-- List for employees of selected node -->
-        <!-- ADD WHOLE EMPLOYEE MAYBE (NOT JUST PROPERTIES) -->
-        <div class="">
-          <div class="employee" v-for="employee in employees" v-on:click="add_to_recipients(employee._fields[0].properties)">
-            {{employee._fields[0].properties.name_kanji}}
-          </div>
-        </div>
-
-      </div><!-- end of search area -->
-
-      <!-- Showing the approval flow -->
-      <div class="">
-
-        <div class="selected_recipients_container" v-if="recipients.length > 0">
-
-          <div class="selected_recipient_container" v-for="recipient, recipient_index in recipients">
-
-            <div class="selected_recipient_details_container">
-              <div class="employee_name">{{recipient.name_kanji}}</div>
-              <div class="">{{recipient.employee_number}}</div>
-              <div class="">
-                <button type="button" v-on:click="delete_recipient(recipient_index)">delete</button>
-              </div>
-            </div>
-
-            <!-- Arrow -->
-            <div class="arrow_container" v-if="recipient_index < recipients.length -1 "> → </div>
-          </div>
-
-        </div>
-
-        <div class="" v-else>
-          No recipients yet
-        </div>
-      </div>
-
-    </div>
 
 
     <!-- type selector -->
-    <div class="">
+    <div class="section_wrapper">
       <label>Application type: </label>
       <select v-model="type">
         <option value="undefined">Please select</option>
@@ -65,14 +16,26 @@
       </select>
     </div>
 
-    <div class="" v-if="type !=='undefined'">
-      <component v-bind:is="type" ref="form"/>
+
+    <EmployeePicker v-on:employeeSelected="add_to_recipients($event)" />
+
+    <ApprovalFlow
+      v-on:deleteEmployee="delete_recipient($event)"
+      v-bind:employees="recipients"/>
+
+
+    <div class="section_wrapper" >
+      <component v-if="type !=='undefined'" v-bind:is="type" ref="form"/>
+      <div v-else>Type not selected</div>
     </div>
 
+
     <!-- submit application form -->
-    <div v-if="type !=='undefined' && recipients.length > 0">
-      <input type="submit">
+    <div class="section_wrapper" >
+      <input type="submit" v-bind:disabled="type ==='undefined' || recipients.length < 1">
     </div>
+
+
 
 
 
@@ -82,7 +45,9 @@
 <script>
 // Applications come here
 
-import CorporateStructureNode from '@/components/corporate_structure_selector/CorporateStructureNode.vue'
+import EmployeePicker from '@/components/jtekt_vue_employee_picker/EmployeePicker.vue'
+
+import ApprovalFlow from '@/components/ApprovalFlow.vue'
 
 
 import PcTakeOut from '@/components/forms/PcTakeOut.vue'
@@ -95,11 +60,12 @@ import Report from '@/components/forms/Report.vue'
 export default {
   name: 'EditApplication',
   components: {
+    EmployeePicker,
+    ApprovalFlow,
     PcTakeOut,
     TestForm,
     Report,
     PcBringBack,
-    CorporateStructureNode
   },
   data(){
     return {
@@ -177,32 +143,16 @@ export default {
 <style scoped>
 
 form > div {
-  border: 1px solid black;
-  padding: 5px;
-  margin: 5px;
+
 }
 
-.approval_flow_container > * {
-  margin: 5px;
-  border: 1px solid black;
+.section_wrapper{
+  border: 1px solid #dddddd;
+  margin: 15px;
+  padding: 10px;
 }
 
-.section_tite {
-  font-weight: bold;
-  margin: 5px 0;
-}
 
-.search {
-  display: flex;
-  max-height: 40vh;
-}
-
-.search > div {
-  border: 1px solid black;
-  margin: 10px;
-  width: 50%;
-  overflow: auto;
-}
 
 .employee {
   padding: 2px 5px;

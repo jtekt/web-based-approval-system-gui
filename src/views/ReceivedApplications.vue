@@ -129,7 +129,7 @@ th, td {
   padding: 5px;
 }
 td{
-  border-top: 1px solid #666666;
+  border-top: 1px solid #dddddd;
 }
 
 .application_row {
@@ -137,7 +137,7 @@ td{
 }
 
 .application_row:hover {
-  background-color: #dddddd;
+  background-color: #eeeeee;
 }
 
 .category_title {
