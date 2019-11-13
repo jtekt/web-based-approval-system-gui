@@ -10,9 +10,8 @@
       <select v-model="type">
         <option value="undefined">Please select</option>
         <option
-          v-for="i, component_name in $options.components"
-          v-if="component_name !== $options.name"
-          v-bind:value="component_name">{{component_name}}</option>
+          v-for="type in types"
+          v-bind:value="type">{{type}}</option>
       </select>
     </div>
 
@@ -52,7 +51,6 @@ import ApprovalFlow from '@/components/ApprovalFlow.vue'
 
 import PcTakeOut from '@/components/forms/PcTakeOut.vue'
 import PcBringBack from '@/components/forms/PcBringBack.vue'
-
 import TestForm from '@/components/forms/TestForm.vue'
 import Report from '@/components/forms/Report.vue'
 
@@ -69,7 +67,9 @@ export default {
   },
   data(){
     return {
-      type: "undefined",
+      // TURN THIS INTO AN ARRAY OF OBJECTS
+      types: ['PcTakeOut', 'PcBringBack', 'TestForm', 'Report'],
+      type: "PcTakeOut",
       recipients: [],
 
       company_structure : [],
@@ -79,38 +79,26 @@ export default {
     }
   },
   mounted(){
-    // Get company structure to select recipients
-    this.get_company_structure();
+
 
   },
   methods: {
 
     create_application(){
       var form_data = this.$refs.form._data.form_data
-
-      this.axios.post('http://webhanko.mike.jtekt.maximemoreillon.com/create_application', {
+      
+      this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/create_application', {
         type: this.type,
-        recipients: this.recipients,
+        recipients_employee_number: this.recipients.map(a => a._fields[0].properties.employee_number),
         session_id: this.$store.state.session_id,
         form_data: form_data,
       })
       .then(response => this.$router.push({ name: 'submitted_applications' }) )
       .catch(error => console.log(error));
+
+
     },
 
-    get_company_structure(){
-      // delete current structure
-      this.company_structure.splice(0,this.company_structure.length)
-
-      this.axios.post('http://authentication.mike.jtekt.maximemoreillon.com/get_company_structure', {})
-      .then(response => {
-        response.data.forEach(entry => {
-          this.company_structure.push(entry);
-        })
-
-      })
-      .catch(error => console.log(error));
-    },
 
 
 
@@ -132,6 +120,9 @@ export default {
         this.recipients.push(recipient_to_add);
         // Add flow index
         recipient_to_add.flow_index = this.recipients.length-1;
+      }
+      else {
+        alert("Duplicats not allowed")
       }
 
 

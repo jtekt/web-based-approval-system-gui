@@ -7,7 +7,7 @@
 
         <!-- Application info -->
         <tr>
-          <th colspan="2">Application info</th>
+          <th colspan="2">申請情報</th>
         </tr>
         <tr>
           <td>ID</td>
@@ -19,7 +19,9 @@
         </tr>
         <tr>
           <td>Date</td>
-          <td>{{application.properties.creation_date}}</td>
+          <td>
+            {{application.properties.creation_date.year.low}}/{{application.properties.creation_date.month.low}}/{{application.properties.creation_date.day.low}}
+          </td>
         </tr>
 
         <!-- Applicant info -->
@@ -37,7 +39,7 @@
 
         <!-- form data -->
         <tr>
-          <th colspan="2">Form data</th>
+          <th colspan="2">申請内容</th>
         </tr>
         <tr v-for="value, key in JSON.parse(application.properties.form_data)">
           <td>{{key}}</td>
@@ -69,6 +71,12 @@
 
 
     <div class="inkans_area">
+
+      <!--
+      <WebHankoContainer
+        v-for="submission in application.submissions"
+        v-bind:recipient="submission"/>
+      -->
 
       <InkanBox
         v-for="submission in application.submissions"
@@ -115,12 +123,15 @@
 import InkanQR from '@/components/InkanQR.vue'
 import InkanBox from '@/components/InkanBox.vue'
 
+import WebHankoContainer from '@/components/web_hanko/WebHankoContainer.vue'
+
 import {get_employee_number} from '@/mixins/get_employee_number.js'
 
 
 export default {
   name: 'Application',
   components: {
+    WebHankoContainer,
     InkanQR,
     InkanBox
   },
@@ -132,14 +143,14 @@ export default {
   },
   methods: {
     approve_application(application_id){
-      this.axios.post('http://webhanko.mike.jtekt.maximemoreillon.com/approve_application', {
+      this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/approve_application', {
         application_id: application_id,
       })
       .then(response => this.$emit('reload') )
       .catch(error => console.log(error) );
     },
     disapprove_application(application_id){
-      this.axios.post('http://webhanko.mike.jtekt.maximemoreillon.com/disapprove_application', {
+      this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/disapprove_application', {
         application_id: application_id,
       })
       .then(response => this.$emit('reload') )
@@ -147,7 +158,7 @@ export default {
     },
     delete_application(application_id){
       if(confirm("ホンマ？")){
-        this.axios.post('http://webhanko.mike.jtekt.maximemoreillon.com/delete_application', {
+        this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/delete_application', {
           application_id: application_id,
         })
         .then(response => this.$emit('reload'))

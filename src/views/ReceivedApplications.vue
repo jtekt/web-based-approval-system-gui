@@ -1,148 +1,71 @@
 <template>
   <div class="received applications">
 
-    <div class="submitted_applications">
 
-      <div class="">
+    <h3>Pending</h3>
+    <ApplicationTable v-bind:applications="applications.pending"/>
 
-      </div>
-      <table>
-        <tr>
-          <th colspan="100%" class="category_title">Pending applications</th>
-        </tr>
-        <tr>
-          <th>ID</th>
-          <th>Type</th>
-          <th>Date</th>
-        </tr>
-        <tr
-          class="application_row"
-          v-for="application in applications"
-          v-if="!application_is_approved(application)"
-          v-on:click="see_application(application.identity.low)">
-          <td>{{application.identity.low}}</td>
-          <td>{{application.properties.type}}</td>
-          <td>{{application.properties.creation_date}}</td>
-        <tr>
-          <th colspan="100%" class="category_title">Approved applications</th>
-        </tr>
-        <tr>
-          <th>ID</th>
-          <th>Type</th>
-          <th>Date</th>
-        </tr>
-        <tr
-          class="application_row"
-          v-for="application in applications"
-          v-if="application_is_approved(application)"
-          v-on:click="see_application(application.identity.low)">
-          <td>{{application.identity.low}}</td>
-          <td>{{application.properties.type}}</td>
-          <td>{{application.properties.creation_date}}</td>
+    <h3>Rejected</h3>
+    <ApplicationTable v-bind:applications="applications.rejected"/>
 
-        </tr>
-      </table>
-    </div>
-
-    <!--
-    <div v-if="applications.length > 0">
-      <ApplicationPreview v-for="application in applications" v-bind:application="application" />
-    </div>
-    <div v-else>
-      No applications
-    </div>
-  -->
-
+    <h3>Approved</h3>
+    <ApplicationTable v-bind:applications="applications.approved"/>
 
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
-import ApplicationPreview from '@/components/ApplicationPreview.vue'
+import ApplicationTable from '@/components/ApplicationTable.vue'
 
-// Mixins
-import {parse_application_records} from '@/mixins/parse_application_records.js'
-import {get_employee_number} from '@/mixins/get_employee_number.js'
+
 
 export default {
   name: 'ReceivedApplications',
   components: {
-    ApplicationPreview,
+    ApplicationTable,
   },
-  mixins: [
-    parse_application_records,
-    get_employee_number
-  ],
+
   data(){
     return {
-      applications: [],
+      applications: {
+        pending: [],
+        rejected: [],
+        approved: [],
+      }
     }
   },
   mounted(){
-    this.get_received_applications();
+    this.get_all_submitted_applications();
   },
   methods: {
-    get_received_applications(){
-      this.applications.splice(0,this.applications.length);
-
-      this.axios.post('http://webhanko.mike.jtekt.maximemoreillon.com/get_received_applications', {
-        example_data: "hello kojima"
-      })
-      .then(response => this.parse_application_records(response.data))
-      .catch(error => console.log(error));
-
+    get_all_submitted_applications(){
+      this.get_submitted_applications_pending();
+      this.get_submitted_applications_approved();
+      this.get_submitted_applications_rejected();
     },
-    see_application(application_id){
-      this.$router.push({ name: 'show_application', query: { id: application_id } })
+    get_submitted_applications_rejected(){
+      this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/get_received_applications/rejected', {})
+      .then(response => this.applications.rejected = response.data.records)
+      .catch(error => console.log(error))
     },
-    application_is_approved(application){
-      for (var i = 0; i < application.submissions.length; i++) {
-        var submission = application.submissions[i];
-        if(submission.recipient.properties.employee_number === this.get_employee_number){
-          if(submission.approval){
-            return true;
-          }
-        }
-      }
+    get_submitted_applications_approved(){
+      this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/get_received_applications/approved', {})
+      .then(response => this.applications.approved = response.data.records)
+      .catch(error => console.log(error))
+    },
+    get_submitted_applications_pending(){
+      this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/get_received_applications/pending', {})
+      .then(response => this.applications.pending = response.data.records)
+      .catch(error => console.log(error))
+    },
 
-      return false;
-    }
   },
-  computed: {
-    employee_number() {
-      return this.$store.state.employee_number
-    },
-  },
+
 }
 </script>
 
 <style scoped>
-/* DUPLICATION OF CSS! */
-table{
-  width: 100%;
-  border-collapse: collapse;
-  text-align: center;
 
-}
-th, td {
-  padding: 5px;
-}
-td{
-  border-top: 1px solid #dddddd;
-}
-
-.application_row {
-  cursor: pointer;
-}
-
-.application_row:hover {
-  background-color: #eeeeee;
-}
-
-.category_title {
-  font-size: 120%;
-  padding: 10px;
-}
 
 </style>

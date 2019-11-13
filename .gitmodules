@@ -1,9 +1,9 @@
-[submodule "src\\components\\jtekt_vue_layouting_components"]
-	path = src\\components\\jtekt_vue_layouting_components
+[submodule "src/components/jtekt_vue_layouting_components"]
+	path = src/components/jtekt_vue_layouting_components
 	url = https://github.com/maximemoreillon/jtekt_vue_layouting_components.git
-[submodule "src\\components\\jtekt_vue_employee_picker"]
-	path = src\\components\\jtekt_vue_employee_picker
+[submodule "src/components/jtekt_vue_employee_picker"]
+	path = src/components/jtekt_vue_employee_picker
 	url = https://github.com/maximemoreillon/jtekt_vue_employee_picker.git
-[submodule "src\\components\\web_hanko"]
-	path = src\\components\\web_hanko
+[submodule "src/components/web_hanko"]
+	path = src/components/web_hanko
 	url = https://github.com/maximemoreillon/web_hanko.git
