@@ -7,3 +7,6 @@
 [submodule "src/components/web_hanko"]
 	path = src/components/web_hanko
 	url = https://github.com/maximemoreillon/web_hanko.git
+[submodule "src\\components\\jtekt_vue_template"]
+	path = src\\components\\jtekt_vue_template
+	url = https://github.com/maximemoreillon/jtekt_vue_template.git
