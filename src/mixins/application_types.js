@@ -15,7 +15,7 @@ export const application_types = {
         // Reports
         {label: 'レポート / Report', component: 'Report'},
 
-        {label: 'NEW', component: 'NewTemplateTest'},
+        {label: 'New template', component: 'NewTemplateTest'},
         //{label: 'Test', component: 'TestForm'},
         //{label: 'Test Alternative', component: 'TestFormAlternative'},
 

@@ -1,59 +1,26 @@
 <template>
   <div>
-
-    <table>
-      <tr>
-        <td>目的・理由 / Reason for purchase</td>
-        <td><input type="text" v-model="form_data.reason"></td>
-      </tr>
-      <tr>
-        <td>購入先 / Vendor</td>
-        <td><input type="text" v-model="form_data.vendor"></td>
-      </tr>
-      <tr>
-        <td>金額 / Amount</td>
-        <td><input type="text" v-model="form_data.amount"></td>
-      </tr>
-      <tr>
-        <td>税込 / Taxe include</td>
-        <td><input type="checkbox" id="checkbox" v-model="form_data.tax_included"></td>
-      </tr>
-    </table>
-
+    <FormAutoGen v-bind:fields.sync="form_data"/>
   </div>
-
-
 </template>
 
 <script>
+import FormAutoGen from '@/components/FormAutoGen.vue'
+
 export default {
   name: 'PcTakeOut',
+  components: {
+    FormAutoGen,
+  },
   data(){
     return {
-      form_data: {
-        reason: "",
-        vendor: "",
-        amount: 0,
-        tax_included: false,
-      },
+      form_data: [
+        {type: "text", label: "目的・理由 / Reason for purchase"},
+        {type: "text", label: "購入先 / Vendor"},
+        {type: "text", label: "金額 / Amount"},
+        {type: "checkbox", label: "税込 / Taxe included"},
+      ]
     }
   },
 }
 </script>
-
-<style scoped>
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-table tr:not(:last-child) {
-  border-bottom: 1px solid #dddddd;
-}
-
-table td {
-  padding: 5px;
-}
-
-</style>

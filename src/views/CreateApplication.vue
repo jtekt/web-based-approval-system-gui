@@ -12,9 +12,10 @@
       v-bind:employees="recipients"/>
 
     <!-- type selector -->
+    <!-- MAKE THIS A TABLE -->
     <div class="type_and_title_input_wrapper section_wrapper">
       <div class="">
-        <label>申請種類</label>
+        <label>申請種類 / Application type: </label>
         <select v-model="type">
           <option value="undefined">Please select</option>
           <option
@@ -23,7 +24,7 @@
         </select>
       </div>
       <div class="title_wrapper">
-        <label>タイトル</label>
+        <label>申請タイトル / Title of the application: </label>
         <input type="text" class="title_input" v-model="title">
       </div>
     </div>
@@ -43,7 +44,7 @@
 
     <!-- submit application form -->
     <!-- DANGEROUS! WHAT IF PRESS ENTER? -->
-    <div class="section_wrapper" >
+    <div class="submit_button_container" >
       <button
         type="button"
         v-on:click="create_application()"
@@ -121,7 +122,7 @@ export default {
         this.title = "Copy of " + response.data[0]._fields[0].properties.title
 
         // Need timeout to let time to populate
-        setTimeout( () => this.$refs.form._data.form_data=JSON.parse(application_properties.form_data), 100)
+        setTimeout( () => this.$refs.form._data.form_data=JSON.parse(application_properties.form_data), 500)
 
       })
       .catch(error => console.log(error));
@@ -133,8 +134,6 @@ export default {
 
 
     create_application(){
-
-
       this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/create_application', {
         type: this.type.label,
         title: this.title,
@@ -209,10 +208,13 @@ form > div {
 }
 
 .type_and_title_input_wrapper{
+  /*
   display: flex;
   flex-wrap: wrap;
+  */
 }
 .type_and_title_input_wrapper > div {
+  margin: 10px;
   flex-grow: 1;
   flex-shrink: 0;
   flex-basis: 0;
@@ -270,9 +272,13 @@ form > div {
 .title_wrapper {
   display: flex;
 }
+
 .title_input {
   flex-grow: 1;
 }
 
-
+.submit_button_container {
+  text-align: center;
+  padding: 15px;
+}
 </style>
