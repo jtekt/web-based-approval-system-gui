@@ -7,7 +7,7 @@
         <td>
           <div class="past_takeout_application" v-for="application in takeout_applications">
 
-            <input type="radio" v-model="form_data.takeout_application_id" v-bind:value="application._fields[0].identity.low">
+            <input type="radio" v-model="referred_application_id" v-bind:value="application._fields[0].identity.low">
 
             <div v-for="value,key in JSON.parse(application._fields[0].properties.form_data)">
               {{key}}: {{value}}
@@ -33,11 +33,12 @@ export default {
       takeout_applications: [],
       form_data: {
         takeout_application_id: "",
-      }
+      },
+      referred_application_id: null,
     }
   },
   mounted(){
-    this.axios.post('http://172.16.98.151:9723/get_submitted_applications', {})
+    this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/get_submitted_applications/approved', {})
     .then(response => {
       this.takeout_applications.splice(0,this.takeout_applications.length)
       response.data.records.forEach(record => {
@@ -55,7 +56,7 @@ export default {
   },
   methods: {
     see_application(id){
-      window.open('http://172.16.98.151:8083/show_application?id=' + id)
+      window.open('http://shinseimanager.mike.jtekt.maximemoreillon.com/show_application?id=' + id)
     }
   }
 

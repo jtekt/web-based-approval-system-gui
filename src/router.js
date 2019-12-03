@@ -1,10 +1,10 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Home from './views/Home.vue'
 import CreateApplication from './views/CreateApplication.vue'
 import ShowApplication from './views/ShowApplication.vue'
 import SubmittedApplications from './views/SubmittedApplications.vue'
 import ReceivedApplications from './views/ReceivedApplications.vue'
+import Search from './views/Search.vue'
 
 Vue.use(Router)
 
@@ -15,7 +15,8 @@ export default new Router({
     {
       path: '/create_application',
       name: 'create_application',
-      component: CreateApplication
+      component: CreateApplication,
+      props: true,
     },
     {
       path: '/',
@@ -31,6 +32,11 @@ export default new Router({
       path: '/show_application',
       name: 'show_application',
       component: ShowApplication,
+    },
+    {
+      path: '/search',
+      name: 'search',
+      component: Search,
     },
 
   ]

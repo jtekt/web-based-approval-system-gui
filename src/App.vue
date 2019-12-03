@@ -21,6 +21,7 @@ export default {
         {route: '/create_application', label: 'New', icon: 'file-document-box-plus-outline'},
         {route: '/', label: 'Outbox', icon: 'inbox-arrow-up'},
         {route: '/received_applications', label: 'Inbox', icon: 'inbox-arrow-down'},
+        {route: '/search', label: 'Search', icon: 'magnify'},
       ]
     }
   }

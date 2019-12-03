@@ -5,6 +5,8 @@
         <th>ID</th>
         <th>Date</th>
         <th>Type</th>
+        <th>Title</th>
+
       </tr>
       <tr
         v-for="application in applications"
@@ -12,11 +14,10 @@
         <td>{{application._fields[0].identity.low}}</td>
         <td>{{formatted_date(application)}}</td>
         <td>{{application._fields[0].properties.type}}</td>
+        <td>{{application._fields[0].properties.title}}</td>
       </tr>
     </table>
-    <div class="" v-else>
-      No data
-    </div>
+    <div class="" v-else> No data </div>
   </div>
 
 
@@ -30,6 +31,7 @@ export default {
   props: {
     applications: Array
   },
+  mixins: [],
   methods: {
     see_application(application_id){
       this.$router.push({ name: 'show_application', query: { id: application_id } })
@@ -61,6 +63,8 @@ th, td {
 td{
   border-top: 1px solid #dddddd;
 }
+
+
 
 tr:not(.headers_row) {
   cursor: pointer;

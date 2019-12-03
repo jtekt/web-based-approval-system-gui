@@ -3,56 +3,75 @@
   <!-- Wrapping everything in a form might not be a good idea... -->
   <form v-on:submit.prevent="create_application()">
 
-
-    <!-- type selector -->
-    <div class="section_wrapper">
-      <label>Application type: </label>
-      <select v-model="type">
-        <option value="undefined">Please select</option>
-        <option
-          v-for="type in types"
-          v-bind:value="type">{{type}}</option>
-      </select>
-    </div>
-
-
+    <!-- Employee picker -->
     <EmployeePicker v-on:employeeSelected="add_to_recipients($event)" />
 
+    <!-- Approval flow -->
     <ApprovalFlow
       v-on:deleteEmployee="delete_recipient($event)"
       v-bind:employees="recipients"/>
 
+    <!-- type selector -->
+    <div class="type_and_title_input_wrapper section_wrapper">
+      <div class="">
+        <label>申請種類</label>
+        <select v-model="type">
+          <option value="undefined">Please select</option>
+          <option
+            v-for="application_type in application_types"
+            v-bind:value="application_type">{{application_type.label}}</option>
+        </select>
+      </div>
+      <div class="title_wrapper">
+        <label>タイトル</label>
+        <input type="text" class="title_input" v-model="title">
+      </div>
+    </div>
+
 
     <div class="section_wrapper" >
-      <component v-if="type !=='undefined'" v-bind:is="type" ref="form"/>
+
+      <component
+        v-if="type !=='undefined'"
+        v-bind:is="type.component"
+        ref="form"/>
+
       <div v-else>Type not selected</div>
+
     </div>
 
 
     <!-- submit application form -->
+    <!-- DANGEROUS! WHAT IF PRESS ENTER? -->
     <div class="section_wrapper" >
-      <input type="submit" v-bind:disabled="type ==='undefined' || recipients.length < 1">
+      <button
+        type="button"
+        v-on:click="create_application()"
+        v-bind:disabled="type ==='undefined' || recipients.length < 1"
+        >Submit</button>
     </div>
-
-
-
-
 
   </form>
 </template>
 
 <script>
-// Applications come here
-
+// UI elements
 import EmployeePicker from '@/components/jtekt_vue_employee_picker/EmployeePicker.vue'
-
 import ApprovalFlow from '@/components/ApprovalFlow.vue'
 
-
+// Forms
 import PcTakeOut from '@/components/forms/PcTakeOut.vue'
 import PcBringBack from '@/components/forms/PcBringBack.vue'
 import TestForm from '@/components/forms/TestForm.vue'
+import TestFormAlternative from '@/components/forms/TestFormAlternative.vue'
 import Report from '@/components/forms/Report.vue'
+import ReceiptPurchaseBefore from '@/components/forms/ReceiptPurchaseBefore.vue'
+import ReceiptPurchaseAfter from '@/components/forms/ReceiptPurchaseAfter.vue'
+import NewTemplateTest from '@/components/forms/NewTemplateTest.vue'
+
+// Mixins
+// Application types are gotten from this mixin
+import {application_types} from '@/mixins/application_types.js'
 
 
 export default {
@@ -60,47 +79,93 @@ export default {
   components: {
     EmployeePicker,
     ApprovalFlow,
+
+    // Forms
     PcTakeOut,
     TestForm,
+    TestFormAlternative,
     Report,
     PcBringBack,
+    ReceiptPurchaseBefore,
+    ReceiptPurchaseAfter,
+    NewTemplateTest,
   },
+  mixins: [
+    application_types,
+  ],
   data(){
     return {
-      // TURN THIS INTO AN ARRAY OF OBJECTS
-      types: ['PcTakeOut', 'PcBringBack', 'TestForm', 'Report'],
-      type: "PcTakeOut",
-      recipients: [],
 
-      company_structure : [],
-      employees: [],
-      selected_employee: null,
+      type: "undefined",
+
+      title: "",
+
+      // approval Flow
+      recipients: [],
 
     }
   },
   mounted(){
 
+    // Attempt to copy the content of one application into a new one
+    // NOT VERY CLEAN
+    if(this.$route.query.copy_of){
+      this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/get_application', {
+        application_id: this.$route.query.copy_of
+      })
+      .then(response => {
+        var application_properties = response.data[0]._fields[0].properties
+
+        // Set title and type
+        this.type = this.application_types.find(el => el.label === application_properties.type)
+        this.title = "Copy of " + response.data[0]._fields[0].properties.title
+
+        // Need timeout to let time to populate
+        setTimeout( () => this.$refs.form._data.form_data=JSON.parse(application_properties.form_data), 100)
+
+      })
+      .catch(error => console.log(error));
+    }
+
 
   },
   methods: {
 
+
     create_application(){
-      var form_data = this.$refs.form._data.form_data
-      
+
+
       this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/create_application', {
-        type: this.type,
+        type: this.type.label,
+        title: this.title,
         recipients_employee_number: this.recipients.map(a => a._fields[0].properties.employee_number),
         session_id: this.$store.state.session_id,
-        form_data: form_data,
+
+        // Get form data from the ref
+        // Ref is on the dynamic component
+        form_data: this.$refs.form._data.form_data,
+
+        // Referred application not implemented yet
+        //referred_application_id: this.$refs.form._data.referred_application_id
       })
-      .then(response => this.$router.push({ name: 'submitted_applications' }) )
+      .then(response => {
+        // Creation successful
+        if(this.$route.query.copy_of){
+          if(confirm('Delete previous application?')){
+            this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/delete_application', {
+              application_id: this.$route.query.copy_of
+            })
+            .then( () => this.$router.push({ name: 'submitted_applications' }))
+            .catch(error => console.log(error));
+          }
+          else this.$router.push({ name: 'submitted_applications' })
+        }
+        else this.$router.push({ name: 'submitted_applications' })
+
+      })
       .catch(error => console.log(error));
 
-
     },
-
-
-
 
     get_employees_belonging_to_node(node_id){
       this.axios.post('http://authentication.mike.jtekt.maximemoreillon.com/get_employees_belonging_to_node', {
@@ -122,7 +187,7 @@ export default {
         recipient_to_add.flow_index = this.recipients.length-1;
       }
       else {
-        alert("Duplicats not allowed")
+        alert("Duplicates not allowed")
       }
 
 
@@ -143,6 +208,19 @@ form > div {
   padding: 10px;
 }
 
+.type_and_title_input_wrapper{
+  display: flex;
+  flex-wrap: wrap;
+}
+.type_and_title_input_wrapper > div {
+  flex-grow: 1;
+  flex-shrink: 0;
+  flex-basis: 0;
+}
+
+.type_and_title_input_wrapper > div > label {
+  margin-right: 10px;
+}
 
 
 .employee {
@@ -189,8 +267,12 @@ form > div {
 
 }
 
-
-
+.title_wrapper {
+  display: flex;
+}
+.title_input {
+  flex-grow: 1;
+}
 
 
 </style>

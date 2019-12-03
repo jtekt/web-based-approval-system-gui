@@ -36,26 +36,52 @@
           <tr>
             <th colspan="2">申請内容</th>
           </tr>
-          <tr v-for="value, key in JSON.parse(application.properties.form_data)">
-            <td>{{key}}</td>
-            <td v-if="key === 'report_file'"><a v-bind:href="'http://webhanko.mike.jtekt.maximemoreillon.com/uploads/' + value">download</a></td>
-            <td v-else>{{value}}</td>
+
+          <!-- If form data is stored as an array (experiment) -->
+          <tr v-for="field in form_data" v-if="Array.isArray(form_data)">
+            <td>{{field.label}}</td>
+
+            <!-- need conditions for display depending on type -->
+
+            <td v-if="field.type === 'file' && field.value">
+              <a v-bind:href="'http://shinseimanager.mike.jtekt.maximemoreillon.com/uploads/' + field.value">download</a>
+            </td>
+
+            <td v-else-if="field.type === 'checkbox'">
+              <span v-if="field.value" class="mdi mdi-check"/>
+              <span v-else class="mdi mdi-close"/>
+            </td>
+
+
+            <td v-else-if="field.value">{{field.value}}</td>
+
+            <!-- missing value -->
+            <td v-else>-</td>
           </tr>
 
-
+          <!-- If form data is an object (original style) -->
+          <tr v-for="value, key in form_data" v-if="!Array.isArray(form_data)">
+            <td>{{key}}</td>
+            <td v-if="key === 'report_file' || key === 'file'">
+              <a v-bind:href="'http://shinseimanager.mike.jtekt.maximemoreillon.com/uploads/' + value">download</a>
+            </td>
+            <td v-else>{{value}}</td>
+          </tr>
 
           <!-- actions -->
           <tr>
             <th colspan="2">Actions</th>
           </tr>
           <tr>
-            <td colspan="2">
+            <td class="actions_cell" colspan="2">
               <button
                 type="button"
                 v-if="applicant.properties.employee_number === this.$store.state.employee_number"
-                v-on:click="delete_application(application.identity.low)">
-                Bye bye!
-              </button>
+                v-on:click="delete_application(application.identity.low)">Delete</button>
+              <button
+                type="button"
+                v-if="applicant.properties.employee_number === this.$store.state.employee_number"
+                v-on:click="edit_a_copy(application.identity.low)">Edit a copy</button>
             </td>
           </tr>
 
@@ -83,7 +109,7 @@
 
     </div>
 
-    <div class="" v-else>
+    <div class="not_found" v-else>
       Application does not exist
     </div>
 
@@ -115,15 +141,19 @@ export default {
       this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/get_application', {
         application_id: this.$route.query.id
       })
-      .then(response => this.application_records = response.data)
+      .then(response => {
+        this.application_records = response.data
+      })
       .catch(error => console.log(error));
     },
     delete_application(application_id){
-      this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/delete_application', {
-        application_id: application_id
-      })
-      .then( () => this.get_application())
-      .catch(error => console.log(error));
+      if(confirm("ホンマ？")){
+        this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/delete_application', {
+          application_id: application_id
+        })
+        .then( () => this.$router.push('/'))
+        .catch(error => console.log(error));
+      }
     },
     approve(application_id){
       this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/approve_application', {
@@ -145,6 +175,9 @@ export default {
       })
       .then( () => this.get_application())
       .catch(error => console.log(error));
+    },
+    edit_a_copy(application_id){
+      this.$router.push({path: '/create_application', query: {copy_of: application_id}})
     }
   },
   computed: {
@@ -156,6 +189,9 @@ export default {
     applicant(){
       if(this.application_records.length > 0) return this.application_records[0]._fields[this.application_records[0]._fieldLookup['applicant']]
       else return null
+    },
+    form_data(){
+      return JSON.parse(this.application.properties.form_data)
     }
   }
 }
@@ -224,7 +260,17 @@ export default {
 }
 
 
+.not_found {
+  padding: 25px;
+  text-align: center;
+}
 
+.actions_cell {
+}
+
+.actions_cell > * {
+  margin: 10px;
+}
 
 
 </style>
