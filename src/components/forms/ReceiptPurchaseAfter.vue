@@ -23,7 +23,6 @@ export default {
         {type: "checkbox", label: "領収書（宛名：ジェイテクト）/ JTEKT written on receipt?"},
         {type: "checkbox", label: "購入または参加したことを示すもの / Proof of purchase available?"},
         {type: "file", label: "領収書 / Receipt"},
-
       ]
     }
   },

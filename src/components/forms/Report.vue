@@ -17,7 +17,6 @@ export default {
       form_data: [
         {type: "text", label: "レポートタイトル / Report title"},
         {type: "file", label: "ファイル / File"},
-
       ]
     }
   },

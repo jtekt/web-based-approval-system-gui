@@ -63,12 +63,21 @@ import ApprovalFlow from '@/components/ApprovalFlow.vue'
 // Forms
 import PcTakeOut from '@/components/forms/PcTakeOut.vue'
 import PcBringBack from '@/components/forms/PcBringBack.vue'
-import TestForm from '@/components/forms/TestForm.vue'
-import TestFormAlternative from '@/components/forms/TestFormAlternative.vue'
+import MemoryTakeOut from '@/components/forms/MemoryTakeOut.vue'
+import MemoryBringBack from '@/components/forms/MemoryBringBack.vue'
+
+
+
 import Report from '@/components/forms/Report.vue'
+
 import ReceiptPurchaseBefore from '@/components/forms/ReceiptPurchaseBefore.vue'
 import ReceiptPurchaseAfter from '@/components/forms/ReceiptPurchaseAfter.vue'
+import InvoicePurchaseBefore from '@/components/forms/InvoicePurchaseBefore.vue'
+import InvoicePurchaseAfter from '@/components/forms/InvoicePurchaseAfter.vue'
+
 import NewTemplateTest from '@/components/forms/NewTemplateTest.vue'
+import TestForm from '@/components/forms/TestForm.vue'
+import TestFormAlternative from '@/components/forms/TestFormAlternative.vue'
 
 // Mixins
 // Application types are gotten from this mixin
@@ -83,13 +92,21 @@ export default {
 
     // Forms
     PcTakeOut,
-    TestForm,
-    TestFormAlternative,
-    Report,
     PcBringBack,
+    MemoryTakeOut,
+    MemoryBringBack,
+
+    Report,
+
     ReceiptPurchaseBefore,
     ReceiptPurchaseAfter,
+
+    InvoicePurchaseBefore,
+    InvoicePurchaseAfter,
+
     NewTemplateTest,
+    TestForm,
+    TestFormAlternative,
   },
   mixins: [
     application_types,

@@ -4,10 +4,17 @@
       <td>{{field.label}}</td>
 
       <td>
+
         <input
-          v-if="field.type === 'file'"
+          v-if="field.type === 'file' && !field.value"
           v-bind:type="field.type"
           v-on:change="file_upload($event, field)">
+
+        <span
+          v-else-if="field.type === 'file' && field.value"
+          class="mdi mdi-delete file_delete_button"
+          v-on:click="delete_file(field)"/>
+
 
         <input
           v-else
@@ -34,10 +41,14 @@ export default {
         headers: {'Content-Type': 'multipart/form-data' }
       })
       .then(response => {
-        field.value = response.data
+        // Needed for responsiviity
+        this.$set(field,'value',response.data)
       })
       .catch(error => console.log(error));
     },
+    delete_file(field){
+      this.$set(field,'value','')
+    }
   }
 }
 </script>
@@ -62,5 +73,10 @@ table td {
 
 td input[type="text"]{
   width: 100%;
+}
+
+.file_delete_button {
+  font-size: 150%;
+  cursor: pointer;
 }
 </style>

@@ -1,46 +1,33 @@
 <template>
   <div>
-
-    <table>
-      <tr>
-        <td>パソコン No.</td>
-        <td><input type="text" v-model="form_data.computer_number"></td>
-      </tr>
-      <tr>
-        <td>利用場所持出先</td>
-        <input type="text" v-model="form_data.destination">
-      </tr>
-      <tr>
-        <td>使用目的</td>
-        <input type="text" v-model="form_data.reason">
-      </tr>
-      <tr>
-        <td>持出定日</td>
-        <input type="text" v-model="form_data.take_out_date">
-      </tr>
-      <tr>
-        <td>返却予定日</td>
-        <input type="text" v-model="form_data.intended_return_date">
-      </tr>
-    </table>
-
+    <FormAutoGen v-bind:fields.sync="form_data"/>
   </div>
-
-
 </template>
 
 <script>
+import FormAutoGen from '@/components/FormAutoGen.vue'
+
 export default {
-  name: 'PcTakeOut',
+  name: 'InvoicePurchaseAfter',
+  components: {
+    FormAutoGen,
+  },
   data(){
     return {
-      form_data: {
-        computer_number: "",
-        destination: "",
-        reason: "",
-        take_out_date: "",
-        intended_return_date: "",
-      }
+      form_data: [
+        {type: "text", label: "事前申請番号 / Application ID"},
+        {type: "text", label: "負担部門 / Billed department number"},
+        {type: "text", label: "費目 / Objective"},
+        {type: "text", label: "金額 / Amount"},
+        {type: "checkbox", label: "税込 / Taxe included"},
+        // Checks
+        {type: "checkbox", label: "請求書または振込用紙 / Invoice available?"},
+        {type: "checkbox", label: "購入または参加したことを示すもの / Proof of purchase available?"},
+        
+        // File upload
+        {type: "file", label: "領収書 / Receipt"},
+
+      ]
     }
   },
 }

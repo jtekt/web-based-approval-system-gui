@@ -44,7 +44,9 @@
             <!-- need conditions for display depending on type -->
 
             <td v-if="field.type === 'file' && field.value">
-              <a v-bind:href="'http://shinseimanager.mike.jtekt.maximemoreillon.com/uploads/' + field.value">download</a>
+              <span
+                v-on:click="download(field.value)"
+                class="mdi mdi-download download_button"/>
             </td>
 
             <td v-else-if="field.type === 'checkbox'">
@@ -63,7 +65,9 @@
           <tr v-for="value, key in form_data" v-if="!Array.isArray(form_data)">
             <td>{{key}}</td>
             <td v-if="key === 'report_file' || key === 'file'">
-              <a v-bind:href="'http://shinseimanager.mike.jtekt.maximemoreillon.com/uploads/' + value">download</a>
+              <span
+                v-on:click="download(value)"
+                class="mdi mdi-download download_button"/>
             </td>
             <td v-else>{{value}}</td>
           </tr>
@@ -178,7 +182,12 @@ export default {
     },
     edit_a_copy(application_id){
       this.$router.push({path: '/create_application', query: {copy_of: application_id}})
-    }
+    },
+    download(id){
+      window.location.href = 'http://shinseimanager.mike.jtekt.maximemoreillon.com/file?id=' + id;
+
+    },
+
   },
   computed: {
     application(){
@@ -270,6 +279,11 @@ export default {
 
 .actions_cell > * {
   margin: 10px;
+}
+
+.download_button{
+  font-size: 150%;
+  cursor: pointer;
 }
 
 
