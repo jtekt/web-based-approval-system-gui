@@ -72,25 +72,25 @@
             <td v-else>{{value}}</td>
           </tr>
 
-          <!-- actions -->
-          <tr>
-            <th colspan="2">Actions</th>
-          </tr>
-          <tr>
-            <td class="actions_cell" colspan="2">
-              <button
-                type="button"
-                v-if="applicant.properties.employee_number === this.$store.state.employee_number"
-                v-on:click="delete_application(application.identity.low)">Delete</button>
-              <button
-                type="button"
-                v-if="applicant.properties.employee_number === this.$store.state.employee_number"
-                v-on:click="edit_a_copy(application.identity.low)">Edit a copy</button>
-            </td>
-          </tr>
+
+
 
 
         </table>
+
+        <!-- actions -->
+        <div class="actions_container">
+          <span
+            class="mdi mdi-delete action_button"
+            v-if="applicant.properties.employee_number === this.$store.state.employee_number"
+            v-on:click="delete_application(application.identity.low)"> Delete</span>
+
+
+          <span
+            class="mdi mdi-content-duplicate action_button"
+            v-if="applicant.properties.employee_number === this.$store.state.employee_number"
+            v-on:click="edit_a_copy(application.identity.low)"> Duplicate</span>
+        </div>
 
       </div>
 
@@ -115,10 +115,12 @@
         </div>
         <div class="refusal_reasons">
           <table>
+            <!--
             <tr>
               <th>名前</th>
               <th>却下理由</th>
             </tr>
+            -->
             <tr
               v-for="(application_record, index) in application_records"
               v-if="application_record._fields[application_record._fieldLookup['rejection']]">
@@ -253,6 +255,9 @@ export default {
   flex-basis: 400px;
 }
 
+.application_info {
+}
+
 /* Application info table */
 .application_info table {
   width: 100%;
@@ -279,9 +284,11 @@ export default {
 .approval_flow_column {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: stretch;
 }
+
 .hanko_container_container{
+  /* horizontal layout */
   display: flex;
   justify-content: flex-end;
 }
@@ -299,13 +306,18 @@ export default {
 }
 
 .refusal_reasons{
-  padding: 15px;
+  margin-left: 25px;
+  margin-top: 15px;
+  margin-right: 5px;
+  margin-bottom: 15px;
 }
 
 .refusal_reasons table {
+  border: 1px solid #dddddd;
   width: 100%;
   table-layout: fixed;
   border-collapse: collapse;
+  text-align: left;
 }
 .refusal_reasons table tr:not(:last-child) {
   border-bottom: 1px solid #dddddd;
@@ -319,7 +331,8 @@ export default {
   width: 20%;
 }
 .refusal_reasons table .refuser_name {
-
+  width: 20%;
+  font-weight: bold;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -332,12 +345,29 @@ export default {
   text-align: center;
 }
 
-.actions_cell {
-
+.actions_container {
+  margin-top: 25px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-around;
 }
 
-.actions_cell > * {
-  margin: 10px;
+
+
+.action_button{
+  border: 1px solid #444444;
+  border-radius: 5px;
+  padding: 5px;
+  font-size: 120%;
+  cursor: pointer;
+  transition: color 0.25s border-color 0.25s;
+}
+
+
+
+.action_button:hover {
+  color: #c00000;
+  border-color: #c00000;
 }
 
 .download_button{

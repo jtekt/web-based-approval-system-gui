@@ -2,35 +2,33 @@
   <div class="application_table_container">
     <table class="application_table">
 
-      <tr>
-        <th colspan="1000" class="table_section_header first_header">申請中 / Pending</th>
+      <tr class="table_section_header_row">
+        <th colspan="1000" >申請中 / Pending</th>
       </tr>
       <ApplicationTableHeaderRow v-bind:hideApplicant="hideApplicant"/>
       <ApplicationTableRow
         v-for="application in applications.pending"
         v-bind:application="application"
-        v-bind:hideApplicant="hideApplicant"
-        v-on:click="see_application(application._fields[0].identity.low)"/>
+        v-bind:hideApplicant="hideApplicant"/>
 
-      <tr>
-        <th colspan="1000" class="table_section_header">却下 / Rejected</th>
+      <tr class="table_section_header_row">
+        <th colspan="1000" >却下 / Rejected</th>
       </tr>
       <ApplicationTableHeaderRow v-bind:hideApplicant="hideApplicant"/>
       <ApplicationTableRow
         v-for="application in applications.rejected"
         v-bind:application="application"
-        v-bind:hideApplicant="hideApplicant"
-        v-on:click="see_application(application._fields[0].identity.low)"/>
+        v-bind:hideApplicant="hideApplicant"/>
 
-      <tr>
-        <th colspan="1000" class="table_section_header">承認 / Approved</th>
+      <tr class="table_section_header_row">
+        <th colspan="1000" >承認 / Approved</th>
       </tr>
+
       <ApplicationTableHeaderRow v-bind:hideApplicant="hideApplicant"/>
       <ApplicationTableRow
         v-for="application in applications.approved"
         v-bind:application="application"
-        v-bind:hideApplicant="hideApplicant"
-        v-on:click="see_application(application._fields[0].identity.low)"/>
+        v-bind:hideApplicant="hideApplicant"/>
 
 
     </table>
@@ -63,11 +61,6 @@ export default {
     see_application(application_id){
       this.$router.push({ name: 'show_application', query: { id: application_id } })
     },
-    formatted_date(application){
-      return application._fields[0].properties.creation_date.year.low + "/"
-        + application._fields[0].properties.creation_date.month.low + "/"
-        + application._fields[0].properties.creation_date.day.low + "/"
-    },
 
   },
   computed: {
@@ -84,28 +77,38 @@ table{
   text-align: left;
 
 }
+
 th, td {
   padding: 5px;
 }
-td{
-  border-top: 1px solid #dddddd;
+
+th {
+  text-align: left;
 }
 
-table .table_section_header:not(.first_header) {
-  padding-top: 50px;
+tr:not(.table_section_header_row):not(:last-child){
+  border-bottom: 1px solid #dddddd;
 }
 
-table .table_section_header {
+
+table .table_section_header_row{
   font-size: 120%;
 }
 
+/* Spacing between table sections */
+table .table_section_header_row:not(:first-child) th{
+  padding-top: 50px;
+}
 
-tr:not(.headers_row) {
+
+
+
+tr:not(.headers_row):not(.table_section_header_row) {
   cursor: pointer;
   transition: background-color 0.25s;
 }
 
-tr:not(.headers_row):hover {
+tr:not(.headers_row):not(.table_section_header_row):hover {
   background-color: #eeeeee;
 }
 

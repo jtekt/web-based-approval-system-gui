@@ -1,6 +1,14 @@
 <template>
   <div class="approval_flow">
 
+    <div class="approval_flow_header">
+      <span class="mdi mdi-account"/>
+      <span class="mdi mdi-arrow-right"/>
+      <span class="mdi mdi-account"/>
+      <span class="mdi mdi-arrow-right"/>
+      <span class="mdi mdi-account"/>
+    </div>
+
     <div class="actual_approval_flow" v-if="employees.length > 0">
       <!-- for loop outside the actual employee to add arrows -->
       <div
@@ -39,11 +47,16 @@ export default {
 <style scoped>
 
 .approval_flow {
-  padding: 15px;
+  margin: 0 15px;
+  border: 1px solid #dddddd;
 }
 
-.approval_flow > * {
-  border: 1px solid #dddddd;
+
+
+.approval_flow_header {
+  padding: 10px;
+  border-bottom: 1px solid #dddddd;
+
 }
 
 

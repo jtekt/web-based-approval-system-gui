@@ -45,11 +45,12 @@
     <!-- submit application form -->
     <!-- DANGEROUS! WHAT IF PRESS ENTER? -->
     <div class="submit_button_container" >
-      <button
-        type="button"
-        v-on:click="create_application()"
-        v-bind:disabled="type ==='undefined' || recipients.length < 1"
-        >Submit</button>
+
+      <span
+        class="mdi mdi-send submit_button"
+        v-bind:class="{disabled: !form_valid}"
+        v-on:click="create_application()"> Send</span>
+
     </div>
 
   </form>
@@ -141,6 +142,15 @@ export default {
         // Need timeout to let time to populate
         setTimeout( () => this.$refs.form._data.form_data=JSON.parse(application_properties.form_data), 500)
 
+        // recreate flow
+        // DIRTY!!
+        response.data.reverse().forEach(recipient => {
+          this.recipients.push({
+            _fields: [recipient._fields[recipient._fieldLookup['recipient']]]
+          });
+        })
+
+
       })
       .catch(error => console.log(error));
     }
@@ -151,35 +161,42 @@ export default {
 
 
     create_application(){
-      this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/create_application', {
-        type: this.type.label,
-        title: this.title,
-        recipients_employee_number: this.recipients.map(a => a._fields[0].properties.employee_number),
-        session_id: this.$store.state.session_id,
 
-        // Get form data from the ref
-        // Ref is on the dynamic component
-        form_data: this.$refs.form._data.form_data,
+      if(this.form_valid){
+        this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/create_application', {
+          type: this.type.label,
+          title: this.title,
+          recipients_employee_number: this.recipients.map(a => a._fields[0].properties.employee_number),
+          session_id: this.$store.state.session_id,
 
-        // Referred application not implemented yet
-        //referred_application_id: this.$refs.form._data.referred_application_id
-      })
-      .then(response => {
-        // Creation successful
-        if(this.$route.query.copy_of){
-          if(confirm('Delete previous application?')){
-            this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/delete_application', {
-              application_id: this.$route.query.copy_of
-            })
-            .then( () => this.$router.push({ name: 'submitted_applications' }))
-            .catch(error => console.log(error));
+          // Get form data from the ref
+          // Ref is on the dynamic component
+          form_data: this.$refs.form._data.form_data,
+
+          // Referred application not implemented yet
+          //referred_application_id: this.$refs.form._data.referred_application_id
+        })
+        .then(response => {
+          // Creation successful
+          if(this.$route.query.copy_of){
+            if(confirm('Delete previous application?')){
+              this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/delete_application', {
+                application_id: this.$route.query.copy_of
+              })
+              .then( () => this.$router.push({ name: 'submitted_applications' }))
+              .catch(error => console.log(error));
+            }
+            else this.$router.push({ name: 'submitted_applications' })
           }
           else this.$router.push({ name: 'submitted_applications' })
-        }
-        else this.$router.push({ name: 'submitted_applications' })
 
-      })
-      .catch(error => console.log(error));
+        })
+        .catch(error => console.log(error));
+      }
+      else {
+        alert("There are missing items in this application form")
+      }
+
 
     },
 
@@ -196,11 +213,11 @@ export default {
     },
     add_to_recipients(recipient_to_add){
 
+      console.log(recipient_to_add)
+
       // Prevent duplicates
       if(!this.recipients.includes(recipient_to_add)){
         this.recipients.push(recipient_to_add);
-        // Add flow index
-        recipient_to_add.flow_index = this.recipients.length-1;
       }
       else {
         alert("Duplicates not allowed")
@@ -208,6 +225,11 @@ export default {
 
 
     },
+  },
+  computed: {
+    form_valid(){
+      return this.type !=='undefined' || this.recipients.length > 0
+    }
   }
 }
 </script>
@@ -297,5 +319,26 @@ form > div {
 .submit_button_container {
   text-align: center;
   padding: 15px;
+}
+
+.submit_button {
+  border: 1px solid #444444;
+  border-radius: 5px;
+  padding: 5px;
+  font-size: 150%;
+  transition: color 0.25s border-color 0.25s;
+}
+
+.submit_button:not(.disabled){
+  cursor: pointer;
+}
+
+.submit_button:not(.disabled):hover{
+  color: #c00000;
+  border-color: #c00000;
+}
+
+.submit_button.disabled{
+  cursor: not-allowed;
 }
 </style>
