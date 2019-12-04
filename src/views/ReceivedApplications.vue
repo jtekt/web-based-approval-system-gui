@@ -1,29 +1,16 @@
 <template>
   <div class="received applications">
-
-
-    <h3>Pending</h3>
-    <ApplicationTable v-bind:applications="applications.pending"/>
-
-    <h3>Rejected</h3>
-    <ApplicationTable v-bind:applications="applications.rejected"/>
-
-    <h3>Approved</h3>
-    <ApplicationTable v-bind:applications="applications.approved"/>
-
+    <ApplicationTableV2 v-bind:applications="applications"/>
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import ApplicationTable from '@/components/ApplicationTable.vue'
-
-
+import ApplicationTableV2 from '@/components/ApplicationTableV2.vue'
 
 export default {
   name: 'ReceivedApplications',
   components: {
-    ApplicationTable,
+    ApplicationTableV2,
   },
 
   data(){
@@ -66,6 +53,5 @@ export default {
 </script>
 
 <style scoped>
-
 
 </style>

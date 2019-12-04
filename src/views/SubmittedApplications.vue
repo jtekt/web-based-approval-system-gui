@@ -1,25 +1,16 @@
 <template>
   <div class="submitted_applications">
-
-    <h3>Pending</h3>
-    <ApplicationTable v-bind:applications="applications.pending"/>
-
-    <h3>Rejected</h3>
-    <ApplicationTable v-bind:applications="applications.rejected"/>
-
-    <h3>Approved</h3>
-    <ApplicationTable v-bind:applications="applications.approved"/>
-
+    <ApplicationTableV2 v-bind:applications="applications" hideApplicant/>
   </div>
 </template>
 
 <script>
-import ApplicationTable from '@/components/ApplicationTable.vue'
+import ApplicationTableV2 from '@/components/ApplicationTableV2.vue'
 
 export default {
   name: 'SubmittedApplications',
   components: {
-    ApplicationTable
+    ApplicationTableV2
   },
   data(){
     return {

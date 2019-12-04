@@ -2,19 +2,28 @@
   <div class="application_table_container">
     <table class="application_table" v-if="applications.length > 0">
       <tr class="headers_row">
-        <th>ID</th>
-        <th>Date</th>
-        <th>Type</th>
-        <th>Title</th>
+        <!--<th>ID</th>-->
+        <th>日付 / Date</th>
+        <th>種類 / Type</th>
+        <th v-if="!hideApplicant">申請者 / Applicant</th>
+        <th>タイトル / Title</th>
 
       </tr>
       <tr
         v-for="application in applications"
         v-on:click="see_application(application._fields[0].identity.low)">
-        <td>{{application._fields[0].identity.low}}</td>
+        <!--<td>{{application._fields[0].identity.low}}</td>-->
         <td>{{formatted_date(application)}}</td>
-        <td>{{application._fields[0].properties.type}}</td>
-        <td>{{application._fields[0].properties.title}}</td>
+        <td>
+          {{application._fields[application._fieldLookup['application']].properties.type}}
+        </td>
+        <td v-if="!hideApplicant">
+          {{application._fields[application._fieldLookup['applicant']].properties.name_kanji}}
+          ({{application._fields[application._fieldLookup['applicant']].properties.employee_number}})
+        </td>
+        <td>
+          {{application._fields[application._fieldLookup['application']].properties.title}}
+        </td>
       </tr>
     </table>
     <div class="" v-else> No data </div>
@@ -29,9 +38,16 @@ import ApplicationTable from '@/components/ApplicationTable.vue'
 export default {
   name: 'ApplicationTable',
   props: {
-    applications: Array
+    applications: Array,
+    hideApplicant: {
+      type: Boolean,
+      default(){return false}
+    },
   },
   mixins: [],
+  mounted(){
+
+  },
   methods: {
     see_application(application_id){
       this.$router.push({ name: 'show_application', query: { id: application_id } })
@@ -54,7 +70,7 @@ export default {
 table{
   width: 100%;
   border-collapse: collapse;
-  text-align: center;
+  text-align: left;
 
 }
 th, td {

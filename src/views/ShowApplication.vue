@@ -95,27 +95,45 @@
       </div>
 
       <!-- area with the hankos -->
-      <div class="hanko_container_container" >
+      <div class="approval_flow_column">
+        <div class="hanko_container_container" >
 
-        <!-- inner wrapper exists so that arrows can be placed between hanko containers -->
-        <div class="hanko_container_container_intermediate_wrapper" v-for="(application_record, index) in application_records">
+          <!-- inner wrapper exists so that arrows can be placed between hanko containers -->
+          <div
+            class="hanko_container_container_intermediate_wrapper"
+            v-for="(application_record, index) in application_records">
 
-          <span v-if="index>0" class="arrow mdi mdi-arrow-left"/>
+            <span v-if="index>0" class="arrow mdi mdi-arrow-left"/>
 
-          <WebHankoContainer
-            v-bind:applicationRecord="application_record"
-            v-on:approve="approve(application.identity.low)"
-            v-on:reject="reject(application.identity.low)"
-            v-on:cancel="cancel(application.identity.low)"/>
+            <WebHankoContainer
+              v-bind:applicationRecord="application_record"
+              v-on:approve="approve(application.identity.low)"
+              v-on:reject="reject(application.identity.low)"
+              v-on:cancel="cancel(application.identity.low)"/>
+          </div>
+
         </div>
+        <div class="refusal_reasons">
+          <table>
+            <tr>
+              <th>名前</th>
+              <th>却下理由</th>
+            </tr>
+            <tr
+              v-for="(application_record, index) in application_records"
+              v-if="application_record._fields[application_record._fieldLookup['rejection']]">
+              <td class="refuser_name">{{application_record._fields[application_record._fieldLookup['recipient']].properties.family_name_kanji }}</td>
+              <td>{{application_record._fields[application_record._fieldLookup['rejection']].properties.reason}}</td>
+            </tr>
+          </table>
 
+        </div>
       </div>
 
+
     </div>
 
-    <div class="not_found" v-else>
-      Application does not exist
-    </div>
+    <div class="not_found" v-else>Application does not exist</div>
 
 
 
@@ -147,6 +165,7 @@ export default {
       })
       .then(response => {
         this.application_records = response.data
+        console.log(this.application_records)
       })
       .catch(error => console.log(error));
     },
@@ -167,11 +186,19 @@ export default {
       .catch(error => console.log(error));
     },
     reject(application_id){
-      this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/reject_application', {
-        application_id: application_id
-      })
-      .then( () => this.get_application())
-      .catch(error => console.log(error));
+
+      var reason = prompt("なぜ？", "");
+
+      if(reason){
+        this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/reject_application', {
+          application_id: application_id,
+          reason: reason,
+        })
+        .then( () => this.get_application())
+        .catch(error => console.log(error));
+      }
+
+
     },
     cancel(application_id){
       this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/cancel_decision', {
@@ -185,7 +212,6 @@ export default {
     },
     download(id){
       window.location.href = 'http://shinseimanager.mike.jtekt.maximemoreillon.com/file?id=' + id;
-
     },
 
   },
@@ -193,7 +219,6 @@ export default {
     application(){
       if(this.application_records.length > 0) return this.application_records[0]._fields[this.application_records[0]._fieldLookup['application']]
       else return null
-
     },
     applicant(){
       if(this.application_records.length > 0) return this.application_records[0]._fields[this.application_records[0]._fieldLookup['applicant']]
@@ -225,6 +250,7 @@ export default {
 .application_container > * {
   flex-grow: 1;
   flex-shrink: 1;
+  flex-basis: 400px;
 }
 
 /* Application info table */
@@ -250,7 +276,11 @@ export default {
 
 
 /* Hanko area */
-
+.approval_flow_column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
 .hanko_container_container{
   display: flex;
   justify-content: flex-end;
@@ -268,13 +298,42 @@ export default {
   align-items: center;
 }
 
+.refusal_reasons{
+  padding: 15px;
+}
 
+.refusal_reasons table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+.refusal_reasons table tr:not(:last-child) {
+  border-bottom: 1px solid #dddddd;
+}
+
+.refusal_reasons table td {
+  padding: 5px;
+}
+
+.refusal_reasons table th:first-child {
+  width: 20%;
+}
+.refusal_reasons table .refuser_name {
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+}
+
+/* MISC */
 .not_found {
   padding: 25px;
   text-align: center;
 }
 
 .actions_cell {
+
 }
 
 .actions_cell > * {
