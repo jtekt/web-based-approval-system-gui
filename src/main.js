@@ -15,6 +15,7 @@ Vue.use(VueAxios, axios)
 Vue.config.productionTip = false
 
 
+
 // Redirect to authentication anager if not logged in
 router.beforeEach((to, from, next) => {
   axios.post('http://authentication.mike.jtekt.maximemoreillon.com/status')

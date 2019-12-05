@@ -9,7 +9,8 @@
       <span class="mdi mdi-account"/>
     </div>
 
-    <div class="actual_approval_flow" v-if="employees.length > 0">
+    <!-- using v-bind:list instead of v-model because array passed as prop -->
+    <draggable class="actual_approval_flow" v-bind:list="employees" @end="dragend" v-if="employees.length > 0">
       <!-- for loop outside the actual employee to add arrows -->
       <div
         class="flow_item"
@@ -26,9 +27,12 @@
           <div class="name">({{employee._fields[0].properties.role}})</div>
         </div>
       </div>
-    </div>
+    </draggable>
+
+
+
     <div class="flow_empty" v-else>
-      Flow empty
+      承認者が選ばれていません　/　No recipient selected
     </div>
 
 
@@ -36,11 +40,17 @@
 </template>
 
 <script>
+// Tools
+import draggable from 'vuedraggable'
+
 export default {
   name: 'ApprovalFlow',
+  components: {
+    draggable,
+  },
   props: {
     employees: Array
-  }
+  },
 }
 </script>
 

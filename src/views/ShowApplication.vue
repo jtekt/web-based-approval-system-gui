@@ -199,8 +199,6 @@ export default {
         .then( () => this.get_application())
         .catch(error => console.log(error));
       }
-
-
     },
     cancel(application_id){
       this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/cancel_decision', {

@@ -37,7 +37,7 @@
         v-bind:is="type.component"
         ref="form"/>
 
-      <div v-else>Type not selected</div>
+      <div v-else>申請種類が選ばれていません / Application type not selected</div>
 
     </div>
 
@@ -57,6 +57,7 @@
 </template>
 
 <script>
+
 // UI elements
 import EmployeePicker from '@/components/jtekt_vue_employee_picker/EmployeePicker.vue'
 import ApprovalFlow from '@/components/ApprovalFlow.vue'
@@ -88,6 +89,7 @@ import {application_types} from '@/mixins/application_types.js'
 export default {
   name: 'EditApplication',
   components: {
+
     EmployeePicker,
     ApprovalFlow,
 
@@ -212,8 +214,6 @@ export default {
       this.recipients.splice(recipient_index,1);
     },
     add_to_recipients(recipient_to_add){
-
-      console.log(recipient_to_add)
 
       // Prevent duplicates
       if(!this.recipients.includes(recipient_to_add)){
