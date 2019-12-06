@@ -10,7 +10,7 @@
     </div>
 
     <!-- using v-bind:list instead of v-model because array passed as prop -->
-    <draggable class="actual_approval_flow" v-bind:list="employees" @end="dragend" v-if="employees.length > 0">
+    <draggable class="actual_approval_flow" v-bind:list="employees" v-if="employees.length > 0">
       <!-- for loop outside the actual employee to add arrows -->
       <div
         class="flow_item"

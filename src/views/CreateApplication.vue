@@ -179,6 +179,40 @@ export default {
           //referred_application_id: this.$refs.form._data.referred_application_id
         })
         .then(response => {
+
+          // send notification email to recipients
+          if(confirm(`Send notification email ?`)){
+
+            console.log(this.recipients.map(a => a._fields[0].properties.email_address))
+
+
+            let recipient_email_addresses_string = ""
+
+            for (let email_address of this.recipients.map(a => a._fields[0].properties.email_address)) {
+              recipient_email_addresses_string += (email_address + ";")
+            }
+
+            let recipient_names_string =""
+            for (let name of this.recipients.map(a => a._fields[0].properties.name_kanji)) {
+              recipient_names_string += (name + "様、")
+            }
+
+            // Weird formatting because preserves indentation
+            window.location.href = `
+mailto:${recipient_email_addresses_string}
+?subject=申請を提出しました
+&body=${recipient_names_string}%0D%0A
+%0D%0A
+申請を提出しました。%0D%0A
+%0D%0A
+提出先URL%0D%0A
+http://shinseimanager.mike.jtekt.maximemoreillon.com/received_applications%0D%0A
+%0D%0A
+確認お願いします。%0D%0A
+            `
+
+          }
+
           // Creation successful
           if(this.$route.query.copy_of){
             if(confirm('Delete previous application?')){
