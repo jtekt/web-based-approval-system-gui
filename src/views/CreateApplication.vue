@@ -180,11 +180,9 @@ export default {
         })
         .then(response => {
 
+
           // send notification email to recipients
           if(confirm(`Send notification email ?`)){
-
-            console.log(this.recipients.map(a => a._fields[0].properties.email_address))
-
 
             let recipient_email_addresses_string = ""
 
@@ -200,13 +198,13 @@ export default {
             // Weird formatting because preserves indentation
             window.location.href = `
 mailto:${recipient_email_addresses_string}
-?subject=申請を提出しました
+?subject=${response.data[0]._fields[0].properties.type}を提出しました
 &body=${recipient_names_string}%0D%0A
 %0D%0A
-申請を提出しました。%0D%0A
+${response.data[0]._fields[0].properties.type}を提出しました。%0D%0A
 %0D%0A
 提出先URL%0D%0A
-http://shinseimanager.mike.jtekt.maximemoreillon.com/received_applications%0D%0A
+http://shinseimanager.mike.jtekt.maximemoreillon.com/show_application?id=${response.data[0]._fields[0].identity.low}%0D%0A
 %0D%0A
 確認お願いします。%0D%0A
             `

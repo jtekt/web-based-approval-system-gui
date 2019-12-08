@@ -33,17 +33,17 @@ export default {
     },
     get_submitted_applications_rejected(){
       this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/get_submitted_applications/rejected', {})
-      .then(response => this.applications.rejected = response.data.records)
+      .then(response => this.applications.rejected = response.data)
       .catch(error => console.log(error))
     },
     get_submitted_applications_approved(){
       this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/get_submitted_applications/approved', {})
-      .then(response => this.applications.approved = response.data.records)
+      .then(response => this.applications.approved = response.data)
       .catch(error => console.log(error))
     },
     get_submitted_applications_pending(){
       this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/get_submitted_applications/pending', {})
-      .then(response => this.applications.pending = response.data.records)
+      .then(response => this.applications.pending = response.data)
       .catch(error => console.log(error))
     },
 
