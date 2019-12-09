@@ -21,7 +21,7 @@
         <datepicker
           v-else-if="field.type === 'date'"
           v-model="field.value"/>
-        
+
 
         <input
           v-else
@@ -61,7 +61,8 @@ export default {
     },
     delete_file(field){
       this.$set(field,'value','')
-    }
+    },
+
   }
 }
 </script>
