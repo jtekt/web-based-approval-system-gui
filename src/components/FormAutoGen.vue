@@ -5,21 +5,29 @@
 
       <td>
 
+        <!-- file input when file is not selected -->
         <input
           v-if="field.type === 'file' && !field.value"
           v-bind:type="field.type"
           v-on:change="file_upload($event, field)">
 
+        <!-- file input when file is selected -->
         <span
           v-else-if="field.type === 'file' && field.value"
           class="mdi mdi-delete file_delete_button"
           v-on:click="delete_file(field)"/>
 
 
+        <datepicker
+          v-else-if="field.type === 'date'"
+          v-model="field.value"/>
+        
+
         <input
           v-else
           v-bind:type="field.type"
           v-model="field.value">
+
       </td>
 
     </tr>
@@ -27,10 +35,15 @@
 </template>
 
 <script>
+import datepicker from 'vue-date'
+
 export default {
   name: 'FormAutoGen',
   props: {
     fields: Array
+  },
+  components: {
+    datepicker
   },
   methods: {
     file_upload(event, field){

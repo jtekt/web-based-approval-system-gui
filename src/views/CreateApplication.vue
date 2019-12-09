@@ -198,7 +198,7 @@ export default {
             // Weird formatting because preserves indentation
             window.location.href = `
 mailto:${recipient_email_addresses_string}
-?subject=${response.data[0]._fields[0].properties.type}を提出しました
+?subject=[自動送信] ${response.data[0]._fields[0].properties.type}を提出しました
 &body=${recipient_names_string}%0D%0A
 %0D%0A
 ${response.data[0]._fields[0].properties.type}を提出しました。%0D%0A

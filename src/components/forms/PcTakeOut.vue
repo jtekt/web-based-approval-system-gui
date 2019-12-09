@@ -18,9 +18,8 @@ export default {
         {type: "text", label: "パソコン No."},
         {type: "text", label: "利用場所持出先"},
         {type: "text", label: "使用目的"},
-        {type: "text", label: "持出定日"},
-        {type: "text", label: "返却予定日"},
-
+        {type: "date", label: "持出定日"},
+        {type: "date", label: "返却予定日"},
       ]
     }
   },
