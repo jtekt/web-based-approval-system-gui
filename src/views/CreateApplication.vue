@@ -68,8 +68,6 @@ import PcBringBack from '@/components/forms/PcBringBack.vue'
 import MemoryTakeOut from '@/components/forms/MemoryTakeOut.vue'
 import MemoryBringBack from '@/components/forms/MemoryBringBack.vue'
 
-
-
 import Report from '@/components/forms/Report.vue'
 
 import ReceiptPurchaseBefore from '@/components/forms/ReceiptPurchaseBefore.vue'
