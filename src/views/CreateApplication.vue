@@ -178,6 +178,8 @@ export default {
         })
         .then(response => {
 
+          console.log(response.data)
+
 
           // send notification email to recipients
           if(confirm(`Send notification email ?`)){
