@@ -15,21 +15,25 @@
             <th colspan="2">申請情報</th>
           </tr>
           <tr>
+            <td>タイトル / Title</td>
+            <td>{{application.properties.title}}</td>
+          </tr>
+          <tr>
             <td>ID</td>
             <td>{{application.identity.low}}</td>
           </tr>
           <tr>
-            <td>Type</td>
+            <td>タイプ / Type</td>
             <td>{{application.properties.type}}</td>
           </tr>
           <tr>
-            <td>Date</td>
+            <td>日付 / Date</td>
             <td>
               {{application.properties.creation_date.year.low}}/{{application.properties.creation_date.month.low}}/{{application.properties.creation_date.day.low}}
             </td>
           </tr>
           <tr>
-            <td>Applicant</td>
+            <td>申請者 / Applicant</td>
             <td>{{applicant.properties.name_kanji}} ({{applicant.properties.employee_number}})</td>
           </tr>
 
@@ -73,10 +77,6 @@
             <td v-else>{{value}}</td>
           </tr>
 
-
-
-
-
         </table>
 
         <!-- actions -->
@@ -115,14 +115,10 @@
           </div>
 
         </div>
+
+        <!-- area for refusals reasons -->
         <div class="refusal_reasons">
           <table>
-            <!--
-            <tr>
-              <th>名前</th>
-              <th>却下理由</th>
-            </tr>
-            -->
             <tr
               v-for="(application_record, index) in application_records"
               v-if="application_record._fields[application_record._fieldLookup['rejection']]">
@@ -133,8 +129,6 @@
 
         </div>
       </div>
-
-
     </div>
 
     <div class="not_found" v-else>Application does not exist</div>
@@ -185,21 +179,26 @@ export default {
       }
     },
     approve(application_id){
+
+      // ask for confirmation
       if(confirm("ホンマ？")){
+
+        // send POST to mark as approved
         this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/approve_application', {
           application_id: application_id
         })
         .then( () =>  {
 
-          // Code to send email
+          // Code to send email: find next recipient
           let flow_index = this.application_records[0]._fields[this.application_records[0]._fieldLookup['application']].properties.current_flow_index.low
           let next_application_record = this.application_records.find(e => e._fields[e._fieldLookup['submitted_to']].properties.flow_index.low === flow_index+1)
 
           if(next_application_record){
+
             let next_recipient = next_application_record._fields[next_application_record._fieldLookup['recipient']]
 
             if(confirm(`Send notification email ?`)){
-  
+
               // Weird formatting because preserves indentation
               window.location.href = `
 mailto:${next_recipient.properties.email_address}

@@ -177,55 +177,45 @@ export default {
           //referred_application_id: this.$refs.form._data.referred_application_id
         })
         .then(response => {
-
-          console.log(response.data)
-
+          // Creation successful
 
           // send notification email to recipients
-          if(confirm(`Send notification email ?`)){
+          if(confirm(`Application registered successfully. Send notification email to recipient?`)){
 
-            /*
-            let recipient_email_addresses_string = ""
+            let recipient_email = this.recipients[0]._fields[0].properties.email_address;
+            let application_type = response.data[0]._fields[0].properties.type
+            let recipient_name = this.recipients[0]._fields[0].properties.name_kanji
+            let application_id = response.data[0]._fields[0].identity.low
 
-            for (let email_address of this.recipients.map(a => a._fields[0].properties.email_address)) {
-              recipient_email_addresses_string += (email_address + ";")
-            }
-
-            let recipient_names_string =""
-            for (let name of this.recipients.map(a => a._fields[0].properties.name_kanji)) {
-              recipient_names_string += (name + "様、")
-            }
-            */
-
-            // Weird formatting because preserves indentation
+            // Send email to first recipient
+            // Weird formatting because respects identation
             window.location.href = `
-mailto:${this.recipients[0]._fields[0].properties.email_address}
-?subject=[自動送信] ${response.data[0]._fields[0].properties.type}を提出しました
-&body=${this.recipients[0]._fields[0].properties.name_kanji}%0D%0A
+mailto:${recipient_email}
+?subject=[自動送信] ${application_type}を提出しました
+&body=${recipient_name}%0D%0A
 %0D%0A
 提出先URL%0D%0A
-http://shinseimanager.mike.jtekt.maximemoreillon.com/show_application?id=${response.data[0]._fields[0].identity.low}%0D%0A
+http://shinseimanager.mike.jtekt.maximemoreillon.com/show_application?id=${application_id}%0D%0A
 %0D%0A
 確認お願いします。%0D%0A
             `
-
           }
 
-          // Creation successful
+          // ask for deletion of original application if this one is a duplicate
           if(this.$route.query.copy_of){
             if(confirm('Delete previous application?')){
               this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/delete_application', {
                 application_id: this.$route.query.copy_of
               })
               .then( () => this.$router.push({ name: 'submitted_applications' }))
-              .catch(error => console.log(error));
+              .catch(error => alert(error));
             }
             else this.$router.push({ name: 'submitted_applications' })
           }
           else this.$router.push({ name: 'submitted_applications' })
 
         })
-        .catch(error => console.log(error));
+        .catch(error => alert(error));
       }
       else {
         alert("There are missing items in this application form")
