@@ -1,6 +1,7 @@
 <template>
   <div class="show_application">
 
+
     <!-- wrapper needed for v-if -->
     <div class="application_container" v-if="application">
 
@@ -79,17 +80,18 @@
         </table>
 
         <!-- actions -->
-        <div class="actions_container">
+        <div
+          class="actions_container"
+          v-if="applicant.properties.employee_number === this.$store.state.employee_number">
+
           <span
             class="mdi mdi-delete action_button"
-            v-if="applicant.properties.employee_number === this.$store.state.employee_number"
             v-on:click="delete_application(application.identity.low)"> Delete</span>
-
 
           <span
             class="mdi mdi-content-duplicate action_button"
-            v-if="applicant.properties.employee_number === this.$store.state.employee_number"
             v-on:click="edit_a_copy(application.identity.low)"> Duplicate</span>
+
         </div>
 
       </div>
@@ -167,7 +169,9 @@ export default {
       })
       .then(response => {
         this.application_records = response.data
-        console.log(this.application_records)
+
+
+
       })
       .catch(error => console.log(error));
     },
@@ -181,23 +185,53 @@ export default {
       }
     },
     approve(application_id){
-      this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/approve_application', {
-        application_id: application_id
-      })
-      .then( () => this.get_application())
-      .catch(error => console.log(error));
+      if(confirm("ホンマ？")){
+        this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/approve_application', {
+          application_id: application_id
+        })
+        .then( () =>  {
+
+          // Code to send email
+          let flow_index = this.application_records[0]._fields[this.application_records[0]._fieldLookup['application']].properties.current_flow_index.low
+          let next_application_record = this.application_records.find(e => e._fields[e._fieldLookup['submitted_to']].properties.flow_index.low === flow_index+1)
+
+          if(next_application_record){
+            let next_recipient = next_application_record._fields[next_application_record._fieldLookup['recipient']]
+
+            if(confirm(`Send notification email ?`)){
+  
+              // Weird formatting because preserves indentation
+              window.location.href = `
+mailto:${next_recipient.properties.email_address}
+?subject=[自動送信] ${this.application.properties.type}を提出しました
+&body=${next_recipient.properties.name_kanji}%0D%0A
+%0D%0A
+提出先URL%0D%0A
+http://shinseimanager.mike.jtekt.maximemoreillon.com/show_application?id=${this.application.identity.low}%0D%0A
+%0D%0A
+確認お願いします。%0D%0A
+              `
+            }
+          }
+          this.get_application()
+        })
+        .catch(error => console.log(error));
+      }
     },
     reject(application_id){
 
-      var reason = prompt("なぜ？", "");
+      if(confirm("ホンマ？")){
 
-      if(reason){
-        this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/reject_application', {
-          application_id: application_id,
-          reason: reason,
-        })
-        .then( () => this.get_application())
-        .catch(error => console.log(error));
+        var reason = prompt("なぜ？", "");
+
+        if(reason){
+          this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/reject_application', {
+            application_id: application_id,
+            reason: reason,
+          })
+          .then( () => this.get_application())
+          .catch(error => console.log(error));
+        }
       }
     },
     cancel(application_id){
@@ -213,6 +247,7 @@ export default {
     download(id){
       window.location.href = 'http://shinseimanager.mike.jtekt.maximemoreillon.com/file?id=' + id;
     },
+
 
   },
   computed: {
