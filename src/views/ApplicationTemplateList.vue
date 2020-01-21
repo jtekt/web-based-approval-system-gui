@@ -1,13 +1,24 @@
 <template>
   <div class="">
-
-    <button type="button" v-on:click="new_template()">New</button>
-
-    <div class=""
-      v-for="application_template in application_templates"
-      v-on:click="edit_template(application_template._fields[0].identity.low)">
-      {{application_template._fields[0].properties.title}}
+    <!-- add button -->
+    <div class="add_button_wrapper">
+      <button type="button" v-on:click="new_template()">New form</button>
     </div>
+
+    <div class="templates_wrapper">
+      <div class="template" v-for="application_template in application_templates">
+
+        <div class="template_label">
+          {{application_template._fields[0].properties.label}}
+        </div>
+
+        <button type="button" v-on:click="edit_template(application_template._fields[0].identity.low)">Edit</button>
+        <button type="button" v-on:click="delete_template(application_template._fields[0].identity.low)">delete</button>
+      </div>
+    </div>
+
+
+
   </div>
 </template>
 
@@ -44,8 +55,17 @@ export default {
     edit_template(id){
       this.$router.push({ name: 'edit_application_template', query: { id: id } })
     },
+
     new_template(){
       this.$router.push({ name: 'edit_application_template' })
+    },
+    delete_template(id){
+      this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/delete_application_form_template',
+      {id:id})
+      .then( (response) => {
+        this.get_all_templates()
+      })
+      .catch(error => console.log(error));
     }
 
   },
@@ -56,17 +76,26 @@ export default {
 </script>
 
 <style scoped>
-
-.field {
+.add_button_wrapper{
+  text-align: center;
+  padding: 10px;
+}
+.template{
   display: flex;
+  padding: 5px;
 }
 
-.field > * {
-  margin: 0 10px;
+.template:not(:first-child){
+  border-top: 1px solid #dddddd;
 }
 
-label {
-  margin-right: 10px;
+.template_label{
+  flex-grow: 1;
 }
+
+.template button {
+  margin-left: 10px;
+}
+
 
 </style>

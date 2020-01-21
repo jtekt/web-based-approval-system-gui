@@ -26,13 +26,13 @@
 
 
           <!-- test for user created application templates -->
-          <!--
+          <option value="undefined" style="font-weight: bold;">↓↓ user generated ↓↓</option>
           <option
             v-for="application_type in application_types_user_created"
-            v-bind:value="application_type._fields[0].properties.title">
-            {{application_type._fields[0].properties.title}}
+            v-bind:value="application_type._fields[0].properties">
+            {{application_type._fields[0].properties.label}}
           </option>
-          -->
+
 
         </select>
 
@@ -46,10 +46,23 @@
     <!-- the form itself -->
     <div class="section_wrapper form_container" >
 
+      <div class="form_title">
+        {{type.label}}
+      </div>
+
+      <!-- component based -->
       <component
-        v-if="type !=='undefined'"
+        v-if="type !=='undefined' && 'component' in type"
         v-bind:is="type.component"
         ref="form"/>
+
+      <!-- user made form -->
+      <UserMadeForm
+        v-else-if="type !=='undefined'"
+        v-bind:fields="type.fields"
+        v-bind:creator="type.creator"
+        ref="form"/>
+
 
       <div v-else>申請種類が選ばれていません / Application type not selected</div>
 
@@ -95,13 +108,15 @@ import NewTemplateTest from '@/components/forms/NewTemplateTest.vue'
 import TestForm from '@/components/forms/TestForm.vue'
 import TestFormAlternative from '@/components/forms/TestFormAlternative.vue'
 
+import UserMadeForm from '@/components/forms/UserMadeForm.vue'
+
 // Mixins
 // Application types are gotten from this mixin
 import {application_types} from '@/mixins/application_types.js'
 
 
 export default {
-  name: 'EditApplication',
+  name: 'CreateApplication',
   components: {
 
     EmployeePicker,
@@ -120,6 +135,8 @@ export default {
 
     InvoicePurchaseBefore,
     InvoicePurchaseAfter,
+
+    UserMadeForm,
 
     NewTemplateTest,
     TestForm,
@@ -144,7 +161,7 @@ export default {
   },
   mounted(){
     this.copy_content_if_duplicate();
-    //this.get_templates();
+    this.get_templates();
 
   },
   methods: {
@@ -183,6 +200,10 @@ export default {
       .then(response => {
         this.application_types_user_created.splice(0,this.application_types_user_created.length)
         response.data.forEach(template => {
+
+          template._fields[0].properties.fields = JSON.parse(template._fields[0].properties.fields)
+          template._fields[0].properties.creator = template._fields[1].properties
+
           this.application_types_user_created.push(template)
         })
       })
@@ -193,6 +214,8 @@ export default {
     create_application(){
 
       if(this.form_valid){
+
+
         this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/create_application', {
           type: this.type.label,
           title: this.title,
@@ -392,5 +415,10 @@ form > div {
 
 .submit_button.disabled{
   cursor: not-allowed;
+}
+
+.form_title{
+  font-size: 150%;
+  margin-bottom: 10px;
 }
 </style>

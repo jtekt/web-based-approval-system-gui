@@ -1,5 +1,11 @@
 <template>
   <div class="submitted_applications">
+
+    <!--
+    <div class="new_button_wrapper">
+      <button type="button" v-on:click="create_new_application">Create new application</button>
+    </div>
+    -->
     <ApplicationTableV2 v-bind:applications="applications" hideApplicant/>
   </div>
 </template>
@@ -46,6 +52,9 @@ export default {
       .then(response => this.applications.pending = response.data)
       .catch(error => console.log(error))
     },
+    create_new_application(){
+      this.$router.push({ name: 'create_application' })
+    },
 
   }
 }
@@ -53,6 +62,10 @@ export default {
 
 <style scoped>
 
+.new_button_wrapper{
+  text-align: center;
+  padding: 15px;
+}
 
 
 </style>
