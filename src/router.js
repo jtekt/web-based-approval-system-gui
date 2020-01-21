@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import CreateApplication from './views/CreateApplication.vue'
+import ApplicationTemplateList from './views/ApplicationTemplateList.vue'
+
 import EditApplicationTemplate from './views/EditApplicationTemplate.vue'
 import ShowApplication from './views/ShowApplication.vue'
 import SubmittedApplications from './views/SubmittedApplications.vue'
@@ -43,6 +45,11 @@ export default new Router({
       path: '/edit_application_template',
       name: 'edit_application_template',
       component: EditApplicationTemplate,
+    },
+    {
+      path: '/application_template_list',
+      name: 'application_template_list',
+      component: ApplicationTemplateList,
     },
 
   ]

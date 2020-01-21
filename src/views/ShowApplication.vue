@@ -158,6 +158,7 @@ export default {
   },
   methods: {
     get_application(){
+      // TODO: CHeck if id in query!!
       this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/get_application', {
         application_id: this.$route.query.id
       })
@@ -234,6 +235,7 @@ http://shinseimanager.mike.jtekt.maximemoreillon.com/show_application?id=${this.
       }
     },
     cancel(application_id){
+      // This route is no longer in use since hankos cannot be canceled anymore
       this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/cancel_decision', {
         application_id: application_id
       })

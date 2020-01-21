@@ -16,12 +16,26 @@
     <div class="type_and_title_input_wrapper section_wrapper">
       <div class="">
         <label>申請種類 / Application type: </label>
+
         <select v-model="type">
           <option value="undefined">Please select</option>
+
           <option
             v-for="application_type in application_types"
             v-bind:value="application_type">{{application_type.label}}</option>
+
+
+          <!-- test for user created application templates -->
+          <!--
+          <option
+            v-for="application_type in application_types_user_created"
+            v-bind:value="application_type._fields[0].properties.title">
+            {{application_type._fields[0].properties.title}}
+          </option>
+          -->
+
         </select>
+
       </div>
       <div class="title_wrapper">
         <label>申請タイトル / Title of the application: </label>
@@ -29,8 +43,8 @@
       </div>
     </div>
 
-
-    <div class="section_wrapper" >
+    <!-- the form itself -->
+    <div class="section_wrapper form_container" >
 
       <component
         v-if="type !=='undefined'"
@@ -38,6 +52,8 @@
         ref="form"/>
 
       <div v-else>申請種類が選ばれていません / Application type not selected</div>
+
+
 
     </div>
 
@@ -122,42 +138,56 @@ export default {
       // approval Flow
       recipients: [],
 
+      application_types_user_created: [],
+
     }
   },
   mounted(){
-
-    // Attempt to copy the content of one application into a new one
-    // NOT VERY CLEAN
-    if(this.$route.query.copy_of){
-      this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/get_application', {
-        application_id: this.$route.query.copy_of
-      })
-      .then(response => {
-        var application_properties = response.data[0]._fields[0].properties
-
-        // Set title and type
-        this.type = this.application_types.find(el => el.label === application_properties.type)
-        this.title = "Copy of " + response.data[0]._fields[0].properties.title
-
-        // Need timeout to let time to populate
-        setTimeout( () => this.$refs.form._data.form_data=JSON.parse(application_properties.form_data), 500)
-
-        // recreate flow
-        // DIRTY!!
-        response.data.reverse().forEach(recipient => {
-          this.recipients.push({
-            _fields: [recipient._fields[recipient._fieldLookup['recipient']]]
-          });
-        })
-
-
-      })
-      .catch(error => console.log(error));
-    }
-
+    this.copy_content_if_duplicate();
+    //this.get_templates();
 
   },
   methods: {
+
+    copy_content_if_duplicate(){
+      // Attempt to copy the content of one application into a new one
+      // NOT VERY CLEAN
+      if(this.$route.query.copy_of){
+        this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/get_application', {
+          application_id: this.$route.query.copy_of
+        })
+        .then(response => {
+          var application_properties = response.data[0]._fields[0].properties
+
+          // Set title and type
+          this.type = this.application_types.find(el => el.label === application_properties.type)
+          this.title = "Copy of " + response.data[0]._fields[0].properties.title
+
+          // Need timeout to let time to populate
+          setTimeout( () => this.$refs.form._data.form_data=JSON.parse(application_properties.form_data), 500)
+
+          // recreate flow
+          // DIRTY!!
+          response.data.reverse().forEach(recipient => {
+            this.recipients.push({
+              _fields: [recipient._fields[recipient._fieldLookup['recipient']]]
+            });
+          })
+        })
+        .catch(error => console.log(error));
+      }
+    },
+
+    get_templates(){
+      this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/get_all_application_form_templates')
+      .then(response => {
+        this.application_types_user_created.splice(0,this.application_types_user_created.length)
+        response.data.forEach(template => {
+          this.application_types_user_created.push(template)
+        })
+      })
+      .catch(error => console.log(error));
+    },
 
 
     create_application(){

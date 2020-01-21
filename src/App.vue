@@ -22,6 +22,7 @@ export default {
         {route: '/', label: 'Outbox', icon: 'inbox-arrow-up'},
         {route: '/received_applications', label: 'Inbox', icon: 'inbox-arrow-down'},
         {route: '/search', label: 'Search', icon: 'magnify'},
+        {route: '/application_template_list', label: 'Forms (beta)', icon: 'file-settings-outline'},
       ]
     }
   }
