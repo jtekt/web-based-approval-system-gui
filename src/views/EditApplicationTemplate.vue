@@ -71,10 +71,12 @@
       </div>
       <div class="">
         <table class="fields_table">
+          <tr>
+            <th>Label</th>
+            <th>Type</th>
+          </tr>
           <tr v-for="field in fields">
-            <td>label: </td>
             <td>{{field.label}}</td>
-            <td>Type: </td>
             <td>{{field.type}}</td>
           </tr>
         </table>
@@ -282,6 +284,7 @@ label {
 
 .fields_table {
   margin: 10px;
+  text-align: left;
   border-collapse: collapse;
 }
 

@@ -23,6 +23,7 @@
             <td>{{application.identity.low}}</td>
           </tr>
 
+          <!-- NOT USED YET
           <tr
             v-if="based_on_template"
             class="template_row"
@@ -30,10 +31,11 @@
             <td>タイプ / Type</td>
             <td>{{template.properties.label}}</td>
           </tr>
+          -->
 
-          <tr v-else>
+          <tr>
             <td>タイプ / Type</td>
-            <td>{{application.properties.type}} (Template not found)</td>
+            <td>{{application.properties.type}}</td>
           </tr>
 
           <tr>
