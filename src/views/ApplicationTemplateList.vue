@@ -5,17 +5,44 @@
       <button type="button" v-on:click="new_template()">New form</button>
     </div>
 
-    <div class="templates_wrapper">
-      <div class="template" v-for="application_template in application_templates">
+    <table class="templates_table">
+      <tr class="header_row">
+        <th colspan="1000" >My forms</th>
+      </tr>
+      <tr>
+        <th>Form name</th>
+        <th>Shared with</th>
+        <th></th>
+      </tr>
+      <tr
+        v-for="template in application_templates"
+        v-on:click="view_template(template._fields[0].identity.low)"
+        class="clickable_row">
+        <td>{{template._fields[0].properties.label}}</td>
+        <td>{{template._fields[template._fieldLookup['g']].properties.original_name}}</td>
+        <td></td>
+      </tr>
+      <tr class="header_row">
+        <th colspan="1000" >Shared with me</th>
+      </tr>
+      <tr>
+        <th>Form name</th>
+        <th>Shared with</th>
+        <th>Author</th>
+      </tr>
+      <tr
+        v-for="template in shared_templates"
+        v-on:click="view_template(template._fields[0].identity.low)"
+        class="clickable_row">
+        <td>{{template._fields[0].properties.label}}</td>
+        <td>{{template._fields[template._fieldLookup['g']].properties.original_name}}</td>
+        <td>
+          {{template._fields[template._fieldLookup['creator']].properties.name_kanji}}
+        </td>
+        <td></td>
+      </tr>
+    </table>
 
-        <div class="template_label">
-          {{application_template._fields[0].properties.label}}
-        </div>
-
-        <button type="button" v-on:click="edit_template(application_template._fields[0].identity.low)">Edit</button>
-        <button type="button" v-on:click="delete_template(application_template._fields[0].identity.low)">delete</button>
-      </div>
-    </div>
 
 
 
@@ -34,17 +61,18 @@ export default {
     return {
 
       application_templates : [],
+      shared_templates: [],
 
     }
   },
   mounted(){
-    this.get_all_templates();
+    this.get_my_templates();
+    this.get_shared_templates();
   },
   methods: {
-    get_all_templates(){
+    get_my_templates(){
       this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/get_application_form_templates_from_user')
       .then( (response) => {
-        console.log(response.data)
         this.application_templates.splice(0,this.application_templates.length)
         response.data.forEach(template => {
           this.application_templates.push(template)
@@ -52,21 +80,23 @@ export default {
       })
       .catch(error => console.log(error));
     },
-    edit_template(id){
+    get_shared_templates(){
+      this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/get_all_application_form_templates')
+      .then( (response) => {
+        this.shared_templates.splice(0,this.shared_templates.length)
+        response.data.forEach(template => {
+          this.shared_templates.push(template)
+        })
+      })
+      .catch(error => console.log(error));
+    },
+    view_template(id){
       this.$router.push({ name: 'edit_application_template', query: { id: id } })
     },
 
     new_template(){
       this.$router.push({ name: 'edit_application_template' })
     },
-    delete_template(id){
-      this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/delete_application_form_template',
-      {id:id})
-      .then( (response) => {
-        this.get_all_templates()
-      })
-      .catch(error => console.log(error));
-    }
 
   },
   computed: {
@@ -79,23 +109,41 @@ export default {
 .add_button_wrapper{
   text-align: center;
   padding: 10px;
-}
-.template{
-  display: flex;
-  padding: 5px;
+
 }
 
-.template:not(:first-child){
-  border-top: 1px solid #dddddd;
+.header_row {
+  font-size: 150%;
+
 }
 
-.template_label{
-  flex-grow: 1;
+.header_row:not(:first-child) > th {
+  padding-top: 15px;
 }
 
-.template button {
+.templates_table{
+  width: 100%;
+  text-align: left;
+  border-collapse: collapse;
+}
+
+
+.templates_table tr:not(:last-child):not(.header_row){
+  border-bottom: 1px solid #dddddd;
+
+}
+
+.templates_table button {
   margin-left: 10px;
 }
 
+.clickable_row {
+  cursor: pointer;
+  transition: background-color 0.25s;
+}
+
+.clickable_row:hover {
+  background-color: #eeeeee;
+}
 
 </style>

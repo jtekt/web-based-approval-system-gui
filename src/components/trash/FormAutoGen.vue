@@ -55,11 +55,13 @@ export default {
       })
       .then(response => {
         // Needed for responsiviity
+        // Is this the right way?
         this.$set(field,'value',response.data)
       })
       .catch(error => console.log(error));
     },
     delete_file(field){
+      // Is this the right way to set value?
       this.$set(field,'value','')
     },
 
@@ -68,6 +70,7 @@ export default {
 </script>
 
 <style scoped>
+
 table {
   width: 100%;
   border-collapse: collapse;

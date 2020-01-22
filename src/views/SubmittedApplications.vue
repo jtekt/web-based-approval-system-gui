@@ -1,11 +1,11 @@
 <template>
   <div class="submitted_applications">
 
-    <!--
+
     <div class="new_button_wrapper">
       <button type="button" v-on:click="create_new_application">Create new application</button>
     </div>
-    -->
+    
     <ApplicationTableV2 v-bind:applications="applications" hideApplicant/>
   </div>
 </template>

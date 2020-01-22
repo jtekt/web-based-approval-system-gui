@@ -1,7 +1,7 @@
 <template>
 
   <!-- Wrapping everything in a form might not be a good idea... -->
-  <form v-on:submit.prevent="create_application()">
+  <div>
 
     <!-- Employee picker -->
     <EmployeePicker v-on:employeeSelected="add_to_recipients($event)" />
@@ -11,68 +11,90 @@
       v-on:deleteEmployee="delete_recipient($event)"
       v-bind:employees="recipients"/>
 
-    <!-- type selector -->
-    <!-- MAKE THIS A TABLE -->
+
+
+    <!-- test with user generated form selector -->
     <div class="type_and_title_input_wrapper section_wrapper">
-      <div class="">
-        <label>申請種類 / Application type: </label>
 
-        <select v-model="type">
-          <option value="undefined">Please select</option>
-
-          <option
-            v-for="application_type in application_types"
-            v-bind:value="application_type">{{application_type.label}}</option>
-
-
-          <!-- test for user created application templates -->
-          <option value="undefined" style="font-weight: bold;">↓↓ user generated ↓↓</option>
-          <option
-            v-for="application_type in application_types_user_created"
-            v-bind:value="application_type._fields[0].properties">
-            {{application_type._fields[0].properties.label}}
-          </option>
-
-
-        </select>
-
-      </div>
+      <!-- title input -->
       <div class="title_wrapper">
         <label>申請タイトル / Title of the application: </label>
         <input type="text" class="title_input" v-model="title">
       </div>
-    </div>
 
-    <!-- the form itself -->
-    <div class="section_wrapper form_container" >
-
-      <div class="form_title">
-        {{type.label}}
+      <!-- type selector -->
+      <div class="">
+        <label>申請種類 / Application type: </label>
+        <select v-model="selected_form">
+          <!--<option value=undefined>Please select</option>-->
+          <option
+            v-for="application_type in application_types_user_created"
+            v-bind:value="application_type">
+            {{application_type._fields[0].properties.label}}
+          </option>
+        </select>
       </div>
 
-      <!-- component based -->
-      <component
-        v-if="type !=='undefined' && 'component' in type"
-        v-bind:is="type.component"
-        ref="form"/>
 
-      <!-- user made form -->
-      <UserMadeForm
-        v-else-if="type !=='undefined'"
-        v-bind:fields="type.fields"
-        v-bind:creator="type.creator"
-        ref="form"/>
+    </div>
 
+
+    <div class="section_wrapper form_container" >
+
+      <div class="" v-if="selected_form">
+
+        <div class="form_title">{{selected_form._fields[selected_form._fieldLookup['aft']].properties.label}}</div>
+
+
+        <table class="form_content_table">
+          <tr v-for="(field, index) in selected_form._fields[selected_form._fieldLookup['aft']].properties.fields">
+            <td>{{field.label}}</td>
+
+            <td>
+
+              <!-- file input when file is not selected -->
+              <input
+                v-if="field.type === 'file' && !field.value"
+                v-bind:type="field.type"
+                v-on:change="file_upload($event, field)">
+
+              <!-- file input when file is selected -->
+              <span
+                v-else-if="field.type === 'file' && field.value"
+                class="mdi mdi-delete file_delete_button"
+                v-on:click="delete_file(field)"/>
+
+
+              <datepicker
+                v-else-if="field.type === 'date'"
+                v-model="field.value"/>
+
+
+              <input
+                v-else
+                v-bind:type="field.type"
+                v-model="field.value">
+
+            </td>
+
+          </tr>
+        </table>
+
+        <div class="form_author">
+          Form made by {{selected_form._fields[selected_form._fieldLookup['creator']].properties.name_kanji}}
+          ({{selected_form._fields[selected_form._fieldLookup['creator']].properties.email_address}})
+        </div>
+      </div>
 
       <div v-else>申請種類が選ばれていません / Application type not selected</div>
 
 
 
+
+
     </div>
 
 
-    <!-- submit application form -->
-    <!-- DANGEROUS! WHAT IF PRESS ENTER? -->
     <div class="submit_button_container" >
 
       <span
@@ -82,7 +104,7 @@
 
     </div>
 
-  </form>
+  </div>
 </template>
 
 <script>
@@ -90,65 +112,22 @@
 // UI elements
 import EmployeePicker from '@/components/jtekt_vue_employee_picker/EmployeePicker.vue'
 import ApprovalFlow from '@/components/ApprovalFlow.vue'
-
-// Forms
-import PcTakeOut from '@/components/forms/PcTakeOut.vue'
-import PcBringBack from '@/components/forms/PcBringBack.vue'
-import MemoryTakeOut from '@/components/forms/MemoryTakeOut.vue'
-import MemoryBringBack from '@/components/forms/MemoryBringBack.vue'
-
-import Report from '@/components/forms/Report.vue'
-
-import ReceiptPurchaseBefore from '@/components/forms/ReceiptPurchaseBefore.vue'
-import ReceiptPurchaseAfter from '@/components/forms/ReceiptPurchaseAfter.vue'
-import InvoicePurchaseBefore from '@/components/forms/InvoicePurchaseBefore.vue'
-import InvoicePurchaseAfter from '@/components/forms/InvoicePurchaseAfter.vue'
-
-import NewTemplateTest from '@/components/forms/NewTemplateTest.vue'
-import TestForm from '@/components/forms/TestForm.vue'
-import TestFormAlternative from '@/components/forms/TestFormAlternative.vue'
-
-import UserMadeForm from '@/components/forms/UserMadeForm.vue'
+import Datepicker from 'vuejs-datepicker';
 
 // Mixins
 // Application types are gotten from this mixin
-import {application_types} from '@/mixins/application_types.js'
 
 
 export default {
   name: 'CreateApplication',
   components: {
-
     EmployeePicker,
     ApprovalFlow,
-
-    // Forms
-    PcTakeOut,
-    PcBringBack,
-    MemoryTakeOut,
-    MemoryBringBack,
-
-    Report,
-
-    ReceiptPurchaseBefore,
-    ReceiptPurchaseAfter,
-
-    InvoicePurchaseBefore,
-    InvoicePurchaseAfter,
-
-    UserMadeForm,
-
-    NewTemplateTest,
-    TestForm,
-    TestFormAlternative,
+    Datepicker
   },
-  mixins: [
-    application_types,
-  ],
+
   data(){
     return {
-
-      type: "undefined",
 
       title: "",
 
@@ -156,11 +135,12 @@ export default {
       recipients: [],
 
       application_types_user_created: [],
+      selected_form: undefined,
 
     }
   },
   mounted(){
-    this.copy_content_if_duplicate();
+
     this.get_templates();
 
   },
@@ -174,22 +154,59 @@ export default {
           application_id: this.$route.query.copy_of
         })
         .then(response => {
+
           var application_properties = response.data[0]._fields[0].properties
+          application_properties.form_data = JSON.parse(application_properties.form_data)
 
-          // Set title and type
-          this.type = this.application_types.find(el => el.label === application_properties.type)
-          this.title = "Copy of " + response.data[0]._fields[0].properties.title
-
-          // Need timeout to let time to populate
-          setTimeout( () => this.$refs.form._data.form_data=JSON.parse(application_properties.form_data), 500)
+          // srt title back and add "Copy of"
+          this.title = "Copy of " + application_properties.title
 
           // recreate flow
-          // DIRTY!!
           response.data.reverse().forEach(recipient => {
             this.recipients.push({
               _fields: [recipient._fields[recipient._fieldLookup['recipient']]]
             });
           })
+
+
+          // Set the correct application type back
+          // the AFT is part of the response from the server
+          let template_used_by_original = response.data[0]._fields[response.data[0]._fieldLookup['aft']]
+          if(!template_used_by_original) return alert('Form template does not exist')
+
+          // need to parse fields because saved as stringified JSON in DB
+          template_used_by_original.properties.fields = JSON.parse(template_used_by_original.properties.fields)
+
+
+          // find the corresponding template in the available templates (search by ID)
+          let found_template = this.application_types_user_created.find(e => {
+            return e._fields[e._fieldLookup['aft']].identity.low === template_used_by_original.identity.low
+          })
+
+
+          if(!found_template) return alert('Form template does not exist')
+
+          this.selected_form = found_template
+          // check if fields match
+          let selected_form_fields = this.selected_form._fields[this.selected_form._fieldLookup['aft']].properties.fields
+
+          for (const [index, val] of selected_form_fields.entries()) {
+            if(val.type === application_properties.form_data[index].type && val.label === application_properties.form_data[index].label){
+              //console.log(original_form_fields[index])
+              this.$set(val,'value',application_properties.form_data[index].value)
+            }
+            else {
+              alert('There was a problem duplicating the application. The template seems to have changed.')
+              break;
+            }
+          }
+
+
+
+
+
+
+
         })
         .catch(error => console.log(error));
       }
@@ -198,14 +215,19 @@ export default {
     get_templates(){
       this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/get_all_application_form_templates')
       .then(response => {
+
+        // delete templates to recreate them
         this.application_types_user_created.splice(0,this.application_types_user_created.length)
+
         response.data.forEach(template => {
 
+          // need to parse fields because saved as stringified JSON in DB
           template._fields[0].properties.fields = JSON.parse(template._fields[0].properties.fields)
-          template._fields[0].properties.creator = template._fields[1].properties
 
           this.application_types_user_created.push(template)
         })
+        // this needs to be done once templates are available
+        this.copy_content_if_duplicate();
       })
       .catch(error => console.log(error));
     },
@@ -214,25 +236,20 @@ export default {
     create_application(){
 
       if(this.form_valid){
-
-
         this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/create_application', {
-          type: this.type.label,
           title: this.title,
           recipients_employee_number: this.recipients.map(a => a._fields[0].properties.employee_number),
           session_id: this.$store.state.session_id,
+          form_data: this.selected_form._fields[this.selected_form._fieldLookup['aft']].properties.fields,
+          template_id: this.selected_form._fields[this.selected_form._fieldLookup['aft']].identity.low,
 
-          // Get form data from the ref
-          // Ref is on the dynamic component
-          form_data: this.$refs.form._data.form_data,
-
-          // Referred application not implemented yet
-          //referred_application_id: this.$refs.form._data.referred_application_id
+          // This is just in case the application template gets gets deleted afterwards
+          type: this.selected_form._fields[this.selected_form._fieldLookup['aft']].properties.label,
         })
         .then(response => {
           // Creation successful
 
-          // send notification email to recipients
+          // send notification email to first recipient of flow
           if(confirm(`Application registered successfully. Send notification email to recipient?`)){
 
             let recipient_email = this.recipients[0]._fields[0].properties.email_address;
@@ -270,14 +287,13 @@ http://shinseimanager.mike.jtekt.maximemoreillon.com/show_application?id=${appli
         })
         .catch(error => alert(error));
       }
-      else {
-        alert("There are missing items in this application form")
-      }
+      else alert("There are missing items in this application form")
 
 
     },
 
     get_employees_belonging_to_node(node_id){
+      // This does not seem to be used
       this.axios.post('http://authentication.mike.jtekt.maximemoreillon.com/get_employees_belonging_to_node', {
         node_id: node_id,
       })
@@ -294,16 +310,33 @@ http://shinseimanager.mike.jtekt.maximemoreillon.com/show_application?id=${appli
       if(!this.recipients.includes(recipient_to_add)){
         this.recipients.push(recipient_to_add);
       }
-      else {
-        alert("Duplicates not allowed")
-      }
+      else alert("Duplicates not allowed")
 
+    },
+    file_upload(event, field){
 
+      let formData = new FormData();
+      formData.append('file_to_upload', event.target.files[0]);
+      this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/file_upload', formData, {
+        headers: {'Content-Type': 'multipart/form-data' }
+      })
+      .then(response => {
+        // Needed for responsiviity
+        // Is this the right way?
+        this.$set(field,'value',response.data)
+      })
+      .catch(error => console.log(error));
+    },
+    delete_file(field){
+      // Is this the right way to set value?
+      this.$set(field,'value','')
     },
   },
   computed: {
     form_valid(){
-      return this.type !=='undefined' || this.recipients.length > 0
+      return this.selected_form
+        && this.recipients.length > 0
+        && this.title
     }
   }
 }
@@ -420,5 +453,39 @@ form > div {
 .form_title{
   font-size: 150%;
   margin-bottom: 10px;
+}
+
+
+
+.form_content_table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.form_content_table tr:not(:last-child) {
+  border-bottom: 1px solid #dddddd;
+}
+
+.form_content_table th {
+  text-align: left;
+  padding: 10px;
+}
+.form_content_table td {
+  padding: 5px;
+}
+
+.form_content_table td input[type="text"]{
+  width: 100%;
+}
+
+.form_content_table .file_delete_button {
+  font-size: 150%;
+  cursor: pointer;
+}
+
+.form_author {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #dddddd;
 }
 </style>

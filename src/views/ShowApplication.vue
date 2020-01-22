@@ -22,10 +22,20 @@
             <td>ID</td>
             <td>{{application.identity.low}}</td>
           </tr>
-          <tr>
+
+          <tr
+            v-if="based_on_template"
+            class="template_row"
+            v-on:click="see_template(template.identity.low)">
             <td>タイプ / Type</td>
-            <td>{{application.properties.type}}</td>
+            <td>{{template.properties.label}}</td>
           </tr>
+
+          <tr v-else>
+            <td>タイプ / Type</td>
+            <td>{{application.properties.type}} (Template not found)</td>
+          </tr>
+
           <tr>
             <td>日付 / Date</td>
             <td>
@@ -59,6 +69,11 @@
               <span v-else class="mdi mdi-close"/>
             </td>
 
+            <td v-else-if="field.type === 'date'">
+              <span v-if="field.value">{{new Date(field.value).toLocaleDateString('ja-JP')}}</span>
+              <span v-else>-</span>
+            </td>
+
 
             <td v-else-if="field.value">{{field.value}}</td>
 
@@ -66,7 +81,8 @@
             <td v-else>-</td>
           </tr>
 
-          <!-- If form data is an object (original style) -->
+          <!-- LEGACY -->
+          <!-- If form data is an object (OLD style) -->
           <tr v-for="value, key in form_data" v-if="!Array.isArray(form_data)">
             <td>{{key}}</td>
             <td v-if="key === 'report_file' || key === 'file'">
@@ -248,6 +264,9 @@ http://shinseimanager.mike.jtekt.maximemoreillon.com/show_application?id=${this.
     download(id){
       window.location.href = 'http://shinseimanager.mike.jtekt.maximemoreillon.com/file?id=' + id;
     },
+    see_template(id){
+      this.$router.push({path: '/edit_application_template', query: {id: id}})
+    }
 
 
   },
@@ -260,8 +279,16 @@ http://shinseimanager.mike.jtekt.maximemoreillon.com/show_application?id=${this.
       if(this.application_records.length > 0) return this.application_records[0]._fields[this.application_records[0]._fieldLookup['applicant']]
       else return null
     },
+    template(){
+      if(this.application_records.length > 0) return this.application_records[0]._fields[this.application_records[0]._fieldLookup['aft']]
+      else return null
+    },
     form_data(){
       return JSON.parse(this.application.properties.form_data)
+    },
+    based_on_template(){
+      if(this.template) return true
+      else return false
     }
   }
 }
@@ -407,6 +434,15 @@ http://shinseimanager.mike.jtekt.maximemoreillon.com/show_application?id=${this.
 .download_button{
   font-size: 150%;
   cursor: pointer;
+}
+
+.template_row {
+  cursor: pointer;
+  transition: color 0.25s border-color 0.25s;
+}
+
+.template_row:hover {
+  color: #c00000;
 }
 
 

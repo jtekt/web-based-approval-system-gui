@@ -18,11 +18,10 @@ export default {
   data(){
     return{
       navigation : [
-        {route: '/create_application', label: 'New', icon: 'file-document-box-plus-outline'},
         {route: '/', label: 'Outbox', icon: 'inbox-arrow-up'},
         {route: '/received_applications', label: 'Inbox', icon: 'inbox-arrow-down'},
+        {route: '/application_template_list', label: 'Forms creator', icon: 'file-settings-outline'},
         {route: '/search', label: 'Search', icon: 'magnify'},
-        {route: '/application_template_list', label: 'Forms (beta)', icon: 'file-settings-outline'},
       ]
     }
   }
