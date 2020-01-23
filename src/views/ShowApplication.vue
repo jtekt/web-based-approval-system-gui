@@ -129,12 +129,14 @@
               v-bind:applicationRecord="application_record"
               v-on:approve="approve(application.identity.low)"
               v-on:reject="reject(application.identity.low)"
-              v-on:cancel="cancel(application.identity.low)"/>
+              v-on:cancel="cancel(application.identity.low)"
+              v-bind:hankoable="hankoable(application_record)"/>
           </div>
 
         </div>
 
         <!-- area for refusals reasons -->
+        <!-- TODO: No need for name anymore -->
         <div class="refusal_reasons">
           <table>
             <tr
@@ -182,9 +184,6 @@ export default {
       })
       .then(response => {
         this.application_records = response.data
-
-
-
       })
       .catch(error => console.log(error));
     },
@@ -208,9 +207,10 @@ export default {
         })
         .then( () =>  {
 
-          // Code to send email: find next recipient
-          let flow_index = this.application_records[0]._fields[this.application_records[0]._fieldLookup['application']].properties.current_flow_index.low
-          let next_application_record = this.application_records.find(e => e._fields[e._fieldLookup['submitted_to']].properties.flow_index.low === flow_index+1)
+          // Code to send email
+          let next_application_record = this.application_records.find(e => {
+            return e._fields[e._fieldLookup['submitted_to']].properties.flow_index.low === this.approval_count+1
+          })
 
           if(next_application_record){
 
@@ -222,7 +222,7 @@ export default {
               window.location.href = `
 mailto:${next_recipient.properties.email_address}
 ?subject=[自動送信] ${this.application.properties.type}を提出しました
-&body=${next_recipient.properties.name_kanji}%0D%0A
+&body=${next_recipient.properties.name_kanji}　様%0D%0A
 %0D%0A
 提出先URL%0D%0A
 http://shinseimanager.mike.jtekt.maximemoreillon.com/show_application?id=${this.application.identity.low}%0D%0A
@@ -252,6 +252,7 @@ http://shinseimanager.mike.jtekt.maximemoreillon.com/show_application?id=${this.
         }
       }
     },
+    /*
     cancel(application_id){
       // This route is no longer in use since hankos cannot be canceled anymore
       this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/cancel_decision', {
@@ -260,6 +261,9 @@ http://shinseimanager.mike.jtekt.maximemoreillon.com/show_application?id=${this.
       .then( () => this.get_application())
       .catch(error => console.log(error));
     },
+    */
+
+
     edit_a_copy(application_id){
       this.$router.push({path: '/create_application', query: {copy_of: application_id}})
     },
@@ -268,6 +272,10 @@ http://shinseimanager.mike.jtekt.maximemoreillon.com/show_application?id=${this.
     },
     see_template(id){
       this.$router.push({path: '/edit_application_template', query: {id: id}})
+    },
+    hankoable(application_record){
+      let flow_index = application_record._fields[application_record._fieldLookup['submitted_to']].properties.flow_index.low
+      return flow_index === this.approval_count
     }
 
 
@@ -291,7 +299,13 @@ http://shinseimanager.mike.jtekt.maximemoreillon.com/show_application?id=${this.
     based_on_template(){
       if(this.template) return true
       else return false
-    }
+    },
+    approval_count(){
+      return this.application_records.reduce((approval_count, e) => {
+        return approval_count + !!e._fields[e._fieldLookup['approval']];
+      },0)
+    },
+
   }
 }
 </script>

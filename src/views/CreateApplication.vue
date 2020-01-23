@@ -262,7 +262,7 @@ export default {
             window.location.href = `
 mailto:${recipient_email}
 ?subject=[自動送信] ${application_type}を提出しました
-&body=${recipient_name}%0D%0A
+&body=${recipient_name}　様%0D%0A
 %0D%0A
 提出先URL%0D%0A
 http://shinseimanager.mike.jtekt.maximemoreillon.com/show_application?id=${application_id}%0D%0A
