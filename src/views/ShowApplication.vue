@@ -23,16 +23,6 @@
             <td>{{application.identity.low}}</td>
           </tr>
 
-          <!-- NOT USED YET
-          <tr
-            v-if="based_on_template"
-            class="template_row"
-            v-on:click="see_template(template.identity.low)">
-            <td>タイプ / Type</td>
-            <td>{{template.properties.label}}</td>
-          </tr>
-          -->
-
           <tr>
             <td>タイプ / Type</td>
             <td>{{application.properties.type}}</td>
@@ -167,7 +157,6 @@ export default {
   components: {
     WebHankoContainer,
   },
-
   mounted(){
     this.get_application();
   },

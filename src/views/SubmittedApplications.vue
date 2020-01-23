@@ -25,7 +25,6 @@ export default {
         rejected: [],
         approved: [],
       }
-
     }
   },
   mounted(){

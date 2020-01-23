@@ -12,7 +12,6 @@ export default {
   components: {
     ApplicationTableV2,
   },
-
   data(){
     return {
       applications: {

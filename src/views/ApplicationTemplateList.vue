@@ -55,14 +55,10 @@
 
 export default {
   name: 'EditApplicationTemplate',
-  components: {},
-  mixins: [],
   data(){
     return {
-
       application_templates : [],
       shared_templates: [],
-
     }
   },
   mounted(){

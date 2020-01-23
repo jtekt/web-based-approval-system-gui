@@ -53,19 +53,11 @@ export default {
       default(){return false}
     },
   },
-  mixins: [],
-  mounted(){
-
-  },
   methods: {
     see_application(application_id){
       this.$router.push({ name: 'show_application', query: { id: application_id } })
     },
-
   },
-  computed: {
-
-  }
 }
 </script>
 

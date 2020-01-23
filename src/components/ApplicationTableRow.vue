@@ -27,26 +27,17 @@ export default {
       default(){return false}
     },
   },
-  mixins: [],
-  mounted(){
 
-  },
   methods: {
-
     see_application(application_id){
       this.$router.push({ name: 'show_application', query: { id: application_id } })
     },
-    
-
-
   },
   computed: {
     formatted_date(){
-
       return this.application._fields[0].properties.creation_date.year.low + "/"
         + this.application._fields[0].properties.creation_date.month.low + "/"
         + this.application._fields[0].properties.creation_date.day.low + "/"
-
     },
   }
 }

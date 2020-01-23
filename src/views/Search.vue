@@ -20,9 +20,6 @@
 
 export default {
   name: 'Search',
-  components: {
-
-  },
   data(){
     return {
       application_id: "",

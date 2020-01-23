@@ -28,7 +28,7 @@
         <select v-model="selected_form">
           <!--<option value=undefined>Please select</option>-->
           <option
-            v-for="application_type in application_types_user_created"
+            v-for="application_type in application_form_templates"
             v-bind:value="application_type">
             {{application_type._fields[0].properties.label}}
           </option>
@@ -88,10 +88,6 @@
 
       <div v-else>申請種類が選ばれていません / Application type not selected</div>
 
-
-
-
-
     </div>
 
 
@@ -128,15 +124,10 @@ export default {
 
   data(){
     return {
-
       title: "",
-
-      // approval Flow
-      recipients: [],
-
-      application_types_user_created: [],
+      recipients: [], // approval Flow
+      application_form_templates: [],
       selected_form: undefined,
-
     }
   },
   mounted(){
@@ -179,7 +170,7 @@ export default {
 
 
           // find the corresponding template in the available templates (search by ID)
-          let found_template = this.application_types_user_created.find(e => {
+          let found_template = this.application_form_templates.find(e => {
             return e._fields[e._fieldLookup['aft']].identity.low === template_used_by_original.identity.low
           })
 
@@ -201,12 +192,6 @@ export default {
             }
           }
 
-
-
-
-
-
-
         })
         .catch(error => console.log(error));
       }
@@ -217,14 +202,14 @@ export default {
       .then(response => {
 
         // delete templates to recreate them
-        this.application_types_user_created.splice(0,this.application_types_user_created.length)
+        this.application_form_templates.splice(0,this.application_form_templates.length)
 
         response.data.forEach(template => {
 
           // need to parse fields because saved as stringified JSON in DB
           template._fields[0].properties.fields = JSON.parse(template._fields[0].properties.fields)
 
-          this.application_types_user_created.push(template)
+          this.application_form_templates.push(template)
         })
         // this needs to be done once templates are available
         this.copy_content_if_duplicate();

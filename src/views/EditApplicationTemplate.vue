@@ -109,7 +109,6 @@ export default {
   components: {
     CorporateStructureNode
   },
-  mixins: [],
   data(){
     return {
 
