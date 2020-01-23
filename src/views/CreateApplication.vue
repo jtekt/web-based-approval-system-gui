@@ -150,7 +150,7 @@ export default {
       // Attempt to copy the content of one application into a new one
       // NOT VERY CLEAN
       if(this.$route.query.copy_of){
-        this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/get_application', {
+        this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/get_application', {
           application_id: this.$route.query.copy_of
         })
         .then(response => {
@@ -213,7 +213,7 @@ export default {
     },
 
     get_templates(){
-      this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/get_all_application_form_templates')
+      this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/get_all_application_form_templates')
       .then(response => {
 
         // delete templates to recreate them
@@ -236,7 +236,7 @@ export default {
     create_application(){
 
       if(this.form_valid){
-        this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/create_application', {
+        this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/create_application', {
           title: this.title,
           recipients_employee_number: this.recipients.map(a => a._fields[0].properties.employee_number),
           session_id: this.$store.state.session_id,
@@ -274,7 +274,7 @@ http://shinseimanager.mike.jtekt.maximemoreillon.com/show_application?id=${appli
           // ask for deletion of original application if this one is a duplicate
           if(this.$route.query.copy_of){
             if(confirm('Delete previous application?')){
-              this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/delete_application', {
+              this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/delete_application', {
                 application_id: this.$route.query.copy_of
               })
               .then( () => this.$router.push({ name: 'submitted_applications' }))
@@ -294,7 +294,7 @@ http://shinseimanager.mike.jtekt.maximemoreillon.com/show_application?id=${appli
 
     get_employees_belonging_to_node(node_id){
       // This does not seem to be used
-      this.axios.post('http://authentication.mike.jtekt.maximemoreillon.com/get_employees_belonging_to_node', {
+      this.axios.post(process.env.VUE_APP_AUTHENTICATION_MANAGER_URL + '/get_employees_belonging_to_node', {
         node_id: node_id,
       })
       .then(response => this.employees = response.data)
@@ -317,7 +317,7 @@ http://shinseimanager.mike.jtekt.maximemoreillon.com/show_application?id=${appli
 
       let formData = new FormData();
       formData.append('file_to_upload', event.target.files[0]);
-      this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/file_upload', formData, {
+      this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/file_upload', formData, {
         headers: {'Content-Type': 'multipart/form-data' }
       })
       .then(response => {

@@ -24,7 +24,7 @@ export default {
         {route: '/search', label: 'Search', icon: 'magnify'},
       ]
     }
-  }
+  },
 }
 </script>
 

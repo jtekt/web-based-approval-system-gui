@@ -179,7 +179,7 @@ export default {
   methods: {
     get_application(){
       // TODO: CHeck if id in query!!
-      this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/get_application', {
+      this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/get_application', {
         application_id: this.$route.query.id
       })
       .then(response => {
@@ -189,7 +189,7 @@ export default {
     },
     delete_application(application_id){
       if(confirm("ホンマ？")){
-        this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/delete_application', {
+        this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/delete_application', {
           application_id: application_id
         })
         .then( () => this.$router.push('/'))
@@ -202,7 +202,7 @@ export default {
       if(confirm("ホンマ？")){
 
         // send POST to mark as approved
-        this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/approve_application', {
+        this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/approve_application', {
           application_id: application_id
         })
         .then( () =>  {
@@ -243,7 +243,7 @@ http://shinseimanager.mike.jtekt.maximemoreillon.com/show_application?id=${this.
         var reason = prompt("なぜ？", "");
 
         if(reason){
-          this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/reject_application', {
+          this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/reject_application', {
             application_id: application_id,
             reason: reason,
           })
@@ -255,7 +255,7 @@ http://shinseimanager.mike.jtekt.maximemoreillon.com/show_application?id=${this.
     /*
     cancel(application_id){
       // This route is no longer in use since hankos cannot be canceled anymore
-      this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/cancel_decision', {
+      this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/cancel_decision', {
         application_id: application_id
       })
       .then( () => this.get_application())
@@ -268,7 +268,7 @@ http://shinseimanager.mike.jtekt.maximemoreillon.com/show_application?id=${this.
       this.$router.push({path: '/create_application', query: {copy_of: application_id}})
     },
     download(id){
-      window.location.href = 'http://shinseimanager.mike.jtekt.maximemoreillon.com/file?id=' + id;
+      window.location.href = process.env.VUE_APP_SHINSEI_MANAGER_URL + '/file?id=' + id;
     },
     see_template(id){
       this.$router.push({path: '/edit_application_template', query: {id: id}})

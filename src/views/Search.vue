@@ -34,7 +34,7 @@ export default {
       this.$router.push({ name: 'show_application', query: { id: this.application_id } })
     },
     search_hanko(){
-      this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/find_application_by_hanko', {
+      this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/find_application_by_hanko', {
         approval_id: this.hanko_id,
       })
       .then(response => {

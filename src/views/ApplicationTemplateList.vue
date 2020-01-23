@@ -71,7 +71,7 @@ export default {
   },
   methods: {
     get_my_templates(){
-      this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/get_application_form_templates_from_user')
+      this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/get_application_form_templates_from_user')
       .then( (response) => {
         this.application_templates.splice(0,this.application_templates.length)
         response.data.forEach(template => {
@@ -81,7 +81,7 @@ export default {
       .catch(error => console.log(error));
     },
     get_shared_templates(){
-      this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/get_all_application_form_templates')
+      this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/get_all_application_form_templates')
       .then( (response) => {
         this.shared_templates.splice(0,this.shared_templates.length)
         response.data.forEach(template => {

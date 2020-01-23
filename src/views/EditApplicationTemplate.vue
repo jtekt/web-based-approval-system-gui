@@ -154,7 +154,7 @@ export default {
 
     get_template_if_exists(){
       if('id' in this.$route.query){
-        this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/get_application_form_template', {
+        this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/get_application_form_template', {
           id: this.$route.query.id
         })
         .then( (response) => {
@@ -182,7 +182,7 @@ export default {
       if(this.visibility_target){
         // If id exists, then edit
         if('id' in this.$route.query){
-          this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/edit_application_form_template', {
+          this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/edit_application_form_template', {
             fields: this.fields,
             label: this.label,
             target_id: this.visibility_target.identity.low,
@@ -193,7 +193,7 @@ export default {
         }
         // otherwise create
         else{
-          this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/create_application_form_template', {
+          this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/create_application_form_template', {
             fields: this.fields,
             label: this.label,
             target_id: this.visibility_target.identity.low,
@@ -208,7 +208,7 @@ export default {
     },
     delete_template(id){
       if(confirm('ホンマ？')){
-        this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/delete_application_form_template',
+        this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/delete_application_form_template',
         {id:this.$route.query.id})
         .then( (response) => this.$router.push({ name: 'application_template_list' }) )
         .catch(error => console.log(error));
@@ -216,11 +216,11 @@ export default {
 
     },
     get_corporate_structure(){
-      this.axios.post('http://authentication.mike.jtekt.maximemoreillon.com/personal_information_v2', {})
+      this.axios.post(process.env.VUE_APP_AUTHENTICATION_MANAGER_URL + '/personal_information_v2', {})
       .then(response => {
         this.personal_information = response.data[0];
 
-        this.axios.post('http://authentication.mike.jtekt.maximemoreillon.com/get_all_divisions', {})
+        this.axios.post(process.env.VUE_APP_AUTHENTICATION_MANAGER_URL + '/get_all_divisions', {})
         .then(response => this.divisions = response.data)
         .catch(error => console.log(error));
 

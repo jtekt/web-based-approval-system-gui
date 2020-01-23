@@ -18,13 +18,13 @@ Vue.config.productionTip = false
 
 // Redirect to authentication anager if not logged in
 router.beforeEach((to, from, next) => {
-  axios.post('http://authentication.mike.jtekt.maximemoreillon.com/status')
+  axios.post(process.env.VUE_APP_AUTHENTICATION_MANAGER_URL + '/status')
   .then(response => {
     if(response.data.logged_in){
       store.commit('set_employee_number', response.data.employee_number)
       next();
     }
-    else window.location.href = "http://authentication.mike.jtekt.maximemoreillon.com/";
+    else window.location.href = process.env.VUE_APP_AUTHENTICATION_MANAGER_URL + '/';
   })
   .catch(error => console.log(error))
 });

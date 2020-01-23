@@ -1,4 +1,4 @@
-
+// IS THIS USED?
 export const parse_application_records = {
   methods: {
     parse_application_records(records){
