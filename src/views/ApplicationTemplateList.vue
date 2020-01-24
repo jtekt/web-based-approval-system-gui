@@ -2,7 +2,11 @@
   <div class="">
     <!-- add button -->
     <div class="add_button_wrapper">
-      <button type="button" v-on:click="new_template()">New form</button>
+      <IconButton
+        v-on:clicked="new_template()"
+        icon="mdi-plus"
+        bordered >
+      新しい申請テンプレート</IconButton>
     </div>
 
     <table class="templates_table">
@@ -50,11 +54,15 @@
 </template>
 
 <script>
+import IconButton from '@/components/IconButton.vue'
 
 
 
 export default {
   name: 'EditApplicationTemplate',
+  components: {
+    IconButton,
+  },
   data(){
     return {
       application_templates : [],
