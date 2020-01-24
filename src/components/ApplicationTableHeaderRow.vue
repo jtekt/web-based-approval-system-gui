@@ -1,13 +1,10 @@
 <template>
   <tr class="headers_row">
-    <!--<th>ID</th>-->
     <th>日付 / Date</th>
     <th>種類 / Type</th>
     <th v-if="!hideApplicant">申請者 / Applicant</th>
     <th>タイトル / Title</th>
   </tr>
-
-
 </template>
 
 <script>

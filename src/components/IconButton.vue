@@ -1,0 +1,57 @@
+<template>
+  <button type="button"
+    v-on:click="$emit('clicked')"
+    v-bind:class="{bordered: bordered}">
+    <span class="mdi"
+      v-bind:class="icon"/>
+    <slot/>
+  </button>
+</template>
+
+<script>
+// Tools
+
+export default {
+  name: 'IconButton',
+  components: {
+
+  },
+  props: {
+    bordered: {type: Boolean, default(){return false}},
+    icon: {type: String, default(){return "mdi-help"}}
+  },
+}
+</script>
+
+<style scoped>
+
+button {
+  font-size: 150%;
+  border: none;
+  background-color: transparent;
+  color: #222222;
+  transition: color 0.25s, border-color 0.25s;
+}
+
+span {
+
+}
+
+button:hover {
+
+  color: #c00000;
+}
+
+
+button.bordered {
+  border: 1px solid #222222;
+  border-radius: 5px;
+}
+
+button.bordered:hover{
+  border-color: #c00000;
+}
+
+
+
+</style>

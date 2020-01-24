@@ -3,7 +3,11 @@
 
 
     <div class="new_button_wrapper">
-      <button type="button" v-on:click="create_new_application">Create new application</button>
+      <IconButton
+        v-on:clicked="create_new_application()"
+        icon="mdi-plus"
+        bordered >
+      新しい申請</IconButton>
     </div>
 
     <ApplicationTableV2 v-bind:applications="applications" hideApplicant/>
@@ -12,11 +16,13 @@
 
 <script>
 import ApplicationTableV2 from '@/components/ApplicationTableV2.vue'
+import IconButton from '@/components/IconButton.vue'
 
 export default {
   name: 'SubmittedApplications',
   components: {
-    ApplicationTableV2
+    ApplicationTableV2,
+    IconButton
   },
   data(){
     return {
