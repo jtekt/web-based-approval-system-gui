@@ -9,10 +9,10 @@
 
       <div class="">
         <div class="visibility_header" v-if="visibility_target">
-          Sharing with {{visibility_target.properties.original_name}}
+          <span class="shared_with">{{visibility_target.properties.original_name}}</span> が使える申請になります / Will be able to use the form
         </div>
         <div class="visibility_header" v-else>
-          Please select with whom to share
+          どの部署が使えるか選んでください
         </div>
         <div class="corporate_structure">
 
@@ -43,7 +43,7 @@
 
           <div class="">
             <label for="">ラベル / Label</label>
-            <input type="text" v-model="field.label">
+            <input type="text" v-model="field.label" placeholder="例：パソコン番号">
           </div>
 
           <div class="">
@@ -148,19 +148,11 @@ export default {
 
       label: "タイトル",
       fields : [
-        {type: "text", label: "label"}
+        {type: "text", label: ""},
+        {type: "text", label: ""},
+        {type: "text", label: ""},
       ],
 
-      // attempt to simplify passing data to back end
-      // NOT USED YET
-      template_data: {
-        label: "",
-        fields: [
-          {type: "text", label: "label"} // default line
-        ],
-        shared_with: undefined, // this is used for a relationship
-        id: undefined,
-      },
 
     }
   },
@@ -283,6 +275,9 @@ export default {
   margin: 10px;
 }
 
+.field:not(:last-child){
+  border-bottom: 1px solid #dddddd;
+}
 .field > * {
   margin: 0 10px;
   flex-grow: 1;
@@ -319,5 +314,12 @@ label {
 }
 .add_field_button{
   font-size: 110%;
+}
+.shared_with{
+  font-weight: bold;
+}
+
+.visibility_header{
+  border-bottom: 1px solid #dddddd;
 }
 </style>
