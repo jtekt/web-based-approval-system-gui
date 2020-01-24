@@ -1,7 +1,8 @@
 <template>
   <button type="button"
     v-on:click="$emit('clicked')"
-    v-bind:class="{bordered: bordered}">
+    v-bind:class="{bordered: bordered, disabled: disabled}"
+    v-bind:disabled="disabled">
     <span class="mdi"
       v-bind:class="icon"/>
     <slot/>
@@ -18,7 +19,8 @@ export default {
   },
   props: {
     bordered: {type: Boolean, default(){return false}},
-    icon: {type: String, default(){return "mdi-help"}}
+    icon: {type: String, default(){return "mdi-help"}},
+    disabled: {type: Boolean, default(){return false}},
   },
 }
 </script>
@@ -31,6 +33,7 @@ button {
   background-color: transparent;
   color: #222222;
   transition: color 0.25s, border-color 0.25s;
+  cursor: pointer;
 }
 
 span {
@@ -50,6 +53,16 @@ button.bordered {
 
 button.bordered:hover{
   border-color: #c00000;
+}
+
+button.disabled {
+  cursor: not-allowed;
+  color: #bbbbbb;
+}
+
+button.disabled.bordered {
+  border-color: #bbbbbb;
+
 }
 
 

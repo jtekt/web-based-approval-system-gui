@@ -93,10 +93,12 @@
 
     <div class="submit_button_container" >
 
-      <span
-        class="mdi mdi-send submit_button"
-        v-bind:class="{disabled: !form_valid}"
-        v-on:click="create_application()"> Send</span>
+      <IconButton
+        v-on:clicked="create_application()"
+        icon="mdi-send"
+        bordered
+        v-bind:disabled="!form_valid">
+        送る / Send</IconButton>
 
     </div>
 
@@ -110,6 +112,7 @@ import EmployeePicker from '@/components/jtekt_vue_employee_picker/EmployeePicke
 import ApprovalFlow from '@/components/ApprovalFlow.vue'
 
 import Datepicker from 'vuejs-datepicker';
+import IconButton from '@/components/IconButton.vue'
 
 // Mixins
 // Application types are gotten from this mixin
@@ -120,7 +123,8 @@ export default {
   components: {
     EmployeePicker,
     ApprovalFlow,
-    Datepicker
+    Datepicker,
+    IconButton
   },
 
   data(){

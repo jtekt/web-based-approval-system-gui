@@ -92,13 +92,17 @@
           class="actions_container"
           v-if="applicant.properties.employee_number === this.$store.state.employee_number">
 
-          <span
-            class="mdi mdi-delete action_button"
-            v-on:click="delete_application(application.identity.low)"> Delete</span>
+          <IconButton
+            v-on:clicked="delete_application(application.identity.low)"
+            icon="mdi-delete"
+            bordered>
+            削除 / Delete</IconButton>
 
-          <span
-            class="mdi mdi-content-duplicate action_button"
-            v-on:click="edit_a_copy(application.identity.low)"> Duplicate</span>
+          <IconButton
+            v-on:clicked="edit_a_copy(application.identity.low)"
+            icon="mdi-content-duplicate"
+            bordered>
+            複製 / Duplicate</IconButton>
 
         </div>
 
@@ -151,11 +155,13 @@
 
 <script>
 import WebHankoContainer from '@/components/web_hanko/WebHankoContainer.vue'
+import IconButton from '@/components/IconButton.vue'
 
 export default {
   name: 'ShowApplication',
   components: {
     WebHankoContainer,
+    IconButton,
   },
   mounted(){
     this.get_application();

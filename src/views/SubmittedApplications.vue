@@ -6,8 +6,8 @@
       <IconButton
         v-on:clicked="create_new_application()"
         icon="mdi-plus"
-        bordered >
-      新しい申請</IconButton>
+        bordered>
+        新しい申請</IconButton>
     </div>
 
     <ApplicationTableV2 v-bind:applications="applications" hideApplicant/>

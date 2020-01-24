@@ -29,8 +29,13 @@
 
 
       <div class="fields_wrapper">
-        <div class="">
-          <button type="button" v-on:click="add_field()">add field</button>
+        <div class="buttons_wrapper">
+          <IconButton
+            class="add_field_button"
+            v-on:clicked="add_field()"
+            icon="mdi-add"
+            bordered>
+            フィールド作成 / Add field</IconButton>
         </div>
 
 
@@ -50,17 +55,29 @@
             </select>
           </div>
 
-          <button type="button" v-on:click="delete_field(index)">delete</button>
+          <IconButton
+            v-on:clicked="delete_field(index)"
+            icon="mdi-delete"
+            v-bind:disabled="!!$route.query.id"/>
 
         </div>
       </div>
 
       <div class="buttons_wrapper">
-        <button type="button" v-on:click="submit()">submit</button>
-        <button
-          type="button"
-          v-on:click="delete_template()"
-          v-if="$route.query.id">delete</button>
+
+        <IconButton
+          v-on:clicked="submit()"
+          icon="mdi-content-save"
+          bordered>
+          保存 / Save</IconButton>
+
+        <IconButton
+          v-on:clicked="delete_template()"
+          icon="mdi-delete"
+          bordered
+          v-bind:disabled="!!$route.query.id">
+          削除 / Delete</IconButton>
+
       </div>
     </div>
 
@@ -102,12 +119,14 @@
 <script>
 
 import CorporateStructureNode from '@/components/jtekt_vue_employee_picker/CorporateStructureNode.vue'
+import IconButton from '@/components/IconButton.vue'
 
 
 export default {
   name: 'EditApplicationTemplate',
   components: {
-    CorporateStructureNode
+    CorporateStructureNode,
+    IconButton
   },
   data(){
     return {
@@ -175,7 +194,9 @@ export default {
       this.fields.push({type: "text", label: "label"})
     },
     delete_field(index){
-      this.fields.splice(index,1)
+      if(confirm('ホンマ？')){
+        this.fields.splice(index,1)
+      }
     },
     submit(){
       if(this.visibility_target){
@@ -294,6 +315,9 @@ label {
 .buttons_wrapper{
   display: flex;
   justify-content: space-around;
+  padding: 10px;
 }
-
+.add_field_button{
+  font-size: 110%;
+}
 </style>

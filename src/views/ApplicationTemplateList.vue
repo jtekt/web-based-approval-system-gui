@@ -6,7 +6,7 @@
         v-on:clicked="new_template()"
         icon="mdi-plus"
         bordered >
-      新しい申請テンプレート</IconButton>
+        新しい申請テンプレート</IconButton>
     </div>
 
     <table class="templates_table">
