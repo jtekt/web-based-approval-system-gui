@@ -19,11 +19,6 @@
             <td>{{application.properties.title}}</td>
           </tr>
           <tr>
-            <td>ID</td>
-            <td>{{application.identity.low}}</td>
-          </tr>
-
-          <tr>
             <td>タイプ / Type</td>
             <td>{{application.properties.type}}</td>
           </tr>
@@ -37,6 +32,10 @@
           <tr>
             <td>申請者 / Applicant</td>
             <td>{{applicant.properties.name_kanji}} ({{applicant.properties.employee_number}})</td>
+          </tr>
+          <tr>
+            <td>ID</td>
+            <td>{{application.identity.low}}</td>
           </tr>
 
           <!-- form data -->
