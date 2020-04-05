@@ -9,20 +9,22 @@
 
       <div class="">
         <div class="visibility_header" v-if="visibility_target">
-          <span class="shared_with">{{visibility_target.properties.original_name}}</span> が使える申請になります / Will be able to use the form
+          <span class="shared_with">
+            {{visibility_target.properties.original_name}}
+          </span>
+          <span>
+            が使える申請になります / Will be able to use the form
+          </span>
         </div>
         <div class="visibility_header" v-else>
           どの部署が使えるか選んでください
         </div>
-        <div class="corporate_structure">
 
-          <CorporateStructureNode
-            v-for="division in divisions"
-            v-bind:nodeData="division"
-            v-bind:key="division._fields[0].identity.low"
-            v-bind:personalInformation="personal_information"
-            v-on:nodeSelected="node_selected($event)"/>
-        </div>
+
+        <GroupPicker
+          class="corporate_structure"
+          :apiUrl="picker_api_url"
+          v-on:selection="node_selected($event)"/>
       </div>
 
 
@@ -58,7 +60,7 @@
           <IconButton
             v-on:clicked="delete_field(index)"
             icon="mdi-delete"
-            v-bind:disabled="!!$route.query.id"/>
+            v-if="!$route.query.id"/>
 
         </div>
       </div>
@@ -73,9 +75,9 @@
 
         <IconButton
           v-on:clicked="delete_template()"
+          v-if="!!$route.query.id"
           icon="mdi-delete"
-          bordered
-          v-bind:disabled="!!$route.query.id">
+          bordered>
           削除 / Delete</IconButton>
 
       </div>
@@ -121,11 +123,13 @@
 import CorporateStructureNode from '@/components/jtekt_vue_employee_picker/CorporateStructureNode.vue'
 import IconButton from '@/components/IconButton.vue'
 
+import GroupPicker from '@moreillon/vue_group_picker'
 
 export default {
   name: 'EditApplicationTemplate',
   components: {
     CorporateStructureNode,
+    GroupPicker,
     IconButton
   },
   data(){
@@ -228,11 +232,11 @@ export default {
 
     },
     get_corporate_structure(){
-      this.axios.post(process.env.VUE_APP_AUTHENTICATION_MANAGER_URL + '/personal_information_v2', {})
+      this.axios.post(process.env.VUE_APP_EMPLOYEE_MANAGER_URL + '/personal_information_v2', {})
       .then(response => {
         this.personal_information = response.data[0];
 
-        this.axios.post(process.env.VUE_APP_AUTHENTICATION_MANAGER_URL + '/get_all_divisions', {})
+        this.axios.post(process.env.VUE_APP_EMPLOYEE_MANAGER_URL + '/get_all_divisions', {})
         .then(response => this.divisions = response.data)
         .catch(error => console.log(error));
 
@@ -257,6 +261,9 @@ export default {
       }
 
       return false;
+    },
+    picker_api_url(){
+      return process.env.VUE_APP_EMPLOYEE_MANAGER_URL
     }
   }
 }

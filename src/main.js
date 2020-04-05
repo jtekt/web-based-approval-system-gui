@@ -6,28 +6,50 @@ import router from './router'
 import store from './store'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
+import VueCookies from 'vue-cookies'
 
-
-axios.defaults.withCredentials = true
-axios.defaults.crossDomain = true
-
+Vue.use(VueCookies)
 Vue.use(VueAxios, axios)
+
+
 Vue.config.productionTip = false
 
 
 
 // Redirect to authentication anager if not logged in
+
 router.beforeEach((to, from, next) => {
-  axios.post(process.env.VUE_APP_AUTHENTICATION_MANAGER_URL + '/status')
-  .then(response => {
-    if(response.data.logged_in){
-      store.commit('set_employee_number', response.data.employee_number)
+
+  console.log(window.location.hostname)
+
+  if(window.location.hostname.includes('maximemoreillon')) {
+    window.location.href = process.env.VUE_APP_AUTHENTICATION_MANAGER_FRONT_URL;
+  }
+
+  var jwt = Vue.$cookies.get("jwt_jtekt")
+  if(jwt) {
+    axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`
+
+    // get employee number
+    axios.post(`${process.env.VUE_APP_AUTHENTICATION_MANAGER_URL}/decode_jwt`, { jwt: jwt })
+    .then(response => {
+      store.commit('set_employee_number', response.data.properties.employee_number)
       next();
-    }
-    else window.location.href = process.env.VUE_APP_AUTHENTICATION_MANAGER_URL + '/';
-  })
-  .catch(error => console.log(error))
+    })
+    .catch(error => {
+      if(error.response) console.log(error.response.data)
+      else console.log(error)
+    })
+
+  }
+  else {
+    delete axios.defaults.headers.common['Authorization']
+    window.location.href = process.env.VUE_APP_AUTHENTICATION_MANAGER_URL;
+  }
+
 });
+
+
 
 new Vue({
   router,

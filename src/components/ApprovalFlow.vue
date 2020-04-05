@@ -15,7 +15,7 @@
       <div
         class="flow_item"
         v-for="(employee, index) in employees"
-        v-bind:key="employee._fields[0].identity.low">
+        v-bind:key="employee.identity.low">
 
 
         <span v-if="index>0" class="arrow mdi mdi-arrow-right"/>
@@ -23,8 +23,8 @@
         <!-- the actual employee -->
         <div class="employee">
           <span class="delete_button mdi mdi-close" v-on:click="$emit('deleteEmployee',index)"/>
-          <div class="name">{{employee._fields[0].properties.name_kanji}}</div>
-          <div class="name">({{employee._fields[0].properties.role}})</div>
+          <div class="name">{{employee.properties.name_kanji}}</div>
+          <div class="name">({{employee.properties.role}})</div>
         </div>
       </div>
     </draggable>

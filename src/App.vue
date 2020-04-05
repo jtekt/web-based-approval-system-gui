@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import AppTemplate from '@/components/jtekt_vue_template/AppTemplate.vue'
+import AppTemplate from '@moreillon/vue_application_template_flex'
 
 
 export default {
@@ -29,5 +29,13 @@ export default {
 </script>
 
 <style>
+* {
+  box-sizing: border-box;
+}
+
+.picker .node_container{
+  margin: 0 !important;
+  padding: 0 !important;
+}
 
 </style>

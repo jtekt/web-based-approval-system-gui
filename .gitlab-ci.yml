@@ -1,0 +1,21 @@
+stages:
+  - containerization
+  - deployment
+
+variables:
+  APPLICATION_NAME: afm-front
+  CONTAINER_REGISTRY: 172.16.98.151:5000
+
+containerization:
+  stage: containerization
+  script:
+    - docker build -t ${CONTAINER_REGISTRY}/${APPLICATION_NAME} .
+    - docker push ${CONTAINER_REGISTRY}/${APPLICATION_NAME}
+
+deployment:
+  stage: deployment
+  script:
+    - kubectl apply -f deployment.yml
+    - kubectl rollout restart deployment/${APPLICATION_NAME}
+  environment:
+    name: staging

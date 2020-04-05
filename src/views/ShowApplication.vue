@@ -219,7 +219,7 @@ mailto:${next_recipient.properties.email_address}
 &body=${next_recipient.properties.name_kanji}　様%0D%0A
 %0D%0A
 提出先URL%0D%0A
-http://shinseimanager.mike.jtekt.maximemoreillon.com/show_application?id=${this.application.identity.low}%0D%0A
+${VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${this.application.identity.low}%0D%0A
 %0D%0A
 確認お願いします。%0D%0A
               `

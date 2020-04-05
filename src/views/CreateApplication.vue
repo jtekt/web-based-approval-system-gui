@@ -4,13 +4,17 @@
   <div>
 
     <!-- Employee picker -->
-    <EmployeePicker v-on:employeeSelected="add_to_recipients($event)" />
+
+    <UserPicker
+      class="picker"
+      :apiUrl="picker_api_url"
+      v-on:selection="add_to_recipients($event)"/>
+
 
     <!-- Approval flow -->
     <ApprovalFlow
       v-on:deleteEmployee="delete_recipient($event)"
       v-bind:employees="recipients"/>
-
 
 
     <!-- test with user generated form selector -->
@@ -110,6 +114,7 @@
 // UI elements
 import EmployeePicker from '@/components/jtekt_vue_employee_picker/EmployeePicker.vue'
 import ApprovalFlow from '@/components/ApprovalFlow.vue'
+import UserPicker from '@moreillon/vue_user_picker'
 
 import Datepicker from 'vuejs-datepicker';
 import IconButton from '@/components/IconButton.vue'
@@ -121,6 +126,7 @@ import IconButton from '@/components/IconButton.vue'
 export default {
   name: 'CreateApplication',
   components: {
+    UserPicker,
     EmployeePicker,
     ApprovalFlow,
     Datepicker,
@@ -158,10 +164,9 @@ export default {
           this.title = "Copy of " + application_properties.title
 
           // recreate flow
-          response.data.reverse().forEach(recipient => {
-            this.recipients.push({
-              _fields: [recipient._fields[recipient._fieldLookup['recipient']]]
-            });
+          response.data.reverse().forEach( record => {
+            let recipient = record._fields[record._fieldLookup['recipient']]
+            this.recipients.push(recipient);
           })
 
 
@@ -186,6 +191,7 @@ export default {
           // check if fields match
           let selected_form_fields = this.selected_form._fields[this.selected_form._fieldLookup['aft']].properties.fields
 
+          // It might be better to replace this with a find?
           for (const [index, val] of selected_form_fields.entries()) {
             if(val.type === application_properties.form_data[index].type && val.label === application_properties.form_data[index].label){
               //console.log(original_form_fields[index])
@@ -228,7 +234,7 @@ export default {
       if(this.form_valid){
         this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/create_application', {
           title: this.title,
-          recipients_employee_number: this.recipients.map(a => a._fields[0].properties.employee_number),
+          recipients_employee_number: this.recipients.map(recipient => recipient.properties.employee_number),
           session_id: this.$store.state.session_id,
           form_data: this.selected_form._fields[this.selected_form._fieldLookup['aft']].properties.fields,
           template_id: this.selected_form._fields[this.selected_form._fieldLookup['aft']].identity.low,
@@ -242,9 +248,9 @@ export default {
           // send notification email to first recipient of flow
           if(confirm(`Application registered successfully. Send notification email to recipient?`)){
 
-            let recipient_email = this.recipients[0]._fields[0].properties.email_address;
+            let recipient_email = this.recipients[0].properties.email_address;
+            let recipient_name = this.recipients[0].properties.name_kanji
             let application_type = response.data[0]._fields[0].properties.type
-            let recipient_name = this.recipients[0]._fields[0].properties.name_kanji
             let application_id = response.data[0]._fields[0].identity.low
 
             // Send email to first recipient
@@ -255,13 +261,14 @@ mailto:${recipient_email}
 &body=${recipient_name}　様%0D%0A
 %0D%0A
 提出先URL%0D%0A
-http://shinseimanager.mike.jtekt.maximemoreillon.com/show_application?id=${application_id}%0D%0A
+${process.env.VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${application_id}%0D%0A
 %0D%0A
 確認お願いします。%0D%0A
             `
           }
 
           // ask for deletion of original application if this one is a duplicate
+          /*
           if(this.$route.query.copy_of){
             if(confirm('Delete previous application?')){
               this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/delete_application', {
@@ -272,6 +279,7 @@ http://shinseimanager.mike.jtekt.maximemoreillon.com/show_application?id=${appli
             }
             else this.$router.push({ name: 'submitted_applications' })
           }
+          */
           else this.$router.push({ name: 'submitted_applications' })
 
         })
@@ -284,7 +292,7 @@ http://shinseimanager.mike.jtekt.maximemoreillon.com/show_application?id=${appli
 
     get_employees_belonging_to_node(node_id){
       // This does not seem to be used
-      this.axios.post(process.env.VUE_APP_AUTHENTICATION_MANAGER_URL + '/get_employees_belonging_to_node', {
+      this.axios.post(process.env.VUE_APP_EMPLOYEE_MANAGER_URL + '/get_employees_belonging_to_node', {
         node_id: node_id,
       })
       .then(response => this.employees = response.data)
@@ -295,7 +303,6 @@ http://shinseimanager.mike.jtekt.maximemoreillon.com/show_application?id=${appli
       this.recipients.splice(recipient_index,1);
     },
     add_to_recipients(recipient_to_add){
-
       // Prevent duplicates
       if(!this.recipients.includes(recipient_to_add)){
         this.recipients.push(recipient_to_add);
@@ -315,7 +322,7 @@ http://shinseimanager.mike.jtekt.maximemoreillon.com/show_application?id=${appli
         // Is this the right way?
         this.$set(field,'value',response.data)
       })
-      .catch(error => console.log(error));
+      .catch(error => alert(error.response.data));
     },
     delete_file(field){
       // Is this the right way to set value?
@@ -327,6 +334,9 @@ http://shinseimanager.mike.jtekt.maximemoreillon.com/show_application?id=${appli
       return this.selected_form
         && this.recipients.length > 0
         && this.title
+    },
+    picker_api_url(){
+      return process.env.VUE_APP_EMPLOYEE_MANAGER_URL
     }
   }
 }
@@ -334,15 +344,19 @@ http://shinseimanager.mike.jtekt.maximemoreillon.com/show_application?id=${appli
 
 <style scoped>
 
-form > div {
-
-}
-
 .section_wrapper{
   border: 1px solid #dddddd;
   margin: 15px;
   padding: 10px;
 }
+
+.picker {
+  margin: 15px;
+  height: 300px;
+
+}
+
+
 
 .type_and_title_input_wrapper{
   /*

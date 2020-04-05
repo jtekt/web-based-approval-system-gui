@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: afm-front
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: afm-front
+  template:
+    metadata:
+      labels:
+        app: afm-front
+    spec:
+
+      containers:
+      - name: afm-front
+        image: 172.16.98.151:5000/afm-front
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    run: afm-front
+  name: afm-front
+spec:
+  ports:
+  - port: 80
+    nodePort: 32723
+  selector:
+    app: afm-front
+  type: LoadBalancer
