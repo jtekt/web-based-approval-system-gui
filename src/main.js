@@ -26,7 +26,7 @@ router.beforeEach((to, from, next) => {
     window.location.href = process.env.VUE_APP_AUTHENTICATION_MANAGER_FRONT_URL;
   }
 
-  var jwt = Vue.$cookies.get("jwt_jtekt")
+  var jwt = Vue.$cookies.get("jwt")
   if(jwt) {
     axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`
 
