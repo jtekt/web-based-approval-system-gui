@@ -120,7 +120,6 @@
 
 <script>
 
-import CorporateStructureNode from '@/components/jtekt_vue_employee_picker/CorporateStructureNode.vue'
 import IconButton from '@/components/IconButton.vue'
 
 import GroupPicker from '@moreillon/vue_group_picker'
@@ -128,7 +127,6 @@ import GroupPicker from '@moreillon/vue_group_picker'
 export default {
   name: 'EditApplicationTemplate',
   components: {
-    CorporateStructureNode,
     GroupPicker,
     IconButton
   },

@@ -1,7 +1,1 @@
 
-[submodule "src/components/jtekt_vue_employee_picker"]
-	path = src/components/jtekt_vue_employee_picker
-	url = https://github.com/maximemoreillon/jtekt_vue_employee_picker.git
-[submodule "src/components/web_hanko"]
-	path = src/components/web_hanko
-	url = https://github.com/maximemoreillon/web_hanko.git

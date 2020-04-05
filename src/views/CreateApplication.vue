@@ -112,7 +112,6 @@
 <script>
 
 // UI elements
-import EmployeePicker from '@/components/jtekt_vue_employee_picker/EmployeePicker.vue'
 import ApprovalFlow from '@/components/ApprovalFlow.vue'
 import UserPicker from '@moreillon/vue_user_picker'
 
@@ -127,7 +126,6 @@ export default {
   name: 'CreateApplication',
   components: {
     UserPicker,
-    EmployeePicker,
     ApprovalFlow,
     Datepicker,
     IconButton
