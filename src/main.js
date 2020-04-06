@@ -20,12 +20,6 @@ Vue.config.productionTip = false
 
 router.beforeEach((to, from, next) => {
 
-  console.log(window.location.hostname)
-
-  if(window.location.hostname.includes('maximemoreillon')) {
-    window.location.href = process.env.VUE_APP_AUTHENTICATION_MANAGER_FRONT_URL;
-  }
-
   var jwt = Vue.$cookies.get("jwt")
   if(jwt) {
     axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`
