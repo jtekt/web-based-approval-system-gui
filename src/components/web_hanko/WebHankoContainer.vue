@@ -62,7 +62,7 @@ export default {
   },
   methods: {
     view_profile(recipient){
-      window.location.href = `${process.env.VUE_APP_EMPLOYEE_MANAGER_URL}/?id=${recipient.identity.low}`;
+      window.location.href = `${process.env.VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/?id=${recipient.identity.low}`;
     }
   },
   computed: {
