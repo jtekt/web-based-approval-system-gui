@@ -37,8 +37,11 @@ router.beforeEach((to, from, next) => {
 
   }
   else {
+    // Unset the authorization header
     delete axios.defaults.headers.common['Authorization']
-    window.location.href = process.env.VUE_APP_AUTHENTICATION_MANAGER_URL;
+
+    // Redirect to autheirzation ms front end
+    window.location.href = process.env.VUE_APP_AUTHENTICATION_MANAGER_FRONT_URL;
   }
 
 });
