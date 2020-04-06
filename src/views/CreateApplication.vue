@@ -278,7 +278,7 @@ ${process.env.VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${applicati
             else this.$router.push({ name: 'submitted_applications' })
           }
           */
-          else this.$router.push({ name: 'submitted_applications' })
+          this.$router.push({ name: 'submitted_applications' })
 
         })
         .catch(error => alert(error));
