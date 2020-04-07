@@ -261,7 +261,7 @@ export default {
       return false;
     },
     picker_api_url(){
-      return process.env.VUE_APP_EMPLOYEE_MANAGER_URL
+      return process.env.VUE_APP_GROUP_MANAGER_API_URL
     }
   }
 }
