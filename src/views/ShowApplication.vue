@@ -1,150 +1,160 @@
 <template>
   <div class="show_application">
 
+    <template v-if="!loading && !error">
+      <div class="application_container" v-if="application">
 
-    <!-- wrapper needed for v-if -->
-    <div class="application_container" v-if="application">
+        <!-- information about the application form -->
+        <div class="application_info">
 
-      <!-- information about the application form -->
-      <div class="application_info">
+          <table class="">
 
-        <table class="">
+            <!-- Application info -->
+            <tr>
+              <th colspan="2">申請情報</th>
+            </tr>
+            <tr>
+              <td>ID</td>
+              <td>{{application.identity.low}}</td>
+            </tr>
+            <tr>
+              <td>タイトル / Title</td>
+              <td>{{application.properties.title}}</td>
+            </tr>
+            <tr>
+              <td>タイプ / Type</td>
+              <td>{{application.properties.type}}</td>
+            </tr>
 
-          <!-- Application info -->
-          <tr>
-            <th colspan="2">申請情報</th>
-          </tr>
-          <tr>
-            <td>タイトル / Title</td>
-            <td>{{application.properties.title}}</td>
-          </tr>
-          <tr>
-            <td>タイプ / Type</td>
-            <td>{{application.properties.type}}</td>
-          </tr>
-
-          <tr>
-            <td>日付 / Date</td>
-            <td>
-              {{application.properties.creation_date.year.low}}/{{application.properties.creation_date.month.low}}/{{application.properties.creation_date.day.low}}
-            </td>
-          </tr>
-          <tr>
-            <td>申請者 / Applicant</td>
-            <td>{{applicant.properties.name_kanji}} ({{applicant.properties.employee_number}})</td>
-          </tr>
-          <tr>
-            <td>ID</td>
-            <td>{{application.identity.low}}</td>
-          </tr>
-
-          <!-- form data -->
-          <tr>
-            <th colspan="2">申請内容</th>
-          </tr>
-
-          <!-- If form data is stored as an array (experiment) -->
-          <tr v-for="field in form_data" v-if="Array.isArray(form_data)">
-            <td>{{field.label}}</td>
-
-            <!-- need conditions for display depending on type -->
-
-            <td v-if="field.type === 'file' && field.value">
-              <span
-                v-on:click="download(field.value)"
-                class="mdi mdi-download download_button"/>
-            </td>
-
-            <td v-else-if="field.type === 'checkbox'">
-              <span v-if="field.value" class="mdi mdi-check"/>
-              <span v-else class="mdi mdi-close"/>
-            </td>
-
-            <td v-else-if="field.type === 'date'">
-              <span v-if="field.value">{{new Date(field.value).toLocaleDateString('ja-JP')}}</span>
-              <span v-else>-</span>
-            </td>
+            <tr>
+              <td>日付 / Date</td>
+              <td>
+                {{application.properties.creation_date.year.low}}/{{application.properties.creation_date.month.low}}/{{application.properties.creation_date.day.low}}
+              </td>
+            </tr>
+            <tr>
+              <td>申請者 / Applicant</td>
+              <td>{{applicant.properties.name_kanji}} ({{applicant.properties.employee_number}})</td>
+            </tr>
 
 
-            <td v-else-if="field.value">{{field.value}}</td>
+            <!-- form data -->
+            <tr>
+              <th colspan="2">申請内容</th>
+            </tr>
 
-            <!-- missing value -->
-            <td v-else>-</td>
-          </tr>
+            <!-- If form data is stored as an array (experiment) -->
+            <tr v-for="field in form_data" v-if="Array.isArray(form_data)">
+              <td>{{field.label}}</td>
 
-          <!-- LEGACY -->
-          <!-- If form data is an object (OLD style) -->
-          <tr v-for="value, key in form_data" v-if="!Array.isArray(form_data)">
-            <td>{{key}}</td>
-            <td v-if="key === 'report_file' || key === 'file'">
-              <span
-                v-on:click="download(value)"
-                class="mdi mdi-download download_button"/>
-            </td>
-            <td v-else>{{value}}</td>
-          </tr>
+              <!-- need conditions for display depending on type -->
 
-        </table>
+              <td v-if="field.type === 'file' && field.value">
+                <span
+                  v-on:click="download(field.value)"
+                  class="mdi mdi-download download_button"/>
+              </td>
 
-        <!-- actions -->
-        <div
-          class="actions_container"
-          v-if="applicant.properties.employee_number === this.$store.state.employee_number">
+              <td v-else-if="field.type === 'checkbox'">
+                <span v-if="field.value" class="mdi mdi-check"/>
+                <span v-else class="mdi mdi-close"/>
+              </td>
 
-          <IconButton
-            v-on:clicked="delete_application(application.identity.low)"
-            icon="mdi-delete"
-            bordered>
-            削除 / Delete</IconButton>
+              <td v-else-if="field.type === 'date'">
+                <span v-if="field.value">{{new Date(field.value).toLocaleDateString('ja-JP')}}</span>
+                <span v-else>-</span>
+              </td>
 
-          <IconButton
-            v-on:clicked="edit_a_copy(application.identity.low)"
-            icon="mdi-content-duplicate"
-            bordered>
-            複製 / Duplicate</IconButton>
 
-        </div>
+              <td v-else-if="field.value">{{field.value}}</td>
 
-      </div>
+              <!-- missing value -->
+              <td v-else>-</td>
+            </tr>
 
-      <!-- area with the hankos -->
-      <div class="approval_flow_column">
-        <div class="hanko_container_container" >
+            <!-- LEGACY -->
+            <!-- If form data is an object (OLD style) -->
+            <tr v-for="value, key in form_data" v-if="!Array.isArray(form_data)">
+              <td>{{key}}</td>
+              <td v-if="key === 'report_file' || key === 'file'">
+                <span
+                  v-on:click="download(value)"
+                  class="mdi mdi-download download_button"/>
+              </td>
+              <td v-else>{{value}}</td>
+            </tr>
 
-          <!-- inner wrapper exists so that arrows can be placed between hanko containers -->
+          </table>
+
+          <!-- actions -->
           <div
-            class="hanko_container_container_intermediate_wrapper"
-            v-for="(application_record, index) in application_records">
+            class="actions_container"
+            v-if="applicant.properties.employee_number === this.$store.state.employee_number">
 
-            <span v-if="index>0" class="arrow mdi mdi-arrow-left"/>
+            <IconButton
+              v-on:clicked="delete_application(application.identity.low)"
+              icon="mdi-delete"
+              bordered>
+              削除 / Delete</IconButton>
 
-            <WebHankoContainer
-              v-bind:applicationRecord="application_record"
-              v-on:approve="approve(application.identity.low)"
-              v-on:reject="reject(application.identity.low)"
-              v-on:cancel="cancel(application.identity.low)"
-              v-bind:hankoable="hankoable(application_record)"/>
+            <IconButton
+              v-on:clicked="edit_a_copy(application.identity.low)"
+              icon="mdi-content-duplicate"
+              bordered>
+              複製 / Duplicate</IconButton>
+
           </div>
 
         </div>
 
-        <!-- area for refusals reasons -->
-        <!-- TODO: No need for name anymore -->
-        <div class="refusal_reasons">
-          <table>
-            <tr
-              v-for="(application_record, index) in application_records"
-              v-if="application_record._fields[application_record._fieldLookup['rejection']]">
-              <td class="refuser_name">{{application_record._fields[application_record._fieldLookup['recipient']].properties.family_name_kanji }}</td>
-              <td>{{application_record._fields[application_record._fieldLookup['rejection']].properties.reason}}</td>
-            </tr>
-          </table>
+        <!-- area with the hankos -->
+        <div class="approval_flow_column">
+          <div class="hanko_container_container" >
 
+            <!-- inner wrapper exists so that arrows can be placed between hanko containers -->
+            <div
+              class="hanko_container_container_intermediate_wrapper"
+              v-for="(application_record, index) in application_records">
+
+              <span v-if="index>0" class="arrow mdi mdi-arrow-left"/>
+
+              <WebHankoContainer
+                v-bind:applicationRecord="application_record"
+                v-on:approve="approve(application.identity.low)"
+                v-on:reject="reject(application.identity.low)"
+                v-on:cancel="cancel(application.identity.low)"
+                v-bind:hankoable="hankoable(application_record)"/>
+            </div>
+
+          </div>
+
+          <!-- area for refusals reasons -->
+          <div class="refusal_reasons">
+            <table>
+              <tr
+                v-for="(application_record, index) in application_records"
+                v-if="application_record._fields[application_record._fieldLookup['rejection']]">
+                <td class="refuser_name">{{application_record._fields[application_record._fieldLookup['recipient']].properties.family_name_kanji }}</td>
+                <td>{{application_record._fields[application_record._fieldLookup['rejection']].properties.reason}}</td>
+              </tr>
+            </table>
+
+          </div>
         </div>
+
       </div>
+
+      <div class="not_found" v-else>Application does not exist</div>
+    </template>
+
+    <div class="loader_wrapper" v-if="loading">
+      <Loader>Loading application</Loader>
     </div>
 
-    <div class="not_found" v-else>Application does not exist</div>
+    <div class="" v-if="error">
+      Error loading application
+    </div>
+
 
 
 
@@ -155,12 +165,14 @@
 <script>
 import WebHankoContainer from '@/components/web_hanko/WebHankoContainer.vue'
 import IconButton from '@/components/IconButton.vue'
+import Loader from '@moreillon/vue_loader'
 
 export default {
   name: 'ShowApplication',
   components: {
     WebHankoContainer,
     IconButton,
+    Loader,
   },
   mounted(){
     this.get_application();
@@ -168,18 +180,20 @@ export default {
   data(){
     return {
       application_records: [],
+      loading: false,
+      error: null,
     }
   },
   methods: {
     get_application(){
       // TODO: CHeck if id in query!!
+      this.loading = true
       this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/get_application', {
         application_id: this.$route.query.id
       })
-      .then(response => {
-        this.application_records = response.data
-      })
-      .catch(error => console.log(error));
+      .then(response => { this.application_records = response.data })
+      .catch(() => this.error = 'Error getting application')
+      .finally( () => this.loading = false)
     },
     delete_application(application_id){
       if(confirm("ホンマ？")){
@@ -187,7 +201,7 @@ export default {
           application_id: application_id
         })
         .then( () => this.$router.push('/'))
-        .catch(error => console.log(error));
+        .catch( () => alert(`Error deleting application`));
       }
     },
     approve(application_id){
@@ -227,7 +241,7 @@ ${VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${this.application.iden
           }
           this.get_application()
         })
-        .catch(error => console.log(error));
+        .catch(() => alert(`Error approving application`));
       }
     },
     reject(application_id){
@@ -242,7 +256,7 @@ ${VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${this.application.iden
             reason: reason,
           })
           .then( () => this.get_application())
-          .catch(error => console.log(error));
+          .catch( () => alert('Error rejecting application'));
         }
       }
     },
@@ -306,7 +320,11 @@ ${VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${this.application.iden
 
 <style scoped>
 
-
+.loader_wrapper{
+  display: flex;
+  justify-content: center;
+  font-size: 120%;
+}
 .application_container {
 
   border: 1px solid #444444;

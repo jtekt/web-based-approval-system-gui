@@ -6,7 +6,9 @@
         <th colspan="1000" >申請中 / Pending</th>
       </tr>
 
-      <ApplicationTableHeaderRow v-bind:hideApplicant="hideApplicant"/>
+      <ApplicationTableHeaderRow
+        v-bind:hideApplicant="hideApplicant"
+        v-bind:hideRecipient="hideRecipient"/>
 
       <tr v-if="applications.pending.loading">
         <td colspan="1000">
@@ -23,14 +25,17 @@
         <ApplicationTableRow
           v-for="application in applications.pending"
           v-bind:application="application"
-          v-bind:hideApplicant="hideApplicant"/>
+          v-bind:hideApplicant="hideApplicant"
+          v-bind:hideRecipient="hideRecipient"/>
       </template>
 
       <tr class="table_section_header_row">
         <th colspan="1000" >却下 / Rejected</th>
       </tr>
 
-      <ApplicationTableHeaderRow v-bind:hideApplicant="hideApplicant"/>
+      <ApplicationTableHeaderRow
+        v-bind:hideApplicant="hideApplicant"
+        v-bind:hideRecipient="hideRecipient"/>
 
       <tr v-if="applications.rejected.loading">
         <td colspan="1000">
@@ -47,14 +52,17 @@
         <ApplicationTableRow
           v-for="application in applications.rejected"
           v-bind:application="application"
-          v-bind:hideApplicant="hideApplicant"/>
+          v-bind:hideApplicant="hideApplicant"
+          v-bind:hideRecipient="hideRecipient"/>
       </template>
 
       <tr class="table_section_header_row">
         <th colspan="1000" >承認 / Approved</th>
       </tr>
 
-      <ApplicationTableHeaderRow v-bind:hideApplicant="hideApplicant"/>
+      <ApplicationTableHeaderRow
+        v-bind:hideApplicant="hideApplicant"
+        v-bind:hideRecipient="hideRecipient"/>
 
       <tr v-if="applications.approved.loading">
         <td colspan="1000">
@@ -71,7 +79,9 @@
         <ApplicationTableRow
           v-for="application in applications.approved"
           v-bind:application="application"
-          v-bind:hideApplicant="hideApplicant"/>
+          v-bind:hideApplicant="hideApplicant"
+          v-bind:hideRecipient="hideRecipient"/>
+
       </template>
 
 
@@ -98,6 +108,10 @@ export default {
       type: Boolean,
       default(){return false}
     },
+    hideRecipient: {
+      type: Boolean,
+      default(){return false}
+    },
   },
   methods: {
     see_application(application_id){
@@ -107,23 +121,20 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 
 table{
   width: 100%;
   border-collapse: collapse;
   text-align: left;
-
 }
 
 th, td {
-  padding: 5px;
 }
 
-th {
-  text-align: left;
-}
 
+
+/* border between table elements */
 tr:not(.table_section_header_row):not(:last-child){
   border-bottom: 1px solid #dddddd;
 }
@@ -148,6 +159,10 @@ tr:not(.headers_row):not(.table_section_header_row) {
 
 tr:not(.headers_row):not(.table_section_header_row):hover {
   background-color: #eeeeee;
+}
+
+progress {
+  width: 7vw;
 }
 
 

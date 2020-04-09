@@ -2,6 +2,7 @@
   <div class="submitted_applications">
 
 
+
     <div class="new_button_wrapper">
       <IconButton
         v-on:clicked="create_new_application()"
@@ -10,7 +11,14 @@
         新しい申請</IconButton>
     </div>
 
-    <ApplicationTableV2 v-bind:applications="applications" hideApplicant/>
+
+    <div class="received applications">
+      <ApplicationTableV2
+        v-bind:applications="applications"
+        hideApplicant/>
+    </div>
+
+
 
   </div>
 </template>
@@ -18,6 +26,8 @@
 <script>
 import ApplicationTableV2 from '@/components/ApplicationTableV2.vue'
 import IconButton from '@/components/IconButton.vue'
+
+
 
 export default {
   name: 'SubmittedApplications',
@@ -47,7 +57,8 @@ export default {
       this.$set(this.applications.pending, 'loading', true)
       this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/get_submitted_applications/pending', {})
       .then(response => {
-        this.applications.pending = response.data
+        this.applications.pending = []
+        response.data.forEach(record => this.applications.pending.push(record._fields[record._fieldLookup['application']]))
       })
       .catch(error => this.$set(this.applications.pending, 'error', 'Error loading applications'))
     },
@@ -55,7 +66,8 @@ export default {
       this.$set(this.applications.rejected, 'loading', true)
       this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/get_submitted_applications/rejected', {})
       .then(response => {
-        this.applications.rejected = response.data
+        this.applications.rejected = []
+        response.data.forEach(record => this.applications.rejected.push(record._fields[record._fieldLookup['application']]))
       })
       .catch(error => this.$set(this.applications.rejected, 'error', 'Error loading applications'))
     },
@@ -63,7 +75,8 @@ export default {
       this.$set(this.applications.approved, 'loading', true)
       this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/get_submitted_applications/approved', {})
       .then(response => {
-        this.applications.approved = response.data
+        this.applications.approved = []
+        response.data.forEach(record => this.applications.approved.push(record._fields[record._fieldLookup['application']]))
       })
       .catch(error => this.$set(this.applications.approved, 'error', 'Error loading applications'))
     },

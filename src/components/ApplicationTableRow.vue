@@ -1,19 +1,27 @@
 <template>
-  <tr v-on:click="see_application(application._fields[application._fieldLookup['application']].identity.low)">
+
+  <tr v-on:click="see_application()">
+
     <td>{{formatted_date}}</td>
+
+    <td>{{application.properties.type}}</td>
+    <td>{{application.properties.title}}</td>
+
+    <td class="" v-if="applicant && !hideApplicant">
+      {{applicant.properties.family_name_kanji}}
+    </td>
+
     <td>
-      {{application._fields[application._fieldLookup['application']].properties.type}}
+      <progress :value="approval_percent" min="0" max="100">BANANANA</progress>
     </td>
-    <td v-if="!hideApplicant">
-      {{application._fields[application._fieldLookup['applicant']].properties.name_kanji}}
-      ({{application._fields[application._fieldLookup['applicant']].properties.employee_number}})
+    
+    <td class="" v-if="!hideRecipient">
+      <span v-if="next_approver">{{next_approver.properties.family_name_kanji}}</span>
     </td>
-    <td>
-      {{application._fields[application._fieldLookup['application']].properties.title}}
-    </td>
+
+
+
   </tr>
-
-
 </template>
 
 <script>
@@ -23,22 +31,66 @@ export default {
   props: {
     application: Object,
     hideApplicant: {
-      type: Boolean,
-      default(){return false}
+      trype: Boolean, default(){return false}
+    },
+    hideRecipient: {
+      trype: Boolean, default(){return false}
     },
   },
+  data(){
+    return {
+      loading: false,
+      error: null,
+      applicant: null,
+      records: [],
 
+    }
+  },
+
+  mounted(){
+    this.get_application()
+  },
   methods: {
-    see_application(application_id){
-      this.$router.push({ name: 'show_application', query: { id: application_id } })
+    see_application(){
+      this.$router.push({ name: 'show_application', query: { id: this.application.identity.low } })
+    },
+    get_application(){
+      this.loading = true
+      this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/get_application', {
+        application_id: this.application.identity.low
+      })
+      .then(response => {
+        this.applicant = response.data[0]._fields[response.data[0]._fieldLookup['applicant']]
+        this.records = response.data
+      })
+      .catch(() => this.error = 'Error getting application')
+      .finally( () => this.loading = false)
     },
   },
   computed: {
     formatted_date(){
-      return this.application._fields[0].properties.creation_date.year.low + "/"
-        + this.application._fields[0].properties.creation_date.month.low + "/"
-        + this.application._fields[0].properties.creation_date.day.low + "/"
+      let date = this.application.properties.creation_date
+      return `${date.year.low}/${date.month.low}/${date.day.low}`
     },
+    approval_count(){
+      return this.records.reduce((count, record) => {
+        let approval = record._fields[record._fieldLookup['approval']]
+        if(approval) count ++
+        return count
+      }, 0)
+    },
+    approval_percent(){
+      return 100 * (this.approval_count/this.records.length)
+    },
+    next_approver(){
+      let next_record = this.records.find(record => {
+        let submission = record._fields[record._fieldLookup['submitted_to']]
+        if(submission) return submission.properties.flow_index.low === this.approval_count
+      })
+
+      if(!next_record) return null
+      return next_record._fields[next_record._fieldLookup['recipient']]
+    }
   }
 }
 </script>
