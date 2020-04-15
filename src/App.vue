@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <AppTemplate
-      applicationName="申請マネージャー"
+      applicationName="電子承認システム"
       v-bind:navigation="navigation"
       />
   </div>
