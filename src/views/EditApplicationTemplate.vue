@@ -135,7 +135,7 @@ export default {
 
       // used by CorporateStructureNode
       divisions: [],
-      personal_information: null,
+      current_user: null,
 
       visibility_target: undefined,
       author: undefined,
@@ -159,8 +159,8 @@ export default {
     }
   },
   mounted(){
-    this.get_template_if_exists();
-    this.get_corporate_structure();
+    this.get_template_if_exists()
+    this.get_current_user()
   },
   methods: {
 
@@ -229,15 +229,11 @@ export default {
       }
 
     },
-    get_corporate_structure(){
-      this.axios.post(process.env.VUE_APP_EMPLOYEE_MANAGER_URL + '/personal_information_v2', {})
+
+    get_current_user(){
+      this.axios.get(`${process.env.VUE_APP_EMPLOYEE_MANAGER_URL}/employee`)
       .then(response => {
-        this.personal_information = response.data[0];
-
-        this.axios.post(process.env.VUE_APP_EMPLOYEE_MANAGER_URL + '/get_all_divisions', {})
-        .then(response => this.divisions = response.data)
-        .catch(error => console.log(error));
-
+        this.current_user = response.data
       })
       .catch(error => console.log(error));
     },
@@ -249,16 +245,11 @@ export default {
   computed: {
     is_editable(){
       if(!this.$route.query.id) return true;
-      else if(this.personal_information && this.author){
 
-        let self_id = this.personal_information._fields[this.personal_information._fieldLookup['employee']].identity.low
-        let author_id = this.author.identity.low
-
-        if(self_id === author_id) return true
-
+      else if(this.current_user && this.author){
+        return this.current_user.identity.low ===this.author.identity.low
       }
-
-      return false;
+      else return false
     },
     picker_api_url(){
       return process.env.VUE_APP_GROUP_MANAGER_API_URL
