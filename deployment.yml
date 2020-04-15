@@ -15,7 +15,7 @@ spec:
 
       containers:
       - name: afm-front
-        image: 172.16.98.151:5000/afm-front
+        image: ${CONTAINER_REGISTRY}/afm-front
         imagePullPolicy: Always
         ports:
         - containerPort: 80
