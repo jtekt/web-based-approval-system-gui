@@ -69,7 +69,7 @@
 
         <!-- Link to the template's page -->
         <div class="" v-if="selected_form.identity">
-          <router-link :to="{ name: 'edit_application_template', params: {id: selected_form.identity.low} }">Template details</router-link>
+          <router-link :to="{ name: 'application_template', params: {id: selected_form.identity.low} }">Template details</router-link>
         </div>
 
         <table class="form_content_table">
@@ -169,8 +169,8 @@ export default {
 
         this.$set(this.selected_form,'loading', true)
 
-        this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/get_application`, {
-          application_id: this.$route.query.copy_of
+        this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application`, {
+          params: {application_id: this.$route.query.copy_of},
         })
         .then(response => {
           let record = response.data[0]
@@ -204,7 +204,7 @@ export default {
 
     get_templates(){
       this.$set(this.application_form_templates,'loading',true)
-      this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/get_all_application_form_templates`)
+      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/all_application_form_templates_visible_to_user`)
       .then(response => {
         // delete templates to recreate them
         this.application_form_templates = []

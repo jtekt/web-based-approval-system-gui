@@ -14,7 +14,7 @@
     <td>
       <progress :value="approval_percent" min="0" max="100">BANANANA</progress>
     </td>
-    
+
     <td class="" v-if="!hideRecipient">
       <span v-if="next_approver">{{next_approver.properties.family_name_kanji}}</span>
     </td>
@@ -56,8 +56,8 @@ export default {
     },
     get_application(){
       this.loading = true
-      this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/get_application', {
-        application_id: this.application.identity.low
+      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application`, {
+        params: {application_id: this.application.identity.low}
       })
       .then(response => {
         this.applicant = response.data[0]._fields[response.data[0]._fieldLookup['applicant']]

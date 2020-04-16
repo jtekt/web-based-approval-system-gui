@@ -198,8 +198,8 @@ export default {
     get_application(){
       // TODO: CHeck if id in query!!
       this.loading = true
-      this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/get_application`, {
-        application_id: this.$route.query.id
+      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application`, {
+        params: {application_id: this.$route.query.id},
       })
       .then(response => { this.application_records = response.data })
       .catch(() => this.error = 'Error getting application')

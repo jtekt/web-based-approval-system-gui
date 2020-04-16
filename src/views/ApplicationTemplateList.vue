@@ -20,9 +20,9 @@
       </tr>
       <tr
         v-for="template in application_templates"
-        v-on:click="view_template(template._fields[0].identity.low)"
+        v-on:click="view_template(template._fields[template._fieldLookup['aft']].identity.low)"
         class="clickable_row">
-        <td>{{template._fields[0].properties.label}}</td>
+        <td>{{template._fields[template._fieldLookup['aft']].properties.label}}</td>
         <td>{{template._fields[template._fieldLookup['g']].properties.original_name}}</td>
         <td></td>
       </tr>
@@ -36,14 +36,11 @@
       </tr>
       <tr
         v-for="template in shared_templates"
-        v-on:click="view_template(template._fields[0].identity.low)"
+        v-on:click="view_template(template._fields[template._fieldLookup['aft']].identity.low)"
         class="clickable_row">
-        <td>{{template._fields[0].properties.label}}</td>
+        <td>{{template._fields[template._fieldLookup['aft']].properties.label}}</td>
         <td>{{template._fields[template._fieldLookup['g']].properties.original_name}}</td>
-        <td>
-          {{template._fields[template._fieldLookup['creator']].properties.name_kanji}}
-        </td>
-        <td></td>
+        <td>{{template._fields[template._fieldLookup['creator']].properties.name_kanji}}</td>
       </tr>
     </table>
 
@@ -75,31 +72,39 @@ export default {
   },
   methods: {
     get_my_templates(){
-      this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/get_application_form_templates_from_user')
+
+      this.$set(this.application_templates,'loading',true)
+      this.application_templates.splice(0,this.application_templates.length)
+      this.axios.get(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/application_form_templates_from_user')
       .then( (response) => {
-        this.application_templates.splice(0,this.application_templates.length)
-        response.data.forEach(template => {
-          this.application_templates.push(template)
+        this.application_templates = []
+        response.data.forEach(record => {
+          // Dealing with records here because involves creator and group
+          this.application_templates.push(record)
         })
       })
-      .catch(error => console.log(error));
+      .catch(() => { this.$set(this.application_templates,'error',true)})
+      .finally(() => { this.$set(this.application_templates,'loading',false)})
     },
     get_shared_templates(){
-      this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/get_all_application_form_templates')
+      this.$set(this.shared_templates,'loading',true)
+      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/all_application_form_templates_visible_to_user`)
       .then( (response) => {
         this.shared_templates.splice(0,this.shared_templates.length)
-        response.data.forEach(template => {
-          this.shared_templates.push(template)
+        response.data.forEach(record => {
+          // Dealing with records here because involves creator and group
+          this.shared_templates.push(record)
         })
       })
-      .catch(error => console.log(error));
+      .catch(() => { this.$set(this.shared_templates,'error',true)})
+      .finally(() => { this.$set(this.shared_templates,'loading',false)})
     },
     view_template(id){
-      this.$router.push({ name: 'edit_application_template', query: { id: id } })
+      this.$router.push({ name: 'application_template', query: { id: id } })
     },
 
     new_template(){
-      this.$router.push({ name: 'edit_application_template' })
+      this.$router.push({ name: 'application_template' })
     },
 
   },

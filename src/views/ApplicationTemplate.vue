@@ -20,11 +20,11 @@
           どの部署が使えるか選んでください
         </div>
 
-
         <GroupPicker
           class="corporate_structure"
           :apiUrl="picker_api_url"
           v-on:selection="node_selected($event)"/>
+
       </div>
 
 
@@ -160,19 +160,21 @@ export default {
 
     get_template_if_exists(){
       if('id' in this.$route.query){
-        this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/get_application_form_template', {
-          id: this.$route.query.id
+        this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_template`, {
+          params: {id: this.$route.query.id}
         })
         .then( (response) => {
-          let parsed_fields = JSON.parse(response.data[0]._fields[0].properties.fields)
+
+          let record = response.data[0]
+          let parsed_fields = JSON.parse(record._fields[record._fieldLookup['aft']].properties.fields)
 
           this.fields.splice(0,this.fields.length)
           parsed_fields.forEach(field => this.fields.push(field))
-          this.label=response.data[0]._fields[0].properties.label
+          this.label=record._fields[record._fieldLookup['aft']].properties.label
 
           // set the visibility target back
-          this.visibility_target = Object.assign({}, this.visibility_target, response.data[0]._fields[response.data[0]._fieldLookup['g']])
-          this.author = Object.assign({}, this.visibility_target, response.data[0]._fields[response.data[0]._fieldLookup['creator']])
+          this.visibility_target = Object.assign({}, this.visibility_target, record._fields[record._fieldLookup['g']])
+          this.author = Object.assign({}, this.visibility_target, record._fields[record._fieldLookup['creator']])
 
         })
         .catch(error => console.log(error));

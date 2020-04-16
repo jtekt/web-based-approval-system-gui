@@ -3,7 +3,7 @@ import Router from 'vue-router'
 import CreateApplication from './views/CreateApplication.vue'
 import ApplicationTemplateList from './views/ApplicationTemplateList.vue'
 
-import EditApplicationTemplate from './views/EditApplicationTemplate.vue'
+import ApplicationTemplate from './views/ApplicationTemplate.vue'
 import ShowApplication from './views/ShowApplication.vue'
 import SubmittedApplications from './views/SubmittedApplications.vue'
 import ReceivedApplications from './views/ReceivedApplications.vue'
@@ -42,9 +42,9 @@ export default new Router({
       component: Search,
     },
     {
-      path: '/edit_application_template',
-      name: 'edit_application_template',
-      component: EditApplicationTemplate,
+      path: '/application_template',
+      name: 'application_template',
+      component: ApplicationTemplate,
     },
     {
       path: '/application_template_list',
