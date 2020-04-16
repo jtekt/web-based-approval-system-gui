@@ -36,6 +36,15 @@
               <td>申請者 / Applicant</td>
               <td>{{applicant.properties.name_kanji}} ({{applicant.properties.employee_number}})</td>
             </tr>
+            <tr>
+              <td>プライベート / Private</td>
+              <td>
+                <input
+                type="checkbox"
+                v-model="application.properties.private"
+                v-on:change="update_privacy_of_application()">
+              </td>
+            </tr>
 
 
             <!-- form data -->
@@ -144,7 +153,7 @@
 
       </div>
 
-      <div class="not_found" v-else>Application does not exist</div>
+      <div class="not_found" v-else>Application does not exist or is private</div>
     </template>
 
     <div class="loader_wrapper" v-if="loading">
@@ -188,7 +197,7 @@ export default {
     get_application(){
       // TODO: CHeck if id in query!!
       this.loading = true
-      this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/get_application', {
+      this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/get_application`, {
         application_id: this.$route.query.id
       })
       .then(response => { this.application_records = response.data })
@@ -260,23 +269,22 @@ ${VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${this.application.iden
         }
       }
     },
-    /*
-    cancel(application_id){
-      // This route is no longer in use since hankos cannot be canceled anymore
-      this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/cancel_decision', {
-        application_id: application_id
+    update_privacy_of_application(){
+      this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/update_privacy_of_application`, {
+        application_id: this.application.identity.low,
+        private: this.application.properties.private,
       })
       .then( () => this.get_application())
-      .catch(error => console.log(error));
+      .catch( () => alert('Error updating privacy of application'));
     },
-    */
+
 
 
     edit_a_copy(application_id){
       this.$router.push({path: '/create_application', query: {copy_of: application_id}})
     },
     download(id){
-      window.location.href = process.env.VUE_APP_SHINSEI_MANAGER_URL + '/file?id=' + id;
+      window.location.href = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/file?id=${id}`;
     },
     see_template(id){
       this.$router.push({path: '/edit_application_template', query: {id: id}})

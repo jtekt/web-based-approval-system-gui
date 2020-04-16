@@ -38,6 +38,11 @@
         </select>
       </div>
 
+      <!-- privacy selector -->
+      <div class="">
+        プライベート / Private: <input type="checkbox" v-model="private">
+      </div>
+
 
     </div>
 
@@ -135,6 +140,7 @@ export default {
   data(){
     return {
       title: "",
+      private: false,
       recipients: [], // approval Flow
       application_form_templates: [],
       selected_form: undefined,
@@ -217,6 +223,7 @@ export default {
         response.data.forEach(template => {
 
           // need to parse fields because saved as stringified JSON in DB
+          // TODO: Zero index is not robuts
           template._fields[0].properties.fields = JSON.parse(template._fields[0].properties.fields)
 
           this.application_form_templates.push(template)
@@ -232,11 +239,14 @@ export default {
 
       if(this.form_valid){
         this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/create_application', {
+
+          // Create the request body
+          // TODO: DIRT, IMPROVE
           title: this.title,
           recipients_employee_number: this.recipients.map(recipient => recipient.properties.employee_number),
-          session_id: this.$store.state.session_id,
           form_data: this.selected_form._fields[this.selected_form._fieldLookup['aft']].properties.fields,
           template_id: this.selected_form._fields[this.selected_form._fieldLookup['aft']].identity.low,
+          private: this.private,
 
           // This is just in case the application template gets gets deleted afterwards
           type: this.selected_form._fields[this.selected_form._fieldLookup['aft']].properties.label,
@@ -287,15 +297,6 @@ ${process.env.VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${applicati
       else alert("There are missing items in this application form")
 
 
-    },
-
-    get_employees_belonging_to_node(node_id){
-      // This does not seem to be used
-      this.axios.post(process.env.VUE_APP_EMPLOYEE_MANAGER_URL + '/get_employees_belonging_to_node', {
-        node_id: node_id,
-      })
-      .then(response => this.employees = response.data)
-      .catch(error => console.log(error));
     },
 
     delete_recipient(recipient_index){
