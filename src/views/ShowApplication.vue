@@ -41,6 +41,7 @@
               <td>
                 <input
                 type="checkbox"
+                v-bind:disabled="applicant.properties.employee_number !== this.$store.state.employee_number"
                 v-model="application.properties.private"
                 v-on:change="update_privacy_of_application()">
               </td>
