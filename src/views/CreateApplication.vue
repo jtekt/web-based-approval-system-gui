@@ -9,33 +9,49 @@
       :apiUrl="picker_api_url"
       v-on:selection="add_to_recipients($event)"/>
 
-
     <!-- Approval flow -->
     <ApprovalFlow
       v-on:deleteEmployee="delete_recipient($event)"
       v-bind:employees="recipients"/>
-
 
     <!-- test with user generated form selector -->
     <div class="type_and_title_input_wrapper section_wrapper">
 
       <!-- title input -->
       <div class="title_wrapper">
-        <label>申請タイトル / Title of the application: </label>
+        <label>申請タイトル / Title: </label>
         <input type="text" class="title_input" v-model="title">
       </div>
 
       <!-- type selector -->
       <div class="">
-        <label>申請種類 / Application type: </label>
-        <select v-model="selected_form">
-          <!--<option value=undefined>Please select</option>-->
-          <option
-            v-for="application_type in application_form_templates"
-            v-bind:value="application_type">
-            {{application_type._fields[0].properties.label}}
-          </option>
-        </select>
+        <label>申請種類 / type: </label>
+
+        <!-- if the form is filled from scratch -->
+        <template v-if="!$route.query.copy_of">
+          <span v-if="application_form_templates.loading">Loading...</span>
+          <span v-else-if="application_form_templates.error">{{application_form_templates.error}}</span>
+          <select
+            v-else v-model="selected_form">
+            <!--<option value=undefined>Please select</option>-->
+            <option
+              v-for="application_type in application_form_templates"
+              v-bind:value="application_type">
+              {{application_type.properties.label}}
+            </option>
+          </select>
+        </template>
+
+        <!-- if the form is a duplicate -->
+        <template v-else>
+          <span v-if="selected_form.error">Error duplicating form {{copy_of}}</span>
+          <span v-else-if="selected_form.loading">Loading</span>
+          <span v-else-if="selected_form.properties">
+            {{selected_form.properties.label}} (Duplicate of ID {{$route.query.copy_of}})
+            <a href="create_application">Start from scratch</a>
+          </span>
+        </template>
+
       </div>
 
       <!-- privacy selector -->
@@ -48,16 +64,17 @@
 
 
     <div class="section_wrapper form_container" >
+      <div class="" v-if="selected_form.properties">
+        <div class="form_title">{{selected_form.properties.label}}</div>
 
-
-
-      <div class="" v-if="selected_form">
-
-        <div class="form_title">{{selected_form._fields[selected_form._fieldLookup['aft']].properties.label}}</div>
-
+        <!-- Link to the template's page -->
+        <div class="" v-if="selected_form.identity">
+          <router-link :to="{ name: 'edit_application_template', params: {id: selected_form.identity.low} }">Template details</router-link>
+        </div>
 
         <table class="form_content_table">
-          <tr v-for="(field, index) in selected_form._fields[selected_form._fieldLookup['aft']].properties.fields">
+          <tr
+            v-for="(field, index) in selected_form.properties.fields">
             <td>{{field.label}}</td>
 
             <td>
@@ -89,17 +106,9 @@
 
           </tr>
         </table>
-
-        <div class="form_author">
-          Form made by {{selected_form._fields[selected_form._fieldLookup['creator']].properties.name_kanji}}
-          ({{selected_form._fields[selected_form._fieldLookup['creator']].properties.email_address}})
-        </div>
       </div>
-
       <div v-else>申請種類が選ばれていません / Application type not selected</div>
-
     </div>
-
 
     <div class="submit_button_container" >
 
@@ -124,10 +133,6 @@ import UserPicker from '@moreillon/vue_user_picker'
 import Datepicker from 'vuejs-datepicker';
 import IconButton from '@/components/IconButton.vue'
 
-// Mixins
-// Application types are gotten from this mixin
-
-
 export default {
   name: 'CreateApplication',
   components: {
@@ -143,30 +148,47 @@ export default {
       private: false,
       recipients: [], // approval Flow
       application_form_templates: [],
-      selected_form: undefined,
+
+      selected_form: {},
+
+      copy_of: "",
+      template_author: null,
+
     }
   },
   mounted(){
-
+    this.copy_content_if_duplicate();
     this.get_templates();
-
   },
   methods: {
 
     copy_content_if_duplicate(){
       // Attempt to copy the content of one application into a new one
-      // NOT VERY CLEAN
+      // NOT VERY CLEAN but better than before
       if(this.$route.query.copy_of){
-        this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/get_application', {
+
+        this.$set(this.selected_form,'loading', true)
+
+        this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/get_application`, {
           application_id: this.$route.query.copy_of
         })
         .then(response => {
+          let record = response.data[0]
+          let original_application = record._fields[record._fieldLookup['application']]
 
-          var application_properties = response.data[0]._fields[0].properties
-          application_properties.form_data = JSON.parse(application_properties.form_data)
+          this.title = `Copy of ${original_application.properties.title}`
 
-          // srt title back and add "Copy of"
-          this.title = "Copy of " + application_properties.title
+          original_application.properties.form_data = JSON.parse(original_application.properties.form_data)
+
+          let fields = []
+          original_application.properties.form_data.forEach((field) => {
+            fields.push(field)
+          });
+
+          this.$set(this.selected_form,'properties', {
+            label: original_application.properties.type,
+            fields: fields
+          })
 
           // recreate flow
           response.data.reverse().forEach( record => {
@@ -174,82 +196,42 @@ export default {
             this.recipients.push(recipient);
           })
 
-
-          // Set the correct application type back
-          // the AFT is part of the response from the server
-          let template_used_by_original = response.data[0]._fields[response.data[0]._fieldLookup['aft']]
-          if(!template_used_by_original) return alert('Form template does not exist')
-
-          // need to parse fields because saved as stringified JSON in DB
-          template_used_by_original.properties.fields = JSON.parse(template_used_by_original.properties.fields)
-
-
-          // find the corresponding template in the available templates (search by ID)
-          let found_template = this.application_form_templates.find(e => {
-            return e._fields[e._fieldLookup['aft']].identity.low === template_used_by_original.identity.low
-          })
-
-
-          if(!found_template) return alert('Form template does not exist')
-
-          this.selected_form = found_template
-          // check if fields match
-          let selected_form_fields = this.selected_form._fields[this.selected_form._fieldLookup['aft']].properties.fields
-
-          // It might be better to replace this with a find?
-          for (const [index, val] of selected_form_fields.entries()) {
-            if(val.type === application_properties.form_data[index].type && val.label === application_properties.form_data[index].label){
-              //console.log(original_form_fields[index])
-              this.$set(val,'value',application_properties.form_data[index].value)
-            }
-            else {
-              alert('There was a problem duplicating the application. The template seems to have changed.')
-              break;
-            }
-          }
-
         })
-        .catch(error => console.log(error));
+        .catch(() => this.$set(this.selected_form,'error', true))
+        .finally(() => this.$set(this.selected_form,'loading', false))
       }
     },
 
     get_templates(){
-      this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/get_all_application_form_templates')
+      this.$set(this.application_form_templates,'loading',true)
+      this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/get_all_application_form_templates`)
       .then(response => {
-
         // delete templates to recreate them
-        this.application_form_templates.splice(0,this.application_form_templates.length)
-
-        response.data.forEach(template => {
-
-          // need to parse fields because saved as stringified JSON in DB
-          // TODO: Zero index is not robuts
-          template._fields[0].properties.fields = JSON.parse(template._fields[0].properties.fields)
-
+        this.application_form_templates = []
+        response.data.forEach(record => {
+          let template = record._fields[record._fieldLookup['aft']]
+          template.properties.fields = JSON.parse(template.properties.fields)
           this.application_form_templates.push(template)
         })
-        // this needs to be done once templates are available
-        this.copy_content_if_duplicate();
       })
-      .catch(error => console.log(error));
+      .catch(error => {
+        this.$set(this.application_form_templates,'error','Error loading templates')
+      })
+      .finally(() => this.$set(this.application_form_templates,'loading',false))
     },
 
 
     create_application(){
 
       if(this.form_valid){
-        this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/create_application', {
-
+        this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/create_application`, {
           // Create the request body
-          // TODO: DIRT, IMPROVE
+          // TODO: there should be a simpler way to pass all that information
           title: this.title,
-          recipients_employee_number: this.recipients.map(recipient => recipient.properties.employee_number),
-          form_data: this.selected_form._fields[this.selected_form._fieldLookup['aft']].properties.fields,
-          template_id: this.selected_form._fields[this.selected_form._fieldLookup['aft']].identity.low,
+          recipients_employee_number: this.recipients.map(recipient => recipient.properties.employee_number), // TODO: use user ID instead
+          form_data: this.selected_form.properties.fields,
+          type: this.selected_form.properties.label,
           private: this.private,
-
-          // This is just in case the application template gets gets deleted afterwards
-          type: this.selected_form._fields[this.selected_form._fieldLookup['aft']].properties.label,
         })
         .then(response => {
           // Creation successful
@@ -456,12 +438,13 @@ ${process.env.VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${applicati
 
 .form_title{
   font-size: 150%;
-  margin-bottom: 10px;
+
 }
 
 
 
 .form_content_table {
+  margin-top: 10px;
   width: 100%;
   border-collapse: collapse;
 }

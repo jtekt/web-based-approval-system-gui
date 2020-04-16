@@ -27,12 +27,12 @@ router.beforeEach((to, from, next) => {
     // get employee number
     axios.get(`${process.env.VUE_APP_AUTHENTICATION_MANAGER_URL}/whoami`)
     .then(response => {
-      console.log(response.data)
       store.commit('set_employee_number', response.data.properties.employee_number) // should be removed in the future
       store.commit('set_current_user', response.data)
       next();
     })
     .catch(error => {
+      alert('Cannot authenticate user')
       if(error.response) console.log(error.response.data)
       else console.log(error)
     })
