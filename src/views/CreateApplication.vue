@@ -228,7 +228,7 @@ export default {
           // Create the request body
           // TODO: there should be a simpler way to pass all that information
           title: this.title,
-          recipients_employee_number: this.recipients.map(recipient => recipient.properties.employee_number), // TODO: use user ID instead
+          recipients_ids: this.recipients.map(recipient => recipient.identity.low),
           form_data: this.selected_form.properties.fields,
           type: this.selected_form.properties.label,
           private: this.private,
