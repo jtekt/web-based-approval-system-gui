@@ -9,10 +9,10 @@
   },
   "dependencies": {
     "@mdi/font": "^4.9.95",
-    "@moreillon/vue_application_template_flex": "^0.1.0",
-    "@moreillon/vue_group_picker": "^0.1.7",
+    "@moreillon/vue_application_template_flex": "^0.1.1",
+    "@moreillon/vue_group_picker": "^0.1.11",
     "@moreillon/vue_loader": "^0.1.1",
-    "@moreillon/vue_user_picker": "^0.1.9",
+    "@moreillon/vue_user_picker": "^0.1.12",
     "axios": "^0.19.2",
     "canvg": "^2.0.0",
     "core-js": "^2.6.11",

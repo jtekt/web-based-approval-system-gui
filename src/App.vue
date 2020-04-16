@@ -29,13 +29,9 @@ export default {
 </script>
 
 <style>
+
 * {
   box-sizing: border-box;
-}
-
-.picker .node_container{
-  margin: 0 !important;
-  padding: 0 !important;
 }
 
 </style>

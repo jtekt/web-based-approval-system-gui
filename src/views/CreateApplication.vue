@@ -4,7 +4,6 @@
   <div>
 
     <!-- Employee picker -->
-
     <UserPicker
       class="picker"
       :apiUrl="picker_api_url"
@@ -44,6 +43,8 @@
 
 
     <div class="section_wrapper form_container" >
+
+
 
       <div class="" v-if="selected_form">
 
