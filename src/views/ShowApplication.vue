@@ -285,7 +285,7 @@ ${VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${this.application.iden
       this.$router.push({path: '/create_application', query: {copy_of: application_id}})
     },
     download(id){
-      window.location.href = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/file?id=${id}`;
+      window.location.href = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/file?file_id=${id}&application_id=${this.application.identity.low}`;
     },
     see_template(id){
       this.$router.push({path: '/edit_application_template', query: {id: id}})
