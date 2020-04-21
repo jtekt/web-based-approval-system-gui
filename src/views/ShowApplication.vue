@@ -34,30 +34,60 @@
             </tr>
             <tr>
               <td>申請者 / Applicant</td>
-              <td>{{applicant.properties.name_kanji}} ({{applicant.properties.employee_number}})</td>
+              <td>{{applicant.properties.username}}</td>
             </tr>
             <tr>
               <td>プライベート / Private</td>
               <td>
                 <input
                 type="checkbox"
-                v-bind:disabled="applicant.properties.employee_number !== this.$store.state.employee_number"
+                v-bind:disabled="!user_is_applicant"
                 v-model="application.properties.private"
                 v-on:change="update_privacy_of_application()">
               </td>
             </tr>
 
+            <!-- Visibility -->
+            <tr v-if="application.properties.private">
+              <td>Visible to</td>
+              <td>
+                <div
+                  v-for="group in groups"
+                  class="group"
+                  v-bind:key="group.identity.low">
+                  <span class="">
+                    {{group.properties.name}}
+                  </span>
 
-            <!-- form data -->
+                  <template v-if="user_is_applicant">
+                    <div class="growing_spacer"/>
+                    <button
+                      type="button"
+                      v-on:click="remove_application_visibility_to_group(group)">
+                      remove
+                    </button>
+                  </template>
+
+                </div>
+                <div class="">
+                  <button
+                    type="button"
+                    v-on:click="modal_open = true"
+                    v-if="user_is_applicant">Add a group</button>
+                </div>
+              </td>
+            </tr>
+
+
+            <!-- Actual data of the application -->
             <tr>
               <th colspan="2">申請内容</th>
             </tr>
 
             <!-- If form data is stored as an array (experiment) -->
+            <!-- THIS IS HOW CURRENT APPLICATIONS ARE RENDERED -->
             <tr v-for="field in form_data" v-if="Array.isArray(form_data)">
               <td>{{field.label}}</td>
-
-              <!-- need conditions for display depending on type -->
 
               <td v-if="field.type === 'file' && field.value">
                 <span
@@ -74,7 +104,6 @@
                 <span v-if="field.value">{{new Date(field.value).toLocaleDateString('ja-JP')}}</span>
                 <span v-else>-</span>
               </td>
-
 
               <td v-else-if="field.value">{{field.value}}</td>
 
@@ -93,13 +122,14 @@
               </td>
               <td v-else>{{value}}</td>
             </tr>
+            <!-- END OF LEGACY -->
 
           </table>
 
-          <!-- actions -->
+          <!-- actions at the bottom: Delete or duplicate-->
           <div
             class="actions_container"
-            v-if="applicant.properties.employee_number === this.$store.state.employee_number">
+            v-if="user_is_applicant">
 
             <IconButton
               v-on:clicked="delete_application(application.identity.low)"
@@ -124,16 +154,16 @@
             <!-- inner wrapper exists so that arrows can be placed between hanko containers -->
             <div
               class="hanko_container_container_intermediate_wrapper"
-              v-for="(application_record, index) in application_records">
+              v-for="(recipient_record, index) in recipient_records">
 
               <span v-if="index>0" class="arrow mdi mdi-arrow-left"/>
 
               <WebHankoContainer
-                v-bind:applicationRecord="application_record"
+                v-bind:applicationRecord="recipient_record"
                 v-on:approve="approve(application.identity.low)"
                 v-on:reject="reject(application.identity.low)"
                 v-on:cancel="cancel(application.identity.low)"
-                v-bind:hankoable="hankoable(application_record)"/>
+                v-bind:hankoable="hankoable(recipient_record)"/>
             </div>
 
           </div>
@@ -142,10 +172,10 @@
           <div class="refusal_reasons">
             <table>
               <tr
-                v-for="(application_record, index) in application_records"
-                v-if="application_record._fields[application_record._fieldLookup['rejection']]">
-                <td class="refuser_name">{{application_record._fields[application_record._fieldLookup['recipient']].properties.family_name_kanji }}</td>
-                <td>{{application_record._fields[application_record._fieldLookup['rejection']].properties.reason}}</td>
+                v-for="(recipient_record, index) in recipient_records"
+                v-if="recipient_record._fields[recipient_record._fieldLookup['rejection']]">
+                <td class="refuser_name">{{recipient_record._fields[recipient_record._fieldLookup['recipient']].properties.family_name_kanji }}</td>
+                <td>{{recipient_record._fields[recipient_record._fieldLookup['rejection']].properties.reason}}</td>
               </tr>
             </table>
 
@@ -161,9 +191,21 @@
       <Loader>Loading application</Loader>
     </div>
 
-    <div class="" v-if="error">
+    <div class="not_found" v-if="error">
       Error loading application
     </div>
+
+    <Modal :open="modal_open" @close="modal_open=false">
+      <h2 class="">
+        Share application with a group
+      </h2>
+      <div class="group_picker_wrapper">
+        <GroupPicker
+          class="picker"
+          :apiUrl="picker_api_url"
+          v-on:selection="share_with_group($event)"/>
+      </div>
+    </Modal>
 
 
 
@@ -176,6 +218,8 @@
 import WebHankoContainer from '@/components/web_hanko/WebHankoContainer.vue'
 import IconButton from '@/components/IconButton.vue'
 import Loader from '@moreillon/vue_loader'
+import Modal from '@moreillon/vue_modal'
+import GroupPicker from '@moreillon/vue_group_picker'
 
 export default {
   name: 'ShowApplication',
@@ -183,31 +227,84 @@ export default {
     WebHankoContainer,
     IconButton,
     Loader,
+    Modal,
+    GroupPicker,
   },
   mounted(){
-    this.get_application();
+    this.get_application()
+    this.get_visibility()
+    this.get_approval_flow()
   },
   data(){
     return {
-      application_records: [],
+
+      recipient_records: [], // LEGACY, SHOULD BE DELETED WHEN DONE
+
+
       loading: false,
       error: null,
+
+      // experimental
+      application: null,
+      applicant: null,
+
+      groups: [],
+      recipient_records: [],
+
+      modal_open: false,
     }
   },
   methods: {
     get_application(){
-      // TODO: CHeck if id in query!!
+      // Get the body of the application, regardless of its recipients
+      // This gets the applicant as well (for the time being)
+
+      // TODO: CHeck if id in query
       this.loading = true
       this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application`, {
         params: {application_id: this.$route.query.id},
       })
-      .then(response => { this.application_records = response.data })
-      .catch(() => this.error = 'Error getting application')
+      .then(response => {
+        if(response.data.length > 0){
+          let record = response.data[0]
+          this.application = record._fields[record._fieldLookup['application']]
+          this.applicant = record._fields[record._fieldLookup['applicant']]
+        }
+
+      })
+      .catch((error) => { this.error = error })
       .finally( () => this.loading = false)
+    },
+    get_visibility(){
+      // Gets the groups wi which this application is visible
+      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application/visibility`, {
+        params: {application_id: this.$route.query.id},
+      })
+      .then(response => {
+        this.groups = []
+        response.data.forEach((record) => {
+          let group = record._fields[record._fieldLookup['group']]
+          this.groups.push(group)
+        });
+      })
+      .catch((error) => console.log(error))
+    },
+    get_approval_flow(){
+      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application/recipients`, {
+        params: {application_id: this.$route.query.id},
+      })
+      .then(response => {
+        this.recipient_records = []
+        response.data.forEach((record) => {
+          this.recipient_records.push(record)
+        });
+
+      })
+      .catch((error) => console.log(error))
     },
     delete_application(application_id){
       if(confirm("ホンマ？")){
-        this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/delete_application', {
+        this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/delete_application`, {
           application_id: application_id
         })
         .then( () => this.$router.push('/'))
@@ -220,19 +317,21 @@ export default {
       if(confirm("ホンマ？")){
 
         // send POST to mark as approved
-        this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/approve_application', {
+        this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/approve_application`, {
           application_id: application_id
         })
         .then( () =>  {
 
+          this.get_approval_flow()
+
           // Code to send email
-          let next_application_record = this.application_records.find(e => {
+          let next_recipient_record = this.recipient_records.find(e => {
             return e._fields[e._fieldLookup['submitted_to']].properties.flow_index.low === this.approval_count+1
           })
 
-          if(next_application_record){
+          if(next_recipient_record){
 
-            let next_recipient = next_application_record._fields[next_application_record._fieldLookup['recipient']]
+            let next_recipient = next_recipient_record._fields[next_recipient_record._fieldLookup['recipient']]
 
             if(confirm(`Send notification email ?`)){
 
@@ -249,7 +348,7 @@ ${VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${this.application.iden
               `
             }
           }
-          this.get_application()
+
         })
         .catch(() => alert(`Error approving application`));
       }
@@ -261,11 +360,11 @@ ${VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${this.application.iden
         var reason = prompt("なぜ？", "");
 
         if(reason){
-          this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/reject_application', {
+          this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/reject_application`, {
             application_id: application_id,
             reason: reason,
           })
-          .then( () => this.get_application())
+          .then( () => this.get_approval_flow())
           .catch( () => alert('Error rejecting application'));
         }
       }
@@ -275,7 +374,7 @@ ${VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${this.application.iden
         application_id: this.application.identity.low,
         private: this.application.properties.private,
       })
-      .then( () => this.get_application())
+      .then( () => {})
       .catch( () => alert('Error updating privacy of application'));
     },
 
@@ -290,26 +389,34 @@ ${VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${this.application.iden
     see_template(id){
       this.$router.push({path: '/edit_application_template', query: {id: id}})
     },
-    hankoable(application_record){
-      let flow_index = application_record._fields[application_record._fieldLookup['submitted_to']].properties.flow_index.low
+    hankoable(recipient_record){
+      let flow_index = recipient_record._fields[recipient_record._fieldLookup['submitted_to']].properties.flow_index.low
       return flow_index === this.approval_count
+    },
+    share_with_group(group){
+      this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/make_application_visible_to_group`, {
+        application_id: this.application.identity.low,
+        group_id: group.identity.low,
+      })
+      .then( () => {
+        this.get_visibility()
+      })
+      .catch( () => alert('Error updating visibility of application'));
+    },
+    remove_application_visibility_to_group(group){
+      this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/remove_application_visibility_to_group`, {
+        application_id: this.application.identity.low,
+        group_id: group.identity.low,
+      })
+      .then( () => {
+        this.get_visibility()
+      })
+      .catch( () => alert('Error updating visibility of application'));
     }
 
 
   },
   computed: {
-    application(){
-      if(this.application_records.length > 0) return this.application_records[0]._fields[this.application_records[0]._fieldLookup['application']]
-      else return null
-    },
-    applicant(){
-      if(this.application_records.length > 0) return this.application_records[0]._fields[this.application_records[0]._fieldLookup['applicant']]
-      else return null
-    },
-    template(){
-      if(this.application_records.length > 0) return this.application_records[0]._fields[this.application_records[0]._fieldLookup['aft']]
-      else return null
-    },
     form_data(){
       return JSON.parse(this.application.properties.form_data)
     },
@@ -318,10 +425,16 @@ ${VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${this.application.iden
       else return false
     },
     approval_count(){
-      return this.application_records.reduce((approval_count, e) => {
+      return this.recipient_records.reduce((approval_count, e) => {
         return approval_count + !!e._fields[e._fieldLookup['approval']];
       },0)
     },
+    picker_api_url(){
+      return process.env.VUE_APP_GROUP_MANAGER_API_URL
+    },
+    user_is_applicant(){
+      return this.applicant.identity.low === this.$store.state.current_user.identity.low
+    }
 
   }
 }
@@ -482,5 +595,16 @@ ${VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${this.application.iden
   color: #c00000;
 }
 
+.group_picker_wrapper {
+  height: 50vh;
+  width: 75vw;
+}
 
+.group {
+  display: flex;
+  justify-content: center;
+}
+.growing_spacer {
+  flex-grow: 1;
+}
 </style>

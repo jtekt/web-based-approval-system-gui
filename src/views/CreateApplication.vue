@@ -59,17 +59,46 @@
         プライベート / Private: <input type="checkbox" v-model="private">
       </div>
 
+      <!-- Sharing with groups -->
+      <template v-if="private">
+        <div class="group_picker_wrapper">
+          <GroupPicker
+            class="picker"
+            :apiUrl="picker_api_url"
+            v-on:selection="add_to_groups($event)"/>
+        </div>
+
+        <div class="">
+          今の申請が承認フローとこちらのグループと共有されています：
+        </div>
+
+        <div class="groups_wrapper" v-if="groups.length > 0">
+          <div class="group"
+            v-for="(group, index) in groups"
+            v-bind:key="group.identity.low">
+            <span>{{group.properties.name}}</span>
+            <button type="button" v-on:click="delete_group(index)">delete</button>
+
+          </div>
+        </div>
+        <div class="" v-else>
+          承認フローのみ / Only approval flow
+        </div>
+      </template>
 
     </div>
 
 
+    <!-- container for the application itself -->
     <div class="section_wrapper form_container" >
-      <div class="" v-if="selected_form.properties">
+      <template v-if="selected_form.properties">
         <div class="form_title">{{selected_form.properties.label}}</div>
 
         <!-- Link to the template's page -->
         <div class="" v-if="selected_form.identity">
-          <router-link :to="{ name: 'application_template', params: {id: selected_form.identity.low} }">Template details</router-link>
+          <router-link :to="{ name: 'application_template', params: {id: selected_form.identity.low} }">
+            Template details
+          </router-link>
         </div>
 
         <table class="form_content_table">
@@ -106,8 +135,8 @@
 
           </tr>
         </table>
-      </div>
-      <div v-else>申請種類が選ばれていません / Application type not selected</div>
+      </template>
+      <template v-else>申請種類が選ばれていません / Application type not selected</template>
     </div>
 
     <div class="submit_button_container" >
@@ -129,6 +158,7 @@
 // UI elements
 import ApprovalFlow from '@/components/ApprovalFlow.vue'
 import UserPicker from '@moreillon/vue_user_picker'
+import GroupPicker from '@moreillon/vue_group_picker'
 
 import Datepicker from 'vuejs-datepicker';
 import IconButton from '@/components/IconButton.vue'
@@ -137,6 +167,7 @@ export default {
   name: 'CreateApplication',
   components: {
     UserPicker,
+    GroupPicker,
     ApprovalFlow,
     Datepicker,
     IconButton
@@ -145,20 +176,20 @@ export default {
   data(){
     return {
       title: "",
-      private: false,
-      recipients: [], // approval Flow
-      application_form_templates: [],
+      private: false, // applications private by default
+      recipients: [], // approval Flow, can be filled by duplication
 
+      application_form_templates: [],
       selected_form: {},
 
       copy_of: "",
-      template_author: null,
 
+      groups: [], // Groups for visibility
     }
   },
   mounted(){
-    this.copy_content_if_duplicate();
-    this.get_templates();
+    this.copy_content_if_duplicate()
+    this.get_templates()
   },
   methods: {
 
@@ -166,40 +197,71 @@ export default {
       // Attempt to copy the content of one application into a new one
       // NOT VERY CLEAN but better than before
       if(this.$route.query.copy_of){
-
-        this.$set(this.selected_form,'loading', true)
-
-        this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application`, {
-          params: {application_id: this.$route.query.copy_of},
-        })
-        .then(response => {
-          let record = response.data[0]
-          let original_application = record._fields[record._fieldLookup['application']]
-
-          this.title = `Copy of ${original_application.properties.title}`
-
-          original_application.properties.form_data = JSON.parse(original_application.properties.form_data)
-
-          let fields = []
-          original_application.properties.form_data.forEach((field) => {
-            fields.push(field)
-          });
-
-          this.$set(this.selected_form,'properties', {
-            label: original_application.properties.type,
-            fields: fields
-          })
-
-          // recreate flow
-          response.data.reverse().forEach( record => {
-            let recipient = record._fields[record._fieldLookup['recipient']]
-            this.recipients.push(recipient);
-          })
-
-        })
-        .catch(() => this.$set(this.selected_form,'error', true))
-        .finally(() => this.$set(this.selected_form,'loading', false))
+        this.recreate_application_content()
+        this.recreate_visibility()
+        this.recreate_approval_flow()
       }
+    },
+
+    recreate_application_content(){
+      // Todo: add a loader for the content of the application itself
+      this.$set(this.selected_form,'loading', true)
+      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application`, {
+        params: {application_id: this.$route.query.copy_of},
+      })
+      .then(response => {
+        let record = response.data[0]
+        let original_application = record._fields[record._fieldLookup['application']]
+
+        this.title = `Copy of ${original_application.properties.title}`
+        this.private = original_application.properties.private
+
+
+        original_application.properties.form_data = JSON.parse(original_application.properties.form_data)
+
+        let fields = []
+        original_application.properties.form_data.forEach((field) => {
+          fields.push(field)
+        });
+
+        this.$set(this.selected_form,'properties', {
+          label: original_application.properties.type,
+          fields: fields
+        })
+
+      })
+      .catch(() => this.$set(this.selected_form,'error', true))
+      .finally(() => this.$set(this.selected_form,'loading', false))
+    },
+
+    recreate_visibility(){
+      // Gets the groups wi which this application is visible (used if duplicate)
+      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application/visibility`, {
+        params: {application_id: this.$route.query.copy_of},
+      })
+      .then(response => {
+        this.groups = []
+        response.data.forEach((record) => {
+          let group = record._fields[record._fieldLookup['group']]
+          this.groups.push(group)
+        });
+      })
+      .catch(() => this.error = 'Error getting application')
+    },
+
+    recreate_approval_flow(){
+      // Gets the groups wi which this application is visible (used if duplicate)
+      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application/recipients`, {
+        params: {application_id: this.$route.query.copy_of},
+      })
+      .then(response => {
+        this.recipients = []
+        response.data.forEach((record) => {
+          let recipient = record._fields[record._fieldLookup['recipient']]
+          this.recipients.push(recipient)
+        });
+      })
+      .catch(() => this.error = 'Error getting application')
     },
 
     get_templates(){
@@ -232,6 +294,7 @@ export default {
           form_data: this.selected_form.properties.fields,
           type: this.selected_form.properties.label,
           private: this.private,
+          group_ids: this.groups.map(group => group.identity.low),
         })
         .then(response => {
           // Creation successful
@@ -281,8 +344,8 @@ ${process.env.VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${applicati
 
     },
 
-    delete_recipient(recipient_index){
-      this.recipients.splice(recipient_index,1);
+    delete_recipient(index){
+      this.recipients.splice(index,1);
     },
     add_to_recipients(recipient_to_add){
       // Prevent duplicates
@@ -292,11 +355,21 @@ ${process.env.VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${applicati
       else alert("Duplicates not allowed")
 
     },
+    delete_group(index){
+      this.groups.splice(index,1);
+    },
+    add_to_groups(group_to_add){
+      // Prevent duplicates
+      if(!this.groups.includes(group_to_add)){
+        this.groups.push(group_to_add);
+      }
+
+    },
     file_upload(event, field){
 
       let formData = new FormData();
       formData.append('file_to_upload', event.target.files[0]);
-      this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/file_upload', formData, {
+      this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/file_upload`, formData, {
         headers: {'Content-Type': 'multipart/form-data' }
       })
       .then(response => {
@@ -474,5 +547,22 @@ ${process.env.VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${applicati
   margin-top: 10px;
   padding-top: 10px;
   border-top: 1px solid #dddddd;
+}
+
+.group_picker_wrapper {
+  height: 200px;
+}
+
+.group {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.25em 0;
+}
+.group:hover{
+  background-color: #eeeeee;
+}
+
+.group:not(:last-child){
+  border-bottom: 1px solid #dddddd;
 }
 </style>
