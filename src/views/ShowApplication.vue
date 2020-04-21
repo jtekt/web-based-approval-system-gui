@@ -49,26 +49,33 @@
 
             <!-- Visibility -->
             <tr v-if="application.properties.private">
-              <td>Visible to</td>
+              <td>共有 / Visibility</td>
               <td>
-                <div
-                  v-for="group in groups"
-                  class="group"
-                  v-bind:key="group.identity.low">
-                  <span class="">
-                    {{group.properties.name}}
-                  </span>
 
-                  <template v-if="user_is_applicant">
-                    <div class="growing_spacer"/>
-                    <button
-                      type="button"
-                      v-on:click="remove_application_visibility_to_group(group)">
-                      remove
-                    </button>
-                  </template>
+                <template v-if="groups.length > 0">
+                  <div
+                    v-for="group in groups"
+                    class="group"
+                    v-bind:key="group.identity.low">
+                    <span class="">
+                      {{group.properties.name}}
+                    </span>
 
+                    <template v-if="user_is_applicant">
+                      <div class="growing_spacer"/>
+                      <button
+                        type="button"
+                        v-on:click="remove_application_visibility_to_group(group)">
+                        remove
+                      </button>
+                    </template>
+
+                  </div>
+                </template>
+                <div class="" v-else>
+                  承認フローのみ / Approval flow only
                 </div>
+
                 <div class="">
                   <button
                     type="button"
