@@ -56,7 +56,7 @@
 
       <!-- privacy selector -->
       <div class="">
-        プライベート / Private: <input type="checkbox" v-model="private">
+        機密 / Confidential: <input type="checkbox" v-model="private">
       </div>
 
       <!-- Sharing with groups -->

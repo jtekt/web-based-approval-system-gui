@@ -37,7 +37,7 @@
               <td>{{applicant.properties.username}}</td>
             </tr>
             <tr>
-              <td>プライベート / Private</td>
+              <td>機密 / Confidential</td>
               <td>
                 <input
                 type="checkbox"
