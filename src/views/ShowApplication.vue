@@ -399,6 +399,7 @@ ${VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${this.application.iden
         group_id: group.identity.low,
       })
       .then( () => {
+        this.modal_open = false
         this.get_visibility()
       })
       .catch( () => alert('Error updating visibility of application'));
