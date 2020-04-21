@@ -1,5 +1,6 @@
 <template>
   <div class="">
+    <h1>Search</h1>
     <form class="" v-on:submit.prevent="search_application()">
       <label for="">申請検索</label>
       <input type="search" v-model="application_id" placeholder="ID">

@@ -1,6 +1,8 @@
 <template>
   <div class="submitted_applications">
 
+    <h1>出した申請 / Submitted applications</h1>
+
 
 
     <div class="new_button_wrapper">
@@ -8,7 +10,7 @@
         v-on:clicked="create_new_application()"
         icon="mdi-plus"
         bordered>
-        新しい申請</IconButton>
+        新しい申請 / New application</IconButton>
     </div>
 
 

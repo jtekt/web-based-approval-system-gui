@@ -1,37 +1,32 @@
 <template>
   <div class="">
+    <h1>フォームテンプレート / Form templates</h1>
     <!-- add button -->
     <div class="add_button_wrapper">
       <IconButton
         v-on:clicked="new_template()"
         icon="mdi-plus"
         bordered >
-        新しい申請テンプレート</IconButton>
+        新しい申請フォーム / New application form</IconButton>
     </div>
 
     <table class="templates_table">
       <tr class="header_row">
-        <th colspan="1000" >My forms</th>
+        <th colspan="1000" >自分のフォーム / My forms</th>
       </tr>
-      <tr>
-        <th>Form name</th>
-        <th>Shared with</th>
-        <th></th>
-      </tr>
+
       <tr
         v-for="template in application_templates"
         v-on:click="view_template(template._fields[template._fieldLookup['aft']].identity.low)"
         class="clickable_row">
         <td>{{template._fields[template._fieldLookup['aft']].properties.label}}</td>
-        <td>{{template._fields[template._fieldLookup['g']].properties.original_name}}</td>
         <td></td>
       </tr>
       <tr class="header_row">
-        <th colspan="1000" >Shared with me</th>
+        <th colspan="1000" >共有されているフォーム / Shared with me</th>
       </tr>
       <tr>
         <th>Form name</th>
-        <th>Shared with</th>
         <th>Author</th>
       </tr>
       <tr
@@ -39,7 +34,6 @@
         v-on:click="view_template(template._fields[template._fieldLookup['aft']].identity.low)"
         class="clickable_row">
         <td>{{template._fields[template._fieldLookup['aft']].properties.label}}</td>
-        <td>{{template._fields[template._fieldLookup['g']].properties.original_name}}</td>
         <td>{{template._fields[template._fieldLookup['creator']].properties.name_kanji}}</td>
       </tr>
     </table>
@@ -88,7 +82,7 @@ export default {
     },
     get_shared_templates(){
       this.$set(this.shared_templates,'loading',true)
-      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/all_application_form_templates_visible_to_user`)
+      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates_shared_with_user`)
       .then( (response) => {
         this.shared_templates.splice(0,this.shared_templates.length)
         response.data.forEach(record => {

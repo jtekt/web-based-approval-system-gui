@@ -1,5 +1,6 @@
 <template>
   <div class="received applications">
+    <h1>受け取った申請 / Received applications</h1>
     <ApplicationTableV2
       v-bind:applications="applications"
       hideRecipient

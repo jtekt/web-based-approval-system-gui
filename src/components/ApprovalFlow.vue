@@ -1,14 +1,6 @@
 <template>
   <div class="approval_flow">
 
-    <div class="approval_flow_header">
-      <span class="mdi mdi-account"/>
-      <span class="mdi mdi-arrow-right"/>
-      <span class="mdi mdi-account"/>
-      <span class="mdi mdi-arrow-right"/>
-      <span class="mdi mdi-account"/>
-    </div>
-
     <!-- using v-bind:list instead of v-model because array passed as prop -->
     <draggable class="actual_approval_flow" v-bind:list="employees" v-if="employees.length > 0">
       <!-- for loop outside the actual employee to add arrows -->
@@ -57,7 +49,6 @@ export default {
 <style scoped>
 
 .approval_flow {
-  margin: 0 15px;
   border: 1px solid #dddddd;
 }
 

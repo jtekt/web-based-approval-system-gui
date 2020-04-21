@@ -18,6 +18,7 @@ export default {
   data(){
     return{
       navigation : [
+        {route: '/create_application', label: 'New', icon: 'plus'},
         {route: '/', label: 'Outbox', icon: 'inbox-arrow-up'},
         {route: '/received_applications', label: 'Inbox', icon: 'inbox-arrow-down'},
         {route: '/application_template_list', label: 'Forms', icon: 'file-settings-outline'},

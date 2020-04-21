@@ -1,18 +1,31 @@
 <template>
-
-  <!-- Wrapping everything in a form might not be a good idea... -->
   <div>
+    <h1>新しい申請 / New application</h1>
 
-    <!-- Employee picker -->
-    <UserPicker
-      class="picker"
-      :apiUrl="picker_api_url"
-      v-on:selection="add_to_recipients($event)"/>
+    <!-- Creation of the approval flow -->
+    <div class="">
+      <h2>承認フロー / Approval flow</h2>
 
-    <!-- Approval flow -->
-    <ApprovalFlow
-      v-on:deleteEmployee="delete_recipient($event)"
-      v-bind:employees="recipients"/>
+      <!-- Employee picker -->
+      <UserPicker
+        class="picker"
+        :apiUrl="picker_api_url"
+        v-on:selection="add_to_recipients($event)"/>
+
+      <!-- Approval flow -->
+      <ApprovalFlow
+        class="flow_container"
+        v-on:deleteEmployee="delete_recipient($event)"
+        v-bind:employees="recipients"/>
+
+    </div>
+
+    <div class="">
+      <h2>申請内容 / Application content</h2>
+
+    </div>
+
+
 
     <!-- test with user generated form selector -->
     <div class="type_and_title_input_wrapper section_wrapper">
@@ -63,13 +76,12 @@
       <template v-if="private">
         <div class="group_picker_wrapper">
           <GroupPicker
-            class="picker"
             :apiUrl="picker_api_url"
             v-on:selection="add_to_groups($event)"/>
         </div>
 
         <div class="">
-          今の申請が承認フローとこちらのグループと共有されています：
+          この申請が承認フローとこちらのグループと共有されています / This application will be shared with the following groups:
         </div>
 
         <div class="groups_wrapper" v-if="groups.length > 0">
@@ -401,24 +413,19 @@ ${process.env.VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${applicati
 
 .section_wrapper{
   border: 1px solid #dddddd;
-  margin: 15px;
+  margin: 1em 0;
   padding: 10px;
 }
 
 .picker {
-  margin: 15px;
   height: 300px;
+}
 
+.flow_container {
+  margin-top: 1em;
 }
 
 
-
-.type_and_title_input_wrapper{
-  /*
-  display: flex;
-  flex-wrap: wrap;
-  */
-}
 .type_and_title_input_wrapper > div {
   margin: 10px;
   flex-grow: 1;
@@ -543,11 +550,6 @@ ${process.env.VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${applicati
   cursor: pointer;
 }
 
-.form_author {
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px solid #dddddd;
-}
 
 .group_picker_wrapper {
   height: 200px;
