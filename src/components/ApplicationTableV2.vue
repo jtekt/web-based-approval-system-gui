@@ -1,91 +1,69 @@
 <template>
   <div class="application_table_container">
-    <table class="application_table">
 
-      <tr class="table_section_header_row">
-        <th colspan="1000" >申請中 / Pending</th>
-      </tr>
+    <div class="">
+      <h2>申請中 / Pending</h2>
 
-      <ApplicationTableHeaderRow
-        v-bind:hideApplicant="hideApplicant"
-        v-bind:hideRecipient="hideRecipient"/>
+      <div class="" v-if="applications.pending.error">Error loading applications</div>
+      <Loader v-else-if="applications.pending.loading">Loading applications...</Loader>
+      <table class="application_table" v-else-if="applications.pending.length > 0">
 
-      <tr v-if="applications.pending.loading">
-        <td colspan="1000">
-          <Loader message="Loading applications..."/>
-        </td>
-      </tr>
-      <tr v-else-if="applications.pending.error">
-        <td colspan="1000">
-          {{applications.pending.error}}
-        </td>
-      </tr>
+        <ApplicationTableHeaderRow
+          v-bind:hideApplicant="hideApplicant"
+          v-bind:hideRecipient="hideRecipient"/>
 
-      <template v-else>
         <ApplicationTableRow
           v-for="application in applications.pending"
           v-bind:application="application"
           v-bind:hideApplicant="hideApplicant"
           v-bind:hideRecipient="hideRecipient"/>
-      </template>
+      </table>
+      <div class="" v-else>No application</div>
+    </div>
 
-      <tr class="table_section_header_row">
-        <th colspan="1000" >却下 / Rejected</th>
-      </tr>
+    <div class="">
+      <h2>却下 / Rejected</h2>
 
-      <ApplicationTableHeaderRow
-        v-bind:hideApplicant="hideApplicant"
-        v-bind:hideRecipient="hideRecipient"/>
+      <div class="" v-if="applications.rejected.error">Error loading applications</div>
+      <Loader v-else-if="applications.rejected.loading">Loading applications...</Loader>
+      <table class="application_table" v-else-if="applications.rejected.length > 0">
 
-      <tr v-if="applications.rejected.loading">
-        <td colspan="1000">
-          <Loader message="Loading applications..."/>
-        </td>
-      </tr>
-      <tr v-else-if="applications.rejected.error">
-        <td colspan="1000">
-          {{applications.rejected.error}}
-        </td>
-      </tr>
+        <ApplicationTableHeaderRow
+          v-bind:hideApplicant="hideApplicant"
+          v-bind:hideRecipient="hideRecipient"/>
 
-      <template v-else>
         <ApplicationTableRow
           v-for="application in applications.rejected"
           v-bind:application="application"
           v-bind:hideApplicant="hideApplicant"
           v-bind:hideRecipient="hideRecipient"/>
-      </template>
+      </table>
+      <div class="" v-else>No application</div>
 
-      <tr class="table_section_header_row">
-        <th colspan="1000" >承認 / Approved</th>
-      </tr>
+    </div>
 
-      <ApplicationTableHeaderRow
-        v-bind:hideApplicant="hideApplicant"
-        v-bind:hideRecipient="hideRecipient"/>
+    <div class="">
+      <h2>承認 / Approved</h2>
 
-      <tr v-if="applications.approved.loading">
-        <td colspan="1000">
-          <Loader message="Loading applications..."/>
-        </td>
-      </tr>
-      <tr v-else-if="applications.approved.error">
-        <td colspan="1000">
-          {{applications.approved.error}}
-        </td>
-      </tr>
+      <div class="" v-if="applications.approved.error">Error loading applications</div>
+      <Loader v-else-if="applications.approved.loading">Loading applications...</Loader>
+      <table class="application_table" v-else-if="applications.approved.length > 0">
 
-      <template v-else>
+        <ApplicationTableHeaderRow
+          v-bind:hideApplicant="hideApplicant"
+          v-bind:hideRecipient="hideRecipient"/>
+
         <ApplicationTableRow
           v-for="application in applications.approved"
           v-bind:application="application"
           v-bind:hideApplicant="hideApplicant"
           v-bind:hideRecipient="hideRecipient"/>
+      </table>
+      <div class="" v-else>No application</div>
 
-      </template>
+    </div>
 
 
-    </table>
   </div>
 </template>
 
@@ -123,46 +101,72 @@ export default {
 
 <style>
 
-table{
+.application_table{
   width: 100%;
   border-collapse: collapse;
   text-align: left;
+  table-layout: fixed;
 }
 
-th, td {
+.application_table tr {
+}
+
+.application_table td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.application_table td:not(:last-child) {
+  padding-right: 1em;
+}
+
+.application_table .type_header {
+  width: 30%;
+}
+
+.application_table .date_header {
+  width: 10%;
+}
+
+.application_table .recipient_header, .application_table .applicant_header {
+  width: 10%;
 }
 
 
+.application_table .progress_header {
+  width: 10%;
+}
 
 /* border between table elements */
-tr:not(.table_section_header_row):not(:last-child){
+.application_table tr:not(.table_section_header_row):not(:last-child){
   border-bottom: 1px solid #dddddd;
 }
 
 
-table .table_section_header_row{
+.application_table .table_section_header_row{
   font-size: 120%;
 }
 
 /* Spacing between table sections */
-table .table_section_header_row:not(:first-child) th{
+.application_table .table_section_header_row:not(:first-child) th{
   padding-top: 50px;
 }
 
 
 
 
-tr:not(.headers_row):not(.table_section_header_row) {
+.application_table tr:not(.headers_row):not(.table_section_header_row) {
   cursor: pointer;
   transition: background-color 0.25s;
 }
 
-tr:not(.headers_row):not(.table_section_header_row):hover {
+.application_table tr:not(.headers_row):not(.table_section_header_row):hover {
   background-color: #eeeeee;
 }
 
-progress {
-  width: 7vw;
+.application_table progress {
+  width: 100%;
 }
 
 

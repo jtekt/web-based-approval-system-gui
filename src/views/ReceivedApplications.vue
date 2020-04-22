@@ -3,8 +3,7 @@
     <h1>受け取った申請 / Received applications</h1>
     <ApplicationTableV2
       v-bind:applications="applications"
-      hideRecipient
-      />
+      hideRecipient/>
   </div>
 </template>
 

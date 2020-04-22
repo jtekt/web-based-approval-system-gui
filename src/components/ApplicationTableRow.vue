@@ -12,14 +12,12 @@
     </td>
 
     <td>
-      <progress :value="approval_percent" min="0" max="100">BANANANA</progress>
+      <progress :value="approval_percent" min="0" max="100"/>
     </td>
 
     <td class="" v-if="!hideRecipient">
       <span v-if="next_approver">{{next_approver.properties.family_name_kanji}}</span>
     </td>
-
-
 
   </tr>
 </template>
@@ -31,10 +29,10 @@ export default {
   props: {
     application: Object,
     hideApplicant: {
-      trype: Boolean, default(){return false}
+      type: Boolean, default(){return false}
     },
     hideRecipient: {
-      trype: Boolean, default(){return false}
+      type: Boolean, default(){return false}
     },
   },
   data(){
