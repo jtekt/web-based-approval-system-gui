@@ -32,18 +32,25 @@ export default {
       this.$router.push({ name: 'show_application', query: { id: this.application_id } })
     },
     search_hanko(){
-      this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/find_application_by_hanko', {
+      this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/find_application_id_by_hanko`, {
         approval_id: this.hanko_id,
       })
       .then(response => {
-        if(response.data.length > 0){
+
+        if(confirm('Hanko valid. See application?')){
           this.$router.push({ name: 'show_application', query: {
-            id: response.data[0]._fields[0].identity.low
+            id: response.data.id
           }})
         }
-        else alert('Not found')
+
+
       })
-      .catch(error => console.log(error));
+      .catch(error => {
+        if (error.response) {
+          if(error.response.status === 404) alert('Hanko is invalid')
+        }
+        else alert('Error')
+      })
     }
 
   },
