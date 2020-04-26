@@ -16,8 +16,7 @@ Vue.config.productionTip = false
 
 
 
-// Redirect to authentication anager if not logged in
-
+// Redirect to authentication manager if not logged in
 router.beforeEach((to, from, next) => {
 
   var jwt = Vue.$cookies.get("jwt")
