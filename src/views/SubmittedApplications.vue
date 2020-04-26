@@ -61,7 +61,7 @@ export default {
       })
       .catch(error => {
         this.$set(this.applications.pending, 'error', 'Error loading applications'
-        console.log(error)
+        if(error.response) console.log(error.response.data)
       }))
     },
     get_submitted_applications_rejected(){
