@@ -2,15 +2,17 @@
   <div class="web_hanko_container">
 
     <!-- PUT A LINK HERE -->
-    <div class="hanko_container_header" v-on:click="view_profile(recipient)">
-      {{recipient.properties.family_name_kanji}}
+    <div
+      class="hanko_container_header"
+      v-on:click="view_profile(recipient)">
+      {{recipient.properties.display_name}}
     </div>
 
     <div class="hanko_area">
 
       <WebHanko
         v-if="approval"
-        v-bind:name="recipient.properties.family_name_kanji"
+        v-bind:name="recipient.properties.display_name"
         v-bind:approvalId="approval.identity.low"
         v-bind:date="approval.properties.date"/>
 

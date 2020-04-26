@@ -15,8 +15,8 @@
         <!-- the actual employee -->
         <div class="employee">
           <span class="delete_button mdi mdi-close" v-on:click="$emit('deleteEmployee',index)"/>
-          <div class="name">{{employee.properties.name_kanji}}</div>
-          <div class="name">({{employee.properties.role}})</div>
+          <div class="name">{{employee.properties.display_name}}</div>
+          <div class="name" v-if="employee.properties.role">({{employee.properties.role}})</div>
         </div>
       </div>
     </draggable>
