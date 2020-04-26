@@ -11,7 +11,7 @@
 
             <!-- Application info -->
             <tr>
-              <th colspan="2">申請情報</th>
+              <th colspan="2">申請情報 / Application details</th>
             </tr>
             <tr>
               <td>ID</td>
@@ -34,7 +34,7 @@
             </tr>
             <tr>
               <td>申請者 / Applicant</td>
-              <td>{{applicant.properties.username}}</td>
+              <td>{{applicant.properties.display_name}}</td>
             </tr>
             <tr>
               <td>機密 / Confidential</td>
@@ -88,7 +88,7 @@
 
             <!-- Actual data of the application -->
             <tr>
-              <th colspan="2">申請内容</th>
+              <th colspan="2">申請内容 / Application content</th>
             </tr>
 
             <!-- If form data is stored as an array (experiment) -->
