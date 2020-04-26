@@ -60,9 +60,9 @@ export default {
         response.data.forEach(record => this.applications.pending.push(record._fields[record._fieldLookup['application']]))
       })
       .catch(error => {
-        this.$set(this.applications.pending, 'error', 'Error loading applications'
+        this.$set(this.applications.pending, 'error', 'Error loading applications')
         if(error.response) console.log(error.response.data)
-      }))
+      })
     },
     get_submitted_applications_rejected(){
       this.$set(this.applications.rejected, 'loading', true)
