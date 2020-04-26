@@ -4,12 +4,20 @@ stages:
 
 variables:
   APPLICATION_NAME: shinsei-manager-front
-  SERVICE_PORT: 32723
+  DOCKER_IMAGE: ${CONTAINER_REGISTRY}/${APPLICATION_NAME}
 
 containerization:
   stage: containerization
   script:
+    # If docker registry password provided, attempt login
+    - >
+      if [ -z ${CONTAINER_REGISTRY_PASSWORD} ];
+      then echo "CONTAINER_REGISTRY_PASSWORD not set, skipping login";
+      else echo "${CONTAINER_REGISTRY_PASSWORD}" | docker login ${CONTAINER_REGISTRY} --username ${CONTAINER_REGISTRY_USERNAME} --password-stdin;
+      fi
+    # Import environment variables
     - cp ${ENV} ./.env.production
+    # Buikd and push container image
     - >
       docker build
       --build-arg HTTP_PROXY=$HTTP_PROXY
@@ -17,14 +25,28 @@ containerization:
       -t ${CONTAINER_REGISTRY}/${APPLICATION_NAME}
       .
     - docker push ${CONTAINER_REGISTRY}/${APPLICATION_NAME}
-    - docker image rm ${CONTAINER_REGISTRY}/${APPLICATION_NAME} # Cleanup
+    - docker image rm ${CONTAINER_REGISTRY}/${APPLICATION_NAME}
 
 deployment:
   stage: deployment
   script:
+    # create/update the deployment
     - envsubst < deployment.yml | kubectl apply -f -
+    # Pull latest image of deployment
     - kubectl rollout restart deployment/${APPLICATION_NAME}
+    # If a nodeport is specified, serve app through a nodeport service
+    - >
+      if [ -z ${SERVICE_PORT} ];
+      then echo "SERVICE_PORT not set, skipping creation of NodePort service";
+      else envsubst < nodeport_service.yml | kubectl apply -f -;
+      fi
+    # if a domain name is specified, serve app through an ingress
+    - >
+      if [ -z ${CERTIFICATE_DOMAIN} ];
+      then echo "CERTIFICATE_DOMAIN not set, skipping creation of ingress";
+      else envsubst < ingress.yml | kubectl apply -f -;
+      fi
   environment:
     name: production
     kubernetes:
-      namespace: ${KUBERNETES_NAMESPACE}
+      namespace: ${KUBERNETES_NAMESPACE} # Obtained from GitLab
