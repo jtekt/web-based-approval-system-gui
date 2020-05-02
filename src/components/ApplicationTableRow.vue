@@ -8,7 +8,7 @@
     <td>{{application.properties.title}}</td>
 
     <td class="" v-if="applicant && !hideApplicant">
-      {{applicant.properties.family_name_kanji}}
+      {{applicant.properties.family_name}}
     </td>
 
     <td>
@@ -16,7 +16,7 @@
     </td>
 
     <td class="" v-if="!hideRecipient">
-      <span v-if="next_approver">{{next_approver.properties.family_name_kanji}}</span>
+      <span v-if="next_approver">{{next_approver.properties.family_name}}</span>
     </td>
 
   </tr>
