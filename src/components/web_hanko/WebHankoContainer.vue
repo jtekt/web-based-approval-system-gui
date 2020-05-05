@@ -125,6 +125,7 @@ export default {
 
 .hanko_container_header {
   text-align: center;
+  font-size: 80%;
 
   margin: 0 5px; /* to prevent border from going all the way accross */
   border-bottom: 1px solid #666666;
