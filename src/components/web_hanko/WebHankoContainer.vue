@@ -84,13 +84,10 @@ export default {
       return this.applicationRecord._fields[this.applicationRecord._fieldLookup['application']]
     },
     show_toolbox(){
-      let employee_number_self = this.$store.state.employee_number;
-      let employee_number_recipient = this.recipient.properties.employee_number
-
-      return employee_number_self === employee_number_recipient
-      && !this.approval
-      && !this.rejection
-      && this.hankoable;
+      return this.$store.state.current_user.identity.low === this.recipient.identity.low
+        && !this.approval
+        && !this.rejection
+        && this.hankoable;
     },
   }
 }
