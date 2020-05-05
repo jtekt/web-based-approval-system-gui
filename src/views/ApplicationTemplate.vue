@@ -31,10 +31,10 @@
               </select>
             </div>
 
+            <!-- Button to edit a field -->
             <IconButton
               v-on:clicked="delete_field(index)"
-              icon="mdi-delete"
-              v-if="!$route.query.id"/>
+              icon="mdi-delete"/>
           </div>
         </div>
 
