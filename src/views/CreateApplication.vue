@@ -106,7 +106,11 @@
       <template v-if="selected_form.properties">
         <div class="form_title">{{selected_form.properties.label}}</div>
 
-        <textarea class="template_description" v-model="selected_form.properties.description" readonly/>
+        <textarea
+          v-if="selected_form.properties.description"
+          class="template_description"
+          rows="8"
+          v-model="selected_form.properties.description" readonly/>
 
         <!-- Link to the template's page -->
         <div class="link_to_template" v-if="selected_form.identity">
@@ -573,11 +577,11 @@ ${process.env.VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${applicati
 }
 
 .template_description{
-  border: none;
+  border: 1px solid #dddddd;
   outline: none;
-  resize: none;
   width: 100%;
   margin-top: 0.5em;
+  resize: vertical;
 }
 
 .link_to_template {
