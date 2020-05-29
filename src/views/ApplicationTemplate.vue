@@ -8,12 +8,21 @@
       <div class="fields_wrapper">
         <h2>フォームデータ / Form data</h2>
 
-        <div class="title_wrapper">
-          <label for="">イトル / Template title</label>
-          <input type="text" v-model="label" placeholder="タイトル / Title">
+        <div class="template_metadata_wrapper">
+          <div class="title_wrapper">
+            <label for="">イトル / Title</label>
+            <input type="text" v-model="label" placeholder="タイトル / Title">
+          </div>
+
+          <div class="description_wrapper">
+            <label for="">説明 / Description</label>
+            <textarea rows="8" v-model="description"/>
+          </div>
         </div>
 
-        <div class="">
+
+        <!-- fields -->
+        <div class="template_fields_wrapper">
           <h3>フィールド / Fields</h3>
           <div class="field" v-for="(field, index) in fields">
 
@@ -75,8 +84,8 @@
 
           </div>
         </div>
-        <div class="" v-else>
-          共有無し / No sharing
+        <div class="error_message" v-else>
+          Template must be shared with at least one group
         </div>
 
       </div>
@@ -88,6 +97,7 @@
         <IconButton
           v-on:clicked="submit()"
           icon="mdi-content-save"
+          :disabled="groups.length === 0"
           bordered>
           保存 / Save</IconButton>
 
@@ -106,8 +116,18 @@
       <div class="">
         <h2>{{label}}</h2>
 
-        <div class="" v-if="author">
-          Author: {{author.properties.username}}
+        <div class="template_metadata_wrapper">
+          <div class="author_wrapper" v-if="author">
+            <label for="">Author</label>
+            <div class="">
+              {{author.properties.username}}
+            </div>
+          </div>
+
+          <div class="description_wrapper">
+            <label for="">説明 / Description</label>
+            <textarea rows="8" v-model="description" readonly/>
+          </div>
         </div>
 
         <!-- fields -->
@@ -143,8 +163,6 @@
 
       </div>
 
-
-
     </template>
 
   </div>
@@ -177,6 +195,7 @@ export default {
       ],
 
       label: "",
+      description: "",
 
       fields : [
         {type: "text", label: ""},
@@ -214,6 +233,7 @@ export default {
         parsed_fields.forEach(field => this.fields.push(field))
 
         this.label=aft.properties.label
+        this.description=aft.properties.description
 
         this.author = record._fields[record._fieldLookup['creator']]
 
@@ -251,6 +271,7 @@ export default {
         this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/edit_application_form_template`, {
           fields: this.fields,
           label: this.label,
+          description: this.description,
           group_ids: this.groups.map(group => group.identity.low),
           id: this.$route.query.id,
         })
@@ -262,6 +283,7 @@ export default {
         this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/create_application_form_template`, {
           fields: this.fields,
           label: this.label,
+          description: this.description,
           group_ids: this.groups.map(group => group.identity.low),
         })
         .then( () => this.$router.push({ name: 'application_template_list' }))
@@ -315,6 +337,20 @@ export default {
   padding: 10px;
 }
 
+.template_metadata_wrapper > div {
+  display: flex;
+}
+.template_metadata_wrapper > div:not(:first-child) {
+  margin-top: 1em;
+}
+.template_metadata_wrapper > div > *:first-child{
+  flex-basis: 10em;
+  flex-shrink: 0;
+}
+.template_metadata_wrapper > div > *:last-child{
+  flex-grow: 1;
+}
+
 .field {
   display: flex;
   margin: 1em 0;
@@ -343,9 +379,14 @@ label {
 }
 
 .fields_table {
+  width: 100%;
   margin: 1em 0;
   text-align: left;
   border-collapse: collapse;
+}
+
+.fields_table th, .fields_table td{
+  padding: 0.25em;
 }
 
 .fields_table tr:not(:first-child){
@@ -378,5 +419,9 @@ label {
 
 .group:not(:last-child){
   border-bottom: 1px solid #dddddd;
+}
+
+.error_message {
+  color: #c00000;
 }
 </style>

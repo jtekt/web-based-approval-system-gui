@@ -106,12 +106,16 @@
       <template v-if="selected_form.properties">
         <div class="form_title">{{selected_form.properties.label}}</div>
 
+        <textarea class="template_description" v-model="selected_form.properties.description" readonly/>
+
         <!-- Link to the template's page -->
-        <div class="" v-if="selected_form.identity">
-          <router-link :to="{ name: 'application_template', params: {id: selected_form.identity.low} }">
+        <div class="link_to_template" v-if="selected_form.identity">
+          <router-link :to="{ name: 'application_template', query: {id: selected_form.identity.low} }">
             Template details
           </router-link>
         </div>
+
+
 
         <table class="form_content_table">
           <tr
@@ -566,5 +570,17 @@ ${process.env.VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${applicati
 
 .group:not(:last-child){
   border-bottom: 1px solid #dddddd;
+}
+
+.template_description{
+  border: none;
+  outline: none;
+  resize: none;
+  width: 100%;
+  margin-top: 0.5em;
+}
+
+.link_to_template {
+  margin-top: 0.5em;
 }
 </style>
