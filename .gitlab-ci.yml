@@ -18,13 +18,9 @@ containerization:
     # Import environment variables
     - cp ${ENV} ./.env.production
     # Buikd and push container image
-    - >
-      docker build
-      --build-arg HTTP_PROXY=$HTTP_PROXY
-      --build-arg HTTPS_PROXY=$HTTPS_PROXY
-      -t ${CONTAINER_REGISTRY}/${APPLICATION_NAME}
-      .
+    - docker build -t ${CONTAINER_REGISTRY}/${APPLICATION_NAME} .
     - docker push ${CONTAINER_REGISTRY}/${APPLICATION_NAME}
+    # Cleanup
     - docker image rm ${CONTAINER_REGISTRY}/${APPLICATION_NAME}
 
 deployment:
