@@ -16,7 +16,7 @@ containerization:
       else echo "${CONTAINER_REGISTRY_PASSWORD}" | docker login ${CONTAINER_REGISTRY} --username ${CONTAINER_REGISTRY_USERNAME} --password-stdin;
       fi
     # Import environment variables
-    - cp ${ENV} ./.env.production
+    - cp ${VUE_ENV} ./.env.production
     # Buikd and push container image
     - docker build -t ${CONTAINER_REGISTRY}/${APPLICATION_NAME} .
     - docker push ${CONTAINER_REGISTRY}/${APPLICATION_NAME}

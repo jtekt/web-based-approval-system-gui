@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@mdi/font": "^4.9.95",
-    "@moreillon/vue_application_template_flex": "^0.1.1",
+    "@moreillon/vue_application_template_flex": "^1.0.0",
     "@moreillon/vue_group_picker": "^0.1.11",
     "@moreillon/vue_loader": "^0.1.1",
     "@moreillon/vue_modal": "0.0.4",
@@ -23,11 +23,11 @@
     "vue-axios": "^2.1.5",
     "vue-cookies": "^1.7.0",
     "vue-date": "^1.2.0",
-    "vue-material-design-icons": "^4.6.0",
-    "vue-router": "^3.1.6",
+    "vue-material-design-icons": "^4.7.1",
+    "vue-router": "^3.3.4",
     "vuedraggable": "^2.23.2",
     "vuejs-datepicker": "^1.6.2",
-    "vuex": "^3.3.0"
+    "vuex": "^3.4.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.12.1",
