@@ -54,7 +54,7 @@ export default {
   methods: {
     get_submitted_applications_pending(){
       this.$set(this.applications.pending, 'loading', true)
-      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/submitted_applications/pending`)
+      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/submitted/pending`)
       .then(response => {
         this.applications.pending = []
         response.data.forEach(record => this.applications.pending.push(record._fields[record._fieldLookup['application']]))
@@ -66,7 +66,7 @@ export default {
     },
     get_submitted_applications_rejected(){
       this.$set(this.applications.rejected, 'loading', true)
-      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/submitted_applications/rejected`)
+      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/submitted/rejected`)
       .then(response => {
         this.applications.rejected = []
         response.data.forEach(record => this.applications.rejected.push(record._fields[record._fieldLookup['application']]))
@@ -75,7 +75,7 @@ export default {
     },
     get_submitted_applications_approved(){
       this.$set(this.applications.approved, 'loading', true)
-      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/submitted_applications/approved`)
+      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/submitted/approved`)
       .then(response => {
         this.applications.approved = []
         response.data.forEach(record => this.applications.approved.push(record._fields[record._fieldLookup['application']]))

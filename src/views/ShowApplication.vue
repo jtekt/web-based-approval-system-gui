@@ -311,8 +311,8 @@ export default {
     },
     delete_application(application_id){
       if(confirm("ホンマ？")){
-        this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/delete_application`, {
-          application_id: application_id
+        this.axios.delete(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application`, {
+          params: {application_id: application_id}
         })
         .then( () => this.$router.push('/'))
         .catch( () => alert(`Error deleting application`));
@@ -324,7 +324,7 @@ export default {
       if(confirm("ホンマ？")){
 
         // send POST to mark as approved
-        this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/approve_application`, {
+        this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application/approve`, {
           application_id: application_id
         })
         .then( () =>  {
@@ -370,7 +370,7 @@ ${process.env.VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${this.appl
         var reason = prompt("なぜ？", "");
 
         if(reason){
-          this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/reject_application`, {
+          this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application/reject`, {
             application_id: application_id,
             reason: reason,
           })
@@ -380,7 +380,7 @@ ${process.env.VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${this.appl
       }
     },
     update_privacy_of_application(){
-      this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/update_privacy_of_application`, {
+      this.axios.put(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application/privacy`, {
         application_id: this.application.identity.low,
         private: this.application.properties.private,
       })
@@ -404,7 +404,7 @@ ${process.env.VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${this.appl
       return flow_index === this.approval_count
     },
     share_with_group(group){
-      this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/make_application_visible_to_group`, {
+      this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application/visibility_to_group`, {
         application_id: this.application.identity.low,
         group_id: group.identity.low,
       })
@@ -415,9 +415,11 @@ ${process.env.VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${this.appl
       .catch( () => alert('Error updating visibility of application'));
     },
     remove_application_visibility_to_group(group){
-      this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/remove_application_visibility_to_group`, {
-        application_id: this.application.identity.low,
-        group_id: group.identity.low,
+      this.axios.delete(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application/visibility_to_group`, {
+        params : {
+          application_id: this.application.identity.low,
+          group_id: group.identity.low,
+        }
       })
       .then( () => {
         this.get_visibility()

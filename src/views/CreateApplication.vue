@@ -306,7 +306,7 @@ export default {
     create_application(){
 
       if(this.form_valid){
-        this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/create_application`, {
+        this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application`, {
           // Create the request body
           // TODO: there should be a simpler way to pass all that information
           title: this.title,
