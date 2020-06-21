@@ -19,11 +19,6 @@
       <li><a href="http://172.16.98.151:8081/moreillon_k8s/shinsei_manager_front">Front-end</a></li>
     </ul>
 
-
-
-
-
-
   </div>
 </template>
 
@@ -31,42 +26,39 @@
 
 // UI elements
 
-
 export default {
   name: 'About',
-  data(){
+  data () {
     return {
       technologies: [
         {
           label: 'Docker',
-          image_src : require('@/assets/docker.png')
+          image_src: require('@/assets/docker.png')
         },
         {
           label: 'Kubernetes',
-          image_src : require('@/assets/kubernetes.png')
+          image_src: require('@/assets/kubernetes.png')
         },
         {
           label: 'Neo4J',
-          image_src : require('@/assets/neo4j.png')
+          image_src: require('@/assets/neo4j.png')
         },
         {
           label: 'Node.js',
-          image_src : require('@/assets/nodejs.png')
+          image_src: require('@/assets/nodejs.png')
         },
         {
           label: 'GitLab',
-          image_src : require('@/assets/gitlab.png')
+          image_src: require('@/assets/gitlab.png')
         },
         {
           label: 'Vue.js',
-          image_src : require('@/assets/vue.png')
-        },
+          image_src: require('@/assets/vue.png')
+        }
 
       ]
     }
-
-  },
-
+  }
 
 }
 </script>

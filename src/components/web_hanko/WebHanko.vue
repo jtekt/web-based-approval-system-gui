@@ -25,8 +25,6 @@
         {{name}}
       </text>
 
-
-
       <!-- original qr is 21 x 21, resizing to 80 x 80 -->
       <!-- warning: ranslation is in the original reference frame (before scaline) -->
       <!-- 100/21*0.8 = 3.80952380952 -->
@@ -64,11 +62,7 @@
       <span class="mdi mdi-download" v-on:click="download()"/>
     </div>
 
-
   </div>
-
-
-
 
 </template>
 
@@ -77,88 +71,81 @@ import QRCode from 'qrcode'
 export default {
   name: 'WebHanko',
   props: {
-    name: {type: String, default: "AA"},
-    approvalId: {type: Number, required: false},
+    name: { type: String, default: 'AA' },
+    approvalId: { type: Number, required: false },
     date: {
       type: Object,
-      default() {
+      default () {
         return {
-        year: {low: 2000},
-        month: {low: 1},
-        day: {low: 1},}
+          year: { low: 2000 },
+          month: { low: 1 },
+          day: { low: 1 } }
       }
     }
   },
-  data: function(){
+  data: function () {
     return {
-      qr_code_svg: "",
+      qr_code_svg: ''
     }
   },
-  mounted: function(){
-    QRCode.toString(String(this.approvalId),{
-    margin: 0,
-    color: {
-        dark: '#C00000',  // Blue dots
+  mounted: function () {
+    QRCode.toString(String(this.approvalId), {
+      margin: 0,
+      color: {
+        dark: '#C00000', // Blue dots
         light: '#0000' // Transparent background
       }
     })
-    .then(string => {
-      var parser = new DOMParser();
-      var doc = parser.parseFromString(string, "image/svg+xml");
-      this.qr_code_svg = doc.getElementsByTagName("path")[0].getAttribute('d')
-    })
-    .catch(err => console.error(err))
+      .then(string => {
+        var parser = new DOMParser()
+        var doc = parser.parseFromString(string, 'image/svg+xml')
+        this.qr_code_svg = doc.getElementsByTagName('path')[0].getAttribute('d')
+      })
+      .catch(err => console.error(err))
   },
   computed: {
-    name_font_size: function(){
-      return 55/this.name.length
-    },
+    name_font_size: function () {
+      return 55 / this.name.length
+    }
   },
   methods: {
-    download(){
-
-      if(!!window.MSInputMethodContext && !!document.documentMode){
+    download () {
+      if (!!window.MSInputMethodContext && !!document.documentMode) {
         alert('IE11 is too old for this feature. please use a browser of this era, such as Google Chrome, Mozilla Firefox or Microsoft Edge')
-      }
-      else {
-        var svg = this.$refs.svg;
-        var canvas = document.createElement('canvas');
+      } else {
+        var svg = this.$refs.svg
+        var canvas = document.createElement('canvas')
 
-        canvas.width = 1000;
-        canvas.height = 1500;
+        canvas.width = 1000
+        canvas.height = 1500
 
-        var ctx = canvas.getContext('2d');
-        var data = (new XMLSerializer()).serializeToString(svg);
-        var DOMURL = window.URL || window.webkitURL || window;
-        var img = new Image();
-        var svgBlob = new Blob([data], {type: 'image/svg+xml;charset=utf-8'});
-        var url = DOMURL.createObjectURL(svgBlob);
+        var ctx = canvas.getContext('2d')
+        var data = (new XMLSerializer()).serializeToString(svg)
+        var DOMURL = window.URL || window.webkitURL || window
+        var img = new Image()
+        var svgBlob = new Blob([data], { type: 'image/svg+xml;charset=utf-8' })
+        var url = DOMURL.createObjectURL(svgBlob)
         img.onload = function () {
-        ctx.drawImage(img, 0, 0);
-        DOMURL.revokeObjectURL(url);
-        var imgURI = canvas
+          ctx.drawImage(img, 0, 0)
+          DOMURL.revokeObjectURL(url)
+          var imgURI = canvas
             .toDataURL('image/png')
-            .replace('image/png', 'image/octet-stream');
-        var evt = new MouseEvent('click', {
-          view: window,
-          bubbles: false,
-          cancelable: true
-        });
-        var a = document.createElement('a');
-        a.setAttribute('download', 'approval_qr.png');
-        a.setAttribute('href', imgURI);
-        a.setAttribute('target', '_blank');
-        a.dispatchEvent(evt);
-      };
-      img.src = url;
-
+            .replace('image/png', 'image/octet-stream')
+          var evt = new MouseEvent('click', {
+            view: window,
+            bubbles: false,
+            cancelable: true
+          })
+          var a = document.createElement('a')
+          a.setAttribute('download', 'approval_qr.png')
+          a.setAttribute('href', imgURI)
+          a.setAttribute('target', '_blank')
+          a.dispatchEvent(evt)
+        }
+        img.src = url
       }
-
-
-
-
-    },
-  },
+    }
+  }
 }
 </script>
 
@@ -168,8 +155,6 @@ export default {
 .web_hanko{
 
   position: relative;
-
-
 
   /* the SVG will keep aspect ratio and generate margins accordingly */
   height: 100%;
@@ -201,9 +186,7 @@ svg {
 
 .web_hanko_actions_container > * {
 
-
   font-size: 150%;
-
 
   flex-grow: 1;
   flex-basis: 0;

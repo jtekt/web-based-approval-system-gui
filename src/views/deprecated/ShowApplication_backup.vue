@@ -47,8 +47,6 @@
             <td v-else>{{value}}</td>
           </tr>
 
-
-
           <!-- actions -->
           <tr>
             <th colspan="2">Actions</th>
@@ -63,7 +61,6 @@
               </button>
             </td>
           </tr>
-
 
         </table>
 
@@ -92,9 +89,6 @@
       Application does not exist
     </div>
 
-
-
-
   </div>
 </template>
 
@@ -104,64 +98,63 @@ import WebHankoContainer from '@/components/web_hanko/WebHankoContainer.vue'
 export default {
   name: 'ShowApplication',
   components: {
-    WebHankoContainer,
+    WebHankoContainer
   },
 
-  mounted(){
-    this.get_application();
+  mounted () {
+    this.get_application()
   },
-  data(){
+  data () {
     return {
-      application_records: [],
+      application_records: []
     }
   },
   methods: {
-    get_application(){
+    get_application () {
       this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/get_application', {
         application_id: this.$route.query.id
       })
-      .then(response => this.application_records = response.data)
-      .catch(error => console.log(error));
+        .then(response => this.application_records = response.data)
+        .catch(error => console.log(error))
     },
-    delete_application(application_id){
-      if(confirm("ホンマ？")){
+    delete_application (application_id) {
+      if (confirm('ホンマ？')) {
         this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/delete_application', {
           application_id: application_id
         })
-        .then( () => this.get_application())
-        .catch(error => console.log(error));
+          .then(() => this.get_application())
+          .catch(error => console.log(error))
       }
     },
-    approve(application_id){
+    approve (application_id) {
       this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/approve_application', {
         application_id: application_id
       })
-      .then( () => this.get_application())
-      .catch(error => console.log(error));
+        .then(() => this.get_application())
+        .catch(error => console.log(error))
     },
-    reject(application_id){
+    reject (application_id) {
       this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/reject_application', {
         application_id: application_id
       })
-      .then( () => this.get_application())
-      .catch(error => console.log(error));
+        .then(() => this.get_application())
+        .catch(error => console.log(error))
     },
-    cancel(application_id){
+    cancel (application_id) {
       this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/cancel_decision', {
         application_id: application_id
       })
-      .then( () => this.get_application())
-      .catch(error => console.log(error));
+        .then(() => this.get_application())
+        .catch(error => console.log(error))
     }
   },
   computed: {
-    application(){
-      if(this.application_records.length > 0) return this.application_records[0]._fields[this.application_records[0]._fieldLookup['application']]
+    application () {
+      if (this.application_records.length > 0) return this.application_records[0]._fields[this.application_records[0]._fieldLookup['application']]
       else return null
-
     },
-    applicant(){
-      if(this.application_records.length > 0) return this.application_records[0]._fields[this.application_records[0]._fieldLookup['applicant']]
+    applicant () {
+      if (this.application_records.length > 0) return this.application_records[0]._fields[this.application_records[0]._fieldLookup['applicant']]
       else return null
     }
   }
@@ -169,7 +162,6 @@ export default {
 </script>
 
 <style scoped>
-
 
 .application_container {
 
@@ -204,12 +196,9 @@ export default {
   padding-top: 10px;
 }
 
-
 .application_info td {
   border-top: 1px solid #dddddd;
 }
-
-
 
 /* Hanko area */
 
@@ -230,11 +219,9 @@ export default {
   align-items: center;
 }
 
-
 .not_found {
   padding: 25px;
   text-align: center;
 }
-
 
 </style>

@@ -10,23 +10,22 @@
 <script>
 import AppTemplate from '@moreillon/vue_application_template_flex'
 
-
 export default {
   components: {
     AppTemplate
   },
-  data(){
-    return{
-      navigation : [
-        {route: '/create_application', label: 'New', icon: 'plus'},
-        {route: '/', label: 'Outbox', icon: 'inbox-arrow-up'},
-        {route: '/received_applications', label: 'Inbox', icon: 'inbox-arrow-down'},
-        {route: '/application_template_list', label: 'Forms', icon: 'file-settings-outline'},
-        {route: '/search', label: 'Search', icon: 'magnify'},
-        {route: '/about', label: 'About', icon: 'information-outline'},
+  data () {
+    return {
+      navigation: [
+        { route: '/create_application', label: 'New', icon: 'plus' },
+        { route: '/', label: 'Outbox', icon: 'inbox-arrow-up' },
+        { route: '/received_applications', label: 'Inbox', icon: 'inbox-arrow-down' },
+        { route: '/application_template_list', label: 'Forms', icon: 'file-settings-outline' },
+        { route: '/search', label: 'Search', icon: 'magnify' },
+        { route: '/about', label: 'About', icon: 'information-outline' }
       ]
     }
-  },
+  }
 }
 </script>
 

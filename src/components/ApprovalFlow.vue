@@ -9,7 +9,6 @@
         v-for="(employee, index) in employees"
         v-bind:key="employee.identity.low">
 
-
         <span v-if="index>0" class="arrow mdi mdi-arrow-right"/>
 
         <!-- the actual employee -->
@@ -21,12 +20,9 @@
       </div>
     </draggable>
 
-
-
     <div class="flow_empty" v-else>
       承認者が選ばれていません　/　No recipient selected
     </div>
-
 
   </div>
 </template>
@@ -38,11 +34,11 @@ import draggable from 'vuedraggable'
 export default {
   name: 'ApprovalFlow',
   components: {
-    draggable,
+    draggable
   },
   props: {
     employees: Array
-  },
+  }
 }
 </script>
 
@@ -52,14 +48,11 @@ export default {
   border: 1px solid #dddddd;
 }
 
-
-
 .approval_flow_header {
   padding: 10px;
   border-bottom: 1px solid #dddddd;
 
 }
-
 
 .actual_approval_flow {
   display: flex;
@@ -123,13 +116,8 @@ export default {
   opacity: 1;
 }
 
-
 .delete_button:hover {
   color: #c00000;
 }
-
-
-
-
 
 </style>

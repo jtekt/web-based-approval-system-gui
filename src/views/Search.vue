@@ -19,39 +19,36 @@
 <script>
 export default {
   name: 'Search',
-  data(){
+  data () {
     return {
-      application_id: "",
-      hanko_id: "",
+      application_id: '',
+      hanko_id: ''
     }
   },
   methods: {
-    search_application(){
+    search_application () {
       this.$router.push({ name: 'show_application', query: { id: this.application_id } })
     },
-    search_hanko(){
+    search_hanko () {
       this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application/by_hanko`, {
-        params: {approval_id: this.hanko_id,}
+        params: { approval_id: this.hanko_id }
       })
-      .then(response => {
-
-        if(confirm('Hanko valid. See application?')){
-          this.$router.push({ name: 'show_application', query: {
-            id: response.data.id
-          }})
-        }
-
-
-      })
-      .catch(error => {
-        if (error.response) {
-          if(error.response.status === 404) alert('Hanko is invalid')
-        }
-        else alert('Error')
-      })
+        .then(response => {
+          if (confirm('Hanko valid. See application?')) {
+            this.$router.push({ name: 'show_application',
+              query: {
+                id: response.data.id
+              } })
+          }
+        })
+        .catch(error => {
+          if (error.response) {
+            if (error.response.status === 404) alert('Hanko is invalid')
+          } else alert('Error')
+        })
     }
 
-  },
+  }
 }
 </script>
 

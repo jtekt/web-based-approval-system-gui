@@ -38,68 +38,62 @@
       </tr>
     </table>
 
-
-
-
   </div>
 </template>
 
 <script>
 import IconButton from '@/components/IconButton.vue'
 
-
-
 export default {
   name: 'EditApplicationTemplate',
   components: {
-    IconButton,
+    IconButton
   },
-  data(){
+  data () {
     return {
-      application_templates : [],
-      shared_templates: [],
+      application_templates: [],
+      shared_templates: []
     }
   },
-  mounted(){
-    this.get_my_templates();
-    this.get_shared_templates();
+  mounted () {
+    this.get_my_templates()
+    this.get_shared_templates()
   },
   methods: {
-    get_my_templates(){
-
-      this.$set(this.application_templates,'loading',true)
-      this.application_templates.splice(0,this.application_templates.length)
-      this.axios.get(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/application_form_templates_from_user')
-      .then( (response) => {
-        this.application_templates = []
-        response.data.forEach(record => {
+    get_my_templates () {
+      this.$set(this.application_templates, 'loading', true)
+      this.application_templates.splice(0, this.application_templates.length)
+      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_template/made_by_user`)
+        .then((response) => {
+          this.application_templates = []
+          response.data.forEach(record => {
           // Dealing with records here because involves creator and group
-          this.application_templates.push(record)
+            this.application_templates.push(record)
+          })
         })
-      })
-      .catch(() => { this.$set(this.application_templates,'error',true)})
-      .finally(() => { this.$set(this.application_templates,'loading',false)})
+        .catch(() => { this.$set(this.application_templates, 'error', true) })
+        .finally(() => { this.$set(this.application_templates, 'loading', false) })
     },
-    get_shared_templates(){
-      this.$set(this.shared_templates,'loading',true)
-      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates_shared_with_user`)
-      .then( (response) => {
-        this.shared_templates.splice(0,this.shared_templates.length)
-        response.data.forEach(record => {
+    get_shared_templates () {
+      this.$set(this.shared_templates, 'loading', true)
+      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_template/shared_with_user`)
+        .then((response) => {
+          this.shared_templates.splice(0, this.shared_templates.length)
+          response.data.forEach(record => {
           // Dealing with records here because involves creator and group
-          this.shared_templates.push(record)
+            this.shared_templates.push(record)
+          })
         })
-      })
-      .catch(() => { this.$set(this.shared_templates,'error',true)})
-      .finally(() => { this.$set(this.shared_templates,'loading',false)})
+        .catch(() => { this.$set(this.shared_templates, 'error', true) })
+        .finally(() => { this.$set(this.shared_templates, 'loading', false) })
     },
-    view_template(id){
+    view_template (id) {
       this.$router.push({ name: 'application_template', query: { id: id } })
     },
 
-    new_template(){
+    new_template () {
       this.$router.push({ name: 'application_template' })
-    },
+    }
 
   },
   computed: {
@@ -129,7 +123,6 @@ export default {
   text-align: left;
   border-collapse: collapse;
 }
-
 
 .templates_table tr:not(:last-child):not(.header_row){
   border-bottom: 1px solid #dddddd;

@@ -20,7 +20,6 @@
           </div>
         </div>
 
-
         <!-- fields -->
         <div class="template_fields_wrapper">
           <h3>フィールド / Fields</h3>
@@ -47,7 +46,6 @@
           </div>
         </div>
 
-
         <div class="buttons_wrapper">
           <IconButton
             class="add_field_button"
@@ -56,7 +54,6 @@
             bordered>
             フィールド作成 / Add field</IconButton>
         </div>
-
 
       </div>
 
@@ -89,8 +86,6 @@
         </div>
 
       </div>
-
-
 
       <div class="buttons_wrapper">
 
@@ -180,149 +175,136 @@ export default {
     GroupPicker,
     IconButton
   },
-  data(){
+  data () {
     return {
-
 
       groups: [],
 
-
       field_types: [
-        {type: 'text', label: 'テキスト / Text'},
-        {type: 'file', label: 'ファイル / File'},
-        {type: 'checkbox', label: 'チェックボックス / Checkbox'},
-        {type: 'date', label: '日付 / Date'},
+        { type: 'text', label: 'テキスト / Text' },
+        { type: 'file', label: 'ファイル / File' },
+        { type: 'checkbox', label: 'チェックボックス / Checkbox' },
+        { type: 'date', label: '日付 / Date' }
       ],
 
-      label: "",
-      description: "",
+      label: '',
+      description: '',
 
-      fields : [
-        {type: "text", label: ""},
-        {type: "text", label: ""},
-        {type: "text", label: ""},
+      fields: [
+        { type: 'text', label: '' },
+        { type: 'text', label: '' },
+        { type: 'text', label: '' }
       ],
 
-
-      author: null,
-
+      author: null
 
     }
   },
-  mounted(){
-    if('id' in this.$route.query){
+  mounted () {
+    if ('id' in this.$route.query) {
       this.get_template()
       this.get_visibility()
     }
   },
   methods: {
 
-    get_template(){
-
+    get_template () {
       this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_template`, {
-        params: {id: this.$route.query.id}
+        params: { id: this.$route.query.id }
       })
-      .then( (response) => {
+        .then((response) => {
+          let record = response.data[0]
+          let aft = record._fields[record._fieldLookup['aft']]
 
-        let record = response.data[0]
-        let aft = record._fields[record._fieldLookup['aft']]
+          let parsed_fields = JSON.parse(aft.properties.fields)
 
-        let parsed_fields = JSON.parse(aft.properties.fields)
+          this.fields = []
+          parsed_fields.forEach(field => this.fields.push(field))
 
-        this.fields = []
-        parsed_fields.forEach(field => this.fields.push(field))
+          this.label = aft.properties.label
+          this.description = aft.properties.description
 
-        this.label=aft.properties.label
-        this.description=aft.properties.description
-
-        this.author = record._fields[record._fieldLookup['creator']]
-
-      })
-      .catch(error => console.log(error));
-
+          this.author = record._fields[record._fieldLookup['creator']]
+        })
+        .catch(error => console.log(error))
     },
 
-    get_visibility(){
+    get_visibility () {
       // Gets the groups wi which this application is visible
       this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_template/visibility`, {
-        params: {id: this.$route.query.id},
+        params: { id: this.$route.query.id }
       })
-      .then(response => {
-        this.groups = []
-        response.data.forEach((record) => {
-          let group = record._fields[record._fieldLookup['group']]
-          this.groups.push(group)
-        });
-      })
-      .catch((error) => console.log(error))
+        .then(response => {
+          this.groups = []
+          response.data.forEach((record) => {
+            let group = record._fields[record._fieldLookup['group']]
+            this.groups.push(group)
+          })
+        })
+        .catch((error) => console.log(error))
     },
 
-    add_field(){
-      this.fields.push({type: "text", label: "label"})
+    add_field () {
+      this.fields.push({ type: 'text', label: 'label' })
     },
-    delete_field(index){
-      if(confirm('ホンマ？')){
-        this.fields.splice(index,1)
+    delete_field (index) {
+      if (confirm('ホンマ？')) {
+        this.fields.splice(index, 1)
       }
     },
-    submit(){
+    submit () {
       // If id exists, then edit
-      if('id' in this.$route.query){
+      if ('id' in this.$route.query) {
         this.axios.put(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_template`, {
           fields: this.fields,
           label: this.label,
           description: this.description,
           group_ids: this.groups.map(group => group.identity.low),
-          id: this.$route.query.id,
+          id: this.$route.query.id
         })
-        .then( () => this.$router.push({ name: 'application_template_list' }))
-        .catch(error => console.log(error));
+          .then(() => this.$router.push({ name: 'application_template_list' }))
+          .catch(error => console.log(error))
       }
       // otherwise create
-      else{
+      else {
         this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_template`, {
           fields: this.fields,
           label: this.label,
           description: this.description,
-          group_ids: this.groups.map(group => group.identity.low),
+          group_ids: this.groups.map(group => group.identity.low)
         })
-        .then( () => this.$router.push({ name: 'application_template_list' }))
-        .catch(error => console.log(error));
+          .then(() => this.$router.push({ name: 'application_template_list' }))
+          .catch(error => console.log(error))
       }
-
-
     },
-    delete_template(id){
-      if(confirm('ホンマ？')){
+    delete_template (id) {
+      if (confirm('ホンマ？')) {
         this.axios.delete(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_template`,
-        {params: {id:this.$route.query.id}})
-        .then( (response) => this.$router.push({ name: 'application_template_list' }) )
-        .catch(error => console.log(error));
+          { params: { id: this.$route.query.id } })
+          .then((response) => this.$router.push({ name: 'application_template_list' }))
+          .catch(error => console.log(error))
       }
-
     },
 
-    delete_group(index){
-      this.groups.splice(index,1);
+    delete_group (index) {
+      this.groups.splice(index, 1)
     },
-    add_to_groups(group_to_add){
+    add_to_groups (group_to_add) {
       // Prevent duplicates
-      if(!this.groups.includes(group_to_add)){
-        this.groups.push(group_to_add);
+      if (!this.groups.includes(group_to_add)) {
+        this.groups.push(group_to_add)
       }
-
-    },
+    }
 
   },
   computed: {
-    is_editable(){
+    is_editable () {
       // if this is a new template, automatically in edit mode
-      if(!this.$route.query.id) return true;
-      if(!this.$store.state.current_user || !this.author) return false
+      if (!this.$route.query.id) return true
+      if (!this.$store.state.current_user || !this.author) return false
       return this.$store.state.current_user.identity.low === this.author.identity.low
-
     },
-    picker_api_url(){
+    picker_api_url () {
       return process.env.VUE_APP_GROUP_MANAGER_API_URL
     }
   }
@@ -373,7 +355,6 @@ label {
 }
 .corporate_structure {
 
-
   max-height: 300px;
   overflow-y: auto;
 }
@@ -402,7 +383,6 @@ label {
 .add_field_button{
   font-size: 110%;
 }
-
 
 .group_picker_wrapper {
   height: 200px;

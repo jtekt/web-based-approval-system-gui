@@ -19,7 +19,7 @@ export default new Router({
       path: '/create_application',
       name: 'create_application',
       component: CreateApplication,
-      props: true,
+      props: true
     },
     {
       path: '/',
@@ -34,28 +34,28 @@ export default new Router({
     {
       path: '/show_application',
       name: 'show_application',
-      component: ShowApplication,
+      component: ShowApplication
     },
     {
       path: '/search',
       name: 'search',
-      component: Search,
+      component: Search
     },
     {
       path: '/application_template',
       name: 'application_template',
-      component: ApplicationTemplate,
+      component: ApplicationTemplate
     },
     {
       path: '/application_template_list',
       name: 'application_template_list',
-      component: ApplicationTemplateList,
+      component: ApplicationTemplateList
     },
     {
       path: '/about',
       name: 'about',
-      component: About,
-    },
+      component: About
+    }
 
   ]
 })

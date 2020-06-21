@@ -28,21 +28,15 @@
       </div>
     </div>
 
-
     <div class="section_wrapper" >
       <component v-if="type !=='undefined'" v-bind:is="type" ref="form"/>
       <div v-else>Type not selected</div>
     </div>
 
-
     <!-- submit application form -->
     <div class="section_wrapper" >
       <input type="submit" v-bind:disabled="type ==='undefined' || recipients.length < 1">
     </div>
-
-
-
-
 
   </form>
 </template>
@@ -61,7 +55,6 @@ import ReceiptPurchaseBefore from '@/components/forms/ReceiptPurchaseBefore.vue'
 import ReceiptPurchaseAfter from '@/components/forms/ReceiptPurchaseAfter.vue'
 import NewTemplateTest from '@/components/forms/NewTemplateTest.vue'
 
-
 export default {
   name: 'EditApplication',
   components: {
@@ -75,50 +68,45 @@ export default {
     PcBringBack,
     ReceiptPurchaseBefore,
     ReceiptPurchaseAfter,
-    NewTemplateTest,
+    NewTemplateTest
   },
-  data(){
+  data () {
     return {
       // TURN THIS INTO AN ARRAY OF OBJECTS
 
-
       application_types: [
 
-        {label: 'パソコン持ち出し申請 / PC takeout', component: 'PcTakeOut'},
+        { label: 'パソコン持ち出し申請 / PC takeout', component: 'PcTakeOut' },
 
         // Purchases
-        {label: '領収書事前申請 / Receipt based purchase application', component: 'ReceiptPurchaseBefore'},
-        {label: '領収書精算申請 / Receipt based purchase settlement', component: 'ReceiptPurchaseAfter'},
-        {label: '請求賞事前申請 / Invoice based purchase application', component: 'InvoicePurchaseBefore'},
-        {label: '請求賞精算申請 / Invoice based purchase settlement', component: 'InvoicePurchaseAfter'},
-        {label: 'NEW', component: 'NewTemplateTest'},
+        { label: '領収書事前申請 / Receipt based purchase application', component: 'ReceiptPurchaseBefore' },
+        { label: '領収書精算申請 / Receipt based purchase settlement', component: 'ReceiptPurchaseAfter' },
+        { label: '請求賞事前申請 / Invoice based purchase application', component: 'InvoicePurchaseBefore' },
+        { label: '請求賞精算申請 / Invoice based purchase settlement', component: 'InvoicePurchaseAfter' },
+        { label: 'NEW', component: 'NewTemplateTest' }
 
-        //{label: 'メモリー持ち込み', component: 'MemoryBringIn'},
+        // {label: 'メモリー持ち込み', component: 'MemoryBringIn'},
       ],
 
-
       // Default type set to PC takeout
-      type: "PcTakeOut",
+      type: 'PcTakeOut',
 
-      title: "",
+      title: '',
       recipients: [],
 
-
-      company_structure : [], // needed?
+      company_structure: [], // needed?
 
       employees: [],
-      selected_employee: null,
+      selected_employee: null
 
     }
   },
-  mounted(){
-
+  mounted () {
 
   },
   methods: {
 
-
-    create_application(){
+    create_application () {
       this.axios.post('http://shinseimanager.mike.jtekt.maximemoreillon.com/create_application', {
         type: this.type,
         title: this.title,
@@ -129,40 +117,31 @@ export default {
         form_data: this.$refs.form._data.form_data,
         referred_application_id: this.$refs.form._data.referred_application_id
       })
-      .then(response => this.$router.push({ name: 'submitted_applications' }) )
-      .catch(error => console.log(error));
-
-
+        .then(response => this.$router.push({ name: 'submitted_applications' }))
+        .catch(error => console.log(error))
     },
 
-
-
-
-    get_employees_belonging_to_node(node_id){
+    get_employees_belonging_to_node (node_id) {
       this.axios.post('http://authentication.mike.jtekt.maximemoreillon.com/get_employees_belonging_to_node', {
-        node_id: node_id,
+        node_id: node_id
       })
-      .then(response => this.employees = response.data)
-      .catch(error => console.log(error));
+        .then(response => this.employees = response.data)
+        .catch(error => console.log(error))
     },
 
-    delete_recipient(recipient_index){
-      this.recipients.splice(recipient_index,1);
+    delete_recipient (recipient_index) {
+      this.recipients.splice(recipient_index, 1)
     },
-    add_to_recipients(recipient_to_add){
-
+    add_to_recipients (recipient_to_add) {
       // Prevent duplicates
-      if(!this.recipients.includes(recipient_to_add)){
-        this.recipients.push(recipient_to_add);
+      if (!this.recipients.includes(recipient_to_add)) {
+        this.recipients.push(recipient_to_add)
         // Add flow index
-        recipient_to_add.flow_index = this.recipients.length-1;
+        recipient_to_add.flow_index = this.recipients.length - 1
+      } else {
+        alert('Duplicats not allowed')
       }
-      else {
-        alert("Duplicats not allowed")
-      }
-
-
-    },
+    }
   }
 }
 </script>
@@ -192,7 +171,6 @@ form > div {
 .type_and_title_input_wrapper > div > label {
   margin-right: 10px;
 }
-
 
 .employee {
   padding: 2px 5px;
@@ -244,6 +222,5 @@ form > div {
 .title_input {
   flex-grow: 1;
 }
-
 
 </style>

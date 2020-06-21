@@ -46,56 +46,54 @@
 import WebHanko from './WebHanko.vue'
 import Rejection from './Rejection.vue'
 
-
 export default {
   name: 'WebHankoContainer',
   components: {
     WebHanko,
-    Rejection,
+    Rejection
   },
   props: {
-    applicationRecord: {type: Object, required: true},
-    hankoable: {type: Boolean, default(){return true} },
+    applicationRecord: { type: Object, required: true },
+    hankoable: { type: Boolean, default () { return true } }
   },
-  data(){
+  data () {
     return {
-      approval_status: undefined,
+      approval_status: undefined
     }
   },
   methods: {
-    view_profile(recipient){
-      window.location.href = `${process.env.VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/?id=${recipient.identity.low}`;
+    view_profile (recipient) {
+      window.location.href = `${process.env.VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/?id=${recipient.identity.low}`
     }
   },
   computed: {
-    recipient(){
+    recipient () {
       return this.applicationRecord._fields[this.applicationRecord._fieldLookup['recipient']]
     },
-    approval(){
+    approval () {
       return this.applicationRecord._fields[this.applicationRecord._fieldLookup['approval']]
     },
-    rejection(){
+    rejection () {
       return this.applicationRecord._fields[this.applicationRecord._fieldLookup['rejection']]
     },
-    submission(){
+    submission () {
       return this.applicationRecord._fields[this.applicationRecord._fieldLookup['submitted_to']]
     },
-    application(){
+    application () {
       return this.applicationRecord._fields[this.applicationRecord._fieldLookup['application']]
     },
-    show_toolbox(){
-      return this.$store.state.current_user.identity.low === this.recipient.identity.low
-        && !this.approval
-        && !this.rejection
-        && this.hankoable;
-    },
+    show_toolbox () {
+      return this.$store.state.current_user.identity.low === this.recipient.identity.low &&
+        !this.approval &&
+        !this.rejection &&
+        this.hankoable
+    }
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
 
 .web_hanko_container {
 
@@ -105,8 +103,6 @@ export default {
 
   width: 80px;
   /* height cannot be set here */
-
-
 
   border: 1px solid #666666;
   border-radius: 5px;
@@ -192,6 +188,5 @@ export default {
   margin: 0 5px; /* to prevent border from going all the way accross */
   border-top: 1px solid #666666;
 }
-
 
 </style>

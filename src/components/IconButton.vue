@@ -18,10 +18,10 @@ export default {
 
   },
   props: {
-    bordered: {type: Boolean, default(){return false}},
-    icon: {type: String, default(){return "mdi-help"}},
-    disabled: {type: Boolean, default(){return false}},
-  },
+    bordered: { type: Boolean, default () { return false } },
+    icon: { type: String, default () { return 'mdi-help' } },
+    disabled: { type: Boolean, default () { return false } }
+  }
 }
 </script>
 
@@ -45,7 +45,6 @@ button:hover {
   color: #c00000;
 }
 
-
 button.bordered {
   border: 1px solid #222222;
   border-radius: 5px;
@@ -64,7 +63,5 @@ button.disabled.bordered {
   border-color: #bbbbbb;
 
 }
-
-
 
 </style>

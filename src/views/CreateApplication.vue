@@ -25,8 +25,6 @@
 
     </div>
 
-
-
     <!-- test with user generated form selector -->
     <div class="type_and_title_input_wrapper section_wrapper">
 
@@ -100,7 +98,6 @@
 
     </div>
 
-
     <!-- container for the application itself -->
     <div class="section_wrapper form_container" >
       <template v-if="selected_form.properties">
@@ -118,8 +115,6 @@
             Template details
           </router-link>
         </div>
-
-
 
         <table class="form_content_table">
           <tr
@@ -140,11 +135,9 @@
                 class="mdi mdi-delete file_delete_button"
                 v-on:click="delete_file(field)"/>
 
-
               <datepicker
                 v-else-if="field.type === 'date'"
                 v-model="field.value"/>
-
 
               <input
                 v-else
@@ -180,7 +173,7 @@ import ApprovalFlow from '@/components/ApprovalFlow.vue'
 import UserPicker from '@moreillon/vue_user_picker'
 import GroupPicker from '@moreillon/vue_group_picker'
 
-import Datepicker from 'vuejs-datepicker';
+import Datepicker from 'vuejs-datepicker'
 import IconButton from '@/components/IconButton.vue'
 
 export default {
@@ -193,119 +186,115 @@ export default {
     IconButton
   },
 
-  data(){
+  data () {
     return {
-      title: "",
+      title: '',
       private: false, // applications private by default
       recipients: [], // approval Flow, can be filled by duplication
 
       application_form_templates: [],
       selected_form: {},
 
-      copy_of: "",
+      copy_of: '',
 
-      groups: [], // Groups for visibility
+      groups: [] // Groups for visibility
     }
   },
-  mounted(){
+  mounted () {
     this.copy_content_if_duplicate()
     this.get_templates()
   },
   methods: {
 
-    copy_content_if_duplicate(){
+    copy_content_if_duplicate () {
       // Attempt to copy the content of one application into a new one
       // NOT VERY CLEAN but better than before
-      if(this.$route.query.copy_of){
+      if (this.$route.query.copy_of) {
         this.recreate_application_content()
         this.recreate_visibility()
         this.recreate_approval_flow()
       }
     },
 
-    recreate_application_content(){
+    recreate_application_content () {
       // Todo: add a loader for the content of the application itself
-      this.$set(this.selected_form,'loading', true)
+      this.$set(this.selected_form, 'loading', true)
       this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application`, {
-        params: {application_id: this.$route.query.copy_of},
+        params: { application_id: this.$route.query.copy_of }
       })
-      .then(response => {
-        let record = response.data[0]
-        let original_application = record._fields[record._fieldLookup['application']]
+        .then(response => {
+          let record = response.data[0]
+          let original_application = record._fields[record._fieldLookup['application']]
 
-        this.title = `Copy of ${original_application.properties.title}`
-        this.private = original_application.properties.private
+          this.title = `Copy of ${original_application.properties.title}`
+          this.private = original_application.properties.private
 
+          original_application.properties.form_data = JSON.parse(original_application.properties.form_data)
 
-        original_application.properties.form_data = JSON.parse(original_application.properties.form_data)
+          let fields = []
+          original_application.properties.form_data.forEach((field) => {
+            fields.push(field)
+          })
 
-        let fields = []
-        original_application.properties.form_data.forEach((field) => {
-          fields.push(field)
-        });
-
-        this.$set(this.selected_form,'properties', {
-          label: original_application.properties.type,
-          fields: fields
+          this.$set(this.selected_form, 'properties', {
+            label: original_application.properties.type,
+            fields: fields
+          })
         })
-
-      })
-      .catch(() => this.$set(this.selected_form,'error', true))
-      .finally(() => this.$set(this.selected_form,'loading', false))
+        .catch(() => this.$set(this.selected_form, 'error', true))
+        .finally(() => this.$set(this.selected_form, 'loading', false))
     },
 
-    recreate_visibility(){
+    recreate_visibility () {
       // Gets the groups wi which this application is visible (used if duplicate)
       this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application/visibility`, {
-        params: {application_id: this.$route.query.copy_of},
+        params: { application_id: this.$route.query.copy_of }
       })
-      .then(response => {
-        this.groups = []
-        response.data.forEach((record) => {
-          let group = record._fields[record._fieldLookup['group']]
-          this.groups.push(group)
-        });
-      })
-      .catch(() => this.error = 'Error getting application')
+        .then(response => {
+          this.groups = []
+          response.data.forEach((record) => {
+            let group = record._fields[record._fieldLookup['group']]
+            this.groups.push(group)
+          })
+        })
+        .catch(() => this.error = 'Error getting application')
     },
 
-    recreate_approval_flow(){
+    recreate_approval_flow () {
       // Gets the groups wi which this application is visible (used if duplicate)
       this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application/recipients`, {
-        params: {application_id: this.$route.query.copy_of},
+        params: { application_id: this.$route.query.copy_of }
       })
-      .then(response => {
-        this.recipients = []
-        response.data.forEach((record) => {
-          let recipient = record._fields[record._fieldLookup['recipient']]
-          this.recipients.push(recipient)
-        });
-      })
-      .catch(() => this.error = 'Error getting application')
-    },
-
-    get_templates(){
-      this.$set(this.application_form_templates,'loading',true)
-      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/all_application_form_templates_visible_to_user`)
-      .then(response => {
-        // delete templates to recreate them
-        this.application_form_templates = []
-        response.data.forEach(record => {
-          let template = record._fields[record._fieldLookup['aft']]
-          template.properties.fields = JSON.parse(template.properties.fields)
-          this.application_form_templates.push(template)
+        .then(response => {
+          this.recipients = []
+          response.data.forEach((record) => {
+            let recipient = record._fields[record._fieldLookup['recipient']]
+            this.recipients.push(recipient)
+          })
         })
-      })
-      .catch(error => {
-        this.$set(this.application_form_templates,'error','Error loading templates')
-      })
-      .finally(() => this.$set(this.application_form_templates,'loading',false))
+        .catch(() => this.error = 'Error getting application')
     },
 
+    get_templates () {
+      this.$set(this.application_form_templates, 'loading', true)
+      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_template/visible_to_user`)
+        .then(response => {
+        // delete templates to recreate them
+          this.application_form_templates = []
+          response.data.forEach(record => {
+            let template = record._fields[record._fieldLookup['aft']]
+            template.properties.fields = JSON.parse(template.properties.fields)
+            this.application_form_templates.push(template)
+          })
+        })
+        .catch(error => {
+          this.$set(this.application_form_templates, 'error', 'Error loading templates')
+        })
+        .finally(() => this.$set(this.application_form_templates, 'loading', false))
+    },
 
-    create_application(){
-
-      if(this.form_valid){
+    create_application () {
+      if (this.form_valid) {
         this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application`, {
           // Create the request body
           // TODO: there should be a simpler way to pass all that information
@@ -314,22 +303,21 @@ export default {
           form_data: this.selected_form.properties.fields,
           type: this.selected_form.properties.label,
           private: this.private,
-          group_ids: this.groups.map(group => group.identity.low),
+          group_ids: this.groups.map(group => group.identity.low)
         })
-        .then(response => {
+          .then(response => {
           // Creation successful
 
-          // send notification email to first recipient of flow
-          if(confirm(`Application registered successfully. Send notification email to recipient?`)){
+            // send notification email to first recipient of flow
+            if (confirm(`Application registered successfully. Send notification email to recipient?`)) {
+              let recipient_email = this.recipients[0].properties.email_address
+              let recipient_name = this.recipients[0].properties.name_kanji
+              let application_type = response.data[0]._fields[0].properties.type
+              let application_id = response.data[0]._fields[0].identity.low
 
-            let recipient_email = this.recipients[0].properties.email_address;
-            let recipient_name = this.recipients[0].properties.name_kanji
-            let application_type = response.data[0]._fields[0].properties.type
-            let application_id = response.data[0]._fields[0].identity.low
-
-            // Send email to first recipient
-            // Weird formatting because respects identation
-            window.location.href = `
+              // Send email to first recipient
+              // Weird formatting because respects identation
+              window.location.href = `
 mailto:${recipient_email}
 ?subject=[自動送信] ${application_type}を提出しました
 &body=${recipient_name}　様%0D%0A
@@ -339,10 +327,10 @@ ${process.env.VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${applicati
 %0D%0A
 確認お願いします。%0D%0A
             `
-          }
+            }
 
-          // ask for deletion of original application if this one is a duplicate
-          /*
+            // ask for deletion of original application if this one is a duplicate
+            /*
           if(this.$route.query.copy_of){
             if(confirm('Delete previous application?')){
               this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/delete_application', {
@@ -354,63 +342,55 @@ ${process.env.VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${applicati
             else this.$router.push({ name: 'submitted_applications' })
           }
           */
-          this.$router.push({ name: 'submitted_applications' })
-
-        })
-        .catch(error => alert(error));
-      }
-      else alert("There are missing items in this application form")
-
-
+            this.$router.push({ name: 'submitted_applications' })
+          })
+          .catch(error => alert(error))
+      } else alert('There are missing items in this application form')
     },
 
-    delete_recipient(index){
-      this.recipients.splice(index,1);
+    delete_recipient (index) {
+      this.recipients.splice(index, 1)
     },
-    add_to_recipients(recipient_to_add){
+    add_to_recipients (recipient_to_add) {
       // Prevent duplicates
-      if(!this.recipients.includes(recipient_to_add)){
-        this.recipients.push(recipient_to_add);
-      }
-      else alert("Duplicates not allowed")
-
+      if (!this.recipients.includes(recipient_to_add)) {
+        this.recipients.push(recipient_to_add)
+      } else alert('Duplicates not allowed')
     },
-    delete_group(index){
-      this.groups.splice(index,1);
+    delete_group (index) {
+      this.groups.splice(index, 1)
     },
-    add_to_groups(group_to_add){
+    add_to_groups (group_to_add) {
       // Prevent duplicates
-      if(!this.groups.includes(group_to_add)){
-        this.groups.push(group_to_add);
+      if (!this.groups.includes(group_to_add)) {
+        this.groups.push(group_to_add)
       }
-
     },
-    file_upload(event, field){
-
-      let formData = new FormData();
-      formData.append('file_to_upload', event.target.files[0]);
-      this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/file_upload`, formData, {
-        headers: {'Content-Type': 'multipart/form-data' }
+    file_upload (event, field) {
+      let formData = new FormData()
+      formData.append('file_to_upload', event.target.files[0])
+      this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/file`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       })
-      .then(response => {
+        .then(response => {
         // Needed for responsiviity
         // Is this the right way?
-        this.$set(field,'value',response.data)
-      })
-      .catch(error => alert(error.response.data));
+          this.$set(field, 'value', response.data)
+        })
+        .catch(error => alert(error.response.data))
     },
-    delete_file(field){
+    delete_file (field) {
       // Is this the right way to set value?
-      this.$set(field,'value','')
-    },
+      this.$set(field, 'value', '')
+    }
   },
   computed: {
-    form_valid(){
-      return this.selected_form
-        && this.recipients.length > 0
-        && this.title
+    form_valid () {
+      return this.selected_form &&
+        this.recipients.length > 0 &&
+        this.title
     },
-    picker_api_url(){
+    picker_api_url () {
       return process.env.VUE_APP_GROUP_MANAGER_API_URL
     }
   }
@@ -433,7 +413,6 @@ ${process.env.VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${applicati
   margin-top: 1em;
 }
 
-
 .type_and_title_input_wrapper > div {
   margin: 10px;
   flex-grow: 1;
@@ -444,7 +423,6 @@ ${process.env.VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${applicati
 .type_and_title_input_wrapper > div > label {
   margin-right: 10px;
 }
-
 
 .employee {
   padding: 2px 5px;
@@ -529,8 +507,6 @@ ${process.env.VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${applicati
 
 }
 
-
-
 .form_content_table {
   margin-top: 10px;
   width: 100%;
@@ -557,7 +533,6 @@ ${process.env.VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${applicati
   font-size: 150%;
   cursor: pointer;
 }
-
 
 .group_picker_wrapper {
   height: 200px;

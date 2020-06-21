@@ -24,35 +24,33 @@
 </template>
 
 <script>
-import CalendarIcon from 'vue-material-design-icons/Calendar.vue';
-import AccountIcon from 'vue-material-design-icons/Account.vue';
-import AccountCheckIcon from 'vue-material-design-icons/AccountCheck.vue';
-import PercentIcon from 'vue-material-design-icons/Percent.vue';
+import CalendarIcon from 'vue-material-design-icons/Calendar.vue'
+import AccountIcon from 'vue-material-design-icons/Account.vue'
+import AccountCheckIcon from 'vue-material-design-icons/AccountCheck.vue'
+import PercentIcon from 'vue-material-design-icons/Percent.vue'
 
 export default {
   name: 'ApplicationTableHeaderRow',
   props: {
     hideApplicant: {
       type: Boolean,
-      default(){return false}
+      default () { return false }
     },
     hideRecipient: {
       type: Boolean,
-      default(){return false}
-    },
+      default () { return false }
+    }
   },
   components: {
     CalendarIcon,
     PercentIcon,
     AccountIcon,
-    AccountCheckIcon,
+    AccountCheckIcon
 
   }
 }
 </script>
 
 <style scoped>
-
-
 
 </style>

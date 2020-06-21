@@ -63,7 +63,6 @@
 
     </div>
 
-
   </div>
 </template>
 
@@ -78,24 +77,24 @@ export default {
   components: {
     Loader,
     ApplicationTableRow,
-    ApplicationTableHeaderRow,
+    ApplicationTableHeaderRow
   },
   props: {
     applications: Object,
     hideApplicant: {
       type: Boolean,
-      default(){return false}
+      default () { return false }
     },
     hideRecipient: {
       type: Boolean,
-      default(){return false}
-    },
+      default () { return false }
+    }
   },
   methods: {
-    see_application(application_id){
+    see_application (application_id) {
       this.$router.push({ name: 'show_application', query: { id: application_id } })
-    },
-  },
+    }
+  }
 }
 </script>
 
@@ -133,7 +132,6 @@ export default {
   width: 10%;
 }
 
-
 .application_table .progress_header {
   width: 10%;
 }
@@ -143,7 +141,6 @@ export default {
   border-bottom: 1px solid #dddddd;
 }
 
-
 .application_table .table_section_header_row{
   font-size: 120%;
 }
@@ -152,9 +149,6 @@ export default {
 .application_table .table_section_header_row:not(:first-child) th{
   padding-top: 50px;
 }
-
-
-
 
 .application_table tr:not(.headers_row):not(.table_section_header_row) {
   cursor: pointer;
@@ -168,6 +162,5 @@ export default {
 .application_table progress {
   width: 100%;
 }
-
 
 </style>
