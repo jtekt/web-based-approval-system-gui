@@ -268,7 +268,7 @@ export default {
     submit(){
       // If id exists, then edit
       if('id' in this.$route.query){
-        this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/edit_application_form_template`, {
+        this.axios.put(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_template`, {
           fields: this.fields,
           label: this.label,
           description: this.description,
@@ -280,7 +280,7 @@ export default {
       }
       // otherwise create
       else{
-        this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/create_application_form_template`, {
+        this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_template`, {
           fields: this.fields,
           label: this.label,
           description: this.description,
@@ -294,8 +294,8 @@ export default {
     },
     delete_template(id){
       if(confirm('ホンマ？')){
-        this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/delete_application_form_template`,
-        {id:this.$route.query.id})
+        this.axios.delete(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_template`,
+        {params: {id:this.$route.query.id}})
         .then( (response) => this.$router.push({ name: 'application_template_list' }) )
         .catch(error => console.log(error));
       }
