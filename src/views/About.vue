@@ -1,7 +1,11 @@
 <template>
   <div>
-    <h1>About</h1>
+    <h1>About/Help</h1>
+    <h2>Bug report</h2>
+    <p>If you find a bug or a problem, please report it on <a href="http://10.115.1.14/moreillon_k8s/shinsei_manager/-/issues">GitLab</a></p>
+
     <h2>Technologies used</h2>
+    <p>This application is built using the following open-source technologies:</p>
     <div class="" class="tech_wrapper">
       <div
         class="tech"
@@ -14,6 +18,7 @@
       </div>
     </div>
     <h2>Source code</h2>
+    <p>The source code for this system is available on the company's internal GitLab:</p>
     <ul>
       <li><a href="http://172.16.98.151:8081/moreillon_k8s/shinsei_manager">Back-end</a></li>
       <li><a href="http://172.16.98.151:8081/moreillon_k8s/shinsei_manager_front">Front-end</a></li>
