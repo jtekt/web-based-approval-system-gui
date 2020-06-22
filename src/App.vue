@@ -2,8 +2,7 @@
   <div id="app">
     <AppTemplate
       applicationName="電子承認システム"
-      v-bind:navigation="navigation"
-      />
+      v-bind:navigation="navigation"/>
   </div>
 </template>
 
@@ -22,7 +21,7 @@ export default {
         { route: '/received_applications', label: 'Inbox', icon: 'inbox-arrow-down' },
         { route: '/application_template_list', label: 'Forms', icon: 'file-settings-outline' },
         { route: '/search', label: 'Search', icon: 'magnify' },
-        { route: '/about', label: 'About', icon: 'information-outline' }
+        { route: '/about', label: 'Info', icon: 'information-outline' }
       ]
     }
   }
