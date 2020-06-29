@@ -30,7 +30,7 @@ export default {
       this.$router.push({ name: 'show_application', query: { id: this.application_id } })
     },
     search_hanko () {
-      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application/by_hanko`, {
+      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/find_by_hanko`, {
         params: { approval_id: this.hanko_id }
       })
         .then(response => {
