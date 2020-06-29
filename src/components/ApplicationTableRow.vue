@@ -54,9 +54,8 @@ export default {
     },
     get_application () {
       this.loading = true
-      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application`, {
-        params: { application_id: this.application.identity.low }
-      })
+      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}`
+      this.axios.get(url)
         .then(response => {
           this.applicant = response.data[0]._fields[response.data[0]._fieldLookup['applicant']]
           this.records = response.data

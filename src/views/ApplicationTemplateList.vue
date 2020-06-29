@@ -63,7 +63,7 @@ export default {
     get_my_templates () {
       this.$set(this.application_templates, 'loading', true)
       this.application_templates.splice(0, this.application_templates.length)
-      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_template/made_by_user`)
+      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/made_by_user`)
         .then((response) => {
           this.application_templates = []
           response.data.forEach(record => {
@@ -76,7 +76,7 @@ export default {
     },
     get_shared_templates () {
       this.$set(this.shared_templates, 'loading', true)
-      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_template/shared_with_user`)
+      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/shared_with_user`)
         .then((response) => {
           this.shared_templates.splice(0, this.shared_templates.length)
           response.data.forEach(record => {

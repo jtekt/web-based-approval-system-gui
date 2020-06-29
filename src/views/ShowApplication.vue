@@ -262,9 +262,8 @@ export default {
 
       // TODO: CHeck if id in query
       this.loading = true
-      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application`, {
-        params: { application_id: this.$route.query.id }
-      })
+      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.$route.query.id}`
+      this.axios.get(url)
         .then(response => {
           if (response.data.length > 0) {
             let record = response.data[0]
@@ -277,9 +276,8 @@ export default {
     },
     get_visibility () {
       // Gets the groups wi which this application is visible
-      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application/visibility`, {
-        params: { application_id: this.$route.query.id }
-      })
+      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.$route.query.id}/visibility`
+      this.axios.get(url)
         .then(response => {
           this.groups = []
           response.data.forEach((record) => {
@@ -290,9 +288,9 @@ export default {
         .catch((error) => console.log(error))
     },
     get_approval_flow () {
-      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application/recipients`, {
-        params: { application_id: this.$route.query.id }
-      })
+      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.$route.query.id}/recipients`
+
+      this.axios.get(url)
         .then(response => {
           this.recipient_records = []
           response.data.forEach((record) => {
@@ -303,9 +301,9 @@ export default {
     },
     delete_application (application_id) {
       if (confirm('ホンマ？')) {
-        this.axios.delete(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application`, {
-          params: { application_id: application_id }
-        })
+        let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.$route.query.id}`
+
+        this.axios.delete(url)
           .then(() => this.$router.push('/'))
           .catch(() => alert(`Error deleting application`))
       }
@@ -314,9 +312,9 @@ export default {
       // ask for confirmation
       if (confirm('ホンマ？')) {
         // send POST to mark as approved
-        this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application/approve`, {
-          application_id: application_id
-        })
+        let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.$route.query.id}/approve`
+
+        this.axios.post(url)
           .then(() => {
             this.get_approval_flow()
 
@@ -344,7 +342,7 @@ ${process.env.VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${this.appl
             }
           })
           .catch((error) => {
-            console.log(error)
+            console.error(error)
             alert(`Error approving application`)
           })
       }
@@ -354,20 +352,18 @@ ${process.env.VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${this.appl
         var reason = prompt('なぜ？', '')
 
         if (reason) {
-          this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application/reject`, {
-            application_id: application_id,
-            reason: reason
-          })
+          let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.$route.query.id}/reject`
+
+          this.axios.post(url, { reason: reason })
             .then(() => this.get_approval_flow())
             .catch(() => alert('Error rejecting application'))
         }
       }
     },
     update_privacy_of_application () {
-      this.axios.put(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application/privacy`, {
-        application_id: this.application.identity.low,
-        private: this.application.properties.private
-      })
+      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/privacy`
+
+      this.axios.put(url, {private: this.application.properties.private})
         .then(() => {})
         .catch(() => alert('Error updating privacy of application'))
     },
@@ -376,7 +372,7 @@ ${process.env.VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${this.appl
       this.$router.push({ path: '/create_application', query: { copy_of: application_id } })
     },
     download (id) {
-      window.location.href = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/file?file_id=${id}&application_id=${this.application.identity.low}`
+      window.location.href = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/files/${id}`
     },
     see_template (id) {
       this.$router.push({ path: '/edit_application_template', query: { id: id } })
@@ -386,8 +382,9 @@ ${process.env.VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${this.appl
       return flow_index === this.approval_count
     },
     share_with_group (group) {
-      this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application/visibility_to_group`, {
-        application_id: this.application.identity.low,
+      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/visibility_to_group`
+
+      this.axios.post(url, {
         group_id: group.identity.low
       })
         .then(() => {
@@ -397,11 +394,10 @@ ${process.env.VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${this.appl
         .catch(() => alert('Error updating visibility of application'))
     },
     remove_application_visibility_to_group (group) {
-      this.axios.delete(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application/visibility_to_group`, {
-        params: {
-          application_id: this.application.identity.low,
-          group_id: group.identity.low
-        }
+      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/visibility_to_group`
+
+      this.axios.delete(url, {
+        params: { group_id: group.identity.low }
       })
         .then(() => {
           this.get_visibility()

@@ -209,9 +209,8 @@ export default {
   methods: {
 
     get_template () {
-      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_template`, {
-        params: { id: this.$route.query.id }
-      })
+      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.$route.query.id}`
+      this.axios.get(url)
         .then((response) => {
           let record = response.data[0]
           let aft = record._fields[record._fieldLookup['aft']]
@@ -231,9 +230,9 @@ export default {
 
     get_visibility () {
       // Gets the groups wi which this application is visible
-      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_template/visibility`, {
-        params: { id: this.$route.query.id }
-      })
+      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.$route.query.id}/visibility`
+
+      this.axios.get(url)
         .then(response => {
           this.groups = []
           response.data.forEach((record) => {
@@ -255,19 +254,21 @@ export default {
     submit () {
       // If id exists, then edit
       if ('id' in this.$route.query) {
-        this.axios.put(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_template`, {
+        let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.$route.query.id}`
+        this.axios.put(url, {
           fields: this.fields,
           label: this.label,
           description: this.description,
           group_ids: this.groups.map(group => group.identity.low),
-          id: this.$route.query.id
         })
           .then(() => this.$router.push({ name: 'application_template_list' }))
           .catch(error => console.log(error))
       }
       // otherwise create
       else {
-        this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_template`, {
+        let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates`
+
+        this.axios.post(url, {
           fields: this.fields,
           label: this.label,
           description: this.description,
@@ -279,8 +280,8 @@ export default {
     },
     delete_template (id) {
       if (confirm('ホンマ？')) {
-        this.axios.delete(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_template`,
-          { params: { id: this.$route.query.id } })
+        let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.$route.query.id}`
+        this.axios.delete(url)
           .then((response) => this.$router.push({ name: 'application_template_list' }))
           .catch(error => console.log(error))
       }

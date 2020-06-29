@@ -219,9 +219,7 @@ export default {
     recreate_application_content () {
       // Todo: add a loader for the content of the application itself
       this.$set(this.selected_form, 'loading', true)
-      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application`, {
-        params: { application_id: this.$route.query.copy_of }
-      })
+      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.$route.query.copy_of}`)
         .then(response => {
           let record = response.data[0]
           let original_application = record._fields[record._fieldLookup['application']]
@@ -241,15 +239,17 @@ export default {
             fields: fields
           })
         })
-        .catch(() => this.$set(this.selected_form, 'error', true))
+        .catch((error) => {
+          console.error(error)
+          this.$set(this.selected_form, 'error', true)
+        })
         .finally(() => this.$set(this.selected_form, 'loading', false))
     },
 
     recreate_visibility () {
       // Gets the groups wi which this application is visible (used if duplicate)
-      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application/visibility`, {
-        params: { application_id: this.$route.query.copy_of }
-      })
+      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.$route.query.copy_of}/visibility`
+      this.axios.get(url)
         .then(response => {
           this.groups = []
           response.data.forEach((record) => {
@@ -262,9 +262,8 @@ export default {
 
     recreate_approval_flow () {
       // Gets the groups wi which this application is visible (used if duplicate)
-      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application/recipients`, {
-        params: { application_id: this.$route.query.copy_of }
-      })
+      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.$route.query.copy_of}/recipients`
+      this.axios.get(url)
         .then(response => {
           this.recipients = []
           response.data.forEach((record) => {
@@ -272,12 +271,15 @@ export default {
             this.recipients.push(recipient)
           })
         })
-        .catch(() => this.error = 'Error getting application')
+        .catch((error) => {
+          console.error(error)
+          this.error = 'Error getting application'
+        })
     },
 
     get_templates () {
       this.$set(this.application_form_templates, 'loading', true)
-      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_template/visible_to_user`)
+      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/visible_to_user`)
         .then(response => {
         // delete templates to recreate them
           this.application_form_templates = []
@@ -288,6 +290,7 @@ export default {
           })
         })
         .catch(error => {
+          console.error(error)
           this.$set(this.application_form_templates, 'error', 'Error loading templates')
         })
         .finally(() => this.$set(this.application_form_templates, 'loading', false))
@@ -295,7 +298,7 @@ export default {
 
     create_application () {
       if (this.form_valid) {
-        this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application`, {
+        this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications`, {
           // Create the request body
           // TODO: there should be a simpler way to pass all that information
           title: this.title,
@@ -369,7 +372,7 @@ ${process.env.VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${applicati
     file_upload (event, field) {
       let formData = new FormData()
       formData.append('file_to_upload', event.target.files[0])
-      this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/file`, formData, {
+      this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/files`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
         .then(response => {
