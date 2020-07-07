@@ -311,16 +311,15 @@ export default {
           .then(response => {
           // Creation successful
 
-            // send notification email to first recipient of flow
-            if (confirm(`Application registered successfully. Send notification email to recipient?`)) {
-              let recipient_email = this.recipients[0].properties.email_address
-              let recipient_name = this.recipients[0].properties.name_kanji
-              let application_type = response.data[0]._fields[0].properties.type
-              let application_id = response.data[0]._fields[0].identity.low
+          // send notification email to first recipient of flow
+          let recipient_email = this.recipients[0].properties.email_address
+          let recipient_name = this.recipients[0].properties.name_kanji
+          let application_type = response.data[0]._fields[0].properties.type
+          let application_id = response.data[0]._fields[0].identity.low
 
-              // Send email to first recipient
-              // Weird formatting because respects identation
-              window.location.href = `
+          // Send email to first recipient
+          // Weird formatting because respects identation
+          window.location.href = `
 mailto:${recipient_email}
 ?subject=[自動送信] ${application_type}を提出しました
 &body=${recipient_name}　様%0D%0A
@@ -330,21 +329,7 @@ ${process.env.VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${applicati
 %0D%0A
 確認お願いします。%0D%0A
             `
-            }
-
-            // ask for deletion of original application if this one is a duplicate
-            /*
-          if(this.$route.query.copy_of){
-            if(confirm('Delete previous application?')){
-              this.axios.post(process.env.VUE_APP_SHINSEI_MANAGER_URL + '/delete_application', {
-                application_id: this.$route.query.copy_of
-              })
-              .then( () => this.$router.push({ name: 'submitted_applications' }))
-              .catch(error => alert(error));
-            }
-            else this.$router.push({ name: 'submitted_applications' })
-          }
-          */
+            
             this.$router.push({ path: '/' })
           })
           .catch(error => alert(error))

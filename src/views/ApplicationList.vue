@@ -5,7 +5,8 @@
 
     <ApplicationTableV2
       v-bind:applications="applications"
-      hideRecipient/>
+      :hideRecipient="$route.params.type === 'received'"
+      :hideApplicant="$route.params.type === 'submitted'"/>
   </div>
 </template>
 
