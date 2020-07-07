@@ -4,8 +4,8 @@ import CreateApplication from './views/CreateApplication.vue'
 import ApplicationTemplateList from './views/ApplicationTemplateList.vue'
 import ApplicationTemplate from './views/ApplicationTemplate.vue'
 import ShowApplication from './views/ShowApplication.vue'
-import SubmittedApplications from './views/SubmittedApplications.vue'
-import ReceivedApplications from './views/ReceivedApplications.vue'
+import ApplicationList from './views/ApplicationList.vue'
+
 import Search from './views/Search.vue'
 import About from './views/About.vue'
 
@@ -16,20 +16,19 @@ export default new Router({
   base: process.env.BASE_URL,
   routes: [
     {
+      path: '/',
+      redirect: '/application_list/submitted'
+    },
+    {
       path: '/create_application',
       name: 'create_application',
       component: CreateApplication,
       props: true
     },
     {
-      path: '/',
-      name: 'submitted_applications',
-      component: SubmittedApplications
-    },
-    {
-      path: '/received_applications',
-      name: 'received_applications',
-      component: ReceivedApplications
+      path: '/application_list/:type',
+      name: 'application_list',
+      component: ApplicationList
     },
     {
       path: '/show_application',

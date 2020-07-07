@@ -17,8 +17,8 @@ export default {
     return {
       navigation: [
         { route: '/create_application', label: 'New', icon: 'plus' },
-        { route: '/', label: 'Outbox', icon: 'inbox-arrow-up' },
-        { route: '/received_applications', label: 'Inbox', icon: 'inbox-arrow-down' },
+        { route: '/application_list/submitted', label: 'Outbox', icon: 'inbox-arrow-up' },
+        { route: '/application_list/received', label: 'Inbox', icon: 'inbox-arrow-down' },
         { route: '/application_template_list', label: 'Forms', icon: 'file-settings-outline' },
         { route: '/search', label: 'Search', icon: 'magnify' },
         { route: '/about', label: 'Info', icon: 'information-outline' }
