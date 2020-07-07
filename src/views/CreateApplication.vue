@@ -345,7 +345,7 @@ ${process.env.VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${applicati
             else this.$router.push({ name: 'submitted_applications' })
           }
           */
-            this.$router.push({ name: 'submitted_applications' })
+            this.$router.push({ name: '/' })
           })
           .catch(error => alert(error))
       } else alert('There are missing items in this application form')
