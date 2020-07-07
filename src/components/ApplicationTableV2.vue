@@ -4,19 +4,16 @@
     <div class="">
       <h2>申請中 / Pending</h2>
 
-      <div class="" v-if="applications.pending.error">Error loading applications</div>
-      <Loader v-else-if="applications.pending.loading">Loading applications...</Loader>
-      <table class="application_table" v-else-if="applications.pending.length > 0">
+      <div class="" v-if="application_records.pending.error">Error loading applications</div>
+      <Loader v-else-if="application_records.pending.loading">Loading applications...</Loader>
+      <table class="application_table" v-else-if="application_records.pending.length > 0">
 
         <ApplicationTableHeaderRow
-          v-bind:hideApplicant="hideApplicant"
-          v-bind:hideRecipient="hideRecipient"/>
+          v-bind:application_records="application_records.pending"/>
 
         <ApplicationTableRow
-          v-for="application in applications.pending"
-          v-bind:application="application"
-          v-bind:hideApplicant="hideApplicant"
-          v-bind:hideRecipient="hideRecipient"/>
+          v-for="record in application_records.pending"
+          v-bind:application_record="record"/>
       </table>
       <div class="" v-else>No application</div>
     </div>
@@ -24,19 +21,16 @@
     <div class="">
       <h2>却下 / Rejected</h2>
 
-      <div class="" v-if="applications.rejected.error">Error loading applications</div>
-      <Loader v-else-if="applications.rejected.loading">Loading applications...</Loader>
-      <table class="application_table" v-else-if="applications.rejected.length > 0">
+      <div class="" v-if="application_records.rejected.error">Error loading applications</div>
+      <Loader v-else-if="application_records.rejected.loading">Loading applications...</Loader>
+      <table class="application_table" v-else-if="application_records.rejected.length > 0">
 
         <ApplicationTableHeaderRow
-          v-bind:hideApplicant="hideApplicant"
-          v-bind:hideRecipient="hideRecipient"/>
+          v-bind:application_records="application_records.rejected"/>
 
         <ApplicationTableRow
-          v-for="application in applications.rejected"
-          v-bind:application="application"
-          v-bind:hideApplicant="hideApplicant"
-          v-bind:hideRecipient="hideRecipient"/>
+          v-for="record in application_records.rejected"
+          v-bind:application_record="record"/>
       </table>
       <div class="" v-else>No application</div>
 
@@ -45,19 +39,16 @@
     <div class="">
       <h2>承認 / Approved</h2>
 
-      <div class="" v-if="applications.approved.error">Error loading applications</div>
-      <Loader v-else-if="applications.approved.loading">Loading applications...</Loader>
-      <table class="application_table" v-else-if="applications.approved.length > 0">
+      <div class="" v-if="application_records.approved.error">Error loading applications</div>
+      <Loader v-else-if="application_records.approved.loading">Loading applications...</Loader>
+      <table class="application_table" v-else-if="application_records.approved.length > 0">
 
         <ApplicationTableHeaderRow
-          v-bind:hideApplicant="hideApplicant"
-          v-bind:hideRecipient="hideRecipient"/>
+          v-bind:application_records="application_records.approved"/>
 
         <ApplicationTableRow
-          v-for="application in applications.approved"
-          v-bind:application="application"
-          v-bind:hideApplicant="hideApplicant"
-          v-bind:hideRecipient="hideRecipient"/>
+          v-for="record in application_records.approved"
+          v-bind:application_record="record"/>
       </table>
       <div class="" v-else>No application</div>
 
@@ -80,7 +71,7 @@ export default {
     ApplicationTableHeaderRow
   },
   props: {
-    applications: Object,
+    application_records: Object,
     hideApplicant: {
       type: Boolean,
       default () { return false }

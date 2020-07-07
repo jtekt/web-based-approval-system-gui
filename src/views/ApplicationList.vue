@@ -4,7 +4,7 @@
     <h1 v-else-if="$route.params.type === 'submitted'">出した申請 / Submitted applications</h1>
 
     <ApplicationTableV2
-      v-bind:applications="applications"
+      :application_records="application_records"
       :hideRecipient="$route.params.type === 'received'"
       :hideApplicant="$route.params.type === 'submitted'"/>
   </div>
@@ -20,7 +20,7 @@ export default {
   },
   data () {
     return {
-      applications: {
+      application_records: {
         pending: [],
         rejected: [],
         approved: []
@@ -47,16 +47,15 @@ export default {
 
         let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${application_direction}/${state}`
 
-        this.$set(this.applications[state], 'loading', true)
+        this.$set(this.application_records[state], 'loading', true)
         this.axios.get(url)
         .then(response => {
-          this.applications[state] = []
+          this.application_records[state] = []
           response.data.forEach(record => {
-            let application_node = record._fields[record._fieldLookup['application']]
-            this.applications[state].push(application_node)
+            this.application_records[state].push(record)
           })
         })
-        .catch(error => this.$set(this.applications[state], 'error', 'Error loading applications'))
+        .catch(error => this.$set(this.application_records[state], 'error', 'Error loading applications'))
       })
     },
   }
