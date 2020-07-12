@@ -12,10 +12,10 @@ containerization:
     # Docker hub login
     - echo "${DOCKER_HUB_PASSWORD}" | docker login --username ${DOCKER_HUB_USERNAME} --password-stdin
     # Buikd and push container image
-    - docker build -t ${CONTAINER_REGISTRY}/${APPLICATION_NAME} .
-    - docker push ${CONTAINER_REGISTRY}/${APPLICATION_NAME}
+    - docker build -t ${DOCKER_IMAGE} .
+    - docker push ${DOCKER_IMAGE}
     # Cleanup
-    - docker image rm ${CONTAINER_REGISTRY}/${APPLICATION_NAME}
+    - docker image rm ${DOCKER_IMAGE}
 
 deployment:
   stage: deployment
