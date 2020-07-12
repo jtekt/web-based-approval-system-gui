@@ -325,11 +325,11 @@ mailto:${recipient_email}
 &body=${recipient_name}　様%0D%0A
 %0D%0A
 提出先URL%0D%0A
-${process.env.VUE_APP_SHINSEI_MANAGER_FRONT_URL}/show_application?id=${application_id}%0D%0A
+${window.location.origin}/show_application?id=${application_id}%0D%0A
 %0D%0A
 確認お願いします。%0D%0A
             `
-            
+
             this.$router.push({ path: '/' })
           })
           .catch(error => alert(error))

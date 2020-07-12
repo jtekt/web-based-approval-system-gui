@@ -4,19 +4,13 @@ stages:
 
 variables:
   APPLICATION_NAME: shinsei-manager-front
-  DOCKER_IMAGE: ${CONTAINER_REGISTRY}/${APPLICATION_NAME}
+  DOCKER_IMAGE: ${DOCKER_HUB_USERNAME}/${APPLICATION_NAME}
 
 containerization:
   stage: containerization
   script:
-    # If docker registry password provided, attempt login
-    - >
-      if [ -z ${CONTAINER_REGISTRY_PASSWORD} ];
-      then echo "CONTAINER_REGISTRY_PASSWORD not set, skipping login";
-      else echo "${CONTAINER_REGISTRY_PASSWORD}" | docker login ${CONTAINER_REGISTRY} --username ${CONTAINER_REGISTRY_USERNAME} --password-stdin;
-      fi
-    # Import environment variables
-    - cp ${VUE_ENV} ./.env.production
+    # Docker hub login
+    - echo "${DOCKER_HUB_PASSWORD}" | docker login --username ${DOCKER_HUB_USERNAME} --password-stdin
     # Buikd and push container image
     - docker build -t ${CONTAINER_REGISTRY}/${APPLICATION_NAME} .
     - docker push ${CONTAINER_REGISTRY}/${APPLICATION_NAME}
