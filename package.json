@@ -9,8 +9,8 @@
   },
   "dependencies": {
     "@mdi/font": "^4.9.95",
-    "@moreillon/vue_application_template_flex": "^1.0.0",
-    "@moreillon/vue_group_picker": "^0.1.11",
+    "@moreillon/vue_application_template_flex": "^1.1.5",
+    "@moreillon/vue_group_picker": "^0.1.12",
     "@moreillon/vue_loader": "^0.1.1",
     "@moreillon/vue_modal": "0.0.4",
     "@moreillon/vue_user_picker": "^0.1.13",
@@ -21,13 +21,13 @@
     "qrcode": "^1.4.4",
     "vue": "^2.6.11",
     "vue-axios": "^2.1.5",
-    "vue-cookies": "^1.7.0",
+    "vue-cookies": "^1.7.2",
     "vue-date": "^1.2.0",
     "vue-material-design-icons": "^4.7.1",
     "vue-router": "^3.3.4",
-    "vuedraggable": "^2.23.2",
+    "vuedraggable": "^2.24.0",
     "vuejs-datepicker": "^1.6.2",
-    "vuex": "^3.4.0"
+    "vuex": "^3.5.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.12.1",

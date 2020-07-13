@@ -14,6 +14,7 @@ Vue.use(VueAxios, axios)
 Vue.config.productionTip = false
 
 // Redirect to authentication manager if not logged in
+
 router.beforeEach((to, from, next) => {
   var jwt = Vue.$cookies.get('jwt')
   if (jwt) {
@@ -31,14 +32,18 @@ router.beforeEach((to, from, next) => {
         if (error.response) console.log(error.response.data)
         else console.log(error)
       })
-  } else {
+  }
+
+  else {
     // Unset the authorization header
     delete axios.defaults.headers.common['Authorization']
 
     // Redirect to autheirzation ms front end
-    window.location.href = process.env.VUE_APP_AUTHENTICATION_MANAGER_FRONT_URL
+    // window.location.href = process.env.VUE_APP_AUTHENTICATION_MANAGER_FRONT_URL
   }
+
 })
+
 
 new Vue({
   router,
