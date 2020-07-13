@@ -38,6 +38,7 @@ router.beforeEach((to, from, next) => {
     delete axios.defaults.headers.common['Authorization']
 
     // Redirect to autheirzation ms front end
+    // Not needed anymore since now using integrated login form
     // window.location.href = process.env.VUE_APP_AUTHENTICATION_MANAGER_FRONT_URL
   }
 })
