@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1>Info</h1>
-    <p>Shinsei manager v1.0.6</p>
+    <p>Shinsei manager v1.0.7</p>
     <h2>Bug report</h2>
     <p>If you find a bug or a problem, please report it on <a href="http://10.115.1.14/moreillon_k8s/shinsei_manager/-/issues">GitLab</a></p>
 
