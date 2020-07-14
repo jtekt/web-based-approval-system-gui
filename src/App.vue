@@ -2,7 +2,7 @@
   <div id="app">
     <AppTemplate
       authenticate
-      applicationName="電子承認システム">
+      applicationName="申請マネージャー">
 
       <template v-slot:navigation>
         <router-link :to="{ path: '/create_application', }"><plus-icon />New</router-link>
