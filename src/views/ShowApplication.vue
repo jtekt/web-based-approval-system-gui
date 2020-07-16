@@ -100,7 +100,7 @@
                   v-on:click="download(field.value)"
                   class="mdi mdi-download download_button"/>
 
-                <button type="button" @click="view_pdf(field.value)">.pdf viewer</button>
+                <button type="button" @click="view_pdf(field.value)" v-if="true">.pdf viewer</button>
               </td>
 
               <td v-else-if="field.type === 'checkbox'">
@@ -194,7 +194,11 @@
       <div class="not_found" v-else>Application does not exist or is private</div>
 
       <div class="pdf_wrapper" v-if="shown_pdf">
-        <pdf  :src="shown_pdf" />
+
+        <div class="pdf_container" ref="pdf_container" @click="pdf_clicked($event)">
+          <pdf :src="shown_pdf" />
+        </div>
+
       </div>
 
 
@@ -267,8 +271,11 @@ export default {
 
       modal_open: false,
 
-
+      // Stamping pdfs
+      pdf_buffer: null,
+      original_pdf: null,
       shown_pdf: null,
+      selected_file_id: null,
     }
   },
   methods: {
@@ -400,14 +407,12 @@ ${window.location.origin}/show_application?id=${this.application.identity.low}%0
     share_with_group (group) {
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/visibility_to_group`
 
-      this.axios.post(url, {
-        group_id: group.identity.low
+      this.axios.post(url, { group_id: group.identity.low })
+      .then(() => {
+        this.modal_open = false
+        this.get_visibility()
       })
-        .then(() => {
-          this.modal_open = false
-          this.get_visibility()
-        })
-        .catch(() => alert('Error updating visibility of application'))
+      .catch(() => alert('Error updating visibility of application'))
     },
     remove_application_visibility_to_group (group) {
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/visibility_to_group`
@@ -417,29 +422,163 @@ ${window.location.origin}/show_application?id=${this.application.identity.low}%0
       .catch(() => alert('Error updating visibility of application'))
     },
     view_pdf(file_id){
+
+      // DIRTY
+      this.selected_file_id = file_id
+
+
       let file_url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/files/${file_id}?application_id=${this.application.identity.low}`
       fetch(file_url, {
         headers: new Headers({
           'Authorization': `Bearer ${this.$cookies.get('jwt')}`,
         }),
-      }).then((response) => {
-        return response.arrayBuffer();
-      }).then((buffer) => {
-        this.load_pdf(buffer)
+      }).then((response) => { return response.arrayBuffer() })
+      .then((buffer) => {
+        this.pdf_buffer = buffer
+        this.load_pdf()
       })
     },
-    async load_pdf(buffer) {
+    async load_pdf() {
+
       try {
-        const pdfDoc = await PDFDocument.load(buffer)
+        const pdfDoc = await PDFDocument.load(this.pdf_buffer)
         this.shown_pdf = await pdfDoc.save()
+        this.original_pdf = this.shown_pdf
       } catch (e) {
         alert('Document is not a pdf')
       } finally {
 
       }
+    },
+    async pdf_clicked(event){
 
+      return alert('研究企画が官僚的な考え方をやめてくれないとこの機能を使えないようにします')
+
+      let found_recipient_record = this.recipient_records.find(record => {
+        let recipient = record._fields[record._fieldLookup['recipient']]
+        let recipient_id = recipient.identity.low
+        return recipient_id = this.$store.state.current_user.identity.low
+      })
+
+      let approval = found_recipient_record._fields[found_recipient_record._fieldLookup['approval']]
+      if(!approval) return alert('You need to approve the application first')
+
+      let approval_id = approval.identity.low
+
+      const pdfDoc = await PDFDocument.load(this.pdf_buffer)
+
+
+      const pages = pdfDoc.getPages()
+      const page = pages[0]
+      const { width, height } = page.getSize()
+
+      const wrapper_width = this.$refs.pdf_container.offsetWidth
+      const click_x = event.offsetX
+      const position_x = width * (click_x/wrapper_width)
+
+      const wrapper_height = this.$refs.pdf_container.offsetHeight
+      const click_y = event.offsetY
+      const position_y = height - (height * (click_y/wrapper_height))
+
+      let hanko_svg = document.getElementById(`hanko_${approval_id}`)
+      var canvas = document.createElement('canvas')
+
+      canvas.width = 1000
+      canvas.height = 1500
+
+      var ctx = canvas.getContext('2d')
+      var data = (new XMLSerializer()).serializeToString(hanko_svg)
+      var DOMURL = window.URL || window.webkitURL || window
+      var img = new Image()
+      var svgBlob = new Blob([data], { type: 'image/svg+xml;charset=utf-8' })
+      var url = DOMURL.createObjectURL(svgBlob)
+
+      img.onload = async () => {
+
+        ctx.drawImage(img, 0, 0)
+        DOMURL.revokeObjectURL(url)
+        var imgURI = canvas
+          .toDataURL('image/png')
+          .replace('image/png', 'image/octet-stream')
+
+        const pngImageBytes = await fetch(imgURI).then((res) => {return res.arrayBuffer()})
+        const pngImage = await pdfDoc.embedPng(pngImageBytes)
+        const pngDims = pngImage.scale(0.5)
+
+        const hanko_width = 0.06 * pngDims.width
+        const hanko_height = 0.06 * pngDims.height
+
+
+        page.drawImage(pngImage, {
+          x: position_x - 0.5 * hanko_width,
+          y: position_y - 0.5 * hanko_height,
+          width: hanko_width,
+          height: hanko_height,
+        })
+
+        this.shown_pdf = await pdfDoc.save()
+
+        setTimeout(() => this.reupload_stamped_pdf(), 500)
+
+
+      }
+      img.src = url
+    },
+    select_hanko(record){
+      let approval = record._fields[record._fieldLookup['approval']]
+      if(approval) {
+        this.selected_hanko_id = approval.identity.low
+      }
+    },
+    reupload_stamped_pdf(){
+      if(!confirm('Confirm?')) {
+        this.shown_pdf = this.original_pdf
+        return
+      }
+
+      const blob = new Blob([this.shown_pdf], {
+        type: 'application/pdf'
+      })
+
+      let file = new File([blob], "attachment.pdf");
+
+      this.file_upload(file)
 
     },
+    file_upload (file) {
+      let formData = new FormData()
+      formData.append('file_to_upload', file)
+      this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/files`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
+      .then(response => {
+        // file has been uploaded
+        let new_file_id = response.data
+
+        let found_field = this.form_data.find(field => {
+          return field.value === this.selected_file_id
+        })
+
+        found_field.value = new_file_id
+
+        this.update_form_data()
+
+
+      })
+      .catch(error => alert(error.response.data))
+    },
+    update_form_data(){
+      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/`
+
+      this.axios.put(url, { form_data: this.form_data })
+      .then(() => {
+        this.get_application()
+        this.get_visibility()
+        this.get_approval_flow()
+      })
+      .catch(() => alert('Error updating visibility of application'))
+    }
+
 
 
   },
@@ -629,7 +768,13 @@ ${window.location.origin}/show_application?id=${this.application.identity.low}%0
 }
 
 .pdf_wrapper{
+  padding: 1em;
   margin-top: 1em;
   border: 1px solid #444444;
+  border-radius: 5px;
+}
+
+.pdf_container {
+  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
 }
 </style>

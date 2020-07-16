@@ -2,6 +2,7 @@
 
   <div class="web_hanko">
     <svg
+      :id="`hanko_${approvalId}`"
       ref="svg"
       viewBox="0 0 100 150">
 
@@ -110,39 +111,39 @@ export default {
   methods: {
     download () {
       if (!!window.MSInputMethodContext && !!document.documentMode) {
-        alert('IE11 is too old for this feature. please use a browser of this era, such as Google Chrome, Mozilla Firefox or Microsoft Edge')
-      } else {
-        var svg = this.$refs.svg
-        var canvas = document.createElement('canvas')
-
-        canvas.width = 1000
-        canvas.height = 1500
-
-        var ctx = canvas.getContext('2d')
-        var data = (new XMLSerializer()).serializeToString(svg)
-        var DOMURL = window.URL || window.webkitURL || window
-        var img = new Image()
-        var svgBlob = new Blob([data], { type: 'image/svg+xml;charset=utf-8' })
-        var url = DOMURL.createObjectURL(svgBlob)
-        img.onload = function () {
-          ctx.drawImage(img, 0, 0)
-          DOMURL.revokeObjectURL(url)
-          var imgURI = canvas
-            .toDataURL('image/png')
-            .replace('image/png', 'image/octet-stream')
-          var evt = new MouseEvent('click', {
-            view: window,
-            bubbles: false,
-            cancelable: true
-          })
-          var a = document.createElement('a')
-          a.setAttribute('download', `${this.approvalId}.png`)
-          a.setAttribute('href', imgURI)
-          a.setAttribute('target', '_blank')
-          a.dispatchEvent(evt)
-        }
-        img.src = url
+        return alert('IE11 is too old for this feature. please use a browser of this era, such as Google Chrome, Mozilla Firefox or Microsoft Edge')
       }
+      
+      var svg = this.$refs.svg
+      var canvas = document.createElement('canvas')
+
+      canvas.width = 1000
+      canvas.height = 1500
+
+      var ctx = canvas.getContext('2d')
+      var data = (new XMLSerializer()).serializeToString(svg)
+      var DOMURL = window.URL || window.webkitURL || window
+      var img = new Image()
+      var svgBlob = new Blob([data], { type: 'image/svg+xml;charset=utf-8' })
+      var url = DOMURL.createObjectURL(svgBlob)
+      img.onload = function () {
+        ctx.drawImage(img, 0, 0)
+        DOMURL.revokeObjectURL(url)
+        var imgURI = canvas
+          .toDataURL('image/png')
+          .replace('image/png', 'image/octet-stream')
+        var evt = new MouseEvent('click', {
+          view: window,
+          bubbles: false,
+          cancelable: true
+        })
+        var a = document.createElement('a')
+        a.setAttribute('download', `${this.approvalId}.png`)
+        a.setAttribute('href', imgURI)
+        a.setAttribute('target', '_blank')
+        a.dispatchEvent(evt)
+      }
+      img.src = url
     }
   }
 }
