@@ -3,8 +3,7 @@
   <div class="web_hanko">
     <svg
       ref="svg"
-      viewBox="0 0 100 150"
-      >
+      viewBox="0 0 100 150">
 
       <!-- frame -->
       <rect
@@ -92,7 +91,7 @@ export default {
     QRCode.toString(String(this.approvalId), {
       margin: 0,
       color: {
-        dark: '#C00000', // Blue dots
+        dark: '#C00000', // Dots
         light: '#0000' // Transparent background
       }
     })
@@ -137,7 +136,7 @@ export default {
             cancelable: true
           })
           var a = document.createElement('a')
-          a.setAttribute('download', 'approval_qr.png')
+          a.setAttribute('download', `${approvalId}.png`)
           a.setAttribute('href', imgURI)
           a.setAttribute('target', '_blank')
           a.dispatchEvent(evt)
