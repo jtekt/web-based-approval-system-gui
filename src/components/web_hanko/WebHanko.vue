@@ -136,7 +136,7 @@ export default {
             cancelable: true
           })
           var a = document.createElement('a')
-          a.setAttribute('download', `${approvalId}.png`)
+          a.setAttribute('download', `${this.approvalId}.png`)
           a.setAttribute('href', imgURI)
           a.setAttribute('target', '_blank')
           a.dispatchEvent(evt)
