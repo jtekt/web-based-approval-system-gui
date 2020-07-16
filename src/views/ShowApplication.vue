@@ -99,6 +99,8 @@
                 <span
                   v-on:click="download(field.value)"
                   class="mdi mdi-download download_button"/>
+
+                <button type="button" @click="view_pdf(field.value)">.pdf viewer</button>
               </td>
 
               <td v-else-if="field.type === 'checkbox'">
@@ -188,9 +190,14 @@
           </div>
         </div>
 
+      </div><!-- End of application container -->
+      <div class="not_found" v-else>Application does not exist or is private</div>
+
+      <div class="pdf_wrapper" v-if="shown_pdf">
+        <pdf  :src="shown_pdf" />
       </div>
 
-      <div class="not_found" v-else>Application does not exist or is private</div>
+
     </template>
 
     <div class="loader_wrapper" v-if="loading">
@@ -223,6 +230,10 @@ import Loader from '@moreillon/vue_loader'
 import Modal from '@moreillon/vue_modal'
 import GroupPicker from '@moreillon/vue_group_picker'
 
+// Experiment with stamping pdf files
+import { PDFDocument } from 'pdf-lib';
+import pdf from 'vue-pdf'
+
 export default {
   name: 'ShowApplication',
   components: {
@@ -230,7 +241,9 @@ export default {
     IconButton,
     Loader,
     Modal,
-    GroupPicker
+    GroupPicker,
+
+    pdf,
   },
   mounted () {
     this.get_application()
@@ -252,7 +265,10 @@ export default {
       groups: [],
       recipient_records: [],
 
-      modal_open: false
+      modal_open: false,
+
+
+      shown_pdf: null,
     }
   },
   methods: {
@@ -396,14 +412,35 @@ ${window.location.origin}/show_application?id=${this.application.identity.low}%0
     remove_application_visibility_to_group (group) {
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/visibility_to_group`
 
-      this.axios.delete(url, {
-        params: { group_id: group.identity.low }
+      this.axios.delete(url, { params: { group_id: group.identity.low } })
+      .then(() => { this.get_visibility() })
+      .catch(() => alert('Error updating visibility of application'))
+    },
+    view_pdf(file_id){
+      let file_url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/files/${file_id}?application_id=${this.application.identity.low}`
+      fetch(file_url, {
+        headers: new Headers({
+          'Authorization': `Bearer ${this.$cookies.get('jwt')}`,
+        }),
+      }).then((response) => {
+        return response.arrayBuffer();
+      }).then((buffer) => {
+        this.load_pdf(buffer)
       })
-        .then(() => {
-          this.get_visibility()
-        })
-        .catch(() => alert('Error updating visibility of application'))
-    }
+    },
+    async load_pdf(buffer) {
+      try {
+        const pdfDoc = await PDFDocument.load(buffer)
+        this.shown_pdf = await pdfDoc.save()
+      } catch (e) {
+        alert('Document is not a pdf')
+      } finally {
+
+      }
+
+
+    },
+
 
   },
   computed: {
@@ -442,7 +479,7 @@ ${window.location.origin}/show_application?id=${this.application.identity.low}%0
   border: 1px solid #444444;
   border-radius: 5px;
 
-  margin: 15px;
+  //margin: 15px;
   padding: 5px;
 
   display: flex;
@@ -589,5 +626,10 @@ ${window.location.origin}/show_application?id=${this.application.identity.low}%0
 }
 .growing_spacer {
   flex-grow: 1;
+}
+
+.pdf_wrapper{
+  margin-top: 1em;
+  border: 1px solid #444444;
 }
 </style>
