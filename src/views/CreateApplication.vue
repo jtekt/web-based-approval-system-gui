@@ -130,10 +130,11 @@
                 v-on:change="file_upload($event, field)">
 
               <!-- file input when file is selected -->
-              <span
+              <delete-icon
                 v-else-if="field.type === 'file' && field.value"
-                class="mdi mdi-delete file_delete_button"
+                class="file_delete_button"
                 v-on:click="delete_file(field)"/>
+
 
               <datepicker
                 v-else-if="field.type === 'date'"
@@ -173,6 +174,9 @@ import ApprovalFlow from '@/components/ApprovalFlow.vue'
 import UserPicker from '@moreillon/vue_user_picker'
 import GroupPicker from '@moreillon/vue_group_picker'
 
+
+import DeleteIcon from 'vue-material-design-icons/Delete.vue';
+
 import Datepicker from 'vuejs-datepicker'
 import IconButton from '@/components/IconButton.vue'
 
@@ -183,7 +187,8 @@ export default {
     GroupPicker,
     ApprovalFlow,
     Datepicker,
-    IconButton
+    IconButton,
+    DeleteIcon,
   },
 
   data () {

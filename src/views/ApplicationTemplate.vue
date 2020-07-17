@@ -40,9 +40,10 @@
             </div>
 
             <!-- Button to edit a field -->
-            <IconButton
-              v-on:clicked="delete_field(index)"
-              icon="mdi-delete"/>
+            <delete-icon
+              v-on:click="delete_field(index)"/>
+
+
           </div>
         </div>
 
@@ -169,11 +170,14 @@ import IconButton from '@/components/IconButton.vue'
 
 import GroupPicker from '@moreillon/vue_group_picker'
 
+import DeleteIcon from 'vue-material-design-icons/Delete.vue'
+
 export default {
   name: 'ApplicationTemplate',
   components: {
     GroupPicker,
-    IconButton
+    IconButton,
+    DeleteIcon
   },
   data () {
     return {
