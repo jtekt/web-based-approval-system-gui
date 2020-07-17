@@ -71,7 +71,7 @@ import QRCode from 'qrcode'
 export default {
   name: 'WebHanko',
   props: {
-    name: { type: String, default: 'AA' },
+    name: { type: String, default: '名前' },
     approvalId: { type: Number, required: false },
     date: {
       type: Object,
@@ -109,41 +109,58 @@ export default {
     }
   },
   methods: {
-    download () {
-      if (!!window.MSInputMethodContext && !!document.documentMode) {
-        return alert('IE11 is too old for this feature. please use a browser of this era, such as Google Chrome, Mozilla Firefox or Microsoft Edge')
-      }
-      
-      var svg = this.$refs.svg
-      var canvas = document.createElement('canvas')
+    svg_to_png_url(svg){
+
+      // Create an image element
+      let img = new Image()
+      let canvas = document.createElement('canvas')
+      let ctx = canvas.getContext('2d')
+      let DOM_URL = window.URL || window.webkitURL || window
 
       canvas.width = 1000
       canvas.height = 1500
 
-      var ctx = canvas.getContext('2d')
-      var data = (new XMLSerializer()).serializeToString(svg)
-      var DOMURL = window.URL || window.webkitURL || window
-      var img = new Image()
-      var svgBlob = new Blob([data], { type: 'image/svg+xml;charset=utf-8' })
-      var url = DOMURL.createObjectURL(svgBlob)
-      img.onload = function () {
-        ctx.drawImage(img, 0, 0)
-        DOMURL.revokeObjectURL(url)
-        var imgURI = canvas
-          .toDataURL('image/png')
-          .replace('image/png', 'image/octet-stream')
-        var evt = new MouseEvent('click', {
-          view: window,
-          bubbles: false,
-          cancelable: true
-        })
-        var a = document.createElement('a')
-        a.setAttribute('download', `${this.approvalId}.png`)
-        a.setAttribute('href', imgURI)
-        a.setAttribute('target', '_blank')
-        a.dispatchEvent(evt)
+      // Convert SVG to blob
+      let SVG_sata = (new XMLSerializer()).serializeToString(svg)
+      let SVG_blob = new Blob([SVG_sata], { type: 'image/svg+xml;charset=utf-8' })
+      let SVG_blob_URL = DOM_URL.createObjectURL(SVG_blob)
+
+      // Have the SVG blob URL be the image src
+      img.src = SVG_blob_URL
+      return new Promise( (resolve, reject) => {
+        img.onload = () => {
+
+          ctx.drawImage(img, 0, 0)
+          DOM_URL.revokeObjectURL(SVG_blob_URL)
+          let png_URL = canvas
+            .toDataURL('image/png')
+            .replace('image/png', 'image/octet-stream')
+
+          resolve(png_URL)
+        }
+      })
+
+    },
+    async download () {
+      if (!!window.MSInputMethodContext && !!document.documentMode) {
+        return alert('IE11 is too old for this feature. please use a browser of this era, such as Google Chrome, Mozilla Firefox or Microsoft Edge')
       }
-      img.src = url
+
+      var svg = this.$refs.svg
+
+      let png_url = await this.svg_to_png_url(svg).then((png_url) => {return png_url})
+
+      var evt = new MouseEvent('click', {
+        view: window,
+        bubbles: false,
+        cancelable: true
+      })
+      var a = document.createElement('a')
+      a.setAttribute('download', `${this.approvalId}.png`)
+      a.setAttribute('href', png_url)
+      a.setAttribute('target', '_blank')
+      a.dispatchEvent(evt)
+
     }
   }
 }

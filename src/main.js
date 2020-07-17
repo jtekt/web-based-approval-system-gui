@@ -1,4 +1,3 @@
-import '@mdi/font/css/materialdesignicons.css'
 
 import Vue from 'vue'
 import App from './App.vue'
@@ -7,6 +6,9 @@ import store from './store'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 import VueCookies from 'vue-cookies'
+
+//import '@mdi/font/css/materialdesignicons.css'
+
 
 Vue.use(VueCookies)
 Vue.use(VueAxios, axios)

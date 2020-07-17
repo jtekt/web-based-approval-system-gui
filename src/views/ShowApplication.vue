@@ -272,7 +272,7 @@ export default {
       modal_open: false,
 
       // Stamping pdfs
-      pdf_buffer: null,
+      pdfDoc: null,
       original_pdf: null,
       shown_pdf: null,
       selected_file_id: null,
@@ -318,6 +318,12 @@ export default {
           this.recipient_records = []
           response.data.forEach((record) => {
             this.recipient_records.push(record)
+
+            let approval = record._fields[record._fieldLookup['approval']]
+            if(!approval) return
+            if(!approval.properties.attachment_hankos) return
+            approval.properties.attachment_hankos = JSON.parse(approval.properties.attachment_hankos)
+
           })
         })
         .catch((error) => console.log(error))
@@ -333,25 +339,26 @@ export default {
     },
     approve (application_id) {
       // ask for confirmation
-      if (confirm('ホンマ？')) {
-        // send POST to mark as approved
-        let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.$route.query.id}/approve`
+      if (!confirm('ホンマ？')) return
 
-        this.axios.post(url)
-          .then(() => {
-            this.get_approval_flow()
+      // send POST to mark as approved
+      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.$route.query.id}/approve`
+      this.axios.post(url)
+        .then(() => {
+          // Refresh the approval flow
+          this.get_approval_flow()
 
-            // Code to send email
-            let next_recipient_record = this.recipient_records.find(e => {
-              return e._fields[e._fieldLookup['submitted_to']].properties.flow_index.low === this.approval_count + 1
-            })
+          // Code to send email
+          let next_recipient_record = this.recipient_records.find(record => {
+            let recipient = record._fields[record._fieldLookup['submitted_to']]
+            return recipient.properties.flow_index.low === this.approval_count + 1
+          })
 
-            if (next_recipient_record) {
-              let next_recipient = next_recipient_record._fields[next_recipient_record._fieldLookup['recipient']]
+          if (!next_recipient_record) return
+          let next_recipient = next_recipient_record._fields[next_recipient_record._fieldLookup['recipient']]
 
-              if (confirm(`Send notification email ?`)) {
-              // Weird formatting because preserves indentation
-                window.location.href = `
+          // Weird formatting because preserves indentation
+          window.location.href = `
 mailto:${next_recipient.properties.email_address}
 ?subject=[自動送信] ${this.application.properties.type}を提出しました
 &body=${next_recipient.properties.name_kanji}　様%0D%0A
@@ -360,15 +367,13 @@ mailto:${next_recipient.properties.email_address}
 ${window.location.origin}/show_application?id=${this.application.identity.low}%0D%0A
 %0D%0A
 確認お願いします。%0D%0A
-              `
-              }
-            }
-          })
-          .catch((error) => {
-            console.error(error)
-            alert(`Error approving application`)
-          })
-      }
+            `
+
+        })
+        .catch((error) => {
+          console.error(error)
+          alert(`Error approving application`)
+        })
     },
     reject (application_id) {
       if (confirm('ホンマ？')) {
@@ -385,7 +390,6 @@ ${window.location.origin}/show_application?id=${this.application.identity.low}%0
     },
     update_privacy_of_application () {
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/privacy`
-
       this.axios.put(url, {private: this.application.properties.private})
         .then(() => {})
         .catch(() => alert('Error updating privacy of application'))
@@ -434,25 +438,110 @@ ${window.location.origin}/show_application?id=${this.application.identity.low}%0
         }),
       }).then((response) => { return response.arrayBuffer() })
       .then((buffer) => {
-        this.pdf_buffer = buffer
-        this.load_pdf()
+        this.load_pdf(buffer)
       })
     },
-    async load_pdf() {
+    async load_pdf(buffer) {
 
       try {
-        const pdfDoc = await PDFDocument.load(this.pdf_buffer)
-        this.shown_pdf = await pdfDoc.save()
-        this.original_pdf = this.shown_pdf
+        this.pdfDoc = await PDFDocument.load(buffer)
+        //this.shown_pdf = await this.pdfDoc.save()
+        //this.original_pdf = this.shown_pdf
+        this.load_pdf_hankos()
       } catch (e) {
         alert('Document is not a pdf')
       } finally {
 
       }
     },
+
+    svg_to_png_url(svg){
+
+      // Create an image element
+      let img = new Image()
+      let canvas = document.createElement('canvas')
+      let ctx = canvas.getContext('2d')
+      const DOM_URL = window.URL || window.webkitURL || window
+
+      canvas.width = 1000
+      canvas.height = 1500
+
+      // Convert SVG to blob
+      const SVG_sata = (new XMLSerializer()).serializeToString(svg)
+      const SVG_blob = new Blob([SVG_sata], { type: 'image/svg+xml;charset=utf-8' })
+      const SVG_blob_URL = DOM_URL.createObjectURL(SVG_blob)
+
+      // Have the SVG blob URL be the image src
+      img.src = SVG_blob_URL
+      return new Promise( (resolve, reject) => {
+        img.onload = () => {
+
+          ctx.drawImage(img, 0, 0)
+          DOM_URL.revokeObjectURL(SVG_blob_URL)
+          let png_URL = canvas
+            .toDataURL('image/png')
+            .replace('image/png', 'image/octet-stream')
+
+          resolve(png_URL)
+        }
+      })
+
+    },
+
+    async load_pdf_hankos(){
+
+      let promises = []
+      // For each recipient
+      this.recipient_records.forEach(async (record) => {
+
+        let promise = new Promise ( async(resolve, reject) => {
+          let approval = record._fields[record._fieldLookup['approval']]
+          if(!approval) return
+          if(!approval.properties.attachment_hankos) return
+
+          // Get the hanko's svg
+          const hanko_svg = document.getElementById(`hanko_${approval.identity.low}`)
+
+          // Convert the hanko's svg into a png URL
+          const png_url = await this.svg_to_png_url(hanko_svg).then((png_url) => {return png_url})
+
+          // Get the png image bytes from the canvas
+          const pngImageBytes = await fetch(png_url).then((res) => {return res.arrayBuffer()})
+          const pngImage = await this.pdfDoc.embedPng(pngImageBytes)
+          const pngDims = pngImage.scale(0.03)
+
+          // Draw every hanko
+          approval.properties.attachment_hankos.forEach(async (hanko) => {
+            if(hanko.file_id !== this.selected_file_id) return
+
+            const pages = this.pdfDoc.getPages()
+            const page = pages[hanko.page_number]
+
+            await page.drawImage(pngImage, {
+              x: hanko.position.x - 0.5 * pngDims.width,
+              y: hanko.position.y - 0.5 * pngDims.height,
+              width: pngDims.width,
+              height: pngDims.height,
+            })
+
+            resolve()
+
+          })
+        })
+
+        promises.push(promise)
+
+      })
+
+      Promise.all(promises).then(async () => {
+        this.shown_pdf = await this.pdfDoc.save()
+      })
+
+
+    },
     async pdf_clicked(event){
 
-      return alert('研究企画が官僚的な考え方をやめてくれないとこの機能を使えないようにします')
+      //return alert('研究企画が官僚的な考え方をやめてくれないとこの機能を使えないようにします')
 
       let found_recipient_record = this.recipient_records.find(record => {
         let recipient = record._fields[record._fieldLookup['recipient']]
@@ -464,12 +553,11 @@ ${window.location.origin}/show_application?id=${this.application.identity.low}%0
       if(!approval) return alert('You need to approve the application first')
 
       let approval_id = approval.identity.low
+      let page_number = 0
 
-      const pdfDoc = await PDFDocument.load(this.pdf_buffer)
 
-
-      const pages = pdfDoc.getPages()
-      const page = pages[0]
+      const pages = this.pdfDoc.getPages()
+      const page = pages[page_number]
       const { width, height } = page.getSize()
 
       const wrapper_width = this.$refs.pdf_container.offsetWidth
@@ -480,106 +568,43 @@ ${window.location.origin}/show_application?id=${this.application.identity.low}%0
       const click_y = event.offsetY
       const position_y = height - (height * (click_y/wrapper_height))
 
-      let hanko_svg = document.getElementById(`hanko_${approval_id}`)
-      var canvas = document.createElement('canvas')
-
-      canvas.width = 1000
-      canvas.height = 1500
-
-      var ctx = canvas.getContext('2d')
-      var data = (new XMLSerializer()).serializeToString(hanko_svg)
-      var DOMURL = window.URL || window.webkitURL || window
-      var img = new Image()
-      var svgBlob = new Blob([data], { type: 'image/svg+xml;charset=utf-8' })
-      var url = DOMURL.createObjectURL(svgBlob)
-
-      img.onload = async () => {
-
-        ctx.drawImage(img, 0, 0)
-        DOMURL.revokeObjectURL(url)
-        var imgURI = canvas
-          .toDataURL('image/png')
-          .replace('image/png', 'image/octet-stream')
-
-        const pngImageBytes = await fetch(imgURI).then((res) => {return res.arrayBuffer()})
-        const pngImage = await pdfDoc.embedPng(pngImageBytes)
-        const pngDims = pngImage.scale(0.5)
-
-        const hanko_width = 0.06 * pngDims.width
-        const hanko_height = 0.06 * pngDims.height
-
-
-        page.drawImage(pngImage, {
-          x: position_x - 0.5 * hanko_width,
-          y: position_y - 0.5 * hanko_height,
-          width: hanko_width,
-          height: hanko_height,
-        })
-
-        this.shown_pdf = await pdfDoc.save()
-
-        setTimeout(() => this.reupload_stamped_pdf(), 500)
-
-
+      // Create a list of attachment hankos if they don't exist yet
+      if(!approval.properties.attachment_hankos) {
+        approval.properties.attachment_hankos = []
       }
-      img.src = url
-    },
-    select_hanko(record){
-      let approval = record._fields[record._fieldLookup['approval']]
-      if(approval) {
-        this.selected_hanko_id = approval.identity.low
+
+      let attachment_hanko = {
+        file_id: this.selected_file_id,
+        page_number: page_number,
+        position: {
+          x: position_x,
+          y: position_y,
+        }
       }
+
+      approval.properties.attachment_hankos.push(attachment_hanko)
+      console.log(this.recipient_records)
+
+      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/approvals/${approval_id}`
+
+      this.axios.put(url, { attachment_hankos: approval.properties.attachment_hankos })
+      .then((response) => {
+        console.log(response.data)
+        this.load_pdf_hankos()
+      })
+      .catch((error) => {
+        console.log(error.response.data)
+      })
+
     },
-    reupload_stamped_pdf(){
+
+    register_hanko(){
       if(!confirm('Confirm?')) {
         this.shown_pdf = this.original_pdf
         return
       }
 
-      const blob = new Blob([this.shown_pdf], {
-        type: 'application/pdf'
-      })
-
-      let file = new File([blob], "attachment.pdf");
-
-      this.file_upload(file)
-
     },
-    file_upload (file) {
-      let formData = new FormData()
-      formData.append('file_to_upload', file)
-      this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/files`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      })
-      .then(response => {
-        // file has been uploaded
-        let new_file_id = response.data
-
-        let found_field = this.form_data.find(field => {
-          return field.value === this.selected_file_id
-        })
-
-        found_field.value = new_file_id
-
-        this.update_form_data()
-
-
-      })
-      .catch(error => alert(error.response.data))
-    },
-    update_form_data(){
-      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/`
-
-      this.axios.put(url, { form_data: this.form_data })
-      .then(() => {
-        this.get_application()
-        this.get_visibility()
-        this.get_approval_flow()
-      })
-      .catch(() => alert('Error updating visibility of application'))
-    }
-
-
 
   },
   computed: {

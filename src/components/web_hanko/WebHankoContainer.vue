@@ -1,7 +1,7 @@
 <template>
   <div class="web_hanko_container">
 
-    <!-- PUT A LINK HERE -->
+    <!-- PUT A LINK HERE AND NOT A onclick-->
     <div
       class="hanko_container_header"
       v-on:click="view_profile(recipient)">
@@ -25,8 +25,8 @@
     <div class="toolbox" v-if="show_toolbox">
       <div
         class="approval_controls">
-        <span class="mdi mdi-check approve_button" v-on:click="$emit('approve')"/>
-        <span class="mdi mdi-close disapprove_button" v-on:click="$emit('reject')"/>
+        <check-icon class="approval_control approve_button" v-on:click="$emit('approve')"/>
+        <close-icon class="approval_control disapprove_button" v-on:click="$emit('reject')"/>
       </div>
 
       <!-- cancel of decision (no longer possible -->
@@ -46,11 +46,17 @@
 import WebHanko from './WebHanko.vue'
 import Rejection from './Rejection.vue'
 
+import CheckIcon from 'vue-material-design-icons/Check.vue';
+import CloseIcon from 'vue-material-design-icons/Close.vue';
+
+
 export default {
   name: 'WebHankoContainer',
   components: {
     WebHanko,
-    Rejection
+    Rejection,
+    CheckIcon,
+    CloseIcon,
   },
   props: {
     applicationRecord: { type: Object, required: true },
@@ -150,7 +156,7 @@ export default {
   align-items: stretch;
 }
 
-.approval_controls > .mdi {
+.approval_controls .approval_control {
   flex-grow: 1;
 
   font-size: 120%;
