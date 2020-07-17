@@ -84,6 +84,12 @@ export default {
   methods: {
     view_pdf(file_id){
 
+      if (!!window.MSInputMethodContext && !!document.documentMode) {
+        this.load_error = 'This feature only supports .pdf files'
+        alert('Internet Explorerのユーザーはこの機能に値しません、今の時代のブラウザを使ってください。')
+        return
+      }
+
       // TODO: CHANGE THIS URL
       let file_url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/files/${file_id}?application_id=${this.application_id}`
       fetch(file_url, {
