@@ -172,7 +172,6 @@
                 v-bind:applicationRecord="recipient_record"
                 v-on:approve="approve(application.identity.low)"
                 v-on:reject="reject(application.identity.low)"
-                v-on:cancel="cancel(application.identity.low)"
                 v-bind:hankoable="hankoable(recipient_record)"/>
             </div>
 
@@ -195,36 +194,11 @@
       </div><!-- End of application container -->
       <div class="not_found" v-else>Application does not exist or is private</div>
 
-      <div class="pdf_wrapper" v-if="shown_pdf">
-
-        <div class="pdf_download_button">
-          <button type="button" @click="download_pdf()">Download</button>
-        </div>
-
-
-
-        <div
-          class="pdf_container"
-          ref="pdf_container"
-          @click="pdf_clicked($event)">
-
-
-          <pdf :src="shown_pdf" />
-
-          <div
-            class="new_hanko_overlay"
-            @mousemove="update_new_hanko_position($event)"/>
-
-          <img
-            v-if="new_hanko.src"
-            v-bind:style="new_hanko.style"
-            class="new_hanko"
-            :src="new_hanko.src" alt="">
-
-        </div>
-
-      </div>
-
+      <PdfViewer
+        v-if="selected_file_id"
+        :selected_file_id="selected_file_id"
+        :recipient_records="recipient_records"
+        :application_id="application.identity.low"/>
 
     </template>
 
@@ -260,11 +234,10 @@ import GroupPicker from '@moreillon/vue_group_picker'
 
 import DownloadIcon from 'vue-material-design-icons/Download.vue';
 
+import PdfViewer from '@/components/PdfViewer.vue'
 
 
-// Experiment with stamping pdf files
-import { PDFDocument } from 'pdf-lib';
-import pdf from 'vue-pdf'
+
 
 export default {
   name: 'ShowApplication',
@@ -275,8 +248,7 @@ export default {
     Modal,
     GroupPicker,
     DownloadIcon,
-
-    pdf,
+    PdfViewer,
   },
   mounted () {
     this.get_application()
@@ -301,20 +273,8 @@ export default {
       modal_open: false,
 
       // Stamping pdfs
-      pdfDoc: null,
-      original_pdf: null,
-      shown_pdf: null,
       selected_file_id: null,
-      new_hanko: {
-        src: null,
-        style: {
-          top: '0px',
-          left: '0px',
-          width: '0px',
-          height: '0px',
-        }
 
-      },
     }
   },
   methods: {
@@ -465,226 +425,7 @@ ${window.location.origin}/show_application?id=${this.application.identity.low}%0
       .catch(() => alert('Error updating visibility of application'))
     },
     view_pdf(file_id){
-
-      // DIRTY
       this.selected_file_id = file_id
-
-      this.set_new_hanko_src()
-
-      let file_url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/files/${file_id}?application_id=${this.application.identity.low}`
-      fetch(file_url, {
-        headers: new Headers({
-          'Authorization': `Bearer ${this.$cookies.get('jwt')}`,
-        }),
-      }).then((response) => { return response.arrayBuffer() })
-      .then((buffer) => {
-        this.load_pdf(buffer)
-      })
-    },
-    async load_pdf(buffer) {
-
-      try {
-        this.pdfDoc = await PDFDocument.load(buffer)
-        //this.shown_pdf = await this.pdfDoc.save()
-        //this.original_pdf = this.shown_pdf
-        this.load_pdf_hankos()
-      } catch (e) {
-        alert('Document is not a pdf')
-      } finally {
-
-      }
-    },
-
-    svg_to_png_url(svg){
-
-      // Create an image element
-      let img = new Image()
-      let canvas = document.createElement('canvas')
-      let ctx = canvas.getContext('2d')
-      const DOM_URL = window.URL || window.webkitURL || window
-
-      canvas.width = 1000
-      canvas.height = 1500
-
-      // Convert SVG to blob
-      const SVG_sata = (new XMLSerializer()).serializeToString(svg)
-      const SVG_blob = new Blob([SVG_sata], { type: 'image/svg+xml;charset=utf-8' })
-      const SVG_blob_URL = DOM_URL.createObjectURL(SVG_blob)
-
-      // Have the SVG blob URL be the image src
-      img.src = SVG_blob_URL
-      return new Promise( (resolve, reject) => {
-        img.onload = () => {
-
-          ctx.drawImage(img, 0, 0)
-          DOM_URL.revokeObjectURL(SVG_blob_URL)
-          let png_URL = canvas
-            .toDataURL('image/png')
-            .replace('image/png', 'image/octet-stream')
-
-          resolve(png_URL)
-        }
-      })
-
-    },
-
-    async load_pdf_hankos(){
-
-      // using promises to only save the pdf when all hankos are drawn
-      let promises = []
-
-      // For each recipient
-      this.recipient_records.forEach(async (record) => {
-
-        // using promises to only save the pdf when all hankos are drawn
-        let promise = new Promise ( async(resolve, reject) => {
-          let approval = record._fields[record._fieldLookup['approval']]
-          if(!approval) resolve()
-          if(!approval.properties.attachment_hankos) resolve()
-
-          // Get the hanko's svg
-          const hanko_svg = document.getElementById(`hanko_${approval.identity.low}`)
-
-          // Convert the hanko's svg into a png URL
-          const png_url = await this.svg_to_png_url(hanko_svg).then((png_url) => {return png_url})
-
-          // Get the png image bytes from the canvas
-          const pngImageBytes = await fetch(png_url).then((res) => {return res.arrayBuffer()})
-          const pngImage = await this.pdfDoc.embedPng(pngImageBytes)
-          const pngDims = pngImage.scale(0.03)
-
-          const pages = this.pdfDoc.getPages()
-
-          // Draw every hanko
-          approval.properties.attachment_hankos.forEach(async (hanko) => {
-            if(hanko.file_id !== this.selected_file_id) resolve()
-
-            const page = pages[hanko.page_number]
-
-            console.log(`Page width: ${page.getSize().width}`)
-
-            await page.drawImage(pngImage, {
-              x: hanko.position.x - 0.5 * pngDims.width,
-              y: hanko.position.y - 0.5 * pngDims.height,
-              width: pngDims.width,
-              height: pngDims.height,
-            })
-
-            resolve()
-
-          })
-        })
-
-        promises.push(promise)
-
-      })
-
-      Promise.all(promises).then(async () => {
-        this.shown_pdf = await this.pdfDoc.save()
-      })
-
-
-    },
-    update_new_hanko_position(event){
-      this.new_hanko.style.left = `calc(${event.offsetX}px - 0.5 * ${this.new_hanko.style.width})`
-      this.new_hanko.style.top = `calc(${event.offsetY}px - 0.5 * ${this.new_hanko.style.height})`
-
-      const wrapper_width = this.$refs.pdf_container.offsetWidth
-      const wrapper_height = this.$refs.pdf_container.offsetHeight
-
-      this.new_hanko.style.width= `${0.05*wrapper_width}px`
-      this.new_hanko.style.height= `${0.05*wrapper_height}px`
-
-    },
-    set_new_hanko_src(){
-      let found_recipient_record = this.recipient_records.find(record => {
-        let recipient = record._fields[record._fieldLookup['recipient']]
-        let recipient_id = recipient.identity.low
-        return recipient_id = this.$store.state.current_user.identity.low
-      })
-
-      let approval = found_recipient_record._fields[found_recipient_record._fieldLookup['approval']]
-      if(!approval) return alert('You need to approve the application first')
-
-      let approval_id = approval.identity.low
-
-      const hanko_svg = document.getElementById(`hanko_${approval_id}`)
-      const SVG_sata = (new XMLSerializer()).serializeToString(hanko_svg)
-      const SVG_blob = new Blob([SVG_sata], { type: 'image/svg+xml;charset=utf-8' })
-      const DOM_URL = window.URL || window.webkitURL || window
-      const SVG_blob_URL = DOM_URL.createObjectURL(SVG_blob)
-
-      this.new_hanko.src = SVG_blob_URL
-    },
-    async pdf_clicked(event){
-
-      //return alert('研究企画が官僚的な考え方をやめてくれないとこの機能を使えないようにします')
-
-      let found_recipient_record = this.recipient_records.find(record => {
-        let recipient = record._fields[record._fieldLookup['recipient']]
-        let recipient_id = recipient.identity.low
-        return recipient_id = this.$store.state.current_user.identity.low
-      })
-
-      let approval = found_recipient_record._fields[found_recipient_record._fieldLookup['approval']]
-      if(!approval) return alert('You need to approve the application first')
-
-      let approval_id = approval.identity.low
-      let page_number = 0
-
-
-      if(!confirm(`Apply Hanko here?`)) return
-
-      const pages = this.pdfDoc.getPages()
-      const page = pages[page_number]
-      const { width, height } = page.getSize()
-
-      const wrapper_width = this.$refs.pdf_container.offsetWidth
-      const click_x = event.offsetX
-      const position_x = width * (click_x/wrapper_width)
-
-      const wrapper_height = this.$refs.pdf_container.offsetHeight
-      const click_y = event.offsetY
-      const position_y = height - (height * (click_y/wrapper_height))
-
-      // Create a list of attachment hankos if they don't exist yet
-
-      if(!approval.properties.attachment_hankos) {
-        approval.properties.attachment_hankos = []
-      }
-
-      let attachment_hanko = {
-        file_id: this.selected_file_id,
-        page_number: page_number,
-        position: {
-          x: position_x,
-          y: position_y,
-        }
-      }
-
-      approval.properties.attachment_hankos.push(attachment_hanko)
-      console.log(this.recipient_records)
-
-      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/approvals/${approval_id}`
-
-      this.axios.put(url, { attachment_hankos: approval.properties.attachment_hankos })
-      .then((response) => {
-        this.view_pdf(this.selected_file_id)
-
-      })
-      .catch((error) => {
-        console.log(error.response.data)
-      })
-    },
-    download_pdf(){
-
-      let pdf_blob = new Blob([this.shown_pdf], { type: 'application/pdf' })
-      const link = document.createElement('a')
-      link.href = URL.createObjectURL(pdf_blob)
-      link.download = 'output'
-      link.click()
-      URL.revokeObjectURL(link.href)
-
     }
 
 
@@ -875,6 +616,7 @@ ${window.location.origin}/show_application?id=${this.application.identity.low}%0
   flex-grow: 1;
 }
 
+/*
 .pdf_wrapper{
   padding: 1em;
   margin-top: 1em;
@@ -906,4 +648,5 @@ ${window.location.origin}/show_application?id=${this.application.identity.low}%0
   margin: 1em;
 
 }
+*/
 </style>
