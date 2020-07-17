@@ -197,10 +197,17 @@
 
       <div class="pdf_wrapper" v-if="shown_pdf">
 
+        <div class="pdf_download_button">
+          <button type="button" @click="download_pdf()">Download</button>
+        </div>
+
+
+
         <div
           class="pdf_container"
           ref="pdf_container"
           @click="pdf_clicked($event)">
+
 
           <pdf :src="shown_pdf" />
 
@@ -668,9 +675,17 @@ ${window.location.origin}/show_application?id=${this.application.identity.low}%0
       .catch((error) => {
         console.log(error.response.data)
       })
-
-
     },
+    download_pdf(){
+
+      let pdf_blob = new Blob([this.shown_pdf], { type: 'application/pdf' })
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(pdf_blob)
+      link.download = 'output'
+      link.click()
+      URL.revokeObjectURL(link.href)
+
+    }
 
 
 
@@ -884,5 +899,11 @@ ${window.location.origin}/show_application?id=${this.application.identity.low}%0
   width: 100%;
   height: 100%;
   z-index: 3;
+}
+
+.pdf_download_button {
+  text-align: center;
+  margin: 1em;
+
 }
 </style>
