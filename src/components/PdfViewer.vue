@@ -28,6 +28,10 @@
 
     </div>
 
+    <div class="" v-if="load_error">
+      {{load_error}}
+    </div>
+
   </div>
 </template>
 
@@ -47,6 +51,7 @@ export default {
   },
   data(){
     return {
+      load_error: null,
       // Stamping pdfs
       pdfDoc: null,
       shown_pdf: null,
@@ -79,7 +84,7 @@ export default {
       // DIRTY
       //this.selected_file_id = file_id
 
-      this.set_new_hanko_src()
+
 
       // TODO: CHANGE THIS URL
       let file_url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/files/${file_id}?application_id=${this.application_id}`
@@ -87,23 +92,28 @@ export default {
         headers: new Headers({
           'Authorization': `Bearer ${this.$cookies.get('jwt')}`,
         }),
-      }).then((response) => { return response.arrayBuffer() })
-      .then((buffer) => {
-        this.load_pdf(buffer)
       })
+      .then((response) => { return response.arrayBuffer() })
+      .then((buffer) => { this.load_pdf(buffer) })
     },
     async load_pdf(buffer) {
 
+      this.load_error = null
+      let success = true
       try {
         this.pdfDoc = await PDFDocument.load(buffer)
-        //this.shown_pdf = await this.pdfDoc.save()
-        //this.original_pdf = this.shown_pdf
-        this.load_pdf_hankos()
-      } catch (e) {
-        alert('Document is not a pdf')
-      } finally {
-
       }
+      catch (e) {
+        this.load_error = 'The document is not a pdf'
+        success = false
+      }
+
+      if(success) {
+        this.load_pdf_hankos()
+        this.set_new_hanko_src()
+      }
+
+
     },
 
     svg_to_png_url(svg){

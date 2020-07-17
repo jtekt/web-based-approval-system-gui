@@ -34,6 +34,7 @@
             </tr>
             <tr>
               <td>申請者 / Applicant</td>
+              <!-- Todo: put a link here -->
               <td>{{applicant.properties.display_name}}</td>
             </tr>
             <tr>
@@ -101,13 +102,16 @@
                   v-on:click="download(field.value)"
                   class="download_button"/>
 
+                <magnify-icon
+                  class="download_button"
+                  @click="view_pdf(field.value)" />
 
-                <button type="button" @click="view_pdf(field.value)" v-if="true">.pdf viewer</button>
+
               </td>
 
               <td v-else-if="field.type === 'checkbox'">
-                <span v-if="field.value" class="mdi mdi-check"/>
-                <span v-else class="mdi mdi-close"/>
+                <check-icon v-if="field.value"/>
+                <close-icon v-else/>
               </td>
 
               <td v-else-if="field.type === 'date'">
@@ -121,18 +125,10 @@
               <td v-else>-</td>
             </tr>
 
-            <!-- LEGACY -->
-            <!-- If form data is an object (OLD style) -->
-            <tr v-for="value, key in form_data" v-if="!Array.isArray(form_data)">
-              <td>{{key}}</td>
-              <td v-if="key === 'report_file' || key === 'file'">
-                <span
-                  v-on:click="download(value)"
-                  class="mdi mdi-download download_button"/>
-              </td>
-              <td v-else>{{value}}</td>
+            <!-- If form data is not an array -->
+            <tr v-else >
+              <td colspan="2">Form data cannot be read</td>
             </tr>
-            <!-- END OF LEGACY -->
 
           </table>
 
@@ -233,6 +229,9 @@ import Modal from '@moreillon/vue_modal'
 import GroupPicker from '@moreillon/vue_group_picker'
 
 import DownloadIcon from 'vue-material-design-icons/Download.vue';
+import MagnifyIcon from 'vue-material-design-icons/Magnify.vue';
+import CheckIcon from 'vue-material-design-icons/Check.vue';
+import CloseIcon from 'vue-material-design-icons/Close.vue';
 
 import PdfViewer from '@/components/PdfViewer.vue'
 
@@ -247,8 +246,11 @@ export default {
     Loader,
     Modal,
     GroupPicker,
-    DownloadIcon,
     PdfViewer,
+    DownloadIcon,
+    MagnifyIcon,
+    CheckIcon,
+    CloseIcon,
   },
   mounted () {
     this.get_application()
@@ -590,7 +592,6 @@ ${window.location.origin}/show_application?id=${this.application.identity.low}%0
 }
 
 .download_button{
-  font-size: 150%;
   cursor: pointer;
 }
 
@@ -616,37 +617,4 @@ ${window.location.origin}/show_application?id=${this.application.identity.low}%0
   flex-grow: 1;
 }
 
-/*
-.pdf_wrapper{
-  padding: 1em;
-  margin-top: 1em;
-  border: 1px solid #444444;
-  border-radius: 5px;
-}
-
-.pdf_container {
-  position: relative;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-}
-
-.new_hanko {
-  position: absolute;
-  z-index: 2;
-}
-
-.new_hanko_overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 3;
-}
-
-.pdf_download_button {
-  text-align: center;
-  margin: 1em;
-
-}
-*/
 </style>
