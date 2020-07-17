@@ -96,9 +96,11 @@
               <td>{{field.label}}</td>
 
               <td v-if="field.type === 'file' && field.value">
-                <span
+
+                <download-icon
                   v-on:click="download(field.value)"
-                  class="mdi mdi-download download_button"/>
+                  class="download_button"/>
+
 
                 <button type="button" @click="view_pdf(field.value)" v-if="true">.pdf viewer</button>
               </td>
@@ -195,8 +197,23 @@
 
       <div class="pdf_wrapper" v-if="shown_pdf">
 
-        <div class="pdf_container" ref="pdf_container" @click="pdf_clicked($event)">
+        <div
+          class="pdf_container"
+          ref="pdf_container"
+          @click="pdf_clicked($event)">
+
           <pdf :src="shown_pdf" />
+
+          <div
+            class="new_hanko_overlay"
+            @mousemove="update_new_hanko_position($event)"/>
+
+          <img
+            v-if="new_hanko.src"
+            v-bind:style="new_hanko.style"
+            class="new_hanko"
+            :src="new_hanko.src" alt="">
+
         </div>
 
       </div>
@@ -234,6 +251,10 @@ import Loader from '@moreillon/vue_loader'
 import Modal from '@moreillon/vue_modal'
 import GroupPicker from '@moreillon/vue_group_picker'
 
+import DownloadIcon from 'vue-material-design-icons/Download.vue';
+
+
+
 // Experiment with stamping pdf files
 import { PDFDocument } from 'pdf-lib';
 import pdf from 'vue-pdf'
@@ -246,6 +267,7 @@ export default {
     Loader,
     Modal,
     GroupPicker,
+    DownloadIcon,
 
     pdf,
   },
@@ -276,6 +298,16 @@ export default {
       original_pdf: null,
       shown_pdf: null,
       selected_file_id: null,
+      new_hanko: {
+        src: null,
+        style: {
+          top: '0px',
+          left: '0px',
+          width: '0px',
+          height: '0px',
+        }
+
+      },
     }
   },
   methods: {
@@ -430,6 +462,7 @@ ${window.location.origin}/show_application?id=${this.application.identity.low}%0
       // DIRTY
       this.selected_file_id = file_id
 
+      this.set_new_hanko_src()
 
       let file_url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/files/${file_id}?application_id=${this.application.identity.low}`
       fetch(file_url, {
@@ -490,14 +523,17 @@ ${window.location.origin}/show_application?id=${this.application.identity.low}%0
 
     async load_pdf_hankos(){
 
+      // using promises to only save the pdf when all hankos are drawn
       let promises = []
+
       // For each recipient
       this.recipient_records.forEach(async (record) => {
 
+        // using promises to only save the pdf when all hankos are drawn
         let promise = new Promise ( async(resolve, reject) => {
           let approval = record._fields[record._fieldLookup['approval']]
-          if(!approval) return
-          if(!approval.properties.attachment_hankos) return
+          if(!approval) resolve()
+          if(!approval.properties.attachment_hankos) resolve()
 
           // Get the hanko's svg
           const hanko_svg = document.getElementById(`hanko_${approval.identity.low}`)
@@ -510,12 +546,15 @@ ${window.location.origin}/show_application?id=${this.application.identity.low}%0
           const pngImage = await this.pdfDoc.embedPng(pngImageBytes)
           const pngDims = pngImage.scale(0.03)
 
+          const pages = this.pdfDoc.getPages()
+
           // Draw every hanko
           approval.properties.attachment_hankos.forEach(async (hanko) => {
-            if(hanko.file_id !== this.selected_file_id) return
+            if(hanko.file_id !== this.selected_file_id) resolve()
 
-            const pages = this.pdfDoc.getPages()
             const page = pages[hanko.page_number]
+
+            console.log(`Page width: ${page.getSize().width}`)
 
             await page.drawImage(pngImage, {
               x: hanko.position.x - 0.5 * pngDims.width,
@@ -539,6 +578,37 @@ ${window.location.origin}/show_application?id=${this.application.identity.low}%0
 
 
     },
+    update_new_hanko_position(event){
+      this.new_hanko.style.left = `calc(${event.offsetX}px - 0.5 * ${this.new_hanko.style.width})`
+      this.new_hanko.style.top = `calc(${event.offsetY}px - 0.5 * ${this.new_hanko.style.height})`
+
+      const wrapper_width = this.$refs.pdf_container.offsetWidth
+      const wrapper_height = this.$refs.pdf_container.offsetHeight
+
+      this.new_hanko.style.width= `${0.05*wrapper_width}px`
+      this.new_hanko.style.height= `${0.05*wrapper_height}px`
+
+    },
+    set_new_hanko_src(){
+      let found_recipient_record = this.recipient_records.find(record => {
+        let recipient = record._fields[record._fieldLookup['recipient']]
+        let recipient_id = recipient.identity.low
+        return recipient_id = this.$store.state.current_user.identity.low
+      })
+
+      let approval = found_recipient_record._fields[found_recipient_record._fieldLookup['approval']]
+      if(!approval) return alert('You need to approve the application first')
+
+      let approval_id = approval.identity.low
+
+      const hanko_svg = document.getElementById(`hanko_${approval_id}`)
+      const SVG_sata = (new XMLSerializer()).serializeToString(hanko_svg)
+      const SVG_blob = new Blob([SVG_sata], { type: 'image/svg+xml;charset=utf-8' })
+      const DOM_URL = window.URL || window.webkitURL || window
+      const SVG_blob_URL = DOM_URL.createObjectURL(SVG_blob)
+
+      this.new_hanko.src = SVG_blob_URL
+    },
     async pdf_clicked(event){
 
       //return alert('研究企画が官僚的な考え方をやめてくれないとこの機能を使えないようにします')
@@ -556,6 +626,8 @@ ${window.location.origin}/show_application?id=${this.application.identity.low}%0
       let page_number = 0
 
 
+      if(!confirm(`Apply Hanko here?`)) return
+
       const pages = this.pdfDoc.getPages()
       const page = pages[page_number]
       const { width, height } = page.getSize()
@@ -569,6 +641,7 @@ ${window.location.origin}/show_application?id=${this.application.identity.low}%0
       const position_y = height - (height * (click_y/wrapper_height))
 
       // Create a list of attachment hankos if they don't exist yet
+
       if(!approval.properties.attachment_hankos) {
         approval.properties.attachment_hankos = []
       }
@@ -589,22 +662,17 @@ ${window.location.origin}/show_application?id=${this.application.identity.low}%0
 
       this.axios.put(url, { attachment_hankos: approval.properties.attachment_hankos })
       .then((response) => {
-        console.log(response.data)
-        this.load_pdf_hankos()
+        this.view_pdf(this.selected_file_id)
+
       })
       .catch((error) => {
         console.log(error.response.data)
       })
 
-    },
-
-    register_hanko(){
-      if(!confirm('Confirm?')) {
-        this.shown_pdf = this.original_pdf
-        return
-      }
 
     },
+
+
 
   },
   computed: {
@@ -800,6 +868,21 @@ ${window.location.origin}/show_application?id=${this.application.identity.low}%0
 }
 
 .pdf_container {
+  position: relative;
   box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+}
+
+.new_hanko {
+  position: absolute;
+  z-index: 2;
+}
+
+.new_hanko_overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
 }
 </style>
