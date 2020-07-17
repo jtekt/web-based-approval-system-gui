@@ -74,17 +74,15 @@ export default {
   },
   watch: {
     // whenever question changes, this function will run
-    selected_file_id(file_id) {
-      this.view_pdf(file_id)
+    selected_file_id() {
+      this.view_pdf(this.selected_file_id)
+    },
+    recipient_records() {
+      this.view_pdf(this.selected_file_id)
     }
   },
   methods: {
     view_pdf(file_id){
-
-      // DIRTY
-      //this.selected_file_id = file_id
-
-
 
       // TODO: CHANGE THIS URL
       let file_url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/files/${file_id}?application_id=${this.application_id}`
@@ -104,7 +102,7 @@ export default {
         this.pdfDoc = await PDFDocument.load(buffer)
       }
       catch (e) {
-        this.load_error = 'The document is not a pdf'
+        this.load_error = 'This feature only supports .pdf files'
         success = false
       }
 
@@ -160,8 +158,8 @@ export default {
         // using promises to only save the pdf when all hankos are drawn
         let promise = new Promise ( async(resolve, reject) => {
           let approval = record._fields[record._fieldLookup['approval']]
-          if(!approval) resolve()
-          if(!approval.properties.attachment_hankos) resolve()
+          if(!approval) return resolve()
+          if(!approval.properties.attachment_hankos) return resolve()
 
           // Get the hanko's svg
           const hanko_svg = document.getElementById(`hanko_${approval.identity.low}`)
@@ -178,7 +176,7 @@ export default {
 
           // Draw every hanko
           approval.properties.attachment_hankos.forEach(async (hanko) => {
-            if(hanko.file_id !== this.selected_file_id) resolve()
+            if(hanko.file_id !== this.selected_file_id) return resolve()
 
             const page = pages[hanko.page_number]
 
@@ -189,7 +187,7 @@ export default {
               height: pngDims.height,
             })
 
-            resolve()
+            return resolve()
 
           })
         })
@@ -223,7 +221,10 @@ export default {
       })
 
       let approval = found_recipient_record._fields[found_recipient_record._fieldLookup['approval']]
-      if(!approval) return alert('You need to approve the application first')
+      if(!approval) {
+        //alert('You need to approve the application before being able to stamp attachments')
+        return
+      }
 
       let approval_id = approval.identity.low
 
@@ -246,7 +247,11 @@ export default {
       })
 
       let approval = found_recipient_record._fields[found_recipient_record._fieldLookup['approval']]
-      if(!approval) return alert('You need to approve the application first')
+      if(!approval) {
+        alert('You need to approve the application first')
+        return
+      }
+
 
       let approval_id = approval.identity.low
       let page_number = 0
