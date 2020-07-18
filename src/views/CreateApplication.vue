@@ -26,82 +26,95 @@
     </div>
 
     <!-- test with user generated form selector -->
-    <div class="type_and_title_input_wrapper section_wrapper">
+    <div class="type_and_title_input_wrapper application_info section_wrapper">
 
-      <!-- title input -->
-      <div class="title_wrapper">
-        <label>申請タイトル / Title: </label>
-        <input type="text" class="title_input" v-model="title">
-      </div>
+      <table class="">
+        <tr>
+          <td>申請タイトル / Title</td>
+          <td>
+            <input type="text" class="title_input" v-model="title" placeholder="申請タイトル / Title">
+          </td>
+        </tr>
+        <tr>
+          <td>申請種類 / type</td>
+          <td>
+            <!-- if the form is filled from scratch -->
+            <template v-if="!$route.query.copy_of">
+              <span v-if="application_form_templates.loading">Loading...</span>
+              <span v-else-if="application_form_templates.error">{{application_form_templates.error}}</span>
+              <select
+                v-else v-model="selected_form">
+                <!--<option value=undefined>Please select</option>-->
+                <option
+                  v-for="application_type in application_form_templates"
+                  v-bind:value="application_type">
+                  {{application_type.properties.label}}
+                </option>
+              </select>
+            </template>
 
-      <!-- type selector -->
-      <div class="">
-        <label>申請種類 / type: </label>
+            <!-- if the form is a duplicate -->
+            <template v-else>
+              <span v-if="selected_form.error">Error duplicating form {{copy_of}}</span>
+              <span v-else-if="selected_form.loading">Loading</span>
+              <span v-else-if="selected_form.properties">
+                {{selected_form.properties.label}} (Duplicate of ID {{$route.query.copy_of}})
+                <a href="create_application">Start from scratch</a>
+              </span>
+            </template>
+          </td>
+        </tr>
+        <tr>
+          <td>機密 / Confidential</td>
+          <td>
+            <input type="checkbox" v-model="private">
+          </td>
+        </tr>
+        <!-- Visibility -->
+        <tr v-if="private">
+          <td>共有 / Visibility</td>
+          <td class="visibility_wrapper">
 
-        <!-- if the form is filled from scratch -->
-        <template v-if="!$route.query.copy_of">
-          <span v-if="application_form_templates.loading">Loading...</span>
-          <span v-else-if="application_form_templates.error">{{application_form_templates.error}}</span>
-          <select
-            v-else v-model="selected_form">
-            <!--<option value=undefined>Please select</option>-->
-            <option
-              v-for="application_type in application_form_templates"
-              v-bind:value="application_type">
-              {{application_type.properties.label}}
-            </option>
-          </select>
-        </template>
+            <div
+              class="visibility_groups_wrapper"
+              v-if="groups.length > 0">
+              <div
+                v-for="(group, group_index) in groups"
+                class="visibility_group"
+                v-bind:key="group.identity.low">
 
-        <!-- if the form is a duplicate -->
-        <template v-else>
-          <span v-if="selected_form.error">Error duplicating form {{copy_of}}</span>
-          <span v-else-if="selected_form.loading">Loading</span>
-          <span v-else-if="selected_form.properties">
-            {{selected_form.properties.label}} (Duplicate of ID {{$route.query.copy_of}})
-            <a href="create_application">Start from scratch</a>
-          </span>
-        </template>
+                <span class="">
+                  {{group.properties.name}}
+                </span>
 
-      </div>
+                <div class="growing_spacer"/>
 
-      <!-- privacy selector -->
-      <div class="">
-        機密 / Confidential: <input type="checkbox" v-model="private">
-      </div>
+                <delete-icon
+                  v-on:click="delete_group(group_index)"/>
 
-      <!-- Sharing with groups -->
-      <template v-if="private">
-        <div class="group_picker_wrapper">
-          <GroupPicker
-            :apiUrl="picker_api_url"
-            v-on:selection="add_to_groups($event)"/>
-        </div>
 
-        <div class="">
-          この申請が承認フローとこちらのグループと共有されています / This application will be shared with the following groups:
-        </div>
+              </div>
+            </div>
+            <div class="" v-else>
+              承認フローのみ / Approval flow only
+            </div>
 
-        <div class="groups_wrapper" v-if="groups.length > 0">
-          <div class="group"
-            v-for="(group, index) in groups"
-            v-bind:key="group.identity.low">
-            <span>{{group.properties.name}}</span>
-            <button type="button" v-on:click="delete_group(index)">delete</button>
+            <!-- Button to add a group to visibility -->
+            <div class="visibility_group_add_button_wrapper">
+              <account-multiple-plus-icon
+                v-on:click="modal_open = true"/>
+            </div>
 
-          </div>
-        </div>
-        <div class="" v-else>
-          承認フローのみ / Only approval flow
-        </div>
-      </template>
+          </td>
+        </tr>
+      </table>
 
     </div>
 
     <!-- container for the application itself -->
     <div class="section_wrapper form_container" >
       <template v-if="selected_form.properties">
-        <div class="form_title">{{selected_form.properties.label}}</div>
+        <h3>{{selected_form.properties.label}}</h3>
 
         <textarea
           v-if="selected_form.properties.description"
@@ -164,6 +177,19 @@
 
     </div>
 
+    <!-- Modal for group visibility -->
+    <Modal :open="modal_open" @close="modal_open=false">
+      <h2 class="">
+        Share application with a group
+      </h2>
+      <div class="group_picker_wrapper">
+        <GroupPicker
+          class="picker"
+          :apiUrl="picker_api_url"
+          v-on:selection="add_to_groups($event)"/>
+      </div>
+    </Modal>
+
   </div>
 </template>
 
@@ -173,12 +199,13 @@
 import ApprovalFlow from '@/components/ApprovalFlow.vue'
 import UserPicker from '@moreillon/vue_user_picker'
 import GroupPicker from '@moreillon/vue_group_picker'
+import Datepicker from 'vuejs-datepicker'
+import Modal from '@moreillon/vue_modal'
 
 
 import DeleteIcon from 'vue-material-design-icons/Delete.vue';
-
-import Datepicker from 'vuejs-datepicker'
 import IconButton from '@/components/IconButton.vue'
+import AccountMultiplePlusIcon from 'vue-material-design-icons/AccountMultiplePlus.vue'
 
 export default {
   name: 'CreateApplication',
@@ -187,8 +214,11 @@ export default {
     GroupPicker,
     ApprovalFlow,
     Datepicker,
+    Modal,
+
     IconButton,
     DeleteIcon,
+    AccountMultiplePlusIcon,
   },
 
   data () {
@@ -202,7 +232,9 @@ export default {
 
       copy_of: '',
 
-      groups: [] // Groups for visibility
+      groups: [], // Groups for visibility
+      // modal for group visibility
+      modal_open: false,
     }
   },
   mounted () {
@@ -355,9 +387,11 @@ ${window.location.origin}/show_application?id=${application_id}%0D%0A
     },
     add_to_groups (group_to_add) {
       // Prevent duplicates
+      this.modal_open = false
       if (!this.groups.includes(group_to_add)) {
         this.groups.push(group_to_add)
       }
+      else alert('Duplicates are not allowed')
     },
     file_upload (event, field) {
       let formData = new FormData()
@@ -554,5 +588,47 @@ ${window.location.origin}/show_application?id=${application_id}%0D%0A
 
 .link_to_template {
   margin-top: 0.5em;
+}
+
+/* Application info table */
+.application_info table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.application_info tr:not(:last-child) {
+  border-bottom: 1px solid #dddddd;
+}
+
+.application_info td, .application_info th {
+  padding: 5px;
+}
+
+.application_info table input[type="text"],
+.application_info table select {
+  width: 100%;
+}
+
+.group_picker_wrapper {
+  height: 50vh;
+  width: 75vw;
+}
+.visibility_group {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.25em;
+}
+
+.visibility_group:not(:last-child) {
+  border-bottom: 1px solid #dddddd;
+}
+
+.growing_spacer {
+  flex-grow: 1;
+}
+
+.visibility_group_add_button_wrapper{
+  margin-top: 0.25em;
 }
 </style>

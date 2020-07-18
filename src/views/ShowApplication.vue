@@ -157,18 +157,19 @@
           <div class="hanko_container_container" >
 
             <!-- inner wrapper exists so that arrows can be placed between hanko containers -->
-            <div
-              class="hanko_container_container_intermediate_wrapper"
+            <template
               v-for="(recipient_record, index) in recipient_records">
 
-              <span v-if="index>0" class="arrow mdi mdi-arrow-left"/>
+              <arrow-left-icon
+                class="arrow"
+                v-if="index>0"/>
 
               <WebHankoContainer
                 v-bind:applicationRecord="recipient_record"
                 v-on:approve="approve(application.identity.low)"
                 v-on:reject="reject(application.identity.low)"
                 v-bind:hankoable="hankoable(recipient_record)"/>
-            </div>
+            </template>
 
           </div>
 
@@ -178,8 +179,12 @@
               <tr
                 v-for="(recipient_record, index) in recipient_records"
                 v-if="recipient_record._fields[recipient_record._fieldLookup['rejection']]">
-                <td class="refuser_name">{{recipient_record._fields[recipient_record._fieldLookup['recipient']].properties.family_name_kanji }}</td>
-                <td>{{recipient_record._fields[recipient_record._fieldLookup['rejection']].properties.reason}}</td>
+                <td class="refuser_name">
+                  {{recipient_record._fields[recipient_record._fieldLookup['recipient']].properties.name_kanji}}:
+                </td>
+                <td>
+                  {{recipient_record._fields[recipient_record._fieldLookup['rejection']].properties.reason}}
+                </td>
               </tr>
             </table>
 
@@ -233,6 +238,7 @@ import CheckIcon from 'vue-material-design-icons/Check.vue'
 import CloseIcon from 'vue-material-design-icons/Close.vue'
 import DeleteIcon from 'vue-material-design-icons/Delete.vue'
 import AccountMultiplePlusIcon from 'vue-material-design-icons/AccountMultiplePlus.vue'
+import ArrowLeftIcon from 'vue-material-design-icons/ArrowLeft.vue'
 
 import PdfViewer from '@/components/PdfViewer.vue'
 
@@ -256,6 +262,7 @@ export default {
     CloseIcon,
     DeleteIcon,
     AccountMultiplePlusIcon,
+    ArrowLeftIcon
   },
   mounted () {
     this.get_application()
@@ -265,7 +272,6 @@ export default {
   data () {
     return {
 
-      recipient_records: [], // LEGACY, SHOULD BE DELETED WHEN DONE
 
       loading: false,
       error: null,
@@ -277,6 +283,7 @@ export default {
       groups: [],
       recipient_records: [],
 
+      // modal for group visibility
       modal_open: false,
 
       // Stamping pdfs
@@ -290,6 +297,7 @@ export default {
       // This gets the applicant as well (for the time being)
 
       // TODO: CHeck if id in query
+      // TODO: Get recipients with the same call
       this.loading = true
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.$route.query.id}`
       this.axios.get(url)
@@ -471,7 +479,6 @@ ${window.location.origin}/show_application?id=${this.application.identity.low}%0
   border: 1px solid #444444;
   border-radius: 5px;
 
-  //margin: 15px;
   padding: 5px;
 
   display: flex;
@@ -485,8 +492,6 @@ ${window.location.origin}/show_application?id=${this.application.identity.low}%0
   flex-basis: 400px;
 }
 
-.application_info {
-}
 
 /* Application info table */
 .application_info table {
@@ -520,11 +525,6 @@ ${window.location.origin}/show_application?id=${this.application.identity.low}%0
   justify-content: flex-end;
 }
 
-.hanko_container_container_intermediate_wrapper{
-  /* exists so as to contan arrows */
-  display: flex;
-  align-items: flex-start;
-}
 
 .arrow{
   height: 150px;
@@ -533,14 +533,10 @@ ${window.location.origin}/show_application?id=${this.application.identity.low}%0
 }
 
 .refusal_reasons{
-  margin-left: 25px;
-  margin-top: 15px;
-  margin-right: 5px;
-  margin-bottom: 15px;
+  margin: 15px;
 }
 
 .refusal_reasons table {
-  border: 1px solid #dddddd;
   width: 100%;
   table-layout: fixed;
   border-collapse: collapse;
@@ -554,11 +550,8 @@ ${window.location.origin}/show_application?id=${this.application.identity.low}%0
   padding: 5px;
 }
 
-.refusal_reasons table th:first-child {
-  width: 20%;
-}
 .refusal_reasons table .refuser_name {
-  width: 20%;
+  width: 25%;
   font-weight: bold;
   white-space: nowrap;
   overflow: hidden;

@@ -2,22 +2,35 @@
   <div class="approval_flow">
 
     <!-- using v-bind:list instead of v-model because array passed as prop -->
-    <draggable class="actual_approval_flow" v-bind:list="employees" v-if="employees.length > 0">
-      <!-- for loop outside the actual employee to add arrows -->
+    <draggable
+      class="actual_approval_flow"
+      v-bind:list="employees"
+      v-if="employees.length > 0">
+
+      <!--Need to have arrow and employee in the same div because of draggable -->
       <div
         class="flow_item"
         v-for="(employee, index) in employees"
         v-bind:key="employee.identity.low">
 
-        <span v-if="index>0" class="arrow mdi mdi-arrow-right"/>
+        <arrow-right-icon
+          class="arrow"
+          v-if="index>0"/>
 
         <!-- the actual employee -->
         <div class="employee">
-          <span class="delete_button mdi mdi-close" v-on:click="$emit('deleteEmployee',index)"/>
-          <div class="name">{{employee.properties.display_name}}</div>
-          <div class="name" v-if="employee.properties.role">({{employee.properties.role}})</div>
+          <close-icon
+            class="delete_button"
+            v-on:click="$emit('deleteEmployee',index)"/>
+          <div class="name">
+            {{employee.properties.display_name || employee.properties.name_kanji}}
+          </div>
+          <div class="role" v-if="employee.properties.role">
+            ({{employee.properties.role}})
+          </div>
         </div>
       </div>
+
     </draggable>
 
     <div class="flow_empty" v-else>
@@ -28,13 +41,22 @@
 </template>
 
 <script>
+// This component is used when creating an application
+
+import CloseIcon from 'vue-material-design-icons/Close.vue'
+import ArrowRightIcon from 'vue-material-design-icons/ArrowRight.vue'
+
 // Tools
 import draggable from 'vuedraggable'
 
 export default {
   name: 'ApprovalFlow',
   components: {
-    draggable
+    draggable,
+
+    CloseIcon,
+    ArrowRightIcon,
+
   },
   props: {
     employees: Array
