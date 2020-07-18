@@ -24,6 +24,7 @@
 
       <div
         class="new_hanko_overlay"
+        @mouseleave="hide_new_hanko()"
         @mousemove="update_new_hanko_position($event)"/>
 
       <img
@@ -259,6 +260,14 @@ export default {
 
       this.new_hanko.src = SVG_blob_URL
     },
+    hide_new_hanko(){
+      this.new_hanko.style= {
+        top: '0px',
+        left: '0px',
+        width: '0px',
+        height: '0px',
+      }
+    },
     async pdf_clicked(event){
 
       //return alert('研究企画が官僚的な考え方をやめてくれないとこの機能を使えないようにします')
@@ -315,6 +324,7 @@ export default {
       this.axios.put(url, { attachment_hankos: approval.properties.attachment_hankos })
       .then((response) => {
         this.view_pdf(this.selected_file_id)
+        this.hide_new_hanko()
 
       })
       .catch((error) => {
