@@ -1,20 +1,23 @@
 <template>
-
   <div class="rejection" >
-    <span class="mdi mdi-close-circle-outline"/>
-
+    <close-circle-outline-icon size="70px"/>
   </div>
-
 </template>
 
 <script>
+
+import CloseCircleOutlineIcon from 'vue-material-design-icons/CloseCircleOutline.vue'
+
+
 export default {
-  name: 'Rejection'
+  name: 'Rejection',
+  components: {
+    CloseCircleOutlineIcon
+  }
 
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .rejection{
   position: relative;
@@ -23,10 +26,6 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.rejection > span {
-  font-size: 400%;
   color: #c00000;
 }
 
