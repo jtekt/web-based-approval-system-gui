@@ -51,12 +51,14 @@
             <!-- Visibility -->
             <tr v-if="application.properties.private">
               <td>共有 / Visibility</td>
-              <td>
+              <td class="visibility_wrapper">
 
-                <template v-if="groups.length > 0">
+                <div
+                  class="visibility_groups_wrapper"
+                  v-if="groups.length > 0">
                   <div
                     v-for="group in groups"
-                    class="group"
+                    class="visibility_group"
                     v-bind:key="group.identity.low">
                     <span class="">
                       {{group.properties.name}}
@@ -64,25 +66,25 @@
 
                     <template v-if="user_is_applicant">
                       <div class="growing_spacer"/>
-                      <button
-                        type="button"
-                        v-on:click="remove_application_visibility_to_group(group)">
-                        remove
-                      </button>
+
+                      <delete-icon
+                        v-on:click="remove_application_visibility_to_group(group)"/>
+
                     </template>
 
                   </div>
-                </template>
+                </div>
                 <div class="" v-else>
                   承認フローのみ / Approval flow only
                 </div>
 
-                <div class="">
-                  <button
-                    type="button"
-                    v-on:click="modal_open = true"
-                    v-if="user_is_applicant">Add a group</button>
+                <!-- Button to add a group to visibility -->
+                <div class="visibility_group_add_button_wrapper">
+                  <account-multiple-plus-icon
+                    v-if="user_is_applicant"
+                    v-on:click="modal_open = true"/>
                 </div>
+
               </td>
             </tr>
 
@@ -94,7 +96,7 @@
             <!-- If form data is stored as an array (experiment) -->
             <!-- THIS IS HOW CURRENT APPLICATIONS ARE RENDERED -->
             <tr v-for="field in form_data" v-if="Array.isArray(form_data)">
-              <td>{{field.label}}</td>
+              <td>{{field.label || 'Unnamed field'}}</td>
 
               <td v-if="field.type === 'file' && field.value">
 
@@ -105,7 +107,6 @@
                 <magnify-icon
                   class="download_button"
                   @click="view_pdf(field.value)" />
-
 
               </td>
 
@@ -119,10 +120,8 @@
                 <span v-else>-</span>
               </td>
 
-              <td v-else-if="field.value">{{field.value}}</td>
+              <td v-else>{{field.value || '-'}}</td>
 
-              <!-- missing value -->
-              <td v-else>-</td>
             </tr>
 
             <!-- If form data is not an array -->
@@ -228,10 +227,12 @@ import Loader from '@moreillon/vue_loader'
 import Modal from '@moreillon/vue_modal'
 import GroupPicker from '@moreillon/vue_group_picker'
 
-import DownloadIcon from 'vue-material-design-icons/Download.vue';
-import MagnifyIcon from 'vue-material-design-icons/Magnify.vue';
-import CheckIcon from 'vue-material-design-icons/Check.vue';
-import CloseIcon from 'vue-material-design-icons/Close.vue';
+import DownloadIcon from 'vue-material-design-icons/Download.vue'
+import MagnifyIcon from 'vue-material-design-icons/Magnify.vue'
+import CheckIcon from 'vue-material-design-icons/Check.vue'
+import CloseIcon from 'vue-material-design-icons/Close.vue'
+import DeleteIcon from 'vue-material-design-icons/Delete.vue'
+import AccountMultiplePlusIcon from 'vue-material-design-icons/AccountMultiplePlus.vue'
 
 import PdfViewer from '@/components/PdfViewer.vue'
 
@@ -247,10 +248,14 @@ export default {
     Modal,
     GroupPicker,
     PdfViewer,
+
+    // Icons
     DownloadIcon,
     MagnifyIcon,
     CheckIcon,
     CloseIcon,
+    DeleteIcon,
+    AccountMultiplePlusIcon,
   },
   mounted () {
     this.get_application()
@@ -377,17 +382,14 @@ ${window.location.origin}/show_application?id=${this.application.identity.low}%0
         })
     },
     reject (application_id) {
-      if (confirm('ホンマ？')) {
-        var reason = prompt('なぜ？', '')
+      if (!confirm('ホンマ？')) return
+      let reason = prompt('なぜ？', '')
+      if(!reason) return
 
-        if (reason) {
-          let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.$route.query.id}/reject`
-
-          this.axios.post(url, { reason: reason })
-            .then(() => this.get_approval_flow())
-            .catch(() => alert('Error rejecting application'))
-        }
-      }
+      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.$route.query.id}/reject`
+      this.axios.post(url, { reason: reason })
+        .then(() => this.get_approval_flow())
+        .catch(() => alert('Error rejecting application'))
     },
     update_privacy_of_application () {
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/privacy`
@@ -609,12 +611,23 @@ ${window.location.origin}/show_application?id=${this.application.identity.low}%0
   width: 75vw;
 }
 
-.group {
+.visibility_group {
   display: flex;
   justify-content: center;
+  align-items: center;
+  padding: 0.25em;
 }
+
+.visibility_group:not(:last-child) {
+  border-bottom: 1px solid #dddddd;
+}
+
 .growing_spacer {
   flex-grow: 1;
+}
+
+.visibility_group_add_button_wrapper{
+  margin-top: 0.25em;
 }
 
 </style>

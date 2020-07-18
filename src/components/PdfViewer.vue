@@ -4,9 +4,26 @@
     <p>Thanks to 内野さん for suggesting this feature!</p>
 
     <div class="pdf_actions_wrapper">
-      <button type="button" @click="page_number --" :disabled="page_number <= 0">`Previous page</button>
-      <button type="button" @click="download_pdf()">Download</button>
-      <button type="button" @click="page_number ++" :disabled="page_number+1 >= page_count">Next page</button>
+
+      <arrow-left-icon
+        @click="previous_page()"
+        :class="{disabled: page_number <= 0, clickable: page_number > 0}"/>
+
+      <select class="" v-model="page_number">
+        <option
+        v-for="n in page_count"
+        :value="n-1">{{n}}</option>
+      </select>
+
+
+      <download-icon
+        class="clickable"
+        v-on:click="download_pdf()"/>
+
+      <arrow-right-icon
+        @click="next_page()"
+        :class="{disabled: (page_number+1) >= page_count, clickable: (page_number+1) < page_count}"/>
+
     </div>
 
     <div
@@ -19,8 +36,7 @@
       <pdf
         :page="page_number+1"
         :src="shown_pdf"
-        @num-pages="page_count_event"
-        />
+        @num-pages="page_count_event"/>
 
       <div
         class="new_hanko_overlay"
@@ -46,10 +62,22 @@
 import { PDFDocument } from 'pdf-lib';
 import pdf from 'vue-pdf'
 
+// Icons
+import DownloadIcon from 'vue-material-design-icons/Download.vue'
+import ArrowLeftIcon from 'vue-material-design-icons/ArrowLeft.vue'
+import ArrowRightIcon from 'vue-material-design-icons/ArrowRight.vue'
+
+
 export default {
   name: 'PdfViewer',
   components: {
     pdf,
+
+    // Icons
+    DownloadIcon,
+    ArrowLeftIcon,
+    ArrowRightIcon,
+
   },
   props: {
     selected_file_id: String,
@@ -95,6 +123,12 @@ export default {
     page_count_event(page_count){
       if(page_count) this.page_count = page_count
     },
+    next_page(){
+      if(this.page_number+1 < this.page_count) this.page_number ++
+    },
+    previous_page(){
+      if(this.page_number > 0) this.page_number --
+    },
     view_pdf(file_id){
 
       // Check if IE
@@ -107,8 +141,8 @@ export default {
       // Reset page number
       this.page_number = 0
 
-      // TODO: CHANGE THIS URL
-      let file_url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/files/${file_id}?application_id=${this.application_id}`
+      // Load the file as an arrayBuffer
+      let file_url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/files/${file_id}`
       fetch(file_url, {
         headers: new Headers({
           'Authorization': `Bearer ${this.$cookies.get('jwt')}`,
@@ -337,7 +371,7 @@ export default {
       let pdf_blob = new Blob([this.shown_pdf], { type: 'application/pdf' })
       const link = document.createElement('a')
       link.href = URL.createObjectURL(pdf_blob)
-      link.download = 'output'
+      link.download = this.selected_file_id
       link.click()
       URL.revokeObjectURL(link.href)
 
@@ -374,9 +408,22 @@ export default {
 }
 
 .pdf_actions_wrapper {
-  text-align: center;
-  margin: 1em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
+}
+
+.pdf_actions_wrapper > * {
+  margin: 1em;
+}
+
+.disabled {
+  color: #aaaaaa;
+}
+
+.clickable {
+  cursor: pointer;
 }
 
 </style>
