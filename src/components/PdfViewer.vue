@@ -3,8 +3,10 @@
     <h1>PDF viewer</h1>
     <p>Thanks to 内野さん for suggesting this feature!</p>
 
-    <div class="pdf_download_button">
+    <div class="pdf_actions_wrapper">
+      <button type="button" @click="page_number --" :disabled="page_number <= 0">`Previous page</button>
       <button type="button" @click="download_pdf()">Download</button>
+      <button type="button" @click="page_number ++" :disabled="page_number+1 >= page_count">Next page</button>
     </div>
 
     <div
@@ -14,7 +16,11 @@
       @click="pdf_clicked($event)">
 
 
-      <pdf :src="shown_pdf" />
+      <pdf
+        :page="page_number+1"
+        :src="shown_pdf"
+        @num-pages="page_count_event"
+        />
 
       <div
         class="new_hanko_overlay"
@@ -52,7 +58,10 @@ export default {
   data(){
     return {
       load_error: null,
-      // Stamping pdfs
+
+      page_number: 0,
+      page_count: 1,
+
       pdfDoc: null,
       shown_pdf: null,
 
@@ -82,13 +91,20 @@ export default {
     }
   },
   methods: {
+    page_count_event(page_count){
+      if(page_count) this.page_count = page_count
+    },
     view_pdf(file_id){
 
+      // Check if IE
       if (!!window.MSInputMethodContext && !!document.documentMode) {
-        this.load_error = 'This feature only supports .pdf files'
+        this.load_error = 'Internet Explorer is to old for this feature'
         alert('Internet Explorerのユーザーはこの機能に値しません、今の時代のブラウザを使ってください。')
         return
       }
+
+      // Reset page number
+      this.page_number = 0
 
       // TODO: CHANGE THIS URL
       let file_url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/files/${file_id}?application_id=${this.application_id}`
@@ -182,6 +198,7 @@ export default {
 
           // Draw every hanko
           approval.properties.attachment_hankos.forEach(async (hanko) => {
+            // Skip if hanko is not part of the current file
             if(hanko.file_id !== this.selected_file_id) return resolve()
 
             const page = pages[hanko.page_number]
@@ -260,13 +277,12 @@ export default {
 
 
       let approval_id = approval.identity.low
-      let page_number = 0
 
 
       if(!confirm(`Apply Hanko here?`)) return
 
       const pages = this.pdfDoc.getPages()
-      const page = pages[page_number]
+      const page = pages[this.page_number]
       const { width, height } = page.getSize()
 
       const wrapper_width = this.$refs.pdf_container.offsetWidth
@@ -285,7 +301,7 @@ export default {
 
       let attachment_hanko = {
         file_id: this.selected_file_id,
-        page_number: page_number,
+        page_number: this.page_number,
         position: {
           x: position_x,
           y: position_y,
@@ -347,7 +363,7 @@ export default {
   z-index: 3;
 }
 
-.pdf_download_button {
+.pdf_actions_wrapper {
   text-align: center;
   margin: 1em;
 
