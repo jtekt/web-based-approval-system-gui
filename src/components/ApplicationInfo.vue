@@ -140,28 +140,7 @@
 
     </table>
 
-    <!-- actions at the bottom: Delete or duplicate-->
-    <div
-      class="actions_container"
-      v-if="user_is_applicant">
 
-      <button
-        type="button"
-        class="bordered"
-        @click="delete_application()">
-        <delete-icon />
-        <span>削除 / Delete</span>
-      </button>
-
-      <button
-        type="button"
-        class="bordered"
-        @click="edit_a_copy()">
-        <content-duplicate-icon />
-        <span>複製 / Duplicate</span>
-      </button>
-
-    </div>
 
     <!-- Model used for group visibility -->
     <Modal :open="modal_open" @close="modal_open=false">
@@ -189,7 +168,6 @@ import DownloadIcon from 'vue-material-design-icons/Download.vue'
 import MagnifyIcon from 'vue-material-design-icons/Magnify.vue'
 import AccountMultiplePlusIcon from 'vue-material-design-icons/AccountMultiplePlus.vue'
 import DeleteIcon from 'vue-material-design-icons/Delete.vue'
-import ContentDuplicateIcon from 'vue-material-design-icons/ContentDuplicate.vue'
 import CheckIcon from 'vue-material-design-icons/Check.vue'
 import CloseIcon from 'vue-material-design-icons/Close.vue'
 
@@ -203,7 +181,6 @@ export default {
     MagnifyIcon,
     AccountMultiplePlusIcon,
     DeleteIcon,
-    ContentDuplicateIcon,
     CheckIcon,
     CloseIcon,
   },
@@ -252,16 +229,7 @@ export default {
         .then(() => {})
         .catch(() => alert('Error updating privacy of application'))
     },
-    delete_application () {
-      if (!confirm('ホンマ？')) return
-      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}`
-      this.axios.delete(url)
-        .then(() => this.$router.push('/'))
-        .catch(() => alert(`Error deleting application`))
-    },
-    edit_a_copy () {
-      this.$router.push({ path: '/create_application', query: { copy_of: this.application.identity.low } })
-    },
+
     download_attachment (id) {
       window.location.href = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/files/${id}`
     },
@@ -309,30 +277,10 @@ export default {
   border-top: 1px solid #dddddd;
 }
 
-.actions_container {
-  margin-top: 25px;
-  margin-bottom: 10px;
-  display: flex;
-  justify-content: space-around;
-}
 
-.action_button{
-  border: 1px solid #444444;
-  border-radius: 5px;
-  padding: 5px;
-  font-size: 120%;
-  cursor: pointer;
-  transition: color 0.25s border-color 0.25s;
-}
 
-.action_button:hover {
-  color: #c00000;
-  border-color: #c00000;
-}
 
-.download_button{
-  cursor: pointer;
-}
+
 
 .group_picker_wrapper {
   height: 50vh;

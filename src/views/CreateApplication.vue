@@ -374,7 +374,7 @@ ${window.location.origin}/show_application?id=${application_id}%0D%0A
 確認お願いします。%0D%0A
             `
 
-            this.$router.push({ path: '/' })
+            this.$router.push({ path: '/show_application', query: {id: application_id} })
           })
           .catch(error => alert(error))
       } else alert('There are missing items in this application form')

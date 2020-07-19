@@ -1,6 +1,6 @@
 <template>
   <div class="rejection" >
-    <close-circle-outline-icon size="70px"/>
+    <close-circle-outline-icon :size="70"/>
   </div>
 </template>
 

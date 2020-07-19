@@ -1,10 +1,11 @@
 <template>
   <div class="web_hanko_container">
 
+    <!-- recipient name -->
     <a
       :href="user_profile_url"
       class="hanko_container_header">
-      {{recipient.properties.last_name}}
+      {{recipient.properties.last_name || recipient.properties.family_name_kanji}}
     </a>
 
     <div class="hanko_area">
@@ -22,27 +23,24 @@
     </div>
 
     <div class="toolbox" v-if="show_toolbox">
-      <div class="approval_controls">
-        <check-icon class="approval_control approve_button" v-on:click="$emit('approve')"/>
-        <close-icon class="approval_control disapprove_button" v-on:click="$emit('reject')"/>
-      </div>
+      <check-icon class="approval_control approve_button" v-on:click="$emit('approve')"/>
+      <close-icon class="approval_control disapprove_button" v-on:click="$emit('reject')"/>
     </div>
-    <div class="toolbox" v-else-if="is_next_recipient">
-      <div class="approval_controls">
-        <email-icon class="approval_control" @click="send_email()"/>
-      </div>
+    <div class="toolbox"
+      v-else-if="is_next_recipient && !this.rejection">
+      <email-icon class="approval_control" @click="send_email()"/>
     </div>
-
   </div>
+
 </template>
 
 <script>
 import WebHanko from './WebHanko.vue'
 import Rejection from './Rejection.vue'
 
-import CheckIcon from 'vue-material-design-icons/Check.vue';
-import CloseIcon from 'vue-material-design-icons/Close.vue';
-import EmailIcon from 'vue-material-design-icons/Email.vue';
+import CheckIcon from 'vue-material-design-icons/Check.vue'
+import CloseIcon from 'vue-material-design-icons/Close.vue'
+import EmailIcon from 'vue-material-design-icons/Email.vue'
 
 
 export default {
@@ -145,26 +143,19 @@ export default {
 }
 
 .hanko_area{
-
   height: 100px;
 }
 
 .toolbox{
   margin: 0 5px; /* to prevent border from going all the way accross */
   border-top: 1px solid #666666;
-}
-
-.approval_controls{
-  width: 100%;
-  height: 100%;
-
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: stretch;
 }
 
-.approval_controls .approval_control {
+.toolbox .approval_control {
   flex-grow: 1;
 
   font-size: 120%;

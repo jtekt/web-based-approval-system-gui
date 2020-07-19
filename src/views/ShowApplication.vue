@@ -4,36 +4,86 @@
     <template v-if="!loading && !error">
       <div class="application_container" v-if="application">
 
-        <!-- information about the application form -->
-        <ApplicationInfo
-          :application="application"
-          :applicant="applicant"
-          @view_pdf="view_pdf($event)"/>
+        <div class="two_column_layout">
 
-        <!-- area with the hankos -->
-        <div class="approval_flow_column">
-          <div class="approval_flow" >
+          <!-- information about the application form -->
+          <ApplicationInfo
+            :application="application"
+            :applicant="applicant"
+            @view_pdf="view_pdf($event)"/>
 
-            <!-- inner wrapper exists so that arrows can be placed between hanko containers -->
-            <template
-              v-for="(recipient_record, index) in recipient_records">
+          <!-- area with the hankos -->
+          <div class="approval_flow_column">
+            <div class="approval_flow" >
 
-              <arrow-left-icon
-                class="arrow"
-                v-if="index>0"/>
+              <!-- inner wrapper exists so that arrows can be placed between hanko containers -->
+              <template
+                v-for="(recipient_record, index) in recipient_records">
 
-              <WebHankoContainer
-                v-bind:applicationRecord="recipient_record"
-                v-on:approve="approve(application.identity.low)"
-                v-on:reject="reject(application.identity.low)"
-                v-bind:is_next_recipient="is_next_recipient(recipient_record)"
-                @send_email="send_email($event)"/>
-            </template>
+                <arrow-left-icon
+                  class="arrow"
+                  v-if="index>0"/>
+
+                <WebHankoContainer
+                  v-bind:applicationRecord="recipient_record"
+                  v-on:approve="approve(application.identity.low)"
+                  v-on:reject="reject(application.identity.low)"
+                  v-bind:is_next_recipient="is_next_recipient(recipient_record)"
+                  @send_email="send_email($event)"/>
+              </template>
+
+            </div>
+
+            <!-- area for refusals reasons -->
+            <RefusalReason :recipient_records="recipient_records"/>
 
           </div>
+        </div>
 
-          <!-- area for refusals reasons -->
-          <RefusalReason :recipient_records="recipient_records"/>
+
+
+        <!-- actions at the bottom: Delete or duplicate-->
+        <div
+          class="actions_container">
+
+          <!-- deletion and duplication buttons -->
+          <template v-if="user_is_applicant">
+            <button
+              type="button"
+              class="bordered"
+              @click="delete_application()">
+              <delete-icon />
+              <span>削除 / Delete</span>
+            </button>
+
+            <button
+              type="button"
+              class="bordered"
+              @click="edit_a_copy()">
+              <content-duplicate-icon />
+              <span>複製 / Duplicate</span>
+            </button>
+          </template>
+
+
+
+          <template v-if="user_is_next_recipient">
+            <button
+              type="button"
+              class="bordered approve_button"
+              @click="approve()">
+              <check-icon />
+              <span>承認 / Approve</span>
+            </button>
+
+            <button
+              type="button"
+              class="bordered refuse_button"
+              @click="reject()">
+              <close-icon />
+              <span>拒否 / Refuse</span>
+            </button>
+          </template>
 
         </div>
 
@@ -71,8 +121,10 @@ import RefusalReason from '@/components/RefusalReason.vue'
 import ApplicationInfo from '@/components/ApplicationInfo.vue'
 
 import ArrowLeftIcon from 'vue-material-design-icons/ArrowLeft.vue'
-
-
+import DeleteIcon from 'vue-material-design-icons/Delete.vue'
+import ContentDuplicateIcon from 'vue-material-design-icons/ContentDuplicate.vue'
+import CheckIcon from 'vue-material-design-icons/Check.vue'
+import CloseIcon from 'vue-material-design-icons/Close.vue'
 
 
 
@@ -87,7 +139,11 @@ export default {
     ApplicationInfo,
 
     // Icons
-    ArrowLeftIcon
+    ArrowLeftIcon,
+    DeleteIcon,
+    ContentDuplicateIcon,
+    CheckIcon,
+    CloseIcon,
   },
   mounted () {
     this.get_application()
@@ -150,7 +206,7 @@ export default {
         .catch((error) => console.log(error))
     },
 
-    approve (application_id) {
+    approve () {
       // ask for confirmation
       if (!confirm('ホンマ？')) return
 
@@ -161,26 +217,15 @@ export default {
           // Refresh the approval flow
           this.get_approval_flow()
 
-          // Code to send email
-          let next_recipient_record = this.recipient_records.find(record => {
-            let recipient = record._fields[record._fieldLookup['submitted_to']]
-            return recipient.properties.flow_index.low === this.approval_count + 1
-          })
-
-          if (!next_recipient_record) return
-          let next_recipient = next_recipient_record._fields[next_recipient_record._fieldLookup['recipient']]
-
+          // Send an email
+          let next_recipient = this.next_recipient
+          if(!next_recipient) return
           this.send_email(next_recipient)
 
-
-
         })
-        .catch((error) => {
-          console.error(error)
-          alert(`Error approving application`)
-        })
+        .catch((error) => {alert(`Error approving application`)})
     },
-    reject (application_id) {
+    reject () {
       if (!confirm('ホンマ？')) return
       let reason = prompt('なぜ？', '')
       if(!reason) return
@@ -189,6 +234,16 @@ export default {
       this.axios.post(url, { reason: reason })
         .then(() => this.get_approval_flow())
         .catch(() => alert('Error rejecting application'))
+    },
+    delete_application () {
+      if (!confirm('ホンマ？')) return
+      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}`
+      this.axios.delete(url)
+        .then(() => this.$router.push('/'))
+        .catch(() => alert(`Error deleting application`))
+    },
+    edit_a_copy () {
+      this.$router.push({ path: '/create_application', query: { copy_of: this.application.identity.low } })
     },
 
     is_next_recipient (recipient_record) {
@@ -221,9 +276,34 @@ ${this.application.properties.type}を提出しました。 %0D%0A
         return approval_count + !!e._fields[e._fieldLookup['approval']]
       }, 0)
     },
+    current_recipient(){
+      let next_recipient_record = this.recipient_records.find(record => {
+        let recipient = record._fields[record._fieldLookup['submitted_to']]
+        return recipient.properties.flow_index.low === this.approval_count
+      })
+
+      if (!next_recipient_record) return null
+      return next_recipient_record._fields[next_recipient_record._fieldLookup['recipient']]
+    },
+    next_recipient(){
+      let next_recipient_record = this.recipient_records.find(record => {
+        let recipient = record._fields[record._fieldLookup['submitted_to']]
+        return recipient.properties.flow_index.low === this.approval_count + 1
+      })
+
+      if (!next_recipient_record) return null
+      return next_recipient_record._fields[next_recipient_record._fieldLookup['recipient']]
+    },
 
     user_is_applicant () {
       return this.applicant.identity.low === this.$store.state.current_user.identity.low
+    },
+    user_is_next_recipient(){
+      let user_id = this.$store.state.current_user.identity.low
+      let next_recipient = this.current_recipient
+      if(!next_recipient) return false
+      if(next_recipient.identity.low === user_id) return true
+      else return false
     }
 
   }
@@ -242,19 +322,19 @@ ${this.application.properties.type}を提出しました。 %0D%0A
   border: 1px solid #444444;
   border-radius: 5px;
 
-  padding: 5px;
+  padding: 0.5em;
+}
 
+.two_column_layout {
   display: flex;
   flex-wrap: wrap-reverse; /* THIS IS BRILLIANT */
 }
 
-.application_container > * {
+.two_column_layout > * {
   flex-grow: 1;
   flex-shrink: 1;
   flex-basis: 400px;
 }
-
-
 
 /* Hanko area */
 .approval_flow_column {
@@ -278,14 +358,37 @@ ${this.application.properties.type}を提出しました。 %0D%0A
 }
 
 
-
-/* MISC */
 .not_found {
   padding: 25px;
   text-align: center;
 }
 
+.actions_container {
+  margin-top: 25px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-around;
+}
 
+.approve_button {
+  color: #00c000;
+  border-color: #00c000;
+}
 
+.approve_button:hover {
+  color: white;
+  background-color: #00c000;
+  border-color: #00c000;
+}
+.refuse_button {
+  color: #c00000;
+  border-color: #c00000;
+}
+
+.refuse_button:hover {
+  color: white;
+  background-color: #c00000;
+  border-color: #c00000;
+}
 
 </style>
