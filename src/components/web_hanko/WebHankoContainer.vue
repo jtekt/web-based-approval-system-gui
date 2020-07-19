@@ -1,12 +1,11 @@
 <template>
   <div class="web_hanko_container">
 
-    <!-- PUT A LINK HERE AND NOT A onclick-->
-    <div
-      class="hanko_container_header"
-      v-on:click="view_profile(recipient)">
+    <a
+      :href="user_profile_url"
+      class="hanko_container_header">
       {{recipient.properties.last_name}}
-    </div>
+    </a>
 
     <div class="hanko_area">
 
@@ -23,20 +22,15 @@
     </div>
 
     <div class="toolbox" v-if="show_toolbox">
-      <div
-        class="approval_controls">
+      <div class="approval_controls">
         <check-icon class="approval_control approve_button" v-on:click="$emit('approve')"/>
         <close-icon class="approval_control disapprove_button" v-on:click="$emit('reject')"/>
       </div>
-
-      <!-- cancel of decision (no longer possible -->
-      <!--
-      <div
-        class="approval_controls" v-else>
-        <span class="mdi mdi-cancel cancel_button" v-on:click="$emit('cancel')"/>
+    </div>
+    <div class="toolbox" v-else-if="is_next_recipient">
+      <div class="approval_controls">
+        <email-icon class="approval_control" @click="send_email()"/>
       </div>
-      -->
-
     </div>
 
   </div>
@@ -48,6 +42,7 @@ import Rejection from './Rejection.vue'
 
 import CheckIcon from 'vue-material-design-icons/Check.vue';
 import CloseIcon from 'vue-material-design-icons/Close.vue';
+import EmailIcon from 'vue-material-design-icons/Email.vue';
 
 
 export default {
@@ -57,19 +52,20 @@ export default {
     Rejection,
     CheckIcon,
     CloseIcon,
+    EmailIcon,
   },
   props: {
     applicationRecord: { type: Object, required: true },
-    hankoable: { type: Boolean, default () { return true } }
+    is_next_recipient: { type: Boolean, default () { return true } }
   },
   data () {
     return {
-      approval_status: undefined
+      approval_status: undefined,
     }
   },
   methods: {
-    view_profile (recipient) {
-      window.location.href = `${process.env.VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/?id=${recipient.identity.low}`
+    send_email(){
+      this.$emit('send_email', this.recipient)
     }
   },
   computed: {
@@ -89,10 +85,14 @@ export default {
       return this.applicationRecord._fields[this.applicationRecord._fieldLookup['application']]
     },
     show_toolbox () {
+      // If the user is a recipient that has not approved or rejected the application and also is next recipient
       return this.$store.state.current_user.identity.low === this.recipient.identity.low &&
         !this.approval &&
         !this.rejection &&
-        this.hankoable
+        this.is_next_recipient
+    },
+    user_profile_url () {
+      return `${process.env.VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/?id=${this.recipient.identity.low}`
     }
   }
 }
@@ -123,6 +123,9 @@ export default {
 }
 
 .hanko_container_header {
+  display: block;
+  color: currentColor;
+  text-decoration: none;
   text-align: center;
   font-size: 80%;
 
@@ -144,6 +147,11 @@ export default {
 .hanko_area{
 
   height: 100px;
+}
+
+.toolbox{
+  margin: 0 5px; /* to prevent border from going all the way accross */
+  border-top: 1px solid #666666;
 }
 
 .approval_controls{
@@ -190,9 +198,6 @@ export default {
   color: white;
 }
 
-.toolbox{
-  margin: 0 5px; /* to prevent border from going all the way accross */
-  border-top: 1px solid #666666;
-}
+
 
 </style>

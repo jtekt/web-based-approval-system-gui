@@ -1,55 +1,58 @@
 <template>
   <div class="pdf_wrapper">
     <h1>PDF viewer</h1>
-    <p>Thanks to 内野さん for suggesting this feature!</p>
 
-    <div class="pdf_actions_wrapper">
+    <template v-if="shown_pdf"->
+      <div class="pdf_actions_wrapper">
 
-      <arrow-left-icon
-        @click="previous_page()"
-        :class="{disabled: page_number <= 0, clickable: page_number > 0}"/>
+        <arrow-left-icon
+          @click="previous_page()"
+          :class="{disabled: page_number <= 0, clickable: page_number > 0}"/>
 
-      <select class="" v-model="page_number">
-        <option
-        v-for="n in page_count"
-        :value="n-1">{{n}}</option>
-      </select>
-
-
-      <download-icon
-        class="clickable"
-        v-on:click="download_pdf()"/>
-
-      <arrow-right-icon
-        @click="next_page()"
-        :class="{disabled: (page_number+1) >= page_count, clickable: (page_number+1) < page_count}"/>
-
-    </div>
-
-    <div
-      v-if="shown_pdf"
-      class="pdf_container"
-      ref="pdf_container"
-      @click="pdf_clicked($event)">
+        <select class="" v-model="page_number">
+          <option
+          v-for="n in page_count"
+          :value="n-1">{{n}}</option>
+        </select>
 
 
-      <pdf
-        :page="page_number+1"
-        :src="shown_pdf"
-        @num-pages="page_count_event"/>
+        <download-icon
+          class="clickable"
+          v-on:click="download_pdf()"/>
+
+        <arrow-right-icon
+          @click="next_page()"
+          :class="{disabled: (page_number+1) >= page_count, clickable: (page_number+1) < page_count}"/>
+
+      </div>
 
       <div
-        class="new_hanko_overlay"
-        @mouseleave="hide_new_hanko()"
-        @mousemove="update_new_hanko_position($event)"/>
+        class="pdf_container"
+        ref="pdf_container"
+        @click="pdf_clicked($event)">
 
-      <img
-        v-if="new_hanko.src"
-        v-bind:style="new_hanko.style"
-        class="new_hanko"
-        :src="new_hanko.src" alt="">
 
-    </div>
+        <pdf
+          :page="page_number+1"
+          :src="shown_pdf"
+          @num-pages="page_count_event"/>
+
+        <div
+          class="new_hanko_overlay"
+          @mouseleave="hide_new_hanko()"
+          @mousemove="update_new_hanko_position($event)"/>
+
+        <img
+          v-if="new_hanko.src"
+          v-bind:style="new_hanko.style"
+          class="new_hanko"
+          :src="new_hanko.src" alt="">
+
+      </div>
+
+      <p>Thanks to 内野さん for suggesting this feature!</p>
+
+    </template>
 
     <div class="" v-if="load_error">
       {{load_error}}
