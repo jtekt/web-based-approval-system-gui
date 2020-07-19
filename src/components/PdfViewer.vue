@@ -329,8 +329,7 @@ export default {
 
       let approval_id = approval.identity.low
 
-      this.$nextTick()
-      .then(() => {
+      setTimeout(() => {
         if(!confirm(`Apply Hanko here?`)) return
 
         const pages = this.pdfDoc.getPages()
@@ -374,7 +373,8 @@ export default {
           console.log(error)
           alert(error)
         })
-      })
+      }, 50)
+
 
     },
     download_pdf(){
