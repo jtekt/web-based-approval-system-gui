@@ -3,11 +3,15 @@
     <h1>フォームテンプレート / Form templates</h1>
     <!-- add button -->
     <div class="add_button_wrapper">
-      <IconButton
-        v-on:clicked="new_template()"
-        icon="mdi-plus"
-        bordered >
-        新しい申請フォーム / New application form</IconButton>
+
+      <button
+        type="button"
+        class="bordered"
+        @click="new_template()">
+        <plus-icon />
+        <span>新しい申請フォーム / New application form</span>
+       </button>
+
     </div>
 
     <table class="templates_table">
@@ -42,12 +46,15 @@
 </template>
 
 <script>
+import PlusIcon from 'vue-material-design-icons/Plus.vue'
+
 import IconButton from '@/components/IconButton.vue'
 
 export default {
   name: 'EditApplicationTemplate',
   components: {
-    IconButton
+    IconButton,
+    PlusIcon
   },
   data () {
     return {

@@ -2,162 +2,182 @@
   <div class="">
     <h1>フォーム / Forms</h1>
 
+
+    
+
     <!-- template is editable if new form of if current user is author -->
     <template v-if="is_editable">
 
-      <div class="fields_wrapper">
-        <h2>フォームデータ / Form data</h2>
+      <h2>フォームデータ / Form data</h2>
 
-        <div class="template_metadata_wrapper">
-          <div class="title_wrapper">
-            <label for="">イトル / Title</label>
-            <input type="text" v-model="label" placeholder="タイトル / Title">
-          </div>
-
-          <div class="description_wrapper">
-            <label for="">説明 / Description</label>
-            <textarea rows="8" v-model="description"/>
-          </div>
+      <div class="template_metadata_wrapper">
+        <div class="title_wrapper">
+          <label for="">イトル / Title</label>
+          <input type="text" v-model="label" placeholder="タイトル / Title">
         </div>
 
-        <!-- fields -->
-        <div class="template_fields_wrapper">
-          <h3>フィールド / Fields</h3>
-          <div class="field" v-for="(field, index) in fields">
+        <div class="description_wrapper">
+          <label for="">説明 / Description</label>
+          <textarea rows="8" v-model="description"/>
+        </div>
+      </div>
 
-            <div class="">
-              <label for="">ラベル / Label</label>
+      <!-- fields -->
+      <h3>フィールド / Fields</h3>
+      <template v-if="fields.length > 0">
+
+        <table class="fields_table">
+          <tr>
+            <th>ラベル / Label</th>
+            <th>タイプ / Type</th>
+            <th class="delete_cell">削除 / Delete</th>
+          </tr>
+          <tr
+            v-for="(field, index) in fields"
+            v-bind:key="`field_${index}`">
+
+            <!-- Field label input -->
+            <td>
               <input type="text" v-model="field.label" placeholder="例：パソコン番号">
-            </div>
+            </td>
 
-            <div class="">
-              <label for="">タイプ / Type</label>
+            <!-- Field type select -->
+            <td>
               <select class="" v-model="field.type">
                 <option
                   v-for="field_type in field_types"
                   v-bind:value="field_type.type">{{field_type.label}}</option>
               </select>
-            </div>
+            </td>
 
-            <!-- Button to edit a field -->
-            <delete-icon
-              v-on:click="delete_field(index)"/>
+            <!-- Delete field -->
+            <td class="delete_cell">
+              <button
+                type="button"
+                @click="delete_field(index)">
+                <delete-icon />
+              </button>
+            </td>
 
+          </tr>
+        </table>
 
-          </div>
-        </div>
-
-        <div class="buttons_wrapper">
-          <IconButton
-            class="add_field_button"
-            v-on:clicked="add_field()"
-            icon="mdi-add"
-            bordered>
-            フィールド作成 / Add field</IconButton>
-        </div>
-
-      </div>
-
-      <div class="">
-        <h2>共有 / sharing</h2>
-
-        <div class="picker_wrapper">
-          <GroupPicker
-            class="corporate_structure"
-            :apiUrl="picker_api_url"
-            v-on:selection="add_to_groups($event)"/>
-        </div>
-
-        <!-- DIRTY to use p but for now it'll do -->
-        <p class="">
-          このフォームがこちらのグループと共有されます / This form will be shared with the following:
-        </p>
-
-        <div class="groups_wrapper" v-if="groups.length > 0">
-          <div class="group"
-            v-for="(group, index) in groups"
-            v-bind:key="group.identity.low">
-            <span>{{group.properties.name}}</span>
-            <button type="button" v-on:click="delete_group(index)">delete</button>
-
-          </div>
-        </div>
-        <div class="error_message" v-else>
-          Template must be shared with at least one group
-        </div>
-
+      </template>
+      <div class="" v-else>
+        No fields
       </div>
 
       <div class="buttons_wrapper">
 
-        <IconButton
-          v-on:clicked="submit()"
-          icon="mdi-content-save"
-          :disabled="groups.length === 0"
-          bordered>
-          保存 / Save</IconButton>
+        <button
+          type="button"
+          class="bordered"
+          @click="add_field()">
+          <plus-icon />
+          <span>フィールド作成 / Add field</span>
+        </button>
+      </div>
 
-        <IconButton
-          v-on:clicked="delete_template()"
+
+      <h2>共有 / sharing</h2>
+
+      <div class="picker_wrapper">
+        <GroupPicker
+          class="corporate_structure"
+          :apiUrl="picker_api_url"
+          v-on:selection="add_to_groups($event)"/>
+      </div>
+
+      <!-- DIRTY to use p but for now it'll do -->
+      <p class="">
+        このフォームがこちらのグループと共有されます / This form will be shared with the following:
+      </p>
+
+      <div class="groups_wrapper" v-if="groups.length > 0">
+        <div class="group"
+          v-for="(group, index) in groups"
+          v-bind:key="group.identity.low">
+          <span>{{group.properties.name}}</span>
+
+          <button type="button"
+            @click="delete_group(group)">
+            <delete-icon />
+          </button>
+
+        </div>
+      </div>
+      <div class="error_message" v-else>
+        Template must be shared with at least one group
+      </div>
+
+
+      <div class="buttons_wrapper">
+
+        <button
+          type="button"
+          class="bordered"
+          :disabled="groups.length === 0 || fields.length === 0"
+          @click="submit()">
+          <content-save-icon />
+          <span>保存 / Save</span>
+        </button>
+
+        <button
+          type="button"
+          class="bordered"
           v-if="!!$route.query.id"
-          icon="mdi-delete"
-          bordered>
-          削除 / Delete</IconButton>
+          @click="delete_template()">
+          <delete-icon />
+          <span>削除 / Delete</span>
+        </button>
 
       </div>
     </template>
 
     <!-- view for people who do not own the template -->
     <template v-else>
-      <div class="">
-        <h2>{{label}}</h2>
+      <h2>{{label}}</h2>
 
-        <div class="template_metadata_wrapper">
-          <div class="author_wrapper" v-if="author">
-            <label for="">Author</label>
-            <div class="">
-              {{author.properties.username}}
-            </div>
-          </div>
-
-          <div class="description_wrapper">
-            <label for="">説明 / Description</label>
-            <textarea rows="8" v-model="description" readonly/>
+      <div class="template_metadata_wrapper">
+        <div class="author_wrapper" v-if="author">
+          <label for="">Author</label>
+          <div class="">
+            {{author.properties.username}}
           </div>
         </div>
 
-        <!-- fields -->
-        <div class="">
-          <h3>フィールド / Fields</h3>
-          <table class="fields_table">
-            <tr>
-              <th>Label</th>
-              <th>Type</th>
-            </tr>
-            <tr v-for="field in fields">
-              <td>{{field.label}}</td>
-              <td>{{field.type}}</td>
-            </tr>
-          </table>
+        <div class="description_wrapper">
+          <label for="">説明 / Description</label>
+          <textarea rows="8" v-model="description" readonly/>
         </div>
-
-        <div class="">
-          <h2>共有 / sharing</h2>
-
-          <div class="groups_wrapper" v-if="groups.length > 0">
-            <div class="group"
-              v-for="(group, index) in groups"
-              v-bind:key="group.identity.low">
-              <span>{{group.properties.name}}</span>
-            </div>
-          </div>
-          <div class="" v-else>
-            共有無し / No sharing
-          </div>
-
-        </div>
-
       </div>
+
+      <!-- fields -->
+      <h3>フィールド / Fields</h3>
+      <table class="fields_table">
+        <tr>
+          <th>Label</th>
+          <th>Type</th>
+        </tr>
+        <tr v-for="field in fields">
+          <td>{{field.label}}</td>
+          <td>{{field.type}}</td>
+        </tr>
+      </table>
+
+      <h2>共有 / sharing</h2>
+      <div class="groups_wrapper" v-if="groups.length > 0">
+        <div class="group"
+          v-for="(group, index) in groups"
+          v-bind:key="group.identity.low">
+          <span>{{group.properties.name}}</span>
+        </div>
+      </div>
+      <div class="" v-else>
+        共有無し / No sharing
+      </div>
+
+
 
     </template>
 
@@ -171,13 +191,17 @@ import IconButton from '@/components/IconButton.vue'
 import GroupPicker from '@moreillon/vue_group_picker'
 
 import DeleteIcon from 'vue-material-design-icons/Delete.vue'
+import PlusIcon from 'vue-material-design-icons/Plus.vue'
+import ContentSaveIcon from 'vue-material-design-icons/ContentSave.vue'
 
 export default {
   name: 'ApplicationTemplate',
   components: {
     GroupPicker,
     IconButton,
-    DeleteIcon
+    DeleteIcon,
+    PlusIcon,
+    ContentSaveIcon,
   },
   data () {
     return {
@@ -196,8 +220,7 @@ export default {
 
       fields: [
         { type: 'text', label: '' },
-        { type: 'text', label: '' },
-        { type: 'text', label: '' }
+
       ],
 
       author: null
@@ -338,22 +361,6 @@ export default {
   flex-grow: 1;
 }
 
-.field {
-  display: flex;
-  margin: 1em 0;
-}
-
-.field:not(:last-child){
-  border-bottom: 1px solid #dddddd;
-}
-.field > * {
-  margin: 0 10px;
-  flex-grow: 1;
-}
-
-label {
-  margin-right: 10px;
-}
 
 .visibility_header{
   padding: 10px;
@@ -377,6 +384,14 @@ label {
 
 .fields_table tr:not(:first-child){
   border-top: 1px solid #dddddd;
+}
+
+.fields_table .delete_cell{
+  text-align: center;
+}
+.fields_table input,
+.fields_table select {
+  width: 100%;
 }
 
 .buttons_wrapper{

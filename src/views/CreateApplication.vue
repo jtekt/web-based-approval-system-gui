@@ -7,12 +7,14 @@
       <h2>承認フロー / Approval flow</h2>
 
       <!-- Employee picker -->
+      <h3>承認者選択 / Recipient selection</h3>
       <UserPicker
         class="picker"
         :apiUrl="picker_api_url"
         v-on:selection="add_to_recipients($event)"/>
 
       <!-- Approval flow -->
+      <h3>承認フロー / Current flow</h3>
       <ApprovalFlow
         class="flow_container"
         v-on:deleteEmployee="delete_recipient($event)"
@@ -22,7 +24,6 @@
 
     <div class="">
       <h2>申請内容 / Application content</h2>
-
     </div>
 
     <!-- test with user generated form selector -->
@@ -78,6 +79,7 @@
             <div
               class="visibility_groups_wrapper"
               v-if="groups.length > 0">
+
               <div
                 v-for="(group, group_index) in groups"
                 class="visibility_group"
@@ -89,8 +91,11 @@
 
                 <div class="growing_spacer"/>
 
-                <delete-icon
-                  v-on:click="delete_group(group_index)"/>
+                <button type="button"
+                  @click="delete_group(group_index)">
+                  <delete-icon />
+                </button>
+
 
 
               </div>
@@ -101,8 +106,11 @@
 
             <!-- Button to add a group to visibility -->
             <div class="visibility_group_add_button_wrapper">
-              <account-multiple-plus-icon
-                v-on:click="modal_open = true"/>
+              <button
+                type="button"
+                @click="modal_open = true">
+                <account-multiple-plus-icon />
+              </button>
             </div>
 
           </td>
@@ -137,17 +145,20 @@
             <td>
 
               <!-- file input when file is not selected -->
-              <input
-                v-if="field.type === 'file' && !field.value"
-                v-bind:type="field.type"
-                v-on:change="file_upload($event, field)">
+              <template v-if="field.type === 'file'">
+                <input
+                  v-if="!field.value"
+                  v-bind:type="field.type"
+                  v-on:change="file_upload($event, field)">
 
-              <!-- file input when file is selected -->
-              <delete-icon
-                v-else-if="field.type === 'file' && field.value"
-                class="file_delete_button"
-                v-on:click="delete_file(field)"/>
-
+                <!-- file input when file is selected -->
+                <button
+                  type="button"
+                  v-else-if="field.value"
+                  @click="delete_file(field)">
+                  <delete-icon />
+                </button>
+              </template/>
 
               <datepicker
                 v-else-if="field.type === 'date'"
@@ -168,12 +179,15 @@
 
     <div class="submit_button_container" >
 
-      <IconButton
-        v-on:clicked="create_application()"
-        icon="mdi-send"
-        bordered
-        v-bind:disabled="!form_valid">
-        送る / Send</IconButton>
+      <button
+        type="button"
+        class="bordered"
+        @click="create_application()"
+        :disabled="!form_valid">
+        <send-icon />
+        <span>送る / Send</span>
+      </button>
+
 
     </div>
 
@@ -202,10 +216,9 @@ import GroupPicker from '@moreillon/vue_group_picker'
 import Datepicker from 'vuejs-datepicker'
 import Modal from '@moreillon/vue_modal'
 
-
 import DeleteIcon from 'vue-material-design-icons/Delete.vue';
-import IconButton from '@/components/IconButton.vue'
 import AccountMultiplePlusIcon from 'vue-material-design-icons/AccountMultiplePlus.vue'
+import SendIcon from 'vue-material-design-icons/Send.vue';
 
 export default {
   name: 'CreateApplication',
@@ -216,9 +229,9 @@ export default {
     Datepicker,
     Modal,
 
-    IconButton,
     DeleteIcon,
     AccountMultiplePlusIcon,
+    SendIcon,
   },
 
   data () {
@@ -413,9 +426,10 @@ ${window.location.origin}/show_application?id=${application_id}%0D%0A
   },
   computed: {
     form_valid () {
-      return this.selected_form &&
-        this.recipients.length > 0 &&
-        this.title
+      return this.selected_form
+        && this.recipients.length > 0
+        && this.title
+        && this.selected_form.properties
     },
     picker_api_url () {
       return process.env.VUE_APP_GROUP_MANAGER_API_URL

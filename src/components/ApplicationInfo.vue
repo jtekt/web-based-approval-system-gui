@@ -61,8 +61,11 @@
               <template v-if="user_is_applicant">
                 <div class="growing_spacer"/>
 
-                <delete-icon
-                  v-on:click="remove_application_visibility_to_group(group)"/>
+                <button type="button"
+                  @click="remove_application_visibility_to_group(group)">
+                  <delete-icon />
+                </button>
+
 
               </template>
 
@@ -73,10 +76,15 @@
           </div>
 
           <!-- Button to add a group to visibility -->
-          <div class="visibility_group_add_button_wrapper">
-            <account-multiple-plus-icon
-              v-if="user_is_applicant"
-              v-on:click="modal_open = true"/>
+          <div
+            class="visibility_group_add_button_wrapper"
+            v-if="user_is_applicant">
+            <button
+              type="button"
+              @click="modal_open = true">
+              <account-multiple-plus-icon />
+            </button>
+
           </div>
 
         </td>
@@ -92,15 +100,22 @@
       <tr v-for="field in form_data" v-if="Array.isArray(form_data)">
         <td>{{field.label || 'Unnamed field'}}</td>
 
-        <td v-if="field.type === 'file' && field.value">
+        <td
+          class="file_actions_container"
+          v-if="field.type === 'file' && field.value">
 
-          <download-icon
-            v-on:click="download_attachment(field.value)"
-            class="download_button"/>
+          <button
+            type="button"
+            @click="download_attachment(field.value)">
+            <download-icon />
+          </button>
 
-          <magnify-icon
-            class="download_button"
-            @click="view_pdf(field.value)" />
+          <button
+            type="button"
+            @click="view_pdf(field.value)">
+            <magnify-icon />
+          </button>
+
 
         </td>
 
@@ -130,23 +145,28 @@
       class="actions_container"
       v-if="user_is_applicant">
 
-      <IconButton
-        v-on:clicked="delete_application()"
-        icon="mdi-delete"
-        bordered>
-        削除 / Delete</IconButton>
+      <button
+        type="button"
+        class="bordered"
+        @click="delete_application()">
+        <delete-icon />
+        <span>削除 / Delete</span>
+      </button>
 
-      <IconButton
-        v-on:clicked="edit_a_copy(application.identity.low)"
-        icon="mdi-content-duplicate"
-        bordered>
-        複製 / Duplicate</IconButton>
+      <button
+        type="button"
+        class="bordered"
+        @click="edit_a_copy()">
+        <content-duplicate-icon />
+        <span>複製 / Duplicate</span>
+      </button>
 
     </div>
 
+    <!-- Model used for group visibility -->
     <Modal :open="modal_open" @close="modal_open=false">
       <h2 class="">
-        Share application with a group
+        共有 / Visibility
       </h2>
       <div class="group_picker_wrapper">
         <GroupPicker
@@ -162,7 +182,6 @@
 <script>
 
 import Modal from '@moreillon/vue_modal'
-import IconButton from '@/components/IconButton.vue'
 import GroupPicker from '@moreillon/vue_group_picker'
 
 // Icons
@@ -170,6 +189,7 @@ import DownloadIcon from 'vue-material-design-icons/Download.vue'
 import MagnifyIcon from 'vue-material-design-icons/Magnify.vue'
 import AccountMultiplePlusIcon from 'vue-material-design-icons/AccountMultiplePlus.vue'
 import DeleteIcon from 'vue-material-design-icons/Delete.vue'
+import ContentDuplicateIcon from 'vue-material-design-icons/ContentDuplicate.vue'
 import CheckIcon from 'vue-material-design-icons/Check.vue'
 import CloseIcon from 'vue-material-design-icons/Close.vue'
 
@@ -179,12 +199,11 @@ export default {
     Modal,
     GroupPicker,
 
-    IconButton,
-
     DownloadIcon,
     MagnifyIcon,
     AccountMultiplePlusIcon,
     DeleteIcon,
+    ContentDuplicateIcon,
     CheckIcon,
     CloseIcon,
   },
@@ -337,6 +356,10 @@ export default {
 
 .visibility_group_add_button_wrapper{
   margin-top: 0.25em;
+}
+
+.file_actions_container > *:not(:last-child) {
+  margin-right: 1em;
 }
 
 </style>

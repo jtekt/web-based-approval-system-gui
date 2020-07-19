@@ -5,9 +5,12 @@
     <template v-if="shown_pdf"->
       <div class="pdf_actions_wrapper">
 
-        <arrow-left-icon
+        <button
+          type="button"
           @click="previous_page()"
-          :class="{disabled: page_number <= 0, clickable: page_number > 0}"/>
+          :disabled="page_number <= 0">
+          <arrow-left-icon/>
+        </button>
 
         <select class="" v-model="page_number">
           <option
@@ -15,14 +18,16 @@
           :value="n-1">{{n}}</option>
         </select>
 
+        <button type="button" @:click="download_pdf()">
+          <download-icon/>
+        </button>
 
-        <download-icon
-          class="clickable"
-          v-on:click="download_pdf()"/>
-
-        <arrow-right-icon
+        <button
+          type="button"
           @click="next_page()"
-          :class="{disabled: (page_number+1) >= page_count, clickable: (page_number+1) < page_count}"/>
+          :disabled="(page_number+1) >= page_count">
+          <arrow-right-icon/>
+        </button>
 
       </div>
 
