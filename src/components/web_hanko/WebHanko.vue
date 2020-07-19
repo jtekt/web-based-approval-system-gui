@@ -58,8 +58,10 @@
 
     </svg>
 
-    <div class="web_hanko_actions_container">
-      <span class="mdi mdi-download" v-on:click="download()"/>
+    <div
+      class="download_button_container"
+       v-on:click="download()">
+      <download-icon/>
     </div>
 
   </div>
@@ -68,6 +70,8 @@
 
 <script>
 import QRCode from 'qrcode'
+import DownloadIcon from 'vue-material-design-icons/Download.vue'
+
 export default {
   name: 'WebHanko',
   props: {
@@ -83,12 +87,15 @@ export default {
       }
     }
   },
-  data: function () {
+  components: {
+    DownloadIcon,
+  },
+  data () {
     return {
       qr_code_svg: ''
     }
   },
-  mounted: function () {
+  mounted () {
     QRCode.toString(String(this.approvalId), {
       margin: 0,
       color: {
@@ -184,7 +191,7 @@ svg {
   width: 100%;
 }
 
-.web_hanko_actions_container{
+.download_button_container{
   opacity: 0;
   transition: opacity 0.25s;
 
@@ -195,35 +202,18 @@ svg {
   width: 100%;
 
   display: flex;
-  flex-direction: column;
-  align-items: stretch;
-
-  background-color: #ffffffdd;
-}
-
-.web_hanko_actions_container > * {
-
-  font-size: 150%;
-
-  flex-grow: 1;
-  flex-basis: 0;
-
-  display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-}
-
-.web_hanko_actions_container:hover {
-  opacity: 1;
-}
-
-.web_hanko_actions_container > * {
+  color: #c00000;
+  background-color: #ffffffdd;
   cursor: pointer;
 }
 
-.web_hanko_actions_container > *:hover {
-  color: #c00000;
+.download_button_container:hover {
+  opacity: 1;
 }
+
+
 
 </style>

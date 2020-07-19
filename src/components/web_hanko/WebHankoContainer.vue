@@ -28,7 +28,13 @@
     </div>
     <div class="toolbox"
       v-else-if="is_next_recipient && !this.rejection">
-      <email-icon class="approval_control" @click="send_email()"/>
+      
+      <button
+        type="button"
+        @click="send_email()">
+        <email-icon />
+      </button>
+
     </div>
   </div>
 
