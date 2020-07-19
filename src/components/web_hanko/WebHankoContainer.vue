@@ -28,7 +28,7 @@
     </div>
     <div class="toolbox"
       v-else-if="is_next_recipient && !this.rejection">
-      
+
       <button
         type="button"
         @click="send_email()">

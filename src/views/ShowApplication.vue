@@ -377,10 +377,17 @@ ${this.application.properties.type}を提出しました。 %0D%0A
 }
 
 .actions_container {
-  margin-top: 25px;
+  margin-top: 1em;
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-around;
 }
+
+.actions_container > * {
+  margin: 0.5em;
+  flex-basis: 12em;
+}
+
 
 .approve_button {
   color: #00c000;

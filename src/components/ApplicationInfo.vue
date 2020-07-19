@@ -29,7 +29,16 @@
       <tr>
         <td>申請者 / Applicant</td>
         <!-- Todo: put a link here -->
-        <td>{{applicant.properties.display_name}}</td>
+        <td>
+          <a
+            :href="applicant_profile_url"
+            class="applicant_name">
+            {{ applicant.properties.display_name
+              || applicant.properties.name_kanji
+              || applicant.properties.name
+              || applicant.properties.username}}
+          </a>
+        </td>
       </tr>
       <tr>
         <td>機密 / Confidential</td>
@@ -207,6 +216,9 @@ export default {
     user_is_applicant () {
       return this.applicant.identity.low === this.$store.state.current_user.identity.low
     },
+    applicant_profile_url(){
+      return `${process.env.VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/?id=${this.applicant.identity.low}`
+    }
 
   },
   methods: {
@@ -276,11 +288,6 @@ export default {
 .application_info td {
   border-top: 1px solid #dddddd;
 }
-
-
-
-
-
 
 .group_picker_wrapper {
   height: 50vh;

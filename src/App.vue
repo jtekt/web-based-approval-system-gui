@@ -91,4 +91,15 @@ button.bordered:disabled {
   color: #c00000;
 }
 
+main a {
+  color: currentColor;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.25s;
+}
+
+main a:hover {
+  color: #c00000;
+}
+
 </style>
