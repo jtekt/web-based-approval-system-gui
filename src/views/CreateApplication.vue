@@ -3,179 +3,173 @@
     <h1>新しい申請 / New application</h1>
 
     <!-- Creation of the approval flow -->
-    <div class="">
-      <h2>承認フロー / Approval flow</h2>
+    <h2>承認フロー / Approval flow</h2>
 
-      <!-- Employee picker -->
-      <h3>承認者選択 / Recipient selection</h3>
-      <UserPicker
-        class="picker"
-        :apiUrl="picker_api_url"
-        v-on:selection="add_to_recipients($event)"/>
+    <!-- Employee picker -->
+    <h3>承認者選択 / Recipient selection</h3>
+    <UserPicker
+      class="picker"
+      :apiUrl="picker_api_url"
+      v-on:selection="add_to_recipients($event)"/>
 
-      <!-- Approval flow -->
-      <h3>承認フロー / Current flow</h3>
-      <ApprovalFlow
-        class="flow_container"
-        v-on:deleteEmployee="delete_recipient($event)"
-        v-bind:employees="recipients"/>
+    <!-- Approval flow -->
+    <h3>承認フロー / Current flow</h3>
+    <ApprovalFlow
+      v-on:deleteEmployee="delete_recipient($event)"
+      v-bind:employees="recipients"/>
 
-    </div>
 
-    <div class="">
-      <h2>申請内容 / Application content</h2>
-    </div>
+    <h2>申請 / Application</h2>
 
-    <!-- test with user generated form selector -->
-    <div class="type_and_title_input_wrapper application_info section_wrapper">
+    <h3>申請情報 / Application details</h3>
+    <table class="application_info">
+      <tr>
+        <td>申請タイトル / Title</td>
+        <td>
+          <input type="text" class="title_input" v-model="title" placeholder="申請タイトル / Title">
+        </td>
+      </tr>
+      <tr>
+        <td>申請種類 / type</td>
+        <td>
+          <!-- if the form is filled from scratch -->
+          <template v-if="!$route.query.copy_of">
+            <span v-if="application_form_templates.loading">Loading...</span>
+            <span v-else-if="application_form_templates.error">{{application_form_templates.error}}</span>
+            <select
+              v-else v-model="selected_form">
+              <!--<option value=undefined>Please select</option>-->
+              <option
+                v-for="application_type in application_form_templates"
+                v-bind:value="application_type">
+                {{application_type.properties.label}}
+              </option>
+            </select>
+          </template>
 
-      <table class="">
-        <tr>
-          <td>申請タイトル / Title</td>
-          <td>
-            <input type="text" class="title_input" v-model="title" placeholder="申請タイトル / Title">
-          </td>
-        </tr>
-        <tr>
-          <td>申請種類 / type</td>
-          <td>
-            <!-- if the form is filled from scratch -->
-            <template v-if="!$route.query.copy_of">
-              <span v-if="application_form_templates.loading">Loading...</span>
-              <span v-else-if="application_form_templates.error">{{application_form_templates.error}}</span>
-              <select
-                v-else v-model="selected_form">
-                <!--<option value=undefined>Please select</option>-->
-                <option
-                  v-for="application_type in application_form_templates"
-                  v-bind:value="application_type">
-                  {{application_type.properties.label}}
-                </option>
-              </select>
-            </template>
+          <!-- if the form is a duplicate -->
+          <template v-else>
+            <span v-if="selected_form.error">Error duplicating form {{copy_of}}</span>
+            <span v-else-if="selected_form.loading">Loading</span>
+            <span v-else-if="selected_form.properties">
+              {{selected_form.properties.label}} (Duplicate of ID {{$route.query.copy_of}})
+              <a href="create_application">Start from scratch</a>
+            </span>
+          </template>
+        </td>
+      </tr>
+      <tr>
+        <td>機密 / Confidential</td>
+        <td>
+          <input type="checkbox" v-model="private">
+        </td>
+      </tr>
+      <!-- Visibility -->
+      <tr v-if="private">
+        <td>共有 / Visibility</td>
+        <td class="visibility_wrapper">
 
-            <!-- if the form is a duplicate -->
-            <template v-else>
-              <span v-if="selected_form.error">Error duplicating form {{copy_of}}</span>
-              <span v-else-if="selected_form.loading">Loading</span>
-              <span v-else-if="selected_form.properties">
-                {{selected_form.properties.label}} (Duplicate of ID {{$route.query.copy_of}})
-                <a href="create_application">Start from scratch</a>
-              </span>
-            </template>
-          </td>
-        </tr>
-        <tr>
-          <td>機密 / Confidential</td>
-          <td>
-            <input type="checkbox" v-model="private">
-          </td>
-        </tr>
-        <!-- Visibility -->
-        <tr v-if="private">
-          <td>共有 / Visibility</td>
-          <td class="visibility_wrapper">
+          <div
+            class="visibility_groups_wrapper"
+            v-if="groups.length > 0">
 
             <div
-              class="visibility_groups_wrapper"
-              v-if="groups.length > 0">
+              v-for="(group, group_index) in groups"
+              class="visibility_group"
+              v-bind:key="group.identity.low">
 
-              <div
-                v-for="(group, group_index) in groups"
-                class="visibility_group"
-                v-bind:key="group.identity.low">
+              <span class="">
+                {{group.properties.name}}
+              </span>
 
-                <span class="">
-                  {{group.properties.name}}
-                </span>
+              <div class="growing_spacer"/>
 
-                <div class="growing_spacer"/>
-
-                <button type="button"
-                  @click="delete_group(group_index)">
-                  <delete-icon />
-                </button>
-
-
-
-              </div>
-            </div>
-            <div class="" v-else>
-              承認フローのみ / Approval flow only
-            </div>
-
-            <!-- Button to add a group to visibility -->
-            <div class="visibility_group_add_button_wrapper">
-              <button
-                type="button"
-                @click="modal_open = true">
-                <account-multiple-plus-icon />
+              <button type="button"
+                @click="delete_group(group_index)">
+                <delete-icon />
               </button>
+
+
+
             </div>
+          </div>
+          <div class="" v-else>
+            承認フローのみ / Approval flow only
+          </div>
 
-          </td>
-        </tr>
-      </table>
+          <!-- Button to add a group to visibility -->
+          <div class="visibility_group_add_button_wrapper">
+            <button
+              type="button"
+              @click="modal_open = true">
+              <account-multiple-plus-icon />
+            </button>
+          </div>
 
-    </div>
+        </td>
+      </tr>
+    </table>
+
 
     <!-- container for the application itself -->
-    <div class="section_wrapper form_container" >
-      <template v-if="selected_form.properties">
-        <h3>{{selected_form.properties.label}}</h3>
+    <template v-if="selected_form.properties">
+      <h3>{{selected_form.properties.label}}</h3>
 
-        <textarea
-          v-if="selected_form.properties.description"
-          class="template_description"
-          rows="8"
-          v-model="selected_form.properties.description" readonly/>
+      <textarea
+        v-if="selected_form.properties.description"
+        class="template_description"
+        rows="8"
+        v-model="selected_form.properties.description" readonly/>
 
-        <!-- Link to the template's page -->
-        <div class="link_to_template" v-if="selected_form.identity">
-          <router-link :to="{ name: 'application_template', query: {id: selected_form.identity.low} }">
-            Template details
-          </router-link>
-        </div>
+      <!-- Link to the template's page -->
+      <div class="link_to_template" v-if="selected_form.identity">
+        <router-link :to="{ name: 'application_template', query: {id: selected_form.identity.low} }">
+          Template details
+        </router-link>
+      </div>
 
-        <table class="form_content_table">
-          <tr
-            v-for="(field, index) in selected_form.properties.fields">
-            <td>{{field.label}}</td>
+      <table class="form_content_table">
+        <tr
+          v-for="(field, index) in selected_form.properties.fields">
+          <td>{{field.label}}</td>
 
-            <td>
+          <td>
 
-              <!-- file input when file is not selected -->
-              <template v-if="field.type === 'file'">
-                <input
-                  v-if="!field.value"
-                  v-bind:type="field.type"
-                  v-on:change="file_upload($event, field)">
-
-                <!-- file input when file is selected -->
-                <button
-                  type="button"
-                  v-else-if="field.value"
-                  @click="delete_file(field)">
-                  <delete-icon />
-                </button>
-              </template/>
-
-              <datepicker
-                v-else-if="field.type === 'date'"
-                v-model="field.value"/>
-
+            <!-- file input when file is not selected -->
+            <template v-if="field.type === 'file'">
               <input
-                v-else
+                v-if="!field.value"
                 v-bind:type="field.type"
-                v-model="field.value">
+                v-on:change="file_upload($event, field)">
 
-            </td>
+              <!-- file input when file is selected -->
+              <button
+                type="button"
+                v-else-if="field.value"
+                @click="delete_file(field)">
+                <delete-icon />
+              </button>
+            </template/>
 
-          </tr>
-        </table>
-      </template>
-      <template v-else>申請種類が選ばれていません / Application type not selected</template>
-    </div>
+            <datepicker
+              v-else-if="field.type === 'date'"
+              v-model="field.value"/>
+
+            <input
+              v-else
+              v-bind:type="field.type"
+              v-model="field.value">
+
+          </td>
+
+        </tr>
+      </table>
+    </template>
+    <template v-else>
+      <h3>申請内容 / Application content</h3>
+      <p class="error_message">申請種類が選ばれていません / Application type not selected</p>
+
+    </template>
 
     <div class="submit_button_container" >
 
@@ -605,7 +599,7 @@ ${window.location.origin}/show_application?id=${application_id}%0D%0A
 }
 
 /* Application info table */
-.application_info table {
+table.application_info {
   width: 100%;
   border-collapse: collapse;
 }
@@ -615,11 +609,11 @@ ${window.location.origin}/show_application?id=${application_id}%0D%0A
 }
 
 .application_info td, .application_info th {
-  padding: 5px;
+  padding: 0.5em 0;
 }
 
-.application_info table input[type="text"],
-.application_info table select {
+table.application_info input[type="text"],
+table.application_info select {
   width: 100%;
 }
 
@@ -645,4 +639,6 @@ ${window.location.origin}/show_application?id=${application_id}%0D%0A
 .visibility_group_add_button_wrapper{
   margin-top: 0.25em;
 }
+
+
 </style>

@@ -33,9 +33,8 @@
 
     </draggable>
 
-    <div class="flow_empty" v-else>
-      承認者が選ばれていません　/　No recipient selected
-    </div>
+    <p v-else class="error_message">承認者が選ばれていません　/　No recipient selected</p>
+
 
   </div>
 </template>
@@ -66,10 +65,6 @@ export default {
 
 <style scoped>
 
-.approval_flow {
-  border: 1px solid #dddddd;
-}
-
 .approval_flow_header {
   padding: 10px;
   border-bottom: 1px solid #dddddd;
@@ -81,15 +76,11 @@ export default {
   flex-wrap: wrap;
 }
 
-/* DIRTY */
-.flow_empty{
-  padding: 10px;
-}
-
 .flow_item{
   display: flex;
   align-items: center;
 }
+
 
 .arrow {
   font-size: 150%;
@@ -103,17 +94,17 @@ export default {
   margin: 10px;
   padding: 15px;
 
-  width: 120px;
+  width: 8em;
 
   text-align: center;
 
   transition: border-color 0.25s;
-  //cursor: pointer;
+  cursor: pointer;
 
 }
 
 .employee:hover{
-  //border-color: #444444;
+  border-color: #444444;
 }
 
 .employee > *{

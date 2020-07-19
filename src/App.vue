@@ -87,6 +87,8 @@ button.bordered:disabled {
   border-color: #dddddd;
 }
 
-
+.error_message {
+  color: #c00000;
+}
 
 </style>
