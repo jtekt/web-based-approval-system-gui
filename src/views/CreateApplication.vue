@@ -192,7 +192,7 @@
       </h2>
       <div class="group_picker_wrapper">
         <GroupPicker
-          class="picker"
+          class="visibility_group_picker"
           :apiUrl="picker_api_url"
           v-on:selection="add_to_groups($event)"/>
       </div>
@@ -434,30 +434,11 @@ ${window.location.origin}/show_application?id=${application_id}%0D%0A
 
 <style scoped>
 
-.section_wrapper{
-  border: 1px solid #dddddd;
-  margin: 1em 0;
-  padding: 10px;
-}
-
 .picker {
   height: 300px;
+  margin-bottom: 1px;
 }
 
-.flow_container {
-  margin-top: 1em;
-}
-
-.type_and_title_input_wrapper > div {
-  margin: 10px;
-  flex-grow: 1;
-  flex-shrink: 0;
-  flex-basis: 0;
-}
-
-.type_and_title_input_wrapper > div > label {
-  margin-right: 10px;
-}
 
 .employee {
   padding: 2px 5px;
@@ -569,9 +550,6 @@ ${window.location.origin}/show_application?id=${application_id}%0D%0A
   cursor: pointer;
 }
 
-.group_picker_wrapper {
-  height: 200px;
-}
 
 .group {
   display: flex;
@@ -626,6 +604,10 @@ table.application_info select {
   justify-content: center;
   align-items: center;
   padding: 0.25em;
+}
+
+.visibility_group_picker {
+  height: 100%;
 }
 
 .visibility_group:not(:last-child) {

@@ -317,4 +317,8 @@ export default {
   margin-right: 1em;
 }
 
+.picker {
+  height: 100%;
+}
+
 </style>
