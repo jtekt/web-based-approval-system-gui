@@ -67,7 +67,7 @@
 
 
 
-          <template v-if="user_is_next_recipient">
+          <template v-if="user_is_current_recipient && !user_has_refused">
             <button
               type="button"
               class="bordered approve_button"
@@ -298,11 +298,24 @@ ${this.application.properties.type}を提出しました。 %0D%0A
     user_is_applicant () {
       return this.applicant.identity.low === this.$store.state.current_user.identity.low
     },
-    user_is_next_recipient(){
+    user_is_current_recipient(){
       let user_id = this.$store.state.current_user.identity.low
       let next_recipient = this.current_recipient
       if(!next_recipient) return false
       if(next_recipient.identity.low === user_id) return true
+      else return false
+    },
+    user_has_refused(){
+      let user_id = this.$store.state.current_user.identity.low
+
+      let refusal = this.recipient_records.find(record => {
+        let refusal_node = record._fields[record._fieldLookup['rejection']]
+        if(!refusal_node) return false
+        let recipient_id = refusal_node.start.low
+        return recipient_id === user_id
+      })
+
+      if(refusal) return true
       else return false
     }
 
