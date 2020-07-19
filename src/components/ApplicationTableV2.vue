@@ -6,13 +6,16 @@
 
       <div class="" v-if="application_records.pending.error">Error loading applications</div>
       <Loader v-else-if="application_records.pending.loading">Loading applications...</Loader>
-      <table class="application_table" v-else-if="application_records.pending.length > 0">
+      <table
+        class="application_table"
+        v-else-if="application_records.pending.length > 0">
 
         <ApplicationTableHeaderRow
           v-bind:application_records="application_records.pending"/>
 
         <ApplicationTableRow
-          v-for="record in application_records.pending"
+          v-for="(record, index) in application_records.pending"
+          v-bind:key="`pending_${index}`"
           v-bind:application_record="record"/>
       </table>
       <div class="" v-else>No application</div>
@@ -23,13 +26,16 @@
 
       <div class="" v-if="application_records.rejected.error">Error loading applications</div>
       <Loader v-else-if="application_records.rejected.loading">Loading applications...</Loader>
-      <table class="application_table" v-else-if="application_records.rejected.length > 0">
+      <table
+        class="application_table"
+        v-else-if="application_records.rejected.length > 0">
 
         <ApplicationTableHeaderRow
           v-bind:application_records="application_records.rejected"/>
 
         <ApplicationTableRow
-          v-for="record in application_records.rejected"
+          v-for="(record, index) in application_records.rejected"
+          v-bind:key="`rejected_${index}`"
           v-bind:application_record="record"/>
       </table>
       <div class="" v-else>No application</div>
@@ -47,7 +53,8 @@
           v-bind:application_records="application_records.approved"/>
 
         <ApplicationTableRow
-          v-for="record in application_records.approved"
+          v-for="(record, index) in application_records.approved"
+          v-bind:key="`approved_${index}`"
           v-bind:application_record="record"/>
       </table>
       <div class="" v-else>No application</div>

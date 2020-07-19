@@ -2,7 +2,7 @@
   <div class="">
     <h1>フォームテンプレート / Form templates</h1>
     <!-- add button -->
-    <div class="add_button_wrapper">
+    <div class="new_template_button_wrapper">
 
       <button
         type="button"
@@ -110,7 +110,7 @@ export default {
 </script>
 
 <style scoped>
-.add_button_wrapper{
+.new_template_button_wrapper{
   text-align: center;
   padding: 10px;
 
