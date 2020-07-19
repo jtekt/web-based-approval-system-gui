@@ -36,6 +36,7 @@ export default {
   },
   data () {
     return {
+      batch_size: 10,
       application_records: {
         pending: [],
         rejected: [],
@@ -60,42 +61,41 @@ export default {
       let application_states = ['pending', 'rejected', 'approved']
 
       application_states.forEach((state) => {
+        this.$set(this.application_records, state, [])
 
-        let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${application_direction}/${state}`
+        this.actual_api_call(application_direction,state)
 
-        this.$set(this.application_records[state], 'loading', true)
-        this.axios.get(url,{params: {batch_size: 3}})
-        .then(response => {
-          this.application_records[state] = []
-          response.data.forEach(record => {
-            this.application_records[state].push(record)
-          })
-        })
-        .catch(error => this.$set(this.application_records[state], 'error', 'Error loading applications'))
+
       })
     },
-    load_more(event){
-      console.log(event)
-      let application_direction = this.$route.params.type
-      let state = event
+    actual_api_call(application_direction, state){
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${application_direction}/${state}`
 
       this.$set(this.application_records[state], 'loading', true)
       this.axios.get(url,{
         params: {
+          batch_size: this.batch_size,
           start_index: this.application_records[state].length,
-          batch_size: 3,
         }
       })
       .then(response => {
         response.data.forEach(record => {
           this.application_records[state].push(record)
         })
+        if(response.data.length < this.batch_size){
+          this.$set(this.application_records[state], 'all_loaded', true)
+        }
       })
       .catch(error => this.$set(this.application_records[state], 'error', 'Error loading applications'))
-      .finally(() => {
-        this.$set(this.application_records[state], 'loading', false)
-      })
+      .finally(() => { this.$set(this.application_records[state], 'loading', false) })
+    },
+    load_more(event){
+      let application_direction = this.$route.params.type
+      let state = event
+
+      this.actual_api_call(application_direction,state)
+
+
     }
   }
 }

@@ -73,6 +73,7 @@
 
         <div class="load_more_wrapper">
           <button
+            v-if="!application_records.approved.all_loaded"
             type="button"
             class="bordered"
             @click="$emit('load_more','approved')">
