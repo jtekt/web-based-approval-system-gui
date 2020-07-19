@@ -5,19 +5,25 @@
       <h2>申請中 / Pending</h2>
 
       <div class="" v-if="application_records.pending.error">Error loading applications</div>
-      <Loader v-else-if="application_records.pending.loading">Loading applications...</Loader>
-      <table
-        class="application_table"
-        v-else-if="application_records.pending.length > 0">
 
-        <ApplicationTableHeaderRow
-          v-bind:application_records="application_records.pending"/>
+      <template v-else-if="application_records.pending.length > 0">
+        <table
+          class="application_table">
 
-        <ApplicationTableRow
-          v-for="(record, index) in application_records.pending"
-          v-bind:key="`pending_${index}`"
-          v-bind:application_record="record"/>
-      </table>
+          <ApplicationTableHeaderRow
+            v-bind:application_records="application_records.pending"/>
+
+          <ApplicationTableRow
+            v-for="(record, index) in application_records.pending"
+            v-bind:key="`pending_${index}`"
+            v-bind:application_record="record"/>
+        </table>
+
+        <Loader v-if="application_records.pending.loading">Loading applications...</Loader>
+
+      </template>
+
+
       <div class="" v-else>No application</div>
     </div>
 
@@ -25,19 +31,24 @@
       <h2>却下 / Rejected</h2>
 
       <div class="" v-if="application_records.rejected.error">Error loading applications</div>
-      <Loader v-else-if="application_records.rejected.loading">Loading applications...</Loader>
-      <table
-        class="application_table"
-        v-else-if="application_records.rejected.length > 0">
 
-        <ApplicationTableHeaderRow
-          v-bind:application_records="application_records.rejected"/>
+      <template v-else-if="application_records.rejected.length > 0">
+        <table
+          class="application_table">
 
-        <ApplicationTableRow
-          v-for="(record, index) in application_records.rejected"
-          v-bind:key="`rejected_${index}`"
-          v-bind:application_record="record"/>
-      </table>
+          <ApplicationTableHeaderRow
+            v-bind:application_records="application_records.rejected"/>
+
+          <ApplicationTableRow
+            v-for="(record, index) in application_records.rejected"
+            v-bind:key="`rejected_${index}`"
+            v-bind:application_record="record"/>
+        </table>
+        <Loader v-if="application_records.rejected.loading">Loading applications...</Loader>
+
+      </template>
+
+
       <div class="" v-else>No application</div>
 
     </div>
@@ -46,17 +57,29 @@
       <h2>承認 / Approved</h2>
 
       <div class="" v-if="application_records.approved.error">Error loading applications</div>
-      <Loader v-else-if="application_records.approved.loading">Loading applications...</Loader>
-      <table class="application_table" v-else-if="application_records.approved.length > 0">
 
-        <ApplicationTableHeaderRow
-          v-bind:application_records="application_records.approved"/>
+      <template v-else-if="application_records.approved.length > 0">
+        <table class="application_table" >
 
-        <ApplicationTableRow
-          v-for="(record, index) in application_records.approved"
-          v-bind:key="`approved_${index}`"
-          v-bind:application_record="record"/>
-      </table>
+          <ApplicationTableHeaderRow
+            v-bind:application_records="application_records.approved"/>
+
+          <ApplicationTableRow
+            v-for="(record, index) in application_records.approved"
+            v-bind:key="`approved_${index}`"
+            v-bind:application_record="record"/>
+        </table>
+        <Loader v-if="application_records.approved.loading">Loading applications...</Loader>
+
+        <div class="load_more_wrapper">
+          <button
+            type="button"
+            class="bordered"
+            @click="$emit('load_more','approved')">
+            Load more
+          </button>
+        </div>
+      </template>
       <div class="" v-else>No application</div>
 
     </div>
@@ -159,6 +182,11 @@ export default {
 
 .application_table progress {
   width: 100%;
+}
+
+.load_more_wrapper {
+  margin: 1em;
+  text-align: center;
 }
 
 </style>

@@ -16,21 +16,22 @@
     </div>
 
 
-    <ApplicationTableV2
+    <ApplicationTable
       :application_records="application_records"
       :hideRecipient="$route.params.type === 'received'"
-      :hideApplicant="$route.params.type === 'submitted'"/>
+      :hideApplicant="$route.params.type === 'submitted'"
+      @load_more="load_more($event)"/>
   </div>
 </template>
 
 <script>
-import ApplicationTableV2 from '@/components/ApplicationTableV2.vue'
+import ApplicationTable from '@/components/ApplicationTable.vue'
 import PlusIcon from 'vue-material-design-icons/Plus.vue'
 
 export default {
   name: 'ApplicationList',
   components: {
-    ApplicationTableV2,
+    ApplicationTable,
     PlusIcon,
   },
   data () {
@@ -63,7 +64,7 @@ export default {
         let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${application_direction}/${state}`
 
         this.$set(this.application_records[state], 'loading', true)
-        this.axios.get(url)
+        this.axios.get(url,{params: {batch_size: 3}})
         .then(response => {
           this.application_records[state] = []
           response.data.forEach(record => {
@@ -73,6 +74,29 @@ export default {
         .catch(error => this.$set(this.application_records[state], 'error', 'Error loading applications'))
       })
     },
+    load_more(event){
+      console.log(event)
+      let application_direction = this.$route.params.type
+      let state = event
+      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${application_direction}/${state}`
+
+      this.$set(this.application_records[state], 'loading', true)
+      this.axios.get(url,{
+        params: {
+          start_index: this.application_records[state].length,
+          batch_size: 3,
+        }
+      })
+      .then(response => {
+        response.data.forEach(record => {
+          this.application_records[state].push(record)
+        })
+      })
+      .catch(error => this.$set(this.application_records[state], 'error', 'Error loading applications'))
+      .finally(() => {
+        this.$set(this.application_records[state], 'loading', false)
+      })
+    }
   }
 }
 </script>
