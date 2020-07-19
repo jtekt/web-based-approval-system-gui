@@ -18,13 +18,14 @@
             v-bind:key="`pending_${index}`"
             v-bind:application_record="record"/>
         </table>
-
-        <Loader v-if="application_records.pending.loading">Loading applications...</Loader>
-
       </template>
+      <Loader v-if="application_records.pending.loading">Loading applications...</Loader>
 
-
-      <div class="" v-else>No application</div>
+      <div
+        class=""
+        v-if="application_records.pending.length === 0 && !application_records.pending.loading">
+        No application
+      </div>
     </div>
 
     <div class="">
@@ -44,13 +45,14 @@
             v-bind:key="`rejected_${index}`"
             v-bind:application_record="record"/>
         </table>
-        <Loader v-if="application_records.rejected.loading">Loading applications...</Loader>
 
       </template>
-
-
-      <div class="" v-else>No application</div>
-
+      <Loader v-else-if="application_records.rejected.loading">Loading applications...</Loader>
+      <div
+        class=""
+        v-if="application_records.rejected.length === 0 && !application_records.rejected.loading">
+        No application
+      </div>
     </div>
 
     <div class="">
@@ -69,7 +71,7 @@
             v-bind:key="`approved_${index}`"
             v-bind:application_record="record"/>
         </table>
-        <Loader v-if="application_records.approved.loading">Loading applications...</Loader>
+
 
         <div class="load_more_wrapper">
           <button
@@ -81,8 +83,12 @@
           </button>
         </div>
       </template>
-      <div class="" v-else>No application</div>
-
+      <Loader v-else-if="application_records.approved.loading">Loading applications...</Loader>
+      <div
+        class=""
+        v-if="application_records.approved.length === 0 && !application_records.approved.loading">
+        No application
+      </div>
     </div>
 
   </div>
