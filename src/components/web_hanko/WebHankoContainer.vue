@@ -26,8 +26,10 @@
       <check-icon class="approval_control approve_button" v-on:click="$emit('approve')"/>
       <close-icon class="approval_control disapprove_button" v-on:click="$emit('reject')"/>
     </div>
+
+    <!-- Sending an email -->
     <div class="toolbox"
-      v-else-if="is_next_recipient && !this.rejection">
+      v-else-if="is_next_recipient && !this.rejection && (user_is_applicant)">
 
       <button
         type="button"
@@ -36,6 +38,7 @@
       </button>
 
     </div>
+
   </div>
 
 </template>
@@ -88,6 +91,9 @@ export default {
     application () {
       return this.applicationRecord._fields[this.applicationRecord._fieldLookup['application']]
     },
+    applicant () {
+      return this.applicationRecord._fields[this.applicationRecord._fieldLookup['applicant']]
+    },
     show_toolbox () {
       // If the user is a recipient that has not approved or rejected the application and also is next recipient
       return this.$store.state.current_user.identity.low === this.recipient.identity.low &&
@@ -97,6 +103,9 @@ export default {
     },
     user_profile_url () {
       return `${process.env.VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/?id=${this.recipient.identity.low}`
+    },
+    user_is_applicant () {
+      return this.$store.state.current_user.identity.low === this.applicant.identity.low
     }
   }
 }
