@@ -33,10 +33,17 @@
           <a
             :href="applicant_profile_url"
             class="applicant_name">
-            {{ applicant.properties.display_name
-              || applicant.properties.name_kanji
-              || applicant.properties.name
-              || applicant.properties.username}}
+            <img
+              class="applicant_avatar"
+              v-if="applicant.properties.avatar_src"
+              :src="applicant.properties.avatar_src">
+            <span>
+              {{ applicant.properties.display_name
+                || applicant.properties.name_kanji
+                || applicant.properties.name
+                || applicant.properties.username}}
+            </span>
+
           </a>
         </td>
       </tr>
@@ -319,6 +326,11 @@ export default {
 
 .picker {
   height: 100%;
+}
+
+.applicant_avatar {
+  height: 1em;
+  width: 1em;
 }
 
 </style>

@@ -329,50 +329,53 @@ export default {
 
       let approval_id = approval.identity.low
 
+      this.$nextTick()
+      .then(() => {
+        if(!confirm(`Apply Hanko here?`)) return
 
-      if(!confirm(`Apply Hanko here?`)) return
+        const pages = this.pdfDoc.getPages()
+        const page = pages[this.page_number]
+        const { width, height } = page.getSize()
 
-      const pages = this.pdfDoc.getPages()
-      const page = pages[this.page_number]
-      const { width, height } = page.getSize()
+        const wrapper_width = this.$refs.pdf_container.offsetWidth
+        const click_x = event.offsetX
+        const position_x = width * (click_x/wrapper_width)
 
-      const wrapper_width = this.$refs.pdf_container.offsetWidth
-      const click_x = event.offsetX
-      const position_x = width * (click_x/wrapper_width)
+        const wrapper_height = this.$refs.pdf_container.offsetHeight
+        const click_y = event.offsetY
+        const position_y = height - (height * (click_y/wrapper_height))
 
-      const wrapper_height = this.$refs.pdf_container.offsetHeight
-      const click_y = event.offsetY
-      const position_y = height - (height * (click_y/wrapper_height))
+        // Create a list of attachment hankos if they don't exist yet
 
-      // Create a list of attachment hankos if they don't exist yet
-
-      if(!approval.properties.attachment_hankos) {
-        approval.properties.attachment_hankos = []
-      }
-
-      let attachment_hanko = {
-        file_id: this.selected_file_id,
-        page_number: this.page_number,
-        position: {
-          x: position_x,
-          y: position_y,
+        if(!approval.properties.attachment_hankos) {
+          approval.properties.attachment_hankos = []
         }
-      }
 
-      approval.properties.attachment_hankos.push(attachment_hanko)
+        let attachment_hanko = {
+          file_id: this.selected_file_id,
+          page_number: this.page_number,
+          position: {
+            x: position_x,
+            y: position_y,
+          }
+        }
 
-      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/approvals/${approval_id}`
+        approval.properties.attachment_hankos.push(attachment_hanko)
 
-      this.axios.put(url, { attachment_hankos: approval.properties.attachment_hankos })
-      .then((response) => {
-        this.view_pdf(this.selected_file_id)
-        this.hide_new_hanko()
+        let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/approvals/${approval_id}`
 
+        this.axios.put(url, { attachment_hankos: approval.properties.attachment_hankos })
+        .then((response) => {
+          this.view_pdf(this.selected_file_id)
+          this.hide_new_hanko()
+
+        })
+        .catch((error) => {
+          console.log(error)
+          alert(error)
+        })
       })
-      .catch((error) => {
-        console.log(error)
-        alert(error)
-      })
+
     },
     download_pdf(){
 
