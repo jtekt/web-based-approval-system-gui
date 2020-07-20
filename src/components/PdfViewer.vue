@@ -3,9 +3,6 @@
     <h1>PDF viewer</h1>
 
     <template v-if="shown_pdf"->
-      <p>
-        今のところ、ハンコを押す機能はGoogle Chromeしか使えないんです。
-      </p>
       <p
         class="error_message"
         v-if="!approval_of_current_user">
@@ -68,11 +65,9 @@
 
       </div>
 
-      <p>Thanks to 内野さん for suggesting this feature!</p>
-
     </template>
 
-    <div class="" v-if="load_error">
+    <div class="error_message" v-if="load_error">
       {{load_error}}
     </div>
 
@@ -82,6 +77,7 @@
 <script>
 import { PDFDocument } from 'pdf-lib';
 import pdf from 'vue-pdf'
+import Canvg from 'canvg'
 
 // Icons
 import DownloadIcon from 'vue-material-design-icons/Download.vue'
@@ -189,33 +185,22 @@ export default {
 
     svg_to_png_url(svg){
 
-      // Create an image element
-      let img = new Image()
-      let canvas = document.createElement('canvas')
-      let ctx = canvas.getContext('2d')
-      const DOM_URL = window.URL || window.webkitURL || window
-
-      canvas.width = 1000
-      canvas.height = 1500
-
-      // Convert SVG to blob
-      const SVG_sata = (new XMLSerializer()).serializeToString(svg)
-      const SVG_blob = new Blob([SVG_sata], { type: 'image/svg+xml;charset=utf-8' })
-      const SVG_blob_URL = DOM_URL.createObjectURL(SVG_blob)
-
-      // Have the SVG blob URL be the image src
-      img.src = SVG_blob_URL
       return new Promise( (resolve, reject) => {
-        img.onload = () => {
+        let SVG_sata = (new XMLSerializer()).serializeToString(svg)
+        let canvas = document.createElement('canvas')
+        canvas.width = 1000
+        canvas.height = 1500
 
-          ctx.drawImage(img, 0, 0)
-          DOM_URL.revokeObjectURL(SVG_blob_URL)
-          let png_URL = canvas
-            .toDataURL('image/png')
-            .replace('image/png', 'image/octet-stream')
+        Canvg(canvas, SVG_sata, {
+          renderCallback: () => {
 
-          resolve(png_URL)
-        }
+            let png_URL = canvas
+              .toDataURL('image/png')
+              .replace('image/png', 'image/octet-stream')
+
+            resolve(png_URL)
+          }
+        })
       })
 
     },
@@ -238,6 +223,7 @@ export default {
           const hanko_svg = document.getElementById(`hanko_${approval.identity.low}`)
 
           // Convert the hanko's svg into a png URL
+          // FIREFOX PROBLEM HERE!
           const png_url = await this.svg_to_png_url(hanko_svg).then((png_url) => {return png_url})
 
           // Get the png image bytes from the canvas
@@ -314,15 +300,14 @@ export default {
         const { width, height } = page.getSize()
 
         const wrapper_width = this.$refs.pdf_container.offsetWidth
-        const click_x = event.offsetX
+        const click_x = event.offsetX || event.layerX
         const position_x = width * (click_x/wrapper_width)
 
         const wrapper_height = this.$refs.pdf_container.offsetHeight
-        const click_y = event.offsetY
+        const click_y = event.offsetY || event.layerY
         const position_y = height - (height * (click_y/wrapper_height))
 
         // Create a list of attachment hankos if they don't exist yet
-
         if(!approval.properties.attachment_hankos) {
           approval.properties.attachment_hankos = []
         }
@@ -335,6 +320,8 @@ export default {
             y: position_y,
           }
         }
+
+
 
         approval.properties.attachment_hankos.push(attachment_hanko)
 
@@ -350,6 +337,7 @@ export default {
           console.log(error)
           alert(error)
         })
+
       }, 50)
 
 
@@ -359,7 +347,7 @@ export default {
       let pdf_blob = new Blob([this.shown_pdf], { type: 'application/pdf' })
       const link = document.createElement('a')
       link.href = URL.createObjectURL(pdf_blob)
-      link.download = this.selected_file_id
+      link.download = `${this.selected_file_id}.pdf`
       link.click()
       URL.revokeObjectURL(link.href)
 
