@@ -3,6 +3,9 @@
     <h1>PDF viewer</h1>
 
     <template v-if="shown_pdf"->
+      <p>
+        今のところ、ハンコを押す機能はGoogle Chromeしか使えないんです。
+      </p>
       <p
         class="error_message"
         v-if="!approval_of_current_user">
