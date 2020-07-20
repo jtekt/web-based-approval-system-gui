@@ -312,20 +312,10 @@ export default {
         .then(response => {
           this.recipients = []
 
-          for (var flow_index = 0; flow_index < response.data.length; flow_index++) {
-
-            let found_record = response.data.find( (record) => {
-              let submission = record._fields[record._fieldLookup['submitted_to']]
-              let submission_flow_index = submission.properties.flow_index.low
-              return submission_flow_index === flow_index
-            })
-
-            if(found_record) {
-              let recipient = found_record._fields[found_record._fieldLookup['recipient']]
-              this.recipients.push(recipient)
-            }
-
-          }
+          response.data.reverse().forEach((record) => {
+            let recipient = record._fields[record._fieldLookup['recipient']]
+            this.recipients.push(recipient)
+          })
 
         })
         .catch((error) => {

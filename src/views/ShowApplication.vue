@@ -261,7 +261,7 @@ export default {
       window.location.href = `
 mailto:${recipient.properties.email_address}
 ?subject=[自動送信] ${this.application.properties.type}を提出しました
-&body=${recipient.properties.name_kanji}様 %0D%0A
+&body=${recipient.properties.name_kanji} 様 %0D%0A
  %0D%0A
 ${this.application.properties.type}を提出しました。 %0D%0A
 提出先URL: ${window.location.origin}/show_application?id=${this.application.identity.low} %0D%0A
