@@ -1,12 +1,13 @@
 <template>
   <div>
     <h1>Info</h1>
-    <p>Shinsei manager v1.0.7</p>
-    <h2>Bug report</h2>
-    <p>If you find a bug or a problem, please report it on <a href="http://10.115.1.14/moreillon_k8s/shinsei_manager/-/issues">GitLab</a></p>
+    <p>
+      申請マネージャ / Shinsei manager version {{version}}
+    </p>
+    <p>
+      This application is built using the following open-source technologies:
+    </p>
 
-    <h2>Technologies used</h2>
-    <p>This application is built using the following open-source technologies:</p>
     <div class="" class="tech_wrapper">
       <div
         class="tech"
@@ -18,12 +19,13 @@
         </label>
       </div>
     </div>
-    <h2>Source code</h2>
-    <p>The source code for this system is available on the company's internal GitLab:</p>
-    <ul>
-      <li><a href="http://172.16.98.151:8081/moreillon_k8s/shinsei_manager">Back-end</a></li>
-      <li><a href="http://172.16.98.151:8081/moreillon_k8s/shinsei_manager_front">Front-end</a></li>
-    </ul>
+
+    <h2>Bug report</h2>
+    <p>
+      If you find a bug or a problem, please report it on GitLab
+    </p>
+    
+
 
   </div>
 </template>
@@ -31,11 +33,12 @@
 <script>
 
 // UI elements
-
+import pjson from '@/../package.json'
 export default {
   name: 'About',
   data () {
     return {
+      version: pjson.version,
       technologies: [
         {
           label: 'Docker',
@@ -71,6 +74,7 @@ export default {
 
 <style scoped>
 .tech_wrapper {
+  margin: 2em;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -86,7 +90,7 @@ export default {
 }
 
 .tech label {
-  margin: 0.5em;
+  margin-top: 1em;
 }
 
 </style>
