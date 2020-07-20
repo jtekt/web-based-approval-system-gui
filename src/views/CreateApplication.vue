@@ -2,7 +2,7 @@
   <div>
     <h1>新しい申請 / New application</h1>
 
-    <h2>申請 / Application</h2>
+    <h2>① 申請 / Application</h2>
 
     <h3>申請情報 / Application details</h3>
     <table class="application_info">
@@ -156,7 +156,7 @@
     <!-- End of application -->
 
     <!-- Creation of the approval flow -->
-    <h2>承認フロー / Approval flow</h2>
+    <h2>② 承認フロー / Approval flow</h2>
 
     <!-- Employee picker -->
     <h3>承認者選択 / Recipient selection</h3>

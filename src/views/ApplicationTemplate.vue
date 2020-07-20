@@ -3,7 +3,7 @@
     <h1>フォーム / Forms</h1>
 
 
-    
+
 
     <!-- template is editable if new form of if current user is author -->
     <template v-if="is_editable">
@@ -141,9 +141,20 @@
       <div class="template_metadata_wrapper">
         <div class="author_wrapper" v-if="author">
           <label for="">Author</label>
-          <div class="">
-            {{author.properties.username}}
-          </div>
+          <a
+            :href="author_profile_url"
+            class="author_name">
+            <img
+              class="author_avatar"
+              v-if="author.properties.avatar_src"
+              :src="author.properties.avatar_src">
+            <span>
+              {{ author.properties.display_name
+                || author.properties.name_kanji
+                || author.properties.name
+                || author.properties.username}}
+            </span>
+          </a>
         </div>
 
         <div class="description_wrapper">
@@ -334,6 +345,9 @@ export default {
     },
     picker_api_url () {
       return process.env.VUE_APP_GROUP_MANAGER_API_URL
+    },
+    author_profile_url(){
+      return `${process.env.VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/?id=${this.author.identity.low}`
     }
   }
 }
@@ -421,7 +435,15 @@ export default {
   border-bottom: 1px solid #dddddd;
 }
 
-.error_message {
-  color: #c00000;
+
+.author_avatar {
+  height: 1em;
+  width: 1em;
+  margin-right: 0.25em;
+}
+
+.author_name {
+  display: inline-flex;
+  align-items: center;
 }
 </style>
