@@ -30,9 +30,16 @@
         </table>
       </template>
 
+
+
+      <Loader
+        v-if="application_records[state.name].loading">
+        Loading applications...
+      </Loader>
+
       <div
         class="load_more_wrapper"
-        v-if="!application_records[state.name].all_loaded">
+        v-else-if="!application_records[state.name].all_loaded">
         <button
           type="button"
           class="bordered"
@@ -40,11 +47,6 @@
           Load more
         </button>
       </div>
-
-      <Loader
-        v-if="application_records[state.name].loading">
-        Loading applications...
-      </Loader>
 
       <div
         class=""
