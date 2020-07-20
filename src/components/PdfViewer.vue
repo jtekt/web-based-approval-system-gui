@@ -5,7 +5,7 @@
     <template v-if="shown_pdf"->
       <p
         class="error_message"
-        v-if="!document_can_be_stamped">
+        v-if="!approval_of_current_user">
         申請が承認された時、資料にハンコを押すようになります / This document can be stamped once the application is approved.
       </p>
       <div class="pdf_actions_wrapper">
@@ -59,7 +59,7 @@
 
         <!-- Indicator of where the hanko will be set -->
         <div
-          v-if="document_can_be_stamped"
+          v-if="approval_of_current_user"
           v-bind:style="new_hanko.style"
           class="new_hanko"/>
 
@@ -298,23 +298,11 @@ export default {
 
       //return alert('研究企画が官僚的な考え方をやめてくれないとこの機能を使えないようにします')
 
-      let found_recipient_record = this.recipient_records.find(record => {
-        let recipient = record._fields[record._fieldLookup['recipient']]
-        let recipient_id = recipient.identity.low
-        return recipient_id === this.$store.state.current_user.identity.low
-      })
-
-
-
-      let approval = found_recipient_record._fields[found_recipient_record._fieldLookup['approval']]
-      if(!approval) {
-        //alert('You need to approve the application first')
-        return
-      }
-
-
+      let approval = this.approval_of_current_user
+      if(!approval) return
       let approval_id = approval.identity.low
 
+      // Using a timeout so as to let time to Hanko to appear before showing the alert
       setTimeout(() => {
         if(!confirm(`Apply Hanko here?`)) return
 
@@ -375,7 +363,7 @@ export default {
     }
   },
   computed: {
-    document_can_be_stamped(){
+    approval_of_current_user(){
       let found_recipient_record = this.recipient_records.find(record => {
         let recipient = record._fields[record._fieldLookup['recipient']]
         let recipient_id = recipient.identity.low
@@ -384,7 +372,7 @@ export default {
 
       if(!found_recipient_record) return false
 
-      return !!found_recipient_record._fields[found_recipient_record._fieldLookup['approval']]
+      return found_recipient_record._fields[found_recipient_record._fieldLookup['approval']]
     }
   }
 }
