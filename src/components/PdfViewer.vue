@@ -12,13 +12,17 @@
           <arrow-left-icon/>
         </button>
 
-        <select class="" v-model="page_number">
+        <select
+          class=""
+          v-model="page_number">
           <option
           v-for="n in page_count"
           :value="n-1">{{n}}</option>
         </select>
 
-        <button type="button" @:click="download_pdf()">
+        <button
+          type="button"
+          @click="download_pdf()">
           <download-icon/>
         </button>
 
