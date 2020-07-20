@@ -3,6 +3,11 @@
     <h1>PDF viewer</h1>
 
     <template v-if="shown_pdf"->
+      <p
+        class="error_message"
+        v-if="!document_can_be_stamped">
+        申請が承認された時、資料にハンコを押すようになります / This document can be stamped once the application is approved.
+      </p>
       <div class="pdf_actions_wrapper">
 
         <button
@@ -52,11 +57,11 @@
           @mouseleave="hide_new_hanko()"
           @mousemove="update_new_hanko_position($event)"/>
 
-        <img
-          v-if="new_hanko.src"
+        <!-- Indicator of where the hanko will be set -->
+        <div
+          v-if="document_can_be_stamped"
           v-bind:style="new_hanko.style"
-          class="new_hanko"
-          :src="new_hanko.src" alt="">
+          class="new_hanko"/>
 
       </div>
 
@@ -108,7 +113,6 @@ export default {
       shown_pdf: null,
 
       new_hanko: {
-        src: null,
         style: {
           top: '0px',
           left: '0px',
@@ -176,11 +180,7 @@ export default {
         success = false
       }
 
-      if(success) {
-        this.load_pdf_hankos()
-        this.set_new_hanko_src()
-      }
-
+      if(success) this.load_pdf_hankos()
 
     },
 
@@ -240,7 +240,7 @@ export default {
           // Get the png image bytes from the canvas
           const pngImageBytes = await fetch(png_url).then((res) => {return res.arrayBuffer()})
           const pngImage = await this.pdfDoc.embedPng(pngImageBytes)
-          const pngDims = pngImage.scale(0.03)
+          const pngDims = pngImage.scale(0.034)
 
           const pages = this.pdfDoc.getPages()
 
@@ -262,9 +262,7 @@ export default {
 
           })
         })
-
         promises.push(promise)
-
       })
 
       Promise.all(promises).then(async () => {
@@ -274,38 +272,20 @@ export default {
 
     },
     update_new_hanko_position(event){
-      this.new_hanko.style.left = `calc(${event.offsetX}px - 0.5 * ${this.new_hanko.style.width})`
-      this.new_hanko.style.top = `calc(${event.offsetY}px - 0.5 * ${this.new_hanko.style.height})`
 
       const wrapper_width = this.$refs.pdf_container.offsetWidth
       const wrapper_height = this.$refs.pdf_container.offsetHeight
+      const scaling = 0.059
 
-      this.new_hanko.style.width= `${0.05*wrapper_width}px`
-      this.new_hanko.style.height= `${0.05*wrapper_height}px`
-
-    },
-    set_new_hanko_src(){
-      let found_recipient_record = this.recipient_records.find(record => {
-        let recipient = record._fields[record._fieldLookup['recipient']]
-        let recipient_id = recipient.identity.low
-        return recipient_id === this.$store.state.current_user.identity.low
-      })
-
-      let approval = found_recipient_record._fields[found_recipient_record._fieldLookup['approval']]
-      if(!approval) {
-        return
+      this.new_hanko.style = {
+        left: `calc(${event.offsetX}px - 0.5 * ${this.new_hanko.style.width})`,
+        top: `calc(${event.offsetY}px - 0.5 * ${this.new_hanko.style.height})`,
+        width: `${scaling * wrapper_width}px`,
+        height: `${scaling * wrapper_height}px`,
       }
 
-      let approval_id = approval.identity.low
-
-      const hanko_svg = document.getElementById(`hanko_${approval_id}`)
-      const SVG_sata = (new XMLSerializer()).serializeToString(hanko_svg)
-      const SVG_blob = new Blob([SVG_sata], { type: 'image/svg+xml;charset=utf-8' })
-      const DOM_URL = window.URL || window.webkitURL || window
-      const SVG_blob_URL = DOM_URL.createObjectURL(SVG_blob)
-
-      this.new_hanko.src = SVG_blob_URL
     },
+
     hide_new_hanko(){
       this.new_hanko.style= {
         top: '0px',
@@ -328,7 +308,7 @@ export default {
 
       let approval = found_recipient_record._fields[found_recipient_record._fieldLookup['approval']]
       if(!approval) {
-        alert('You need to approve the application first')
+        //alert('You need to approve the application first')
         return
       }
 
@@ -393,6 +373,19 @@ export default {
       URL.revokeObjectURL(link.href)
 
     }
+  },
+  computed: {
+    document_can_be_stamped(){
+      let found_recipient_record = this.recipient_records.find(record => {
+        let recipient = record._fields[record._fieldLookup['recipient']]
+        let recipient_id = recipient.identity.low
+        return recipient_id === this.$store.state.current_user.identity.low
+      })
+
+      if(!found_recipient_record) return false
+
+      return !!found_recipient_record._fields[found_recipient_record._fieldLookup['approval']]
+    }
   }
 }
 </script>
@@ -413,6 +406,8 @@ export default {
 .new_hanko {
   position: absolute;
   z-index: 2;
+  border: 2px solid #c00000;
+  border-radius: 5px;
 }
 
 .new_hanko_overlay {
@@ -422,6 +417,7 @@ export default {
   width: 100%;
   height: 100%;
   z-index: 3;
+  cursor: pointer;
 }
 
 .pdf_actions_wrapper {
