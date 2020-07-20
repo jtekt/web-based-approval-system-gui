@@ -7,7 +7,7 @@
     <h3>申請情報 / Application details</h3>
     <table class="application_info">
       <tr>
-        <td>申請タイトル / Title</td>
+        <td>申請タイトル / Application title</td>
         <td>
           <input type="text" class="title_input" v-model="title" placeholder="申請タイトル / Title">
         </td>
