@@ -333,4 +333,9 @@ export default {
   width: 1em;
 }
 
+.applicant_name {
+  display: inline-flex;
+  align-items: center;
+}
+
 </style>
