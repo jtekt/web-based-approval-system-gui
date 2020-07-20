@@ -124,12 +124,14 @@
             type="button"
             @click="download_attachment(field.value)">
             <download-icon />
+            <span>Download (original)</span>
           </button>
 
           <button
             type="button"
             @click="view_pdf(field.value)">
             <magnify-icon />
+            <span>View</span>
           </button>
 
 
