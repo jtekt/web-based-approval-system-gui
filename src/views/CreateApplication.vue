@@ -2,23 +2,6 @@
   <div>
     <h1>新しい申請 / New application</h1>
 
-    <!-- Creation of the approval flow -->
-    <h2>承認フロー / Approval flow</h2>
-
-    <!-- Employee picker -->
-    <h3>承認者選択 / Recipient selection</h3>
-    <UserPicker
-      class="picker"
-      :apiUrl="picker_api_url"
-      v-on:selection="add_to_recipients($event)"/>
-
-    <!-- Approval flow -->
-    <h3>承認フロー / Current flow</h3>
-    <ApprovalFlow
-      v-on:deleteEmployee="delete_recipient($event)"
-      v-bind:employees="recipients"/>
-
-
     <h2>申請 / Application</h2>
 
     <h3>申請情報 / Application details</h3>
@@ -170,6 +153,26 @@
       <p class="error_message">申請種類が選ばれていません / Application type not selected</p>
 
     </template>
+    <!-- End of application -->
+
+    <!-- Creation of the approval flow -->
+    <h2>承認フロー / Approval flow</h2>
+
+    <!-- Employee picker -->
+    <h3>承認者選択 / Recipient selection</h3>
+    <UserPicker
+      class="picker"
+      :apiUrl="picker_api_url"
+      v-on:selection="add_to_recipients($event)"/>
+
+    <!-- Approval flow -->
+    <h3>承認フロー / Current flow</h3>
+    <ApprovalFlow
+      v-on:deleteEmployee="delete_recipient($event)"
+      v-bind:employees="recipients"/>
+
+
+
 
     <div class="submit_button_container" >
 
