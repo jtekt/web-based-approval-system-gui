@@ -107,7 +107,7 @@
       <!-- Link to the template's page -->
       <div class="link_to_template" v-if="selected_form.identity">
         <router-link :to="{ name: 'application_template', query: {id: selected_form.identity.low} }">
-          Template details
+          フォーム内容 / Form content
         </router-link>
       </div>
 
