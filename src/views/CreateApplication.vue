@@ -306,14 +306,29 @@ export default {
 
     recreate_approval_flow () {
       // Gets the groups wi which this application is visible (used if duplicate)
+      // Does not recreate the flow in the right order!
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.$route.query.copy_of}/recipients`
       this.axios.get(url)
         .then(response => {
           this.recipients = []
-          response.data.forEach((record) => {
-            let recipient = record._fields[record._fieldLookup['recipient']]
-            this.recipients.push(recipient)
-          })
+
+          console.log(response.data)
+
+          for (var flow_index = 0; flow_index < response.data.length; flow_index++) {
+
+            let found_record = response.data.find( (record) => {
+              let submission = record._fields[record._fieldLookup['submitted_to']]
+              let submission_flow_index = submission.properties.flow_index.low
+              return submission_flow_index === flow_index
+            })
+
+            if(found_record) {
+              let recipient = found_record._fields[found_record._fieldLookup['recipient']]
+              this.recipients.push(recipient)
+            }
+
+          }
+
         })
         .catch((error) => {
           console.error(error)

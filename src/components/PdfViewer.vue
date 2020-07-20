@@ -288,7 +288,6 @@ export default {
 
       let approval = found_recipient_record._fields[found_recipient_record._fieldLookup['approval']]
       if(!approval) {
-        //alert('You need to approve the application before being able to stamp attachments')
         return
       }
 
@@ -315,10 +314,14 @@ export default {
       //return alert('研究企画が官僚的な考え方をやめてくれないとこの機能を使えないようにします')
 
       let found_recipient_record = this.recipient_records.find(record => {
+        console.log(record)
+
         let recipient = record._fields[record._fieldLookup['recipient']]
         let recipient_id = recipient.identity.low
         return recipient_id = this.$store.state.current_user.identity.low
       })
+
+
 
       let approval = found_recipient_record._fields[found_recipient_record._fieldLookup['approval']]
       if(!approval) {

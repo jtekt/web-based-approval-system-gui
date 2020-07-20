@@ -196,6 +196,7 @@ export default {
           response.data.forEach((record) => {
             this.recipient_records.push(record)
 
+            // parse attachment hankos if they exist
             let approval = record._fields[record._fieldLookup['approval']]
             if(!approval) return
             if(!approval.properties.attachment_hankos) return
