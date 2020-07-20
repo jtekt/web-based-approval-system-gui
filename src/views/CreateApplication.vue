@@ -312,8 +312,6 @@ export default {
         .then(response => {
           this.recipients = []
 
-          console.log(response.data)
-
           for (var flow_index = 0; flow_index < response.data.length; flow_index++) {
 
             let found_record = response.data.find( (record) => {
