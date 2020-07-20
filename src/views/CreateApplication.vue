@@ -7,7 +7,7 @@
     <h3>申請情報 / Application details</h3>
     <table class="application_info">
       <tr>
-        <td>申請タイトル / Application title</td>
+        <td>申請タイトル / Application Title</td>
         <td>
           <input type="text" class="title_input" v-model="title" placeholder="申請タイトル / Title">
         </td>
@@ -107,7 +107,7 @@
       <!-- Link to the template's page -->
       <div class="link_to_template" v-if="selected_form.identity">
         <router-link :to="{ name: 'application_template', query: {id: selected_form.identity.low} }">
-          フォーム内容 / Form content
+          See template details 🔗
         </router-link>
       </div>
 
