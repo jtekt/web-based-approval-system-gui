@@ -331,6 +331,7 @@ export default {
 .applicant_avatar {
   height: 1em;
   width: 1em;
+  margin-right: 0.25em;
 }
 
 .applicant_name {
