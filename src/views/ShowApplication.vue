@@ -61,7 +61,7 @@
               class="bordered"
               @click="edit_a_copy()">
               <content-duplicate-icon />
-              <span>複製 / Duplicate</span>
+              <span>複製 / re-submit</span>
             </button>
           </template>
 
