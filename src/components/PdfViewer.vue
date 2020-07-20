@@ -113,10 +113,7 @@ export default {
 
       new_hanko: {
         style: {
-          top: '0px',
-          left: '0px',
-          width: '0px',
-          height: '0px',
+          visibility: 'none',
         }
       },
     }
@@ -277,10 +274,13 @@ export default {
 
     hide_new_hanko(){
       this.new_hanko.style= {
-        top: '0px',
-        left: '0px',
+        /*
+        top: '-100px',
+        left: '-100px',
         width: '0px',
         height: '0px',
+        */
+        visibility: 'none',
       }
     },
     async pdf_clicked(event){
@@ -378,15 +378,20 @@ export default {
 }
 
 .pdf_container {
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
   position: relative;
+  border: 1px solid #dddddd;
   box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
 }
 
 .new_hanko {
   position: absolute;
+
   z-index: 2;
-  border: 2px solid #c00000;
-  border-radius: 5px;
+  border: 3px solid #c00000;
+  border-radius: 10px;
 }
 
 .new_hanko_overlay {

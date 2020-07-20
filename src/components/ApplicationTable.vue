@@ -1,95 +1,59 @@
 <template>
   <div class="application_table_container">
 
-    <div class="">
-      <h2>申請中 / Pending</h2>
+    <!-- list generated -->
+    <div
+      class=""
+      v-for="state in states"
+      v-bind:key="`${state.name}_wrapper`">
+      <h2>{{state.heading}}</h2>
 
-      <div class="" v-if="application_records.pending.error">Error loading applications</div>
+      <div
+        class="error_message"
+        v-if="application_records[state.name].error">
+        Error loading applications
+      </div>
 
-      <template v-else-if="application_records.pending.length > 0">
+      <template
+        v-else-if="application_records[state.name].length > 0">
+
         <table
           class="application_table">
 
           <ApplicationTableHeaderRow
-            v-bind:application_records="application_records.pending"/>
+            v-bind:application_records="application_records[state.name]"/>
 
           <ApplicationTableRow
-            v-for="(record, index) in application_records.pending"
-            v-bind:key="`pending_${index}`"
+            v-for="(record, index) in application_records[state.name]"
+            v-bind:key="`${state.name}_${index}`"
             v-bind:application_record="record"/>
         </table>
       </template>
-      <Loader v-if="application_records.pending.loading">Loading applications...</Loader>
+
+      <div
+        class="load_more_wrapper"
+        v-if="!application_records[state.name].all_loaded">
+        <button
+          type="button"
+          class="bordered"
+          @click="$emit('load_more','approved')">
+          Load more
+        </button>
+      </div>
+
+      <Loader
+        v-if="application_records[state.name].loading">
+        Loading applications...
+      </Loader>
 
       <div
         class=""
-        v-if="application_records.pending.length === 0 && !application_records.pending.loading">
+        v-if="application_records[state.name].length === 0 && !application_records[state.name].loading">
         No application
       </div>
+
     </div>
 
-    <div class="">
-      <h2>却下 / Rejected</h2>
-
-      <div class="" v-if="application_records.rejected.error">Error loading applications</div>
-
-      <template v-else-if="application_records.rejected.length > 0">
-        <table
-          class="application_table">
-
-          <ApplicationTableHeaderRow
-            v-bind:application_records="application_records.rejected"/>
-
-          <ApplicationTableRow
-            v-for="(record, index) in application_records.rejected"
-            v-bind:key="`rejected_${index}`"
-            v-bind:application_record="record"/>
-        </table>
-
-      </template>
-      <Loader v-else-if="application_records.rejected.loading">Loading applications...</Loader>
-      <div
-        class=""
-        v-if="application_records.rejected.length === 0 && !application_records.rejected.loading">
-        No application
-      </div>
-    </div>
-
-    <div class="">
-      <h2>承認 / Approved</h2>
-
-      <div class="" v-if="application_records.approved.error">Error loading applications</div>
-
-      <template v-else-if="application_records.approved.length > 0">
-        <table class="application_table" >
-
-          <ApplicationTableHeaderRow
-            v-bind:application_records="application_records.approved"/>
-
-          <ApplicationTableRow
-            v-for="(record, index) in application_records.approved"
-            v-bind:key="`approved_${index}`"
-            v-bind:application_record="record"/>
-        </table>
-
-
-        <div class="load_more_wrapper">
-          <button
-            v-if="!application_records.approved.all_loaded"
-            type="button"
-            class="bordered"
-            @click="$emit('load_more','approved')">
-            Load more
-          </button>
-        </div>
-      </template>
-      <Loader v-else-if="application_records.approved.loading">Loading applications...</Loader>
-      <div
-        class=""
-        v-if="application_records.approved.length === 0 && !application_records.approved.loading">
-        No application
-      </div>
-    </div>
 
   </div>
 </template>
@@ -116,6 +80,25 @@ export default {
     hideRecipient: {
       type: Boolean,
       default () { return false }
+    }
+  },
+  data(){
+    return {
+      states: [
+        {
+          name: 'pending',
+          heading: '申請中 / Pending',
+        },
+        {
+          name: 'rejected',
+          heading: '却下 / Rejected',
+        },
+        {
+          name: 'approved',
+          heading: '承認 / Approved',
+        },
+
+      ]
     }
   },
   methods: {
