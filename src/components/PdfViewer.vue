@@ -24,6 +24,7 @@
           type="button"
           @click="download_pdf()">
           <download-icon/>
+          <span>Download (with ハンコ)</span>
         </button>
 
         <button
