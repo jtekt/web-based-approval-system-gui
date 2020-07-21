@@ -15,6 +15,7 @@
     "@moreillon/vue_modal": "0.0.4",
     "@moreillon/vue_user_picker": "^1.0.6",
     "axios": "^0.19.2",
+    "blueimp-canvas-to-blob": "^3.27.0",
     "canvg": "^2.0.0",
     "core-js": "^2.6.11",
     "dotenv": "^8.2.0",

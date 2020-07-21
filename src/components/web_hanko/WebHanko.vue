@@ -72,6 +72,7 @@
 import QRCode from 'qrcode'
 import DownloadIcon from 'vue-material-design-icons/Download.vue'
 import Canvg from 'canvg'
+import "blueimp-canvas-to-blob/js/canvas-to-blob"
 
 export default {
   name: 'WebHanko',

@@ -342,14 +342,23 @@ export default {
 
 
     },
+
     download_pdf(){
 
       let pdf_blob = new Blob([this.shown_pdf], { type: 'application/pdf' })
-      const link = document.createElement('a')
-      link.href = URL.createObjectURL(pdf_blob)
-      link.download = `${this.selected_file_id}.pdf`
-      link.click()
-      URL.revokeObjectURL(link.href)
+
+      if (window.navigator.msSaveOrOpenBlob) {
+        window.navigator.msSaveBlob(pdf_blob, `${this.selected_file_id}.pdf`);
+      }
+      else {
+        const elem = window.document.createElement('a');
+        elem.href = window.URL.createObjectURL(pdf_blob);
+        elem.download = `${this.selected_file_id}.pdf`;
+        document.body.appendChild(elem);
+        elem.click();
+        document.body.removeChild(elem);
+      }
+
 
     }
   },
