@@ -572,6 +572,10 @@ ${window.location.origin}/show_application?id=${application_id}%0D%0A
   vertical-align: top;
 }
 
+.form_content_table td:first-child,
+.application_info td:first-child{
+  width: 40%;
+}
 
 
 .form_content_table td input[type="text"]{
