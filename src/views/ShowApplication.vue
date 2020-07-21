@@ -227,7 +227,6 @@ export default {
         .catch((error) => {alert(`Error approving application`)})
     },
     reject () {
-      if (!confirm('ホンマ？')) return
       let reason = prompt('なぜ？', '')
       if(!reason) return
 
