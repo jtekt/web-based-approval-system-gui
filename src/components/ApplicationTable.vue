@@ -6,7 +6,11 @@
       class=""
       v-for="state in states"
       v-bind:key="`${state.name}_wrapper`">
-      <h2>{{state.heading}}</h2>
+
+      <h2>
+        <component v-bind:is="state.icon"/>
+        <span>{{state.heading}}</span>
+      </h2>
 
       <div
         class="error_message"
@@ -66,12 +70,20 @@ import ApplicationTableHeaderRow from '@/components/ApplicationTableHeaderRow.vu
 
 import Loader from '@moreillon/vue_loader'
 
+import CheckIcon from 'vue-material-design-icons/Check.vue'
+import ClockOutlineIcon from 'vue-material-design-icons/ClockOutline.vue'
+import CloseIcon from 'vue-material-design-icons/Close.vue'
+
+
 export default {
   name: 'ApplicationTable',
   components: {
     Loader,
     ApplicationTableRow,
-    ApplicationTableHeaderRow
+    ApplicationTableHeaderRow,
+    CheckIcon,
+    ClockOutlineIcon,
+    CloseIcon,
   },
   props: {
     application_records: Object,
@@ -90,14 +102,17 @@ export default {
         {
           name: 'pending',
           heading: '申請中 / Pending',
+          icon: 'clock-outline-icon',
         },
         {
           name: 'rejected',
           heading: '却下 / Rejected',
+          icon: 'close-icon',
         },
         {
           name: 'approved',
           heading: '承認 / Approved',
+          icon: 'check-icon',
         },
 
       ]
@@ -113,6 +128,14 @@ export default {
 
 <style>
 
+h2 {
+  display: flex;
+  align-items: center;
+}
+
+h2 > * {
+  margin-right: 0.25em;
+}
 .application_table{
   width: 100%;
   border-collapse: collapse;

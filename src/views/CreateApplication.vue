@@ -72,8 +72,6 @@
                 <delete-icon />
               </button>
 
-
-
             </div>
           </div>
           <div class="" v-else>
@@ -96,42 +94,69 @@
 
     <!-- container for the application itself -->
     <template v-if="selected_form.properties">
-      <h3>{{selected_form.properties.label}}</h3>
-
-      <textarea
-        v-if="selected_form.properties.description"
-        class="template_description"
-        rows="8"
-        v-model="selected_form.properties.description" readonly/>
-
-      <!-- Link to the template's page -->
-      <div class="link_to_template" v-if="selected_form.identity">
-        <router-link :to="{ name: 'application_template', query: {id: selected_form.identity.low} }">
-          See template details 🔗
-        </router-link>
-      </div>
+      <h3>
+        {{selected_form.properties.label}}
+      </h3>
 
       <table class="form_content_table">
+
+        <!--
+        <tr v-if="selected_form.identity">
+          <td>フォーム詳細 / Form details</td>
+          <td>
+            <router-link :to="{ name: 'application_template', query: {id: selected_form.identity.low} }">
+              フォームのページへ / Form page
+            </router-link>
+          </td>
+        </tr>
+        -->
+        <!-- Application form description -->
+
+        <tr v-if="selected_form.properties.description">
+          <td>フォーム説明 / Form description</td>
+          <td>
+            <textarea
+              class="template_description"
+              rows="4"
+              v-model="selected_form.properties.description"
+              readonly/>
+          </td>
+        </tr>
+
+
         <tr
           v-for="(field, index) in selected_form.properties.fields">
-          <td>{{field.label}}</td>
+          <td>
+            {{field.label || 'Unnamed field'}}
+          </td>
 
           <td>
-
             <!-- file input when file is not selected -->
             <template v-if="field.type === 'file'">
+
+              <!-- SHow input when no file -->
               <input
                 v-if="!field.value"
-                v-bind:type="field.type"
+                :type="field.type"
                 v-on:change="file_upload($event, field)">
 
               <!-- file input when file is selected -->
-              <button
-                type="button"
+              <div
                 v-else-if="field.value"
-                @click="delete_file(field)">
-                <delete-icon />
-              </button>
+                class="attachment_controls_wrapper">
+                <span
+                  class="attatchment_confirm">
+                  添付 OK / Attachment OK
+                </span>
+                <button
+                  type="button"
+                  @click="delete_file(field)">
+                  <delete-icon />
+                  <span>Delete</span>
+                </button>
+              </div>
+
+
             </template/>
 
             <datepicker
@@ -141,6 +166,7 @@
             <input
               v-else
               v-bind:type="field.type"
+              :placeholder="field.label"
               v-model="field.value">
 
           </td>
@@ -533,19 +559,20 @@ ${window.location.origin}/show_application?id=${application_id}%0D%0A
   margin-top: 10px;
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 .form_content_table tr:not(:last-child) {
   border-bottom: 1px solid #dddddd;
 }
 
-.form_content_table th {
-  text-align: left;
-  padding: 10px;
-}
+
 .form_content_table td {
   padding: 5px;
+  vertical-align: top;
 }
+
+
 
 .form_content_table td input[type="text"]{
   width: 100%;
@@ -571,11 +598,15 @@ ${window.location.origin}/show_application?id=${application_id}%0D%0A
 }
 
 .template_description{
-  border: 1px solid #dddddd;
+  //border: 1px solid #dddddd;
+  border: none;
   outline: none;
   width: 100%;
   margin-top: 0.5em;
-  resize: vertical;
+  resize: none;
+  //resize: vertical;
+  cursor: default;
+
 }
 
 .link_to_template {
@@ -586,7 +617,10 @@ ${window.location.origin}/show_application?id=${application_id}%0D%0A
 table.application_info {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
+
+
 
 .application_info tr:not(:last-child) {
   border-bottom: 1px solid #dddddd;
@@ -629,4 +663,12 @@ table.application_info select {
 }
 
 
+
+.attatchment_confirm {
+  margin-right: 0.5em;
+}
+.attachment_controls_wrapper {
+  display: flex;
+  align-items: center;
+}
 </style>
