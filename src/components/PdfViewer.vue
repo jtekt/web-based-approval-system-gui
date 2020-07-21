@@ -67,6 +67,13 @@
 
     </template>
 
+    <div
+      class="loader_wrapper"
+      v-if="!shown_pdf && !load_error">
+      <Loader >Loading PDF</Loader>
+    </div>
+
+
     <div class="error_message" v-if="load_error">
       {{load_error}}
     </div>
@@ -79,6 +86,8 @@ import { PDFDocument } from 'pdf-lib';
 import pdf from 'vue-pdf'
 import Canvg from 'canvg'
 
+import Loader from '@moreillon/vue_loader'
+
 // Icons
 import DownloadIcon from 'vue-material-design-icons/Download.vue'
 import ArrowLeftIcon from 'vue-material-design-icons/ArrowLeft.vue'
@@ -89,6 +98,7 @@ export default {
   name: 'PdfViewer',
   components: {
     pdf,
+    Loader,
 
     // Icons
     DownloadIcon,
@@ -104,6 +114,7 @@ export default {
   data(){
     return {
       load_error: null,
+      loading: false,
 
       page_number: 0,
       page_count: 1,
@@ -150,6 +161,9 @@ export default {
         alert('Internet Explorerのユーザーはこの機能に値しません、今の時代のブラウザを使ってください。')
         return
       }
+
+      // reset the file
+      this.shown_pdf = null
 
       // Reset page number
       this.page_number = 0
@@ -329,6 +343,7 @@ export default {
 
         this.axios.put(url, { attachment_hankos: approval.properties.attachment_hankos })
         .then((response) => {
+          this.shown_pdf = null
           this.view_pdf(this.selected_file_id)
           this.hide_new_hanko()
 
@@ -430,6 +445,10 @@ export default {
 
 .clickable {
   cursor: pointer;
+}
+
+.loader_wrapper {
+  text-align: center;
 }
 
 </style>

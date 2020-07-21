@@ -282,7 +282,7 @@ export default {
     },
 
     add_field () {
-      this.fields.push({ type: 'text', label: 'label' })
+      this.fields.push({ type: 'text', label: '' })
     },
     delete_field (index) {
       if (confirm('ホンマ？')) {
