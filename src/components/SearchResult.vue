@@ -1,6 +1,7 @@
 <template>
 
-  <tr @click="$router.push({name: 'show_application', query: {id: application.identity.low}})">
+  <tr
+    @click="$router.push({name: 'show_application', query: {id: application.identity.low}})">
     <td>
       {{application.properties.creation_date.year.low}}/{{application.properties.creation_date.month.low}}/{{application.properties.creation_date.day.low}}
     </td>
@@ -11,13 +12,27 @@
       {{application.properties.title}}
     </td>
     <td>
+      <template v-if="application.properties.private">
+        機密 / Confidential
+      </template>
+    </td>
+    <td>
       {{applicant.properties.display_name}}
     </td>
 
     <td
       v-for="(field_label, i) in fields"
       :key="`${application.identity.low}_field_${i}`">
-      {{field_value(field_label, application.identity.low)}}
+      <template v-if="!forbidden">
+        {{field_value(field_label, application.identity.low)}}
+      </template>
+      <span
+        v-else
+        class="error_message">
+        禁止 / Forbidden
+      </span>
+
+
     </td>
 
 
@@ -55,6 +70,9 @@ export default {
     applicant(){
       return this.record._fields[this.record._fieldLookup.applicant]
     },
+    forbidden(){
+      return this.record._fields[this.record._fieldLookup.forbidden]
+    },
     form_data(){
       return JSON.parse(this.application.properties.form_data)
     },
@@ -65,5 +83,7 @@ export default {
 
 <style scoped>
 
-
+th, td {
+  padding: 0.25em 0.5em;
+}
 </style>

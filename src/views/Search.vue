@@ -2,37 +2,66 @@
   <div class="">
     <h1>検索 / Search</h1>
 
+    <h2>Filters</h2>
+
     <form @submit.prevent="search()">
-      <label>ハンコ ID</label>
-      <input type="search" v-model="hanko_id" placeholder="ID">
+      <table
+        class="filters_table">
+        <tr>
+          <td>ハンコ ID</td>
+          <td>
+            <input type="search" v-model="hanko_id" placeholder="ハンコ　ID">
+          </td>
+        </tr>
+        <tr>
+          <td>申請 ID</td>
+          <td>
+            <input type="search" v-model="application_id" placeholder="申請 ID">
+          </td>
+        </tr>
+        <tr>
+          <td>Type</td>
+          <td>
+            <input type="search" v-model="application_type" placeholder="タイプ">
+          </td>
+        </tr>
+        <tr>
+          <td>From</td>
+          <td>
+            <input type="date" v-model="start_date">
+          </td>
+        </tr>
+        <tr>
+          <td>To</td>
+          <td>
+            <input type="date" v-model="end_date">
+          </td>
+        </tr>
+        <tr>
+          <td>Relationship</td>
+          <td>
+            <select class="" v-model="relationship_type">
+              <option :value="null">Any</option>
+              <option value="APPROVED">Approved by you</option>
+              <option value="SUBMITTED_BY">Submitted by you</option>
+              <option value="SUBMITTED_TO">Submitted to you</option>
+              <option value="REJECTED">Rejected by you</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Status</td>
+          <td>Coming soon...</td>
+        </tr>
 
-      <label>ハ申請 ID</label>
-      <input type="search" v-model="application_id" placeholder="ID">
-
-
-      <label>Type</label>
-      <input type="search" v-model="application_type" placeholder="Type">
-
-      <label>Start date</label>
-      <input type="date" v-model="start_date">
-
-      <label>End date</label>
-      <input type="date" v-model="end_date">
-
-      <label>Relationship</label>
-
-      <select class="" v-model="relationship_type">
-        <option :value="null">None</option>
-        <option value="APPROVED">APPROVED</option>
-        <option value="SUBMITTED_BY">SUBMITTED_BY</option>
-        <option value="SUBMITTED_TO">SUBMITTED_TO</option>
-        <option value="REJECTED">REJECTED</option>
-
-      </select>
+      </table>
 
       <input type="submit">
 
     </form>
+
+    <h2>Results</h2>
+
 
     <div class="export_button_wrapper">
       <button
@@ -51,6 +80,7 @@
           <th>Date</th>
           <th>Type</th>
           <th>Title</th>
+          <th>Confidential</th>
           <th>Applicant</th>
           <th
             v-for="(label, i) in field_labels"
@@ -113,8 +143,10 @@ export default {
         response.data.forEach((record) => {
           this.application_records.push(record)
           let application = record._fields[record._fieldLookup.application]
-          let form_data = JSON.parse(application.properties.form_data)
 
+          // Form data
+          if(!application.properties.form_data) return
+          let form_data = JSON.parse(application.properties.form_data)
           if(!Array.isArray(form_data)) return
           form_data.forEach((field) => {
             if(!this.field_labels.includes(field.label) && field.type !== 'file' ) {
@@ -182,6 +214,7 @@ table {
   border-collapse: collapse;
   //table-layout: fixed;
   min-width: 100%;
+  text-align: left;
 }
 
 tr:not(:last-child) {
@@ -201,4 +234,6 @@ tr:not(:first-child):hover {
   margin: 1em;
   text-align: center;
 }
+
+
 </style>
