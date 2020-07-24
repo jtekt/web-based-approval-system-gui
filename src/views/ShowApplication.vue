@@ -10,6 +10,7 @@
           <ApplicationInfo
             :application="application"
             :applicant="applicant"
+            :forbidden="forbidden"
             @view_pdf="view_pdf($event)"/>
 
           <!-- area with the hankos -->
@@ -147,7 +148,7 @@ export default {
   },
   mounted () {
     this.get_application()
-    this.get_approval_flow()
+    //this.get_approval_flow()
   },
   data () {
     return {
@@ -158,6 +159,7 @@ export default {
       // experimental
       application: null,
       applicant: null,
+      forbidden: null,
 
       recipient_records: [],
 
@@ -178,15 +180,31 @@ export default {
       this.axios.get(url)
         .then(response => {
           if (response.data.length > 0) {
+
             let record = response.data[0]
+
             this.application = record._fields[record._fieldLookup['application']]
             this.applicant = record._fields[record._fieldLookup['applicant']]
+            this.forbidden = record._fields[record._fieldLookup['forbidden']]
+
+            this.recipient_records = []
+            response.data.forEach((record) => {
+              this.recipient_records.push(record)
+
+              // parse attachment hankos if they exist
+              let approval = record._fields[record._fieldLookup['approval']]
+              if(!approval) return
+              if(!approval.properties.attachment_hankos) return
+              approval.properties.attachment_hankos = JSON.parse(approval.properties.attachment_hankos)
+
+            })
           }
         })
         .catch((error) => { this.error = error })
         .finally(() => this.loading = false)
     },
 
+    /*
     get_approval_flow () {
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.$route.query.id}/recipients`
 
@@ -206,6 +224,7 @@ export default {
         })
         .catch((error) => console.log(error))
     },
+    */
 
     approve () {
       // ask for confirmation
@@ -216,7 +235,7 @@ export default {
       this.axios.post(url)
         .then(() => {
           // Refresh the approval flow
-          this.get_approval_flow()
+          this.get_application()
 
           // Send an email
           let next_recipient = this.next_recipient
@@ -224,7 +243,10 @@ export default {
           this.send_email(next_recipient)
 
         })
-        .catch((error) => {alert(`Error approving application`)})
+        .catch((error) => {
+          console.log(error)
+          alert(`Error approving application`)
+        })
     },
     reject () {
       let reason = prompt('なぜ？', '')
@@ -232,7 +254,7 @@ export default {
 
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.$route.query.id}/reject`
       this.axios.post(url, { reason: reason })
-        .then(() => this.get_approval_flow())
+        .then(() => { this.get_application() })
         .catch(() => alert('Error rejecting application'))
     },
     delete_application () {
@@ -317,7 +339,7 @@ ${this.application.properties.type}を提出しました。 %0D%0A
 
       if(refusal) return true
       else return false
-    }
+    },
 
   }
 }

@@ -111,9 +111,15 @@
         <th colspan="2">申請内容 / Application content</th>
       </tr>
 
+      <tr v-if="forbidden">
+        <td colspan="2">禁止 / Forbidden</td>
+      </tr>
+
       <!-- If form data is stored as an array (experiment) -->
       <!-- THIS IS HOW CURRENT APPLICATIONS ARE RENDERED -->
-      <tr v-for="field in form_data" v-if="Array.isArray(form_data)">
+      <tr
+        v-else-if="Array.isArray(form_data)"
+        v-for="field in form_data">
         <td>{{field.label || 'Unnamed field'}}</td>
 
         <td
@@ -205,6 +211,7 @@ export default {
   props: {
     application: Object,
     applicant: Object,
+    forbidden: Boolean,
   },
   data(){
     return {
