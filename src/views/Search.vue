@@ -8,95 +8,116 @@
       <table
         class="filters_table">
         <tr>
-          <td>ハンコ ID</td>
+          <td>ハンコ ID / Hanko ID</td>
           <td>
-            <input type="search" v-model="hanko_id" placeholder="ハンコ　ID">
+            <input type="search" v-model="hanko_id" placeholder="ハンコ ID / Hanko ID">
           </td>
         </tr>
         <tr>
-          <td>申請 ID</td>
+          <td>申請 ID / Application ID</td>
           <td>
-            <input type="search" v-model="application_id" placeholder="申請 ID">
+            <input type="search" v-model="application_id" placeholder="申請 ID / Application ID">
           </td>
         </tr>
         <tr>
-          <td>Type</td>
+          <td>申請タイプ / Application type</td>
           <td>
-            <input type="search" v-model="application_type" placeholder="タイプ">
+            <input type="search" v-model="application_type" placeholder="申請タイプ / Application type">
           </td>
         </tr>
         <tr>
-          <td>From</td>
+          <td>いつから / From</td>
           <td>
             <input type="date" v-model="start_date">
           </td>
         </tr>
         <tr>
-          <td>To</td>
+          <td>いつまで / To</td>
           <td>
             <input type="date" v-model="end_date">
           </td>
         </tr>
         <tr>
-          <td>Relationship</td>
+          <td>関係 / Relationship</td>
           <td>
             <select class="" v-model="relationship_type">
-              <option :value="null">Any</option>
-              <option value="APPROVED">Approved by you</option>
-              <option value="SUBMITTED_BY">Submitted by you</option>
-              <option value="SUBMITTED_TO">Submitted to you</option>
-              <option value="REJECTED">Rejected by you</option>
+              <option :value="null">何でも / Any</option>
+              <option value="SUBMITTED_BY">出した申請 / Submitted by you</option>
+              <option value="SUBMITTED_TO">受け取った申請 / Submitted to you</option>
+              <option value="REJECTED">却下した申請 / Rejected by you</option>
+              <option value="APPROVED">承認した申請 / Approved by you</option>
             </select>
           </td>
-        </tr>
-        <tr>
-          <td>Status</td>
-          <td>Coming soon...</td>
         </tr>
 
       </table>
 
-      <input type="submit">
+      <input type="submit" class="hidden">
+      <button
+        type="button"
+        class="bordered search_button"
+        @click="search()">
+        <magnify-icon/>
+        <span>検索 / Search</span>
+      </button>
 
     </form>
 
     <h2>Results</h2>
 
 
-    <div class="export_button_wrapper">
-      <button
-        class="bordered"
-        type="button"
-        @click="download_table_as_csv">
-        CSV export
-      </button>
 
+
+    <div
+      v-if="loading"
+      class="loader_container">
+      <Loader>Searching...</Loader>
+    </div>
+
+    <template
+      v-if="!loading && application_records.length > 0">
+
+      <div class="export_button_wrapper">
+        <button
+          class="bordered"
+          type="button"
+          @click="download_table_as_csv">
+          CSV export
+        </button>
+      </div>
+
+      <div class="table_wrapper">
+        <table id="search_results_table">
+          <tr>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Title</th>
+            <th>Confidential</th>
+            <th>Applicant</th>
+            <th
+              v-for="(label, i) in field_labels"
+              :key="`field_label_${i}`">
+              {{label}}
+            </th>
+          </tr>
+
+          <SearchResult
+            v-for="(record, i) in application_records"
+            v-bind:key="`result_${i}`"
+            :record="record"
+            :fields="field_labels"/>
+
+        </table>
+      </div>
+    </template>
+
+    <div
+      v-if="!loading && application_records.length === 0"
+      class="">
+      No results
     </div>
 
 
-    <div class="table_wrapper">
-      <table id="search_results_table">
-        <tr>
-          <th>Date</th>
-          <th>Type</th>
-          <th>Title</th>
-          <th>Confidential</th>
-          <th>Applicant</th>
-          <th
-            v-for="(label, i) in field_labels"
-            :key="`field_label_${i}`">
-            {{label}}
-          </th>
-        </tr>
-
-        <SearchResult
-          v-for="(record, i) in application_records"
-          v-bind:key="`result_${i}`"
-          :record="record"
-          :fields="field_labels"/>
-
-      </table>
-    </div>
 
 
 
@@ -106,19 +127,27 @@
 
 <script>
 import SearchResult from '@/components/SearchResult.vue'
+import Loader from '@moreillon/vue_loader'
+import MagnifyIcon from 'vue-material-design-icons/Magnify.vue'
 
 export default {
   name: 'Search',
   components: {
-    SearchResult
+    SearchResult,
+    Loader,
+    MagnifyIcon,
   },
   data () {
     return {
+      loading: false,
+      application_records: [],
+
+      // Filters
       application_id: null,
       hanko_id: null,
       relationship_type: null,
       application_type: null,
-      application_records: [],
+
       field_labels: [],
       start_date: null,
       end_date: null,
@@ -126,6 +155,7 @@ export default {
   },
   methods: {
     search () {
+      this.loading = true
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/search`
       this.axios.get(url, {
         params: {
@@ -153,47 +183,44 @@ export default {
               this.field_labels.push(field.label)
             }
           })
-
         })
-
       })
-      .catch(error => {
-        console.log(error)
-      })
+      .catch(error => { console.log(error) })
+      .finally(() => { this.loading = false })
 
     },
     download_table_as_csv() {
-    // Select rows from table_id
-    var rows = document.querySelectorAll('table#' + 'search_results_table' + ' tr');
-    // Construct csv
-    var csv = [];
-    for (var i = 0; i < rows.length; i++) {
-      var row = [], cols = rows[i].querySelectorAll('td, th');
-      for (var j = 0; j < cols.length; j++) {
-        // Clean innertext to remove multiple spaces and jumpline (break csv)
-        var data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, '').replace(/(\s\s)/gm, ' ')
-        // Escape double-quote with double-double-quote (see https://stackoverflow.com/questions/17808511/properly-escape-a-double-quote-in-csv)
-        data = data.replace(/"/g, '""');
-        // Push escaped string
-        row.push('"' + data + '"');
-      }
-      csv.push(row.join(','));
+      let rows = document.querySelectorAll(`able#${search_results_table} tr`);
+      // Construct csv
+      let csv_strings = []
+
+      rows.forEach( (row) => {
+        let cols = row.querySelectorAll('td, th')
+        let row_strings = []
+        cols.forEach( (col) => {
+          // Clean innertext to remove multiple spaces and jumpline (break csv)
+          let data = col.innerText.replace(/(\r\n|\n|\r)/gm, '').replace(/(\s\s)/gm, ' ')
+          // Escape double-quote with double-double-quote (see https://stackoverflow.com/questions/17808511/properly-escape-a-double-quote-in-csv)
+          data = data.replace(/"/g, '""')
+
+          row_strings.push(`"${data}"`)
+        })
+        csv_strings.push(row_strings.join(','))
+      })
+      let csv_string = csv_strings.join('\n')
+
+
+      // Download it
+      var filename = `export.csv`
+      var link = document.createElement('a');
+      link.style.display = 'none';
+      link.setAttribute('target', '_blank');
+      link.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv_string))
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
-    var csv_string = csv.join('\n');
-    // Download it
-    var filename = `export.csv`
-    var link = document.createElement('a');
-    link.style.display = 'none';
-    link.setAttribute('target', '_blank');
-    link.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv_string))
-    link.setAttribute('download', filename);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
-
-
-
   }
 }
 </script>
@@ -206,8 +233,12 @@ form > * {
   margin: 0.25em;
 }
 
+.search_button {
+  margin-top: 1em;
+}
 .table_wrapper {
-  overflow-x: auto;
+  overflow: auto;
+  max-height: 70vh;
 }
 
 table {
@@ -215,6 +246,17 @@ table {
   //table-layout: fixed;
   min-width: 100%;
   text-align: left;
+}
+
+table input, table select {
+  width: 100%;
+}
+
+th {
+  max-width: 20em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 tr:not(:last-child) {
@@ -235,5 +277,12 @@ tr:not(:first-child):hover {
   text-align: center;
 }
 
+.loader_container {
+  text-align: center;
+}
+
+.hidden {
+  display: none;
+}
 
 </style>

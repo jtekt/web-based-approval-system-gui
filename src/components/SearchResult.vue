@@ -5,10 +5,17 @@
     <td>
       {{application.properties.creation_date.year.low}}/{{application.properties.creation_date.month.low}}/{{application.properties.creation_date.day.low}}
     </td>
-    <td>
+
+    <td v-if="forbidden">
+      秘密 / Hidden
+    </td>
+    <td v-else>
       {{application.properties.type}}
     </td>
-    <td>
+    <td v-if="forbidden">
+      秘密 / Hidden
+    </td>
+    <td v-else>
       {{application.properties.title}}
     </td>
     <td>
@@ -26,12 +33,9 @@
       <template v-if="!forbidden">
         {{field_value(field_label, application.identity.low)}}
       </template>
-      <span
-        v-else
-        class="error_message">
-        禁止 / Forbidden
+      <span v-else>
+        秘密 / Hidden
       </span>
-
 
     </td>
 
@@ -83,7 +87,13 @@ export default {
 
 <style scoped>
 
-th, td {
+
+
+td {
   padding: 0.25em 0.5em;
+  max-width: 20em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 </style>

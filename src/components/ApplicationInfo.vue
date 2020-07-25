@@ -13,11 +13,17 @@
       </tr>
       <tr>
         <td>タイトル / Title</td>
-        <td>{{application.properties.title}}</td>
+        <td v-if="forbidden">
+          <span class="confidential"/>
+        </td>
+        <td v-else>{{application.properties.title}}</td>
       </tr>
       <tr>
         <td>タイプ / Type</td>
-        <td>{{application.properties.type}}</td>
+        <td v-if="forbidden">
+          <span class="confidential"/>
+        </td>
+        <td v-else>{{application.properties.type}}</td>
       </tr>
 
       <tr>
@@ -112,7 +118,9 @@
       </tr>
 
       <tr v-if="forbidden">
-        <td colspan="2">禁止 / Forbidden</td>
+        <td colspan="2">
+          <span class="confidential"/>
+        </td>
       </tr>
 
       <!-- If form data is stored as an array (experiment) -->

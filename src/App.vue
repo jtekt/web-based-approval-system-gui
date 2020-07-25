@@ -102,4 +102,16 @@ main a:hover {
   color: #c00000;
 }
 
+.confidential {
+  border: 1px solid #c00000;
+  border-radius: 0.25em;
+  color: #c00000;
+  padding: 0.25em;
+  margin: 0.25em;
+}
+
+.confidential::after {
+  content: "秘密 / Secret";
+}
+
 </style>
