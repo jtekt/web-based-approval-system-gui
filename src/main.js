@@ -18,7 +18,7 @@ Vue.config.productionTip = false
 // Redirect to authentication manager if not logged in
 
 router.beforeEach((to, from, next) => {
-  var jwt = Vue.$cookies.get('jwt')
+  var jwt = Vue.$cookies.get('jwt') // IS THIS OK?
   if (jwt) {
     axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`
 

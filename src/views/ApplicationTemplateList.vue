@@ -95,7 +95,7 @@ export default {
         .finally(() => { this.$set(this.shared_templates, 'loading', false) })
     },
     view_template (id) {
-      this.$router.push({ name: 'application_template', query: { id: id } })
+      this.$router.push({ name: 'application_template', params: { template_id: id } })
     },
 
     new_template () {

@@ -15,16 +15,52 @@ export default new Router({
   mode: 'history',
   base: process.env.BASE_URL,
   routes: [
+    // redirect everything else to inbox
+    { path: '/', redirect: {name :'submitted_applications'}},
     {
-      path: '/',
-      redirect: '/application_list/submitted'
+      path: '/applications/submitted',
+      name: 'submitted_applications',
+      component: ApplicationList,
+      props: {type: 'submitted'},
+    },
+    {
+      path: '/applications/received',
+      name: 'received_applications',
+      component: ApplicationList,
+      props: {type: 'received'},
+    },
+    {
+      path: '/applications/:application_id',
+      name: 'application',
+      component: ShowApplication
+    },
+    {
+      path: '/application_templates',
+      name: 'application_templates',
+      component: ApplicationTemplateList
+    },
+    {
+      path: '/application_templates/:template_id',
+      name: 'application_template',
+      component: ApplicationTemplate
     },
     {
       path: '/create_application',
       name: 'create_application',
       component: CreateApplication,
-      props: true
     },
+    {
+      path: '/search',
+      name: 'search',
+      component: Search
+    },
+    {
+      path: '/about',
+      name: 'about',
+      component: About
+    },
+
+    // Legacy
     {
       path: '/application_list/:type',
       name: 'application_list',
@@ -36,24 +72,14 @@ export default new Router({
       component: ShowApplication
     },
     {
-      path: '/search',
-      name: 'search',
-      component: Search
-    },
-    {
-      path: '/application_template',
-      name: 'application_template',
-      component: ApplicationTemplate
-    },
-    {
       path: '/application_template_list',
       name: 'application_template_list',
       component: ApplicationTemplateList
     },
+
     {
-      path: '/about',
-      name: 'about',
-      component: About
+      // will match everything
+      path: '*', redirect: {name :'submitted_applications'}
     }
 
   ]

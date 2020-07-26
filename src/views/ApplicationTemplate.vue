@@ -125,7 +125,7 @@
         <button
           type="button"
           class="bordered"
-          v-if="!!$route.query.id"
+          v-if="!!template_id"
           @click="delete_template()">
           <delete-icon />
           <span>削除 / Delete</span>
@@ -239,7 +239,7 @@ export default {
     }
   },
   mounted () {
-    if ('id' in this.$route.query) {
+    if (this.template_id) {
       this.get_template()
       this.get_visibility()
     }
@@ -247,28 +247,28 @@ export default {
   methods: {
 
     get_template () {
-      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.$route.query.id}`
+      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
       this.axios.get(url)
-        .then((response) => {
-          let record = response.data[0]
-          let aft = record._fields[record._fieldLookup['aft']]
+      .then((response) => {
+        let record = response.data[0]
+        let aft = record._fields[record._fieldLookup['aft']]
 
-          let parsed_fields = JSON.parse(aft.properties.fields)
+        let parsed_fields = JSON.parse(aft.properties.fields)
 
-          this.fields = []
-          parsed_fields.forEach(field => this.fields.push(field))
+        this.fields = []
+        parsed_fields.forEach(field => this.fields.push(field))
 
-          this.label = aft.properties.label
-          this.description = aft.properties.description
+        this.label = aft.properties.label
+        this.description = aft.properties.description
 
-          this.author = record._fields[record._fieldLookup['creator']]
-        })
-        .catch(error => console.log(error))
+        this.author = record._fields[record._fieldLookup['creator']]
+      })
+      .catch(error => console.log(error))
     },
 
     get_visibility () {
       // Gets the groups wi which this application is visible
-      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.$route.query.id}/visibility`
+      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}/visibility`
 
       this.axios.get(url)
         .then(response => {
@@ -291,16 +291,16 @@ export default {
     },
     submit () {
       // If id exists, then edit
-      if ('id' in this.$route.query) {
-        let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.$route.query.id}`
+      if (this.template_id) {
+        let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
         this.axios.put(url, {
           fields: this.fields,
           label: this.label,
           description: this.description,
           group_ids: this.groups.map(group => group.identity.low),
         })
-          .then(() => this.$router.push({ name: 'application_template_list' }))
-          .catch(error => console.log(error))
+        .then(() => this.$router.push({ name: 'application_templates' }))
+        .catch(error => console.log(error))
       }
       // otherwise create
       else {
@@ -312,16 +312,16 @@ export default {
           description: this.description,
           group_ids: this.groups.map(group => group.identity.low)
         })
-          .then(() => this.$router.push({ name: 'application_template_list' }))
-          .catch(error => console.log(error))
+        .then(() => this.$router.push({ name: 'application_templates' }))
+        .catch(error => console.log(error))
       }
     },
     delete_template (id) {
       if (confirm('ホンマ？')) {
-        let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.$route.query.id}`
+        let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
         this.axios.delete(url)
-          .then((response) => this.$router.push({ name: 'application_template_list' }))
-          .catch(error => console.log(error))
+        .then((response) => this.$router.push({ name: 'application_templates' }))
+        .catch(error => console.log(error))
       }
     },
 
@@ -339,7 +339,7 @@ export default {
   computed: {
     is_editable () {
       // if this is a new template, automatically in edit mode
-      if (!this.$route.query.id) return true
+      if (!this.template_id) return true
       if (!this.$store.state.current_user || !this.author) return false
       return this.$store.state.current_user.identity.low === this.author.identity.low
     },
@@ -348,6 +348,11 @@ export default {
     },
     author_profile_url(){
       return `${process.env.VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/?id=${this.author.identity.low}`
+    },
+    template_id() {
+      return this.$route.query.id
+        || this.$route.params.id
+        || this.$route.params.template_id
     }
   }
 }

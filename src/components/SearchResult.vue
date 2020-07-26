@@ -1,9 +1,14 @@
 <template>
 
   <tr
-    @click="$router.push({name: 'show_application', query: {id: application.identity.low}})">
+    @click="$router.push({
+      name: 'application',
+      params: {application_id: application.identity.low}
+      })">
     <td>
-      {{application.properties.creation_date.year.low}}/{{application.properties.creation_date.month.low}}/{{application.properties.creation_date.day.low}}
+      {{application.properties.creation_date.year.low}}/
+      {{application.properties.creation_date.month.low}}/
+      {{application.properties.creation_date.day.low}}
     </td>
 
     <td v-if="forbidden">

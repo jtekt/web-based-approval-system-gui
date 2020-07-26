@@ -5,12 +5,12 @@
       applicationName="申請マネージャー">
 
       <template v-slot:navigation>
-        <router-link :to="{ path: '/create_application', }"><plus-icon />New</router-link>
-        <router-link :to="{ path: '/application_list/submitted', }"><inbox-arrow-up-icon />Outbox</router-link>
-        <router-link :to="{ path: '/application_list/received', }"><inbox-arrow-down-icon />Inbox</router-link>
-        <router-link :to="{ path: '/application_template_list', }"><file-settings-outline-icon />Forms</router-link>
-        <router-link :to="{ path: '/search', }"><magnify-icon />Search</router-link>
-        <router-link :to="{ path: '/about', }"><information-outline-icon />Info</router-link>
+        <router-link :to="{ name: 'create_application'}"><plus-icon />New</router-link>
+        <router-link :to="{ name: 'submitted_applications'}"><inbox-arrow-up-icon />Outbox</router-link>
+        <router-link :to="{ name: 'received_applications'}"><inbox-arrow-down-icon />Inbox</router-link>
+        <router-link :to="{ name: 'application_templates'}"><file-settings-outline-icon />Forms</router-link>
+        <router-link :to="{ name: 'search'}"><magnify-icon />Search</router-link>
+        <router-link :to="{ name: 'about'}"><information-outline-icon />Info</router-link>
       </template>
 
     </AppTemplate>

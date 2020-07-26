@@ -89,7 +89,10 @@
         </div>
 
       </div><!-- End of application container -->
-      <div class="not_found" v-else>Application does not exist or is private</div>
+      <div class="not_found error_message"
+        v-else>
+        Application not found
+      </div>
 
       <PdfViewer
         v-if="selected_file_id"
@@ -176,7 +179,14 @@ export default {
       // TODO: CHeck if id in query
       // TODO: Get recipients with the same call
       this.loading = true
-      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.$route.query.id}`
+
+      let application_id = this.$route.params.application_id
+        || this.$route.params.id
+        || this.$route.query.application_id
+        || this.$route.query.id
+
+
+      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${application_id}`
       this.axios.get(url)
         .then(response => {
           if (response.data.length > 0) {
@@ -231,7 +241,7 @@ export default {
       if (!confirm('ホンマ？')) return
 
       // send POST to mark as approved
-      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.$route.query.id}/approve`
+      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/approve`
       this.axios.post(url)
         .then(() => {
           // Refresh the approval flow
@@ -252,7 +262,7 @@ export default {
       let reason = prompt('なぜ？', '')
       if(!reason) return
 
-      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.$route.query.id}/reject`
+      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/reject`
       this.axios.post(url, { reason: reason })
         .then(() => { this.get_application() })
         .catch(() => alert('Error rejecting application'))
@@ -261,7 +271,7 @@ export default {
       if (!confirm('ホンマ？')) return
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}`
       this.axios.delete(url)
-        .then(() => this.$router.push('/'))
+        .then(() => { this.$router.push({name: 'submitted_applications'}) })
         .catch(() => alert(`Error deleting application`))
     },
     edit_a_copy () {
@@ -285,7 +295,8 @@ mailto:${recipient.properties.email_address}
 &body=${recipient.properties.name_kanji} 様 %0D%0A
  %0D%0A
 ${this.application.properties.type}を提出しました。 %0D%0A
-提出先URL: ${window.location.origin}/show_application?id=${this.application.identity.low} %0D%0A
+提出先URL: %0D%0A
+${window.location.origin}/applications/${this.application.identity.low}%0D%0A
  %0D%0A
 確認お願いします。%0D%0A
         `

@@ -54,7 +54,9 @@
 
       <div
         class=""
-        v-if="application_records[state.name].length === 0 && !application_records[state.name].loading">
+        v-if="application_records[state.name].length === 0
+          && !application_records[state.name].loading
+          && !application_records[state.name].error">
         No application
       </div>
 

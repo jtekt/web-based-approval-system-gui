@@ -46,7 +46,7 @@ export default {
   },
   methods: {
     see_application () {
-      this.$router.push({ name: 'show_application', query: { id: this.application.identity.low } })
+      this.$router.push({ name: 'application', params: { application_id: this.application.identity.low } })
     },
   },
   computed: {

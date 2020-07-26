@@ -400,13 +400,13 @@ mailto:${recipient_email}
 ?subject=[自動送信] ${application_type}を提出しました
 &body=${recipient_name}　様%0D%0A
 %0D%0A
-提出先URL%0D%0A
-${window.location.origin}/show_application?id=${application_id}%0D%0A
+提出先URL: %0D%0A
+${window.location.origin}/applications/${application_id}%0D%0A
 %0D%0A
 確認お願いします。%0D%0A
             `
 
-            this.$router.push({ path: '/show_application', query: {id: application_id} })
+            this.$router.push({ name: 'application', params: {application_id: application_id} })
           })
           .catch(error => alert(error))
       } else alert('There are missing items in this application form')
