@@ -29,7 +29,9 @@
       <tr>
         <td>日付 / Date</td>
         <td>
-          {{application.properties.creation_date.year.low}}/{{application.properties.creation_date.month.low}}/{{application.properties.creation_date.day.low}}
+          {{application.properties.creation_date.year.low}}/
+          {{application.properties.creation_date.month.low}}/
+          {{application.properties.creation_date.day.low}}
         </td>
       </tr>
       <tr>
@@ -172,8 +174,6 @@
 
     </table>
 
-
-
     <!-- Model used for group visibility -->
     <Modal :open="modal_open" @close="modal_open=false">
       <h2 class="">
@@ -248,7 +248,7 @@ export default {
   methods: {
     get_visibility () {
       // Gets the groups wi which this application is visible
-      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.$route.query.id}/visibility`
+      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/visibility`
       this.axios.get(url)
         .then(response => {
           this.groups = []
@@ -257,7 +257,10 @@ export default {
             this.groups.push(group)
           })
         })
-        .catch((error) => console.log(error))
+        .catch((error) =>{
+          console.log(error)
+          alert('Could not get the visibility of the application')
+        })
     },
     update_privacy_of_application () {
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/privacy`
@@ -265,7 +268,6 @@ export default {
         .then(() => {})
         .catch(() => alert('Error updating privacy of application'))
     },
-
     download_attachment (id) {
       window.location.href = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/files/${id}`
     },
@@ -273,11 +275,13 @@ export default {
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/visibility_to_group`
 
       this.axios.post(url, { group_id: group.identity.low })
-      .then(() => {
+      .then((response) => {
         this.modal_open = false
         this.get_visibility()
       })
-      .catch(() => alert('Error updating visibility of application'))
+      .catch(() => {
+        alert('Error updating visibility of application')
+      })
     },
     remove_application_visibility_to_group (group) {
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/visibility_to_group`
