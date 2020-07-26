@@ -5,7 +5,9 @@
         v-for="(recipient_record, index) in recipient_records"
         v-if="recipient_record._fields[recipient_record._fieldLookup['rejection']]">
         <td class="refuser_name">
-          {{recipient_record._fields[recipient_record._fieldLookup['recipient']].properties.name_kanji}}:
+          {{recipient(recipient_record).properties.name_kanji
+            || recipient(recipient_record).properties.display_name
+            || recipient(recipient_record).properties.name}}
         </td>
         <td>
           {{recipient_record._fields[recipient_record._fieldLookup['rejection']].properties.reason}}
@@ -22,6 +24,11 @@ export default {
   name: 'RefusalReason',
   props: {
     recipient_records: Array
+  },
+  methods: {
+    recipient(record){
+      return record._fields[record._fieldLookup['recipient']]
+    }
   }
 
 }
