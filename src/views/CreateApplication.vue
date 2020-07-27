@@ -156,12 +156,7 @@
                 </button>
               </div>
 
-
             </template/>
-
-            <datepicker
-              v-else-if="field.type === 'date'"
-              v-model="field.value"/>
 
             <input
               v-else
@@ -236,7 +231,6 @@
 import ApprovalFlow from '@/components/ApprovalFlow.vue'
 import UserPicker from '@moreillon/vue_user_picker'
 import GroupPicker from '@moreillon/vue_group_picker'
-import Datepicker from 'vuejs-datepicker'
 import Modal from '@moreillon/vue_modal'
 
 import DeleteIcon from 'vue-material-design-icons/Delete.vue';
@@ -249,7 +243,6 @@ export default {
     UserPicker,
     GroupPicker,
     ApprovalFlow,
-    Datepicker,
     Modal,
 
     DeleteIcon,
@@ -578,7 +571,7 @@ ${window.location.origin}/applications/${application_id}%0D%0A
 }
 
 
-.form_content_table td input[type="text"]{
+.form_content_table td input{
   width: 100%;
 }
 

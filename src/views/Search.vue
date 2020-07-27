@@ -97,6 +97,7 @@
       <div class="table_wrapper">
         <table id="search_results_table">
           <tr>
+            <th>ID</th>
             <th>Date</th>
             <th>Type</th>
             <th>Title</th>
@@ -265,6 +266,10 @@ th {
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
+}
+
+th:not(:last-child) {
+  padding-right: 1em;
 }
 
 tr:not(:last-child) {
