@@ -88,7 +88,7 @@ export default {
       .finally(() => { this.$set(this.application_records[state], 'loading', false) })
     },
     load_more(event){
-      let application_direction = this.$route.params.type
+      let application_direction = this.type
       let state = event
 
       this.actual_api_call(application_direction,state)
