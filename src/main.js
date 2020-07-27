@@ -22,6 +22,7 @@ import MagnifyIcon from 'vue-material-design-icons/Magnify.vue'
 import AccountMultiplePlusIcon from 'vue-material-design-icons/AccountMultiplePlus.vue'
 import ClockOutlineIcon from 'vue-material-design-icons/ClockOutline.vue'
 import PlusIcon from 'vue-material-design-icons/Plus.vue'
+import DotsHorizontalIcon from 'vue-material-design-icons/DotsHorizontal.vue'
 
 Vue.use(VueCookies)
 Vue.use(VueAxios, axios)
@@ -39,6 +40,7 @@ Vue.component('magnify-icon', MagnifyIcon)
 Vue.component('account-multiple-plus-icon', AccountMultiplePlusIcon)
 Vue.component('clock-outline-icon', ClockOutlineIcon)
 Vue.component('plus-icon', PlusIcon)
+Vue.component('dots-horizontal-icon', DotsHorizontalIcon)
 
 Vue.config.productionTip = false
 

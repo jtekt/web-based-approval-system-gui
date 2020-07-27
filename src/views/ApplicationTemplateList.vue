@@ -1,6 +1,7 @@
 <template>
   <div class="">
     <h1>フォームテンプレート / Form templates</h1>
+
     <!-- add button -->
     <div class="new_template_button_wrapper">
 
@@ -11,14 +12,13 @@
         <plus-icon />
         <span>新しい申請フォーム / New application form</span>
        </button>
-
     </div>
 
-    <table class="templates_table">
-      <tr class="header_row">
-        <th colspan="1000" >自分のフォーム / My forms</th>
-      </tr>
+    <h2>自分のフォーム / My forms</h2>
 
+
+
+    <table class="templates_table" v-if="!application_templates.loading">
       <tr
         v-for="template in application_templates"
         v-on:click="view_template(template._fields[template._fieldLookup['aft']].identity.low)"
@@ -26,9 +26,14 @@
         <td>{{template._fields[template._fieldLookup['aft']].properties.label}}</td>
         <td></td>
       </tr>
-      <tr class="header_row">
-        <th colspan="1000" >共有されているフォーム / Shared with me</th>
-      </tr>
+    </table>
+
+    <div class="loader_container" v-if="application_templates.loading">
+      <Loader>Loading forms</Loader>
+    </div>
+
+    <h2>共有されているフォーム / Shared with me</h2>
+    <table class="templates_table" v-if="!shared_templates.loading">
       <tr>
         <th>Form name</th>
         <th>Author</th>
@@ -41,6 +46,10 @@
         <td>{{template._fields[template._fieldLookup['creator']].properties.name_kanji}}</td>
       </tr>
     </table>
+
+    <div class="loader_container" v-if="shared_templates.loading">
+      <Loader>Loading forms</Loader>
+    </div>
 
   </div>
 </template>
@@ -66,7 +75,7 @@ export default {
       this.application_templates.splice(0, this.application_templates.length)
       this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/made_by_user`)
         .then((response) => {
-          this.application_templates = []
+          this.application_templates.splice(0, this.application_templates.length)
           response.data.forEach(record => {
           // Dealing with records here because involves creator and group
             this.application_templates.push(record)

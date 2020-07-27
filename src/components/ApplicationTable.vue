@@ -48,7 +48,8 @@
           type="button"
           class="bordered"
           @click="$emit('load_more','approved')">
-          Load more
+          <dots-horizontal-icon />
+          <span>Load more</span>
         </button>
       </div>
 
