@@ -94,8 +94,14 @@
 
     <!-- container for the application itself -->
     <template v-if="selected_form.properties">
-      <h3>
-        {{selected_form.properties.label}}
+
+      <h3 class="form_template_title">
+        <span>{{selected_form.properties.label}}</span>
+        <button
+          type="button"
+          @click="view_form_template(selected_form.identity.low)" >
+          <open-in-new-icon />
+        </button>
       </h3>
 
       <table class="form_content_table">
@@ -192,9 +198,7 @@
       v-on:deleteEmployee="delete_recipient($event)"
       v-bind:employees="recipients"/>
 
-
-
-
+    <h2>③ 申請書提出 / Submission</h2>
     <div class="submit_button_container" >
 
       <button
@@ -205,7 +209,6 @@
         <send-icon />
         <span>送る / Send</span>
       </button>
-
 
     </div>
 
@@ -233,9 +236,6 @@ import UserPicker from '@moreillon/vue_user_picker'
 import GroupPicker from '@moreillon/vue_group_picker'
 import Modal from '@moreillon/vue_modal'
 
-import DeleteIcon from 'vue-material-design-icons/Delete.vue';
-import AccountMultiplePlusIcon from 'vue-material-design-icons/AccountMultiplePlus.vue'
-import SendIcon from 'vue-material-design-icons/Send.vue';
 
 export default {
   name: 'CreateApplication',
@@ -244,10 +244,6 @@ export default {
     GroupPicker,
     ApprovalFlow,
     Modal,
-
-    DeleteIcon,
-    AccountMultiplePlusIcon,
-    SendIcon,
   },
 
   data () {
@@ -441,6 +437,13 @@ ${window.location.origin}/applications/${application_id}%0D%0A
     delete_file (field) {
       // Is this the right way to set value?
       this.$set(field, 'value', '')
+    },
+    view_form_template(template_id){
+      let routeData = this.$router.resolve({
+        name: 'application_template',
+        params: {template_id: template_id}
+      });
+      window.open(routeData.href, '_blank');
     }
   },
   computed: {
@@ -668,4 +671,10 @@ table.application_info select {
   display: flex;
   align-items: center;
 }
+.form_template_title {
+  display: flex;
+  align-items: center;
+}
+
+
 </style>

@@ -23,6 +23,8 @@ import AccountMultiplePlusIcon from 'vue-material-design-icons/AccountMultiplePl
 import ClockOutlineIcon from 'vue-material-design-icons/ClockOutline.vue'
 import PlusIcon from 'vue-material-design-icons/Plus.vue'
 import DotsHorizontalIcon from 'vue-material-design-icons/DotsHorizontal.vue'
+import OpenInNewIcon from 'vue-material-design-icons/OpenInNew.vue'
+import SendIcon from 'vue-material-design-icons/Send.vue'
 
 Vue.use(VueCookies)
 Vue.use(VueAxios, axios)
@@ -41,6 +43,8 @@ Vue.component('account-multiple-plus-icon', AccountMultiplePlusIcon)
 Vue.component('clock-outline-icon', ClockOutlineIcon)
 Vue.component('plus-icon', PlusIcon)
 Vue.component('dots-horizontal-icon', DotsHorizontalIcon)
+Vue.component('open-in-new-icon', OpenInNewIcon)
+Vue.component('send', SendIcon)
 
 Vue.config.productionTip = false
 
