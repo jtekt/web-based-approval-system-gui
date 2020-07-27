@@ -7,11 +7,15 @@ import axios from 'axios'
 import VueAxios from 'vue-axios'
 import VueCookies from 'vue-cookies'
 
-//import '@mdi/font/css/materialdesignicons.css'
+// Components
+import Loader from '@moreillon/vue_loader'
 
 
 Vue.use(VueCookies)
 Vue.use(VueAxios, axios)
+
+Vue.component('Loader', Loader)
+
 
 Vue.config.productionTip = false
 

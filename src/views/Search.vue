@@ -136,14 +136,12 @@
 
 <script>
 import SearchResult from '@/components/SearchResult.vue'
-import Loader from '@moreillon/vue_loader'
 import MagnifyIcon from 'vue-material-design-icons/Magnify.vue'
 
 export default {
   name: 'Search',
   components: {
     SearchResult,
-    Loader,
     MagnifyIcon,
   },
   data () {

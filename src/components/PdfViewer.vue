@@ -86,7 +86,6 @@ import { PDFDocument } from 'pdf-lib';
 import pdf from 'vue-pdf'
 import Canvg from 'canvg'
 
-import Loader from '@moreillon/vue_loader'
 
 // Icons
 import DownloadIcon from 'vue-material-design-icons/Download.vue'
@@ -98,7 +97,6 @@ export default {
   name: 'PdfViewer',
   components: {
     pdf,
-    Loader,
 
     // Icons
     DownloadIcon,

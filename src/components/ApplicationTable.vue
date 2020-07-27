@@ -70,7 +70,6 @@
 import ApplicationTableRow from '@/components/ApplicationTableRow.vue'
 import ApplicationTableHeaderRow from '@/components/ApplicationTableHeaderRow.vue'
 
-import Loader from '@moreillon/vue_loader'
 
 import CheckIcon from 'vue-material-design-icons/Check.vue'
 import ClockOutlineIcon from 'vue-material-design-icons/ClockOutline.vue'
@@ -80,7 +79,6 @@ import CloseIcon from 'vue-material-design-icons/Close.vue'
 export default {
   name: 'ApplicationTable',
   components: {
-    Loader,
     ApplicationTableRow,
     ApplicationTableHeaderRow,
     CheckIcon,

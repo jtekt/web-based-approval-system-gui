@@ -48,12 +48,10 @@
 <script>
 import PlusIcon from 'vue-material-design-icons/Plus.vue'
 
-import IconButton from '@/components/IconButton.vue'
 
 export default {
-  name: 'EditApplicationTemplate',
+  name: 'ApplicationTemplateList',
   components: {
-    IconButton,
     PlusIcon
   },
   data () {

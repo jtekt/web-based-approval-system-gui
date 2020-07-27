@@ -197,8 +197,6 @@
 
 <script>
 
-import IconButton from '@/components/IconButton.vue'
-
 import GroupPicker from '@moreillon/vue_group_picker'
 
 import DeleteIcon from 'vue-material-design-icons/Delete.vue'
@@ -209,7 +207,6 @@ export default {
   name: 'ApplicationTemplate',
   components: {
     GroupPicker,
-    IconButton,
     DeleteIcon,
     PlusIcon,
     ContentSaveIcon,

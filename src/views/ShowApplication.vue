@@ -117,8 +117,6 @@
 
 <script>
 import WebHankoContainer from '@/components/web_hanko/WebHankoContainer.vue'
-import IconButton from '@/components/IconButton.vue'
-import Loader from '@moreillon/vue_loader'
 
 import PdfViewer from '@/components/PdfViewer.vue'
 import RefusalReason from '@/components/RefusalReason.vue'
@@ -136,8 +134,6 @@ export default {
   name: 'ShowApplication',
   components: {
     WebHankoContainer,
-    IconButton,
-    Loader,
     PdfViewer,
     RefusalReason,
     ApplicationInfo,
