@@ -71,19 +71,11 @@ import ApplicationTableRow from '@/components/ApplicationTableRow.vue'
 import ApplicationTableHeaderRow from '@/components/ApplicationTableHeaderRow.vue'
 
 
-import CheckIcon from 'vue-material-design-icons/Check.vue'
-import ClockOutlineIcon from 'vue-material-design-icons/ClockOutline.vue'
-import CloseIcon from 'vue-material-design-icons/Close.vue'
-
-
 export default {
   name: 'ApplicationTable',
   components: {
     ApplicationTableRow,
     ApplicationTableHeaderRow,
-    CheckIcon,
-    ClockOutlineIcon,
-    CloseIcon,
   },
   props: {
     application_records: Object,

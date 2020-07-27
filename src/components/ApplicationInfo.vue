@@ -209,26 +209,11 @@
 import Modal from '@moreillon/vue_modal'
 import GroupPicker from '@moreillon/vue_group_picker'
 
-// Icons
-import DownloadIcon from 'vue-material-design-icons/Download.vue'
-import MagnifyIcon from 'vue-material-design-icons/Magnify.vue'
-import AccountMultiplePlusIcon from 'vue-material-design-icons/AccountMultiplePlus.vue'
-import DeleteIcon from 'vue-material-design-icons/Delete.vue'
-import CheckIcon from 'vue-material-design-icons/Check.vue'
-import CloseIcon from 'vue-material-design-icons/Close.vue'
-
 export default {
   name: 'ApplicationInfo',
   components: {
     Modal,
     GroupPicker,
-
-    DownloadIcon,
-    MagnifyIcon,
-    AccountMultiplePlusIcon,
-    DeleteIcon,
-    CheckIcon,
-    CloseIcon,
   },
   props: {
     application: Object,

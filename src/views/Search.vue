@@ -90,7 +90,8 @@
           class="bordered"
           type="button"
           @click="download_table_as_csv">
-          CSV export
+          <download-icon/>
+          <span>CSV export</span>
         </button>
       </div>
 
@@ -136,13 +137,11 @@
 
 <script>
 import SearchResult from '@/components/SearchResult.vue'
-import MagnifyIcon from 'vue-material-design-icons/Magnify.vue'
 
 export default {
   name: 'Search',
   components: {
     SearchResult,
-    MagnifyIcon,
   },
   data () {
     return {

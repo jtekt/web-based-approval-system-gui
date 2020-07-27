@@ -122,14 +122,6 @@ import PdfViewer from '@/components/PdfViewer.vue'
 import RefusalReason from '@/components/RefusalReason.vue'
 import ApplicationInfo from '@/components/ApplicationInfo.vue'
 
-import ArrowLeftIcon from 'vue-material-design-icons/ArrowLeft.vue'
-import DeleteIcon from 'vue-material-design-icons/Delete.vue'
-import ContentDuplicateIcon from 'vue-material-design-icons/ContentDuplicate.vue'
-import CheckIcon from 'vue-material-design-icons/Check.vue'
-import CloseIcon from 'vue-material-design-icons/Close.vue'
-
-
-
 export default {
   name: 'ShowApplication',
   components: {
@@ -137,13 +129,6 @@ export default {
     PdfViewer,
     RefusalReason,
     ApplicationInfo,
-
-    // Icons
-    ArrowLeftIcon,
-    DeleteIcon,
-    ContentDuplicateIcon,
-    CheckIcon,
-    CloseIcon,
   },
   mounted () {
     this.get_application()

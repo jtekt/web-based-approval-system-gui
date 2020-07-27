@@ -26,13 +26,11 @@
 
 <script>
 import ApplicationTable from '@/components/ApplicationTable.vue'
-import PlusIcon from 'vue-material-design-icons/Plus.vue'
 
 export default {
   name: 'ApplicationList',
   components: {
     ApplicationTable,
-    PlusIcon,
   },
   props: {
     type: String,

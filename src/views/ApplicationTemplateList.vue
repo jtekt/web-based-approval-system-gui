@@ -46,14 +46,10 @@
 </template>
 
 <script>
-import PlusIcon from 'vue-material-design-icons/Plus.vue'
 
 
 export default {
   name: 'ApplicationTemplateList',
-  components: {
-    PlusIcon
-  },
   data () {
     return {
       application_templates: [],

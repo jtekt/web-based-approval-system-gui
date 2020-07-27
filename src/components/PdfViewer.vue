@@ -86,23 +86,10 @@ import { PDFDocument } from 'pdf-lib';
 import pdf from 'vue-pdf'
 import Canvg from 'canvg'
 
-
-// Icons
-import DownloadIcon from 'vue-material-design-icons/Download.vue'
-import ArrowLeftIcon from 'vue-material-design-icons/ArrowLeft.vue'
-import ArrowRightIcon from 'vue-material-design-icons/ArrowRight.vue'
-
-
 export default {
   name: 'PdfViewer',
   components: {
     pdf,
-
-    // Icons
-    DownloadIcon,
-    ArrowLeftIcon,
-    ArrowRightIcon,
-
   },
   props: {
     selected_file_id: String,
