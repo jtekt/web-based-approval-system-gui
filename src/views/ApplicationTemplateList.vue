@@ -15,7 +15,7 @@
     </div>
 
     <h2>自分のフォーム / My forms</h2>
-    <table class="templates_table" v-if="!application_templates.loading && application_templates.error">
+    <table class="templates_table" v-if="!application_templates.loading && !application_templates.error">
       <tr
         v-for="template in application_templates"
         v-on:click="view_template(template._fields[template._fieldLookup['aft']].identity.low)"
