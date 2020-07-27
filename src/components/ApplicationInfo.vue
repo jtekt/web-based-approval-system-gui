@@ -68,13 +68,30 @@
         <td>共有 / Visibility</td>
         <td class="visibility_wrapper">
 
-          <div
-            class="visibility_groups_wrapper"
-            v-if="groups.length > 0">
+          <template
+            class="visibility_groups_wrapper">
+
+            <!-- Approal flow group (dummy group) -->
+            <div class="visibility_group">
+              <span>
+                承認フロー / Approval flow
+              </span>
+              <template v-if="user_is_applicant">
+                <div class="growing_spacer"/>
+
+                <button type="button" disabled>
+                  <delete-icon />
+                </button>
+              </template>
+            </div>
+
             <div
               v-for="group in groups"
               class="visibility_group"
               v-bind:key="group.identity.low">
+
+
+
               <span class="">
                 {{group.properties.name}}
               </span>
@@ -91,10 +108,9 @@
               </template>
 
             </div>
-          </div>
-          <div class="" v-else>
-            承認フローのみ / Approval flow only
-          </div>
+          </template>
+
+
 
           <!-- Button to add a group to visibility -->
           <div
@@ -104,6 +120,7 @@
               type="button"
               @click="modal_open = true">
               <account-multiple-plus-icon />
+              <span>グループ追加 / Add a group</span>
             </button>
 
           </div>
