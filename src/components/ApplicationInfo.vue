@@ -20,10 +20,7 @@
       </tr>
       <tr>
         <td>タイプ / Type</td>
-        <td v-if="forbidden">
-          <span class="confidential"/>
-        </td>
-        <td v-else>{{application.properties.type}}</td>
+        <td>{{application.properties.type}}</td>
       </tr>
 
       <tr>
