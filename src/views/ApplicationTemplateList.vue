@@ -15,10 +15,7 @@
     </div>
 
     <h2>自分のフォーム / My forms</h2>
-
-
-
-    <table class="templates_table" v-if="!application_templates.loading">
+    <table class="templates_table" v-if="!application_templates.loading && application_templates.error">
       <tr
         v-for="template in application_templates"
         v-on:click="view_template(template._fields[template._fieldLookup['aft']].identity.low)"
@@ -32,8 +29,12 @@
       <Loader>Loading forms</Loader>
     </div>
 
+    <div class="error_message" v-if="application_templates.error">
+      Error loading forms
+    </div>
+
     <h2>共有されているフォーム / Shared with me</h2>
-    <table class="templates_table" v-if="!shared_templates.loading">
+    <table class="templates_table" v-if="!shared_templates.loading && !shared_templates.error">
       <tr>
         <th>Form name</th>
         <th>Author</th>
@@ -49,6 +50,10 @@
 
     <div class="loader_container" v-if="shared_templates.loading">
       <Loader>Loading forms</Loader>
+    </div>
+
+    <div class="error_message" v-if="shared_templates.error">
+      Error loading forms
     </div>
 
   </div>
