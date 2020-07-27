@@ -11,10 +11,7 @@
       {{application.properties.creation_date.day.low}}
     </td>
 
-    <td v-if="forbidden">
-      秘密 / Hidden
-    </td>
-    <td v-else>
+    <td>
       {{application.properties.type}}
     </td>
     <td v-if="forbidden">

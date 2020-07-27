@@ -49,6 +49,14 @@
             </select>
           </td>
         </tr>
+        <!--
+        <tr>
+          <td>Group of applicant</td>
+          <td>
+            Confing soon...
+          </td>
+        </tr>
+        -->
 
       </table>
 
