@@ -1,6 +1,7 @@
 <template>
 
   <div class="web_hanko">
+    <!-- ID used for PDF stamping -->
     <svg
       :id="`hanko_${approvalId}`"
       ref="svg"
@@ -20,13 +21,14 @@
         text-anchor="middle"
         font-family="monospace, monospace"
         font-weight="600"
-        v-bind:font-size="name_font_size"
-        x="50%" y="20%">
+        :font-size="name_font_size"
+        x="50%"
+        :y="name_y">
         {{name}}
       </text>
 
       <!-- original qr is 21 x 21, resizing to 80 x 80 -->
-      <!-- warning: ranslation is in the original reference frame (before scaline) -->
+      <!-- warning: translation is in the original reference frame (before scaline) -->
       <!-- 100/21*0.8 = 3.80952380952 -->
       <path
         v-bind:d="qr_code_svg"
@@ -65,12 +67,10 @@
     </div>
 
   </div>
-
 </template>
 
 <script>
 import QRCode from 'qrcode'
-import DownloadIcon from 'vue-material-design-icons/Download.vue'
 import Canvg from 'canvg'
 import "blueimp-canvas-to-blob/js/canvas-to-blob"
 
@@ -78,7 +78,7 @@ export default {
   name: 'WebHanko',
   props: {
     name: { type: String, default: '名前' },
-    approvalId: { type: Number, required: false },
+    approvalId: { type: Number, default: 1 },
     date: {
       type: Object,
       default () {
@@ -89,35 +89,38 @@ export default {
       }
     }
   },
-  components: {
-    DownloadIcon,
-  },
   data () {
     return {
-      qr_code_svg: ''
+      qr_code_svg: '',
     }
   },
   mounted () {
-    QRCode.toString(String(this.approvalId), {
-      margin: 0,
-      color: {
-        dark: '#C00000', // Dots
-        light: '#0000' // Transparent background
-      }
-    })
+    this.generate_qr()
+  },
+  computed: {
+    name_font_size () {
+      return Math.min(55 / this.name.length, 55/2)
+    },
+    name_y () {
+      return 17.5 + 0.5*this.name_font_size
+    }
+  },
+  methods: {
+    generate_qr(){
+      QRCode.toString(String(this.approvalId), {
+        margin: 0,
+        color: {
+          dark: '#C00000', // Dots
+          light: '#0000' // Transparent background
+        }
+      })
       .then(string => {
         var parser = new DOMParser()
         var doc = parser.parseFromString(string, 'image/svg+xml')
         this.qr_code_svg = doc.getElementsByTagName('path')[0].getAttribute('d')
       })
       .catch(err => console.error(err))
-  },
-  computed: {
-    name_font_size: function () {
-      return 55 / this.name.length
-    }
-  },
-  methods: {
+    },
 
     async download () {
       if (!!window.MSInputMethodContext && !!document.documentMode) {
