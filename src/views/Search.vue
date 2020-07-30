@@ -89,9 +89,9 @@
         <button
           class="bordered"
           type="button"
-          @click="download_table_as_csv">
+          @click="export_table()">
           <download-icon/>
-          <span>CSV export</span>
+          <span>エキスパート / Export</span>
         </button>
       </div>
 
@@ -137,6 +137,7 @@
 
 <script>
 import SearchResult from '@/components/SearchResult.vue'
+import XLSX from 'xlsx'
 
 export default {
   name: 'Search',
@@ -195,37 +196,11 @@ export default {
       .finally(() => { this.loading = false })
 
     },
-    download_table_as_csv() {
-      let rows = document.querySelectorAll(`able#${search_results_table} tr`);
-      // Construct csv
-      let csv_strings = []
-
-      rows.forEach( (row) => {
-        let cols = row.querySelectorAll('td, th')
-        let row_strings = []
-        cols.forEach( (col) => {
-          // Clean innertext to remove multiple spaces and jumpline (break csv)
-          let data = col.innerText.replace(/(\r\n|\n|\r)/gm, '').replace(/(\s\s)/gm, ' ')
-          // Escape double-quote with double-double-quote (see https://stackoverflow.com/questions/17808511/properly-escape-a-double-quote-in-csv)
-          data = data.replace(/"/g, '""')
-
-          row_strings.push(`"${data}"`)
-        })
-        csv_strings.push(row_strings.join(','))
-      })
-      let csv_string = csv_strings.join('\n')
-
-
-      // Download it
-      var filename = `export.csv`
-      var link = document.createElement('a');
-      link.style.display = 'none';
-      link.setAttribute('target', '_blank');
-      link.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv_string))
-      link.setAttribute('download', filename);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+    export_table() {
+      var workbook = XLSX.utils.book_new();
+      var ws1 = XLSX.utils.table_to_sheet(document.getElementById('search_results_table'))
+      XLSX.utils.book_append_sheet(workbook, ws1, "Sheet1")
+      XLSX.writeFile(workbook, 'export.xlsx')
     }
   }
 }

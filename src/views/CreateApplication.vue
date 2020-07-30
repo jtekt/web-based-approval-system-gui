@@ -18,7 +18,11 @@
           <!-- if the form is filled from scratch -->
           <template v-if="!$route.query.copy_of">
             <span v-if="application_form_templates.loading">Loading...</span>
-            <span v-else-if="application_form_templates.error">{{application_form_templates.error}}</span>
+
+            <span v-else-if="application_form_templates.error">
+              {{application_form_templates.error}}
+            </span>
+
             <select
               v-else v-model="selected_form">
               <!--<option value=undefined>Please select</option>-->

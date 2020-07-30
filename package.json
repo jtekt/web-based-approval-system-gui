@@ -30,7 +30,8 @@
     "vue-router": "^3.3.4",
     "vuedraggable": "^2.24.0",
     "vuejs-datepicker": "^1.6.2",
-    "vuex": "^3.5.1"
+    "vuex": "^3.5.1",
+    "xlsx": "^0.16.4"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.12.1",

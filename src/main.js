@@ -25,6 +25,8 @@ import PlusIcon from 'vue-material-design-icons/Plus.vue'
 import DotsHorizontalIcon from 'vue-material-design-icons/DotsHorizontal.vue'
 import OpenInNewIcon from 'vue-material-design-icons/OpenInNew.vue'
 import SendIcon from 'vue-material-design-icons/Send.vue'
+import ContentSaveIcon from 'vue-material-design-icons/ContentSave.vue'
+import AccountIcon from 'vue-material-design-icons/Account.vue'
 
 Vue.use(VueCookies)
 Vue.use(VueAxios, axios)
@@ -44,7 +46,9 @@ Vue.component('clock-outline-icon', ClockOutlineIcon)
 Vue.component('plus-icon', PlusIcon)
 Vue.component('dots-horizontal-icon', DotsHorizontalIcon)
 Vue.component('open-in-new-icon', OpenInNewIcon)
-Vue.component('send', SendIcon)
+Vue.component('send-icon', SendIcon)
+Vue.component('content-save-icon', ContentSaveIcon)
+Vue.component('account-icon', AccountIcon)
 
 Vue.config.productionTip = false
 
