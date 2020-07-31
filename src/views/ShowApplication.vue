@@ -11,7 +11,9 @@
             :application="application"
             :applicant="applicant"
             :forbidden="forbidden"
-            @view_pdf="view_pdf($event)"/>
+            :visibility="visibility"
+            @view_pdf="view_pdf($event)"
+            @visibility_update="get_application()"/>
 
           <!-- area with the hankos and refusal comments -->
           <div class="approval_flow_column">
@@ -159,6 +161,7 @@ export default {
       approvals: [],
       rejections: [],
       submissions: [],
+      visibility: [],
 
       // Stamping pdfs
       selected_file_id: null,
@@ -193,6 +196,7 @@ export default {
           this.submissions = record._fields[record._fieldLookup['submissions']]
           this.approvals = record._fields[record._fieldLookup['approvals']]
           this.rejections = record._fields[record._fieldLookup['rejections']]
+          this.visibility = record._fields[record._fieldLookup['visibility']]
 
         })
         .catch((error) => {

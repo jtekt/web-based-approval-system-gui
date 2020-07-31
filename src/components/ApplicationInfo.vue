@@ -68,47 +68,44 @@
         <td>共有 / Visibility</td>
         <td class="visibility_wrapper">
 
-          <template
-            class="visibility_groups_wrapper">
 
-            <!-- Approal flow group (dummy group) -->
-            <div class="visibility_group">
-              <span>
-                承認フロー / Approval flow
-              </span>
-              <template v-if="user_is_applicant">
-                <div class="growing_spacer"/>
+          <!-- Approal flow group (dummy group) -->
+          <div class="visibility_group">
+            <span>
+              承認フロー / Approval flow
+            </span>
+            <template v-if="user_is_applicant">
+              <div class="growing_spacer"/>
 
-                <button type="button" disabled>
-                  <delete-icon />
-                </button>
-              </template>
-            </div>
+              <button type="button" disabled>
+                <delete-icon />
+              </button>
+            </template>
+          </div>
 
-            <div
-              v-for="group in groups"
-              class="visibility_group"
-              v-bind:key="group.identity.low">
+          <div
+            v-for="group in visibility"
+            class="visibility_group"
+            v-bind:key="group.identity.low">
 
 
 
-              <span class="">
-                {{group.properties.name}}
-              </span>
+            <span class="">
+              {{group.properties.name}}
+            </span>
 
-              <template v-if="user_is_applicant">
-                <div class="growing_spacer"/>
+            <template v-if="user_is_applicant">
+              <div class="growing_spacer"/>
 
-                <button type="button"
-                  @click="remove_application_visibility_to_group(group)">
-                  <delete-icon />
-                </button>
+              <button type="button"
+                @click="remove_application_visibility_to_group(group)">
+                <delete-icon />
+              </button>
 
 
-              </template>
+            </template>
 
-            </div>
-          </template>
+          </div>
 
 
 
@@ -219,17 +216,18 @@ export default {
     application: Object,
     applicant: Object,
     forbidden: Boolean,
+    visibility: Array,
   },
   data(){
     return {
       // modal for group visibility
       modal_open: false,
-      groups: [],
+      //groups: [],
       picker_api_url: process.env.VUE_APP_GROUP_MANAGER_API_URL
     }
   },
   mounted(){
-    this.get_visibility()
+    //this.get_visibility()
 
   },
   computed: {
@@ -245,22 +243,7 @@ export default {
 
   },
   methods: {
-    get_visibility () {
-      // Gets the groups wi which this application is visible
-      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/visibility`
-      this.axios.get(url)
-        .then(response => {
-          this.groups = []
-          response.data.forEach((record) => {
-            let group = record._fields[record._fieldLookup['group']]
-            this.groups.push(group)
-          })
-        })
-        .catch((error) =>{
-          console.log(error)
-          alert('Could not get the visibility of the application')
-        })
-    },
+
     update_privacy_of_application () {
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/privacy`
       this.axios.put(url, {private: this.application.properties.private})
@@ -274,9 +257,9 @@ export default {
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/visibility_to_group`
 
       this.axios.post(url, { group_id: group.identity.low })
-      .then((response) => {
+      .then(() => {
         this.modal_open = false
-        this.get_visibility()
+        this.$emit('visibility_update')
       })
       .catch(() => {
         alert('Error updating visibility of application')
@@ -286,8 +269,13 @@ export default {
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/visibility_to_group`
 
       this.axios.delete(url, { params: { group_id: group.identity.low } })
-      .then(() => { this.get_visibility() })
-      .catch(() => alert('Error updating visibility of application'))
+      .then(() => {
+        this.$emit('visibility_update')
+      })
+      .catch((error) => {
+        console.error(error)
+        alert('Error updating visibility of application')
+      })
     },
     view_pdf(file_id){
       this.$emit('view_pdf',file_id)

@@ -56,31 +56,34 @@
         <td>共有 / Visibility</td>
         <td class="visibility_wrapper">
 
+          <!-- Approal flow group (dummy group) -->
+          <div class="visibility_group">
+            <span> 承認フロー / Approval flow</span>
+            <div class="growing_spacer"/>
+            <button type="button" disabled>
+              <delete-icon />
+            </button>
+          </div>
+
+
           <div
-            class="visibility_groups_wrapper"
-            v-if="groups.length > 0">
+            v-for="(group, group_index) in groups"
+            class="visibility_group"
+            v-bind:key="group.identity.low">
 
-            <div
-              v-for="(group, group_index) in groups"
-              class="visibility_group"
-              v-bind:key="group.identity.low">
+            <span class="">
+              {{group.properties.name}}
+            </span>
 
-              <span class="">
-                {{group.properties.name}}
-              </span>
+            <div class="growing_spacer"/>
 
-              <div class="growing_spacer"/>
+            <button type="button"
+              @click="delete_group(group_index)">
+              <delete-icon />
+            </button>
 
-              <button type="button"
-                @click="delete_group(group_index)">
-                <delete-icon />
-              </button>
-
-            </div>
           </div>
-          <div class="" v-else>
-            承認フローのみ / Approval flow only
-          </div>
+
 
           <!-- Button to add a group to visibility -->
           <div class="visibility_group_add_button_wrapper">
@@ -88,6 +91,7 @@
               type="button"
               @click="modal_open = true">
               <account-multiple-plus-icon />
+              <span>グループ追加 / Add a group</span>
             </button>
           </div>
 
@@ -267,21 +271,10 @@ export default {
     }
   },
   mounted () {
-    this.copy_content_if_duplicate()
+    if (this.$route.query.copy_of) this.recreate_application_content()
     this.get_templates()
   },
   methods: {
-
-    copy_content_if_duplicate () {
-      // Attempt to copy the content of one application into a new one
-      // NOT VERY CLEAN but better than before
-      if (this.$route.query.copy_of) {
-        this.recreate_application_content()
-        this.recreate_visibility()
-        //this.recreate_approval_flow()
-      }
-    },
-
     recreate_application_content () {
       // Todo: add a loader for the content of the application itself
       this.$set(this.selected_form, 'loading', true)
@@ -295,6 +288,9 @@ export default {
           let original_application = record._fields[record._fieldLookup['application']]
           let recipients = record._fields[record._fieldLookup['recipients']]
           let submissions = record._fields[record._fieldLookup['submissions']]
+
+          // recreate visibility
+          this.groups = record._fields[record._fieldLookup['visibility']]
 
           // Set application details back
           this.title = original_application.properties.title
@@ -311,18 +307,17 @@ export default {
             fields: fields
           })
 
+
+          // Recreate flow
           let ordered_submissions = submissions.sort((a,b) => {
             return a.properties.flow_index.low - b.properties.flow_index.low
           })
 
           ordered_submissions.forEach((submission) => {
-
             let recipient_of_submission = recipients.find(recipient => {
               return JSON.stringify(recipient.identity) === JSON.stringify(submission.end)
             })
-
             this.recipients.push(recipient_of_submission)
-
           })
 
         })
@@ -333,19 +328,6 @@ export default {
         .finally(() => this.$set(this.selected_form, 'loading', false))
     },
 
-    recreate_visibility () {
-      // Gets the groups wi which this application is visible (used if duplicate)
-      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.$route.query.copy_of}/visibility`
-      this.axios.get(url)
-        .then(response => {
-          this.groups = []
-          response.data.forEach((record) => {
-            let group = record._fields[record._fieldLookup['group']]
-            this.groups.push(group)
-          })
-        })
-        .catch(() => this.error = 'Error getting application')
-    },
 
     get_templates () {
       this.$set(this.application_form_templates, 'loading', true)
