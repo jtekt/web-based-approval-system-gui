@@ -27,6 +27,7 @@ import OpenInNewIcon from 'vue-material-design-icons/OpenInNew.vue'
 import SendIcon from 'vue-material-design-icons/Send.vue'
 import ContentSaveIcon from 'vue-material-design-icons/ContentSave.vue'
 import AccountIcon from 'vue-material-design-icons/Account.vue'
+import EmailIcon from 'vue-material-design-icons/Email.vue'
 
 Vue.use(VueCookies)
 Vue.use(VueAxios, axios)
@@ -49,6 +50,7 @@ Vue.component('open-in-new-icon', OpenInNewIcon)
 Vue.component('send-icon', SendIcon)
 Vue.component('content-save-icon', ContentSaveIcon)
 Vue.component('account-icon', AccountIcon)
+Vue.component('email-icon', EmailIcon)
 
 Vue.config.productionTip = false
 

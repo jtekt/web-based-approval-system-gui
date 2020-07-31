@@ -5,11 +5,14 @@
     <a
       :href="user_profile_url"
       class="hanko_container_header">
-      {{recipient.properties.last_name || recipient.properties.family_name_kanji}}
+      {{ recipient.properties.last_name
+        || recipient.properties.family_name_kanji
+        || recipient.family_name}}
     </a>
 
     <div class="hanko_area">
 
+      <!-- TODO: provide alternatives for the name! -->
       <WebHanko
         v-if="approval"
         v-bind:name="recipient.properties.last_name"
@@ -22,14 +25,27 @@
 
     </div>
 
-    <div class="toolbox" v-if="show_toolbox">
-      <check-icon class="approval_control approve_button" v-on:click="$emit('approve')"/>
-      <close-icon class="approval_control disapprove_button" v-on:click="$emit('reject')"/>
+    <!-- Tools to accept or reject an application -->
+    <div
+      class="toolbox"
+      v-if="show_toolbox">
+
+      <check-icon
+        class="approval_control approve_button"
+        v-on:click="$emit('approve')"/>
+
+      <close-icon
+        class="approval_control disapprove_button"
+        v-on:click="$emit('reject')"/>
+
     </div>
 
     <!-- Sending an email -->
-    <div class="toolbox"
-      v-else-if="is_next_recipient && !this.rejection && (user_is_applicant)">
+    <div
+      class="toolbox"
+      v-else-if="is_current_submission
+        && !this.rejection
+        && user_is_applicant">
 
       <button
         type="button"
@@ -47,23 +63,20 @@
 import WebHanko from './WebHanko.vue'
 import Rejection from './Rejection.vue'
 
-import CheckIcon from 'vue-material-design-icons/Check.vue'
-import CloseIcon from 'vue-material-design-icons/Close.vue'
-import EmailIcon from 'vue-material-design-icons/Email.vue'
-
-
 export default {
   name: 'WebHankoContainer',
   components: {
     WebHanko,
     Rejection,
-    CheckIcon,
-    CloseIcon,
-    EmailIcon,
   },
   props: {
-    applicationRecord: { type: Object, required: true },
-    is_next_recipient: { type: Boolean, default () { return true } }
+    recipient: { type: Object, required: true },
+    approval: { type: Object },
+    rejection: { type: Object },
+
+    applicant: { type: Object },
+
+    is_current_submission: { type: Boolean, default () { return false } }
   },
   data () {
     return {
@@ -76,37 +89,23 @@ export default {
     }
   },
   computed: {
-    recipient () {
-      return this.applicationRecord._fields[this.applicationRecord._fieldLookup['recipient']]
-    },
-    approval () {
-      return this.applicationRecord._fields[this.applicationRecord._fieldLookup['approval']]
-    },
-    rejection () {
-      return this.applicationRecord._fields[this.applicationRecord._fieldLookup['rejection']]
-    },
-    submission () {
-      return this.applicationRecord._fields[this.applicationRecord._fieldLookup['submitted_to']]
-    },
-    application () {
-      return this.applicationRecord._fields[this.applicationRecord._fieldLookup['application']]
-    },
-    applicant () {
-      return this.applicationRecord._fields[this.applicationRecord._fieldLookup['applicant']]
-    },
+
     show_toolbox () {
       // If the user is a recipient that has not approved or rejected the application and also is next recipient
-      return this.$store.state.current_user.identity.low === this.recipient.identity.low &&
-        !this.approval &&
-        !this.rejection &&
-        this.is_next_recipient
+      return this.user_is_recipient
+        && !this.approval
+        && !this.rejection
+        && this.is_current_submission
     },
     user_profile_url () {
       return `${process.env.VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/?id=${this.recipient.identity.low}`
     },
     user_is_applicant () {
-      return this.$store.state.current_user.identity.low === this.applicant.identity.low
-    }
+      return JSON.stringify(this.$store.state.current_user.identity) === JSON.stringify(this.applicant.identity)
+    },
+    user_is_recipient () {
+      return JSON.stringify(this.$store.state.current_user.identity) === JSON.stringify(this.recipient.identity)
+    },
   }
 }
 </script>

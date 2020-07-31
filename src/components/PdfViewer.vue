@@ -74,7 +74,9 @@
     </div>
 
 
-    <div class="error_message" v-if="load_error">
+    <div
+      v-if="load_error"
+      class="error_message" >
       {{load_error}}
     </div>
 
@@ -93,7 +95,7 @@ export default {
   },
   props: {
     selected_file_id: String,
-    recipient_records: Array,
+    approvals: Array,
     application_id: Number,
   },
   data(){
@@ -124,7 +126,7 @@ export default {
     selected_file_id() {
       this.view_pdf(this.selected_file_id)
     },
-    recipient_records() {
+    approvals() {
       this.view_pdf(this.selected_file_id)
     }
   },
@@ -207,13 +209,17 @@ export default {
       let promises = []
 
       // For each recipient
-      this.recipient_records.forEach(async (record) => {
+      this.approvals.forEach(async (approval) => {
 
         // using promises to only save the pdf when all hankos are drawn
         let promise = new Promise ( async(resolve, reject) => {
-          let approval = record._fields[record._fieldLookup['approval']]
           if(!approval) return resolve()
           if(!approval.properties.attachment_hankos) return resolve()
+
+          // Parse attachment hankos if not JSON already
+          if(typeof approval.properties.attachment_hankos === 'string') {
+            approval.properties.attachment_hankos = JSON.parse(approval.properties.attachment_hankos)
+          }
 
           // Get the hanko's svg
           const hanko_svg = document.getElementById(`hanko_${approval.identity.low}`)
@@ -364,15 +370,11 @@ export default {
   },
   computed: {
     approval_of_current_user(){
-      let found_recipient_record = this.recipient_records.find(record => {
-        let recipient = record._fields[record._fieldLookup['recipient']]
-        let recipient_id = recipient.identity.low
-        return recipient_id === this.$store.state.current_user.identity.low
+
+      return this.approvals.find(approval => {
+        return JSON.stringify(approval.start) === JSON.stringify(this.$store.state.current_user.identity)
       })
 
-      if(!found_recipient_record) return false
-
-      return found_recipient_record._fields[found_recipient_record._fieldLookup['approval']]
     }
   }
 }

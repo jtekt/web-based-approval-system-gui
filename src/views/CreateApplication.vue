@@ -278,21 +278,27 @@ export default {
       if (this.$route.query.copy_of) {
         this.recreate_application_content()
         this.recreate_visibility()
-        this.recreate_approval_flow()
+        //this.recreate_approval_flow()
       }
     },
 
     recreate_application_content () {
       // Todo: add a loader for the content of the application itself
       this.$set(this.selected_form, 'loading', true)
-      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.$route.query.copy_of}`)
+      let application_id = this.$route.query.copy_of
+      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${application_id}`
+      this.axios.get(url)
         .then(response => {
-          let record = response.data[0]
+
+          let record = response.data
+
           let original_application = record._fields[record._fieldLookup['application']]
+          let recipients = record._fields[record._fieldLookup['recipients']]
+          let submissions = record._fields[record._fieldLookup['submissions']]
 
-          this.title = `Copy of ${original_application.properties.title}`
+          // Set application details back
+          this.title = original_application.properties.title
           this.private = original_application.properties.private
-
           original_application.properties.form_data = JSON.parse(original_application.properties.form_data)
 
           let fields = []
@@ -304,6 +310,21 @@ export default {
             label: original_application.properties.type,
             fields: fields
           })
+
+          let ordered_submissions = submissions.sort((a,b) => {
+            return a.properties.flow_index.low - b.properties.flow_index.low
+          })
+
+          ordered_submissions.forEach((submission) => {
+
+            let recipient_of_submission = recipients.find(recipient => {
+              return JSON.stringify(recipient.identity) === JSON.stringify(submission.end)
+            })
+
+            this.recipients.push(recipient_of_submission)
+
+          })
+
         })
         .catch((error) => {
           console.error(error)
@@ -324,26 +345,6 @@ export default {
           })
         })
         .catch(() => this.error = 'Error getting application')
-    },
-
-    recreate_approval_flow () {
-      // Gets the groups wi which this application is visible (used if duplicate)
-      // Does not recreate the flow in the right order!
-      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.$route.query.copy_of}/recipients`
-      this.axios.get(url)
-        .then(response => {
-          this.recipients = []
-
-          response.data.reverse().forEach((record) => {
-            let recipient = record._fields[record._fieldLookup['recipient']]
-            this.recipients.push(recipient)
-          })
-
-        })
-        .catch((error) => {
-          console.error(error)
-          this.error = 'Error getting application'
-        })
     },
 
     get_templates () {
@@ -377,31 +378,16 @@ export default {
           private: this.private,
           group_ids: this.groups.map(group => group.identity.low)
         })
-          .then(response => {
-          // Creation successful
+        .then(response => {
 
-          // send notification email to first recipient of flow
-          let recipient_email = this.recipients[0].properties.email_address
-          let recipient_name = this.recipients[0].properties.name_kanji
-          let application_type = response.data[0]._fields[0].properties.type
           let application_id = response.data[0]._fields[0].identity.low
 
-          // Send email to first recipient
-          // Weird formatting because respects identation
-          window.location.href = `
-mailto:${recipient_email}
-?subject=[自動送信] ${application_type}を提出しました
-&body=${recipient_name}　様%0D%0A
-%0D%0A
-提出先URL: %0D%0A
-${window.location.origin}/applications/${application_id}%0D%0A
-%0D%0A
-確認お願いします。%0D%0A
-            `
-
-            this.$router.push({ name: 'application', params: {application_id: application_id} })
-          })
-          .catch(error => alert(error))
+          this.$router.push({ name: 'application', params: {application_id: application_id} })
+        })
+        .catch(error => {
+          console.error(error)
+          alert(error)
+        })
       } else alert('There are missing items in this application form')
     },
 
@@ -409,10 +395,14 @@ ${window.location.origin}/applications/${application_id}%0D%0A
       this.recipients.splice(index, 1)
     },
     add_to_recipients (recipient_to_add) {
-      // Prevent duplicates
-      if (!this.recipients.includes(recipient_to_add)) {
-        this.recipients.push(recipient_to_add)
-      } else alert('Duplicates not allowed')
+
+      let existing_recipient = this.recipients.find(recipient => {
+        return JSON.stringify(recipient.identity) === JSON.stringify(recipient_to_add.identity)
+      })
+
+      if(existing_recipient) return alert('Duplicates not allowed')
+      else this.recipients.push(recipient_to_add)
+
     },
     delete_group (index) {
       this.groups.splice(index, 1)
@@ -458,6 +448,7 @@ ${window.location.origin}/applications/${application_id}%0D%0A
         && this.selected_form.properties
     },
     picker_api_url () {
+      // TODO: THIS SHOULD NOT BE NEEDED ANYMORE
       return process.env.VUE_APP_GROUP_MANAGER_API_URL
     }
   }

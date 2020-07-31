@@ -13,30 +13,42 @@
             :forbidden="forbidden"
             @view_pdf="view_pdf($event)"/>
 
-          <!-- area with the hankos -->
+          <!-- area with the hankos and refusal comments -->
           <div class="approval_flow_column">
             <div class="approval_flow" >
 
               <!-- inner wrapper exists so that arrows can be placed between hanko containers -->
               <template
-                v-for="(recipient_record, index) in recipient_records">
+                v-for="(submission, index) in ordered_submissions">
+
+
 
                 <arrow-left-icon
                   class="arrow"
                   v-if="index>0"/>
 
+
                 <WebHankoContainer
-                  v-bind:applicationRecord="recipient_record"
-                  v-on:approve="approve(application.identity.low)"
-                  v-on:reject="reject(application.identity.low)"
-                  v-bind:is_next_recipient="is_next_recipient(recipient_record)"
+                  :applicant="applicant"
+                  :recipient="recipient_of_submission(submission)"
+                  :approval="approval_of_recipient(recipient_of_submission(submission))"
+                  :rejection="rejection_of_recipient(recipient_of_submission(submission))"
+
+                  :is_current_submission="submission === current_submission"
+
+                  @approve="approve()"
+                  @reject="reject()"
                   @send_email="send_email($event)"/>
+
+
               </template>
 
             </div>
 
             <!-- area for refusals reasons -->
-            <RefusalReason :recipient_records="recipient_records"/>
+            <RefusalReason
+              :rejections="rejections"
+              :recipients="recipients"/>
 
           </div>
         </div>
@@ -67,8 +79,8 @@
           </template>
 
 
-
-          <template v-if="user_is_current_recipient && !user_has_refused">
+          <!-- Controls to approve or reject an application -->
+          <template v-if="user_is_current_recipient && rejections.length === 0">
             <button
               type="button"
               class="bordered approve_button"
@@ -97,7 +109,7 @@
       <PdfViewer
         v-if="selected_file_id"
         :selected_file_id="selected_file_id"
-        :recipient_records="recipient_records"
+        :approvals="approvals"
         :application_id="application.identity.low"/>
 
     </template>
@@ -106,7 +118,7 @@
       <Loader>Loading application</Loader>
     </div>
 
-    <div class="not_found" v-if="error">
+    <div class="not_found error_message" v-if="error">
       Error loading application
     </div>
 
@@ -144,11 +156,14 @@ export default {
       application: null,
       applicant: null,
       forbidden: null,
-
-      recipient_records: [],
+      approvals: [],
+      rejections: [],
+      submissions: [],
 
       // Stamping pdfs
       selected_file_id: null,
+
+
 
     }
   },
@@ -157,8 +172,6 @@ export default {
       // Get the body of the application, regardless of its recipients
       // This gets the applicant as well (for the time being)
 
-      // TODO: CHeck if id in query
-      // TODO: Get recipients with the same call
       this.loading = true
 
       let application_id = this.$route.params.application_id
@@ -170,68 +183,42 @@ export default {
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${application_id}`
       this.axios.get(url)
         .then(response => {
-          if (response.data.length > 0) {
 
-            let record = response.data[0]
+          let record = response.data
 
-            this.application = record._fields[record._fieldLookup['application']]
-            this.applicant = record._fields[record._fieldLookup['applicant']]
-            this.forbidden = record._fields[record._fieldLookup['forbidden']]
+          this.application = record._fields[record._fieldLookup['application']]
+          this.applicant = record._fields[record._fieldLookup['applicant']]
+          this.forbidden = record._fields[record._fieldLookup['forbidden']]
+          this.recipients = record._fields[record._fieldLookup['recipients']]
+          this.submissions = record._fields[record._fieldLookup['submissions']]
+          this.approvals = record._fields[record._fieldLookup['approvals']]
+          this.rejections = record._fields[record._fieldLookup['rejections']]
 
-            this.recipient_records = []
-            response.data.forEach((record) => {
-              this.recipient_records.push(record)
-
-              // parse attachment hankos if they exist
-              let approval = record._fields[record._fieldLookup['approval']]
-              if(!approval) return
-              if(!approval.properties.attachment_hankos) return
-              approval.properties.attachment_hankos = JSON.parse(approval.properties.attachment_hankos)
-
-            })
-          }
         })
-        .catch((error) => { this.error = error })
+        .catch((error) => {
+          console.error(error)
+          this.error = error
+        })
         .finally(() => this.loading = false)
     },
-
-    /*
-    get_approval_flow () {
-      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.$route.query.id}/recipients`
-
-      this.axios.get(url)
-        .then(response => {
-          this.recipient_records = []
-          response.data.forEach((record) => {
-            this.recipient_records.push(record)
-
-            // parse attachment hankos if they exist
-            let approval = record._fields[record._fieldLookup['approval']]
-            if(!approval) return
-            if(!approval.properties.attachment_hankos) return
-            approval.properties.attachment_hankos = JSON.parse(approval.properties.attachment_hankos)
-
-          })
-        })
-        .catch((error) => console.log(error))
-    },
-    */
-
     approve () {
       // ask for confirmation
-      if (!confirm('ホンマ？')) return
+      if (!confirm('ホンマ？ Confirm approval?')) return
 
       // send POST to mark as approved
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/approve`
       this.axios.post(url)
         .then(() => {
+
+          // Send an email
+          console.log(this.next_recipient)
+          if(this.next_recipient) this.send_email(this.next_recipient)
+
+
           // Refresh the approval flow
           this.get_application()
 
-          // Send an email
-          let next_recipient = this.next_recipient
-          if(!next_recipient) return
-          this.send_email(next_recipient)
+
 
         })
         .catch((error) => {
@@ -240,7 +227,7 @@ export default {
         })
     },
     reject () {
-      let reason = prompt('なぜ？', '')
+      let reason = prompt('なぜ？ / Why?', '')
       if(!reason) return
 
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/reject`
@@ -249,19 +236,17 @@ export default {
         .catch(() => alert('Error rejecting application'))
     },
     delete_application () {
-      if (!confirm('ホンマ？')) return
+      if (!confirm('ホンマ？ Confirm deletion?')) return
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}`
       this.axios.delete(url)
         .then(() => { this.$router.push({name: 'submitted_applications'}) })
         .catch(() => alert(`Error deleting application`))
     },
     edit_a_copy () {
-      this.$router.push({ path: '/create_application', query: { copy_of: this.application.identity.low } })
-    },
-
-    is_next_recipient (recipient_record) {
-      let flow_index = recipient_record._fields[recipient_record._fieldLookup['submitted_to']].properties.flow_index.low
-      return flow_index === this.approval_count
+      this.$router.push({
+        path: '/create_application',
+        query: { copy_of: this.application.identity.low }
+      })
     },
 
     view_pdf(file_id){
@@ -281,55 +266,59 @@ ${window.location.origin}/applications/${this.application.identity.low}%0D%0A
  %0D%0A
 確認お願いします。%0D%0A
         `
-    }
+    },
+    recipient_of_submission(submission){
+      if(!submission) return null
+      return this.recipients.find(recipient => {
+        return JSON.stringify(recipient.identity) === JSON.stringify(submission.end)
+      })
+    },
+    approval_of_recipient(recipient){
+      return this.approvals.find(approval => {
+        return JSON.stringify(approval.start) === JSON.stringify(recipient.identity)
+      })
+    },
+    rejection_of_recipient(recipient){
+      return this.rejections.find(rejection => {
+        return JSON.stringify(rejection.start) === JSON.stringify(recipient.identity)
+      })
+    },
 
   },
   computed: {
+    ordered_submissions() {
+      return this.submissions.sort((a,b) => {
+        return b.properties.flow_index.low - a.properties.flow_index.low
+      })
+    },
     approval_count () {
-      return this.recipient_records.reduce((approval_count, e) => {
-        return approval_count + !!e._fields[e._fieldLookup['approval']]
-      }, 0)
+      return this.approvals.length
+    },
+    current_submission() {
+      return this.submissions.find(submission => {
+        return submission.properties.flow_index.low === this.approval_count
+      })
     },
     current_recipient(){
-      let next_recipient_record = this.recipient_records.find(record => {
-        let recipient = record._fields[record._fieldLookup['submitted_to']]
-        return recipient.properties.flow_index.low === this.approval_count
+      return this.recipient_of_submission(this.current_submission)
+    },
+    next_submission(){
+      return this.submissions.find(submission => {
+        return submission.properties.flow_index.low === this.approval_count + 1
       })
-
-      if (!next_recipient_record) return null
-      return next_recipient_record._fields[next_recipient_record._fieldLookup['recipient']]
     },
     next_recipient(){
-      let next_recipient_record = this.recipient_records.find(record => {
-        let recipient = record._fields[record._fieldLookup['submitted_to']]
-        return recipient.properties.flow_index.low === this.approval_count + 1
-      })
-
-      if (!next_recipient_record) return null
-      return next_recipient_record._fields[next_recipient_record._fieldLookup['recipient']]
+      return this.recipient_of_submission(this.next_submission)
     },
-
     user_is_applicant () {
       return this.applicant.identity.low === this.$store.state.current_user.identity.low
     },
     user_is_current_recipient(){
+
       let user_id = this.$store.state.current_user.identity.low
       let next_recipient = this.current_recipient
       if(!next_recipient) return false
       if(next_recipient.identity.low === user_id) return true
-      else return false
-    },
-    user_has_refused(){
-      let user_id = this.$store.state.current_user.identity.low
-
-      let refusal = this.recipient_records.find(record => {
-        let refusal_node = record._fields[record._fieldLookup['rejection']]
-        if(!refusal_node) return false
-        let recipient_id = refusal_node.start.low
-        return recipient_id === user_id
-      })
-
-      if(refusal) return true
       else return false
     },
 

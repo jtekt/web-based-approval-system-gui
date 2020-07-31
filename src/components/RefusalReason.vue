@@ -1,16 +1,15 @@
 <template>
-  <div class="refusal_reasons">
+  <div class="rejection_reasons">
     <table>
       <tr
-        v-for="(recipient_record, index) in recipient_records"
-        v-if="recipient_record._fields[recipient_record._fieldLookup['rejection']]">
+        v-for="(rejection, index) in rejections">
         <td class="refuser_name">
-          {{recipient(recipient_record).properties.name_kanji
-            || recipient(recipient_record).properties.display_name
-            || recipient(recipient_record).properties.name}}
+          {{recipient_of_rejection(rejection).properties.name_kanji
+            || recipient_of_rejection(rejection).properties.display_name
+            || recipient_of_rejection(rejection).properties.name}}
         </td>
         <td>
-          {{recipient_record._fields[recipient_record._fieldLookup['rejection']].properties.reason}}
+          {{rejection.properties.reason}}
         </td>
       </tr>
     </table>
@@ -21,13 +20,16 @@
 
 
 export default {
-  name: 'RefusalReason',
+  name: 'rejectionReason',
   props: {
-    recipient_records: Array
+    recipients: Array,
+    rejections: Array,
   },
   methods: {
-    recipient(record){
-      return record._fields[record._fieldLookup['recipient']]
+    recipient_of_rejection(rejection){
+      return this.recipients.find(recipient => {
+        return JSON.stringify(rejection.start) === JSON.stringify(recipient.identity)
+      })
     }
   }
 
@@ -35,25 +37,25 @@ export default {
 </script>
 
 <style scoped>
-.refusal_reasons{
+.rejection_reasons{
   margin: 15px;
 }
 
-.refusal_reasons table {
+.rejection_reasons table {
   width: 100%;
   table-layout: fixed;
   border-collapse: collapse;
   text-align: left;
 }
-.refusal_reasons table tr:not(:last-child) {
+.rejection_reasons table tr:not(:last-child) {
   border-bottom: 1px solid #dddddd;
 }
 
-.refusal_reasons table td {
+.rejection_reasons table td {
   padding: 5px;
 }
 
-.refusal_reasons table .refuser_name {
+.rejection_reasons table .refuser_name {
   width: 25%;
   font-weight: bold;
   white-space: nowrap;
