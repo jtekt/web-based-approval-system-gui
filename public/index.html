@@ -13,9 +13,20 @@
     </noscript>
     <div id="app"></div>
     <!-- built files will be auto injected -->
+
+    <div id="ie_error_message" style="display: none;">
+      <h1>申請マネージャー</h1>
+      <p>
+        Microsoft Internet Explorerは古すぎてセキュリティーが脆弱であり、現代のJavaScriptの機能は未対応なので、このアプリケーションは使えません。
+      </p>
+      <p>
+        Google ChromeやMozilla FirefoxやMicrosoft Edgeを使ってください。
+      </p>
+    </div>
+
     <script type="text/javascript">
     if (!!window.MSInputMethodContext && !!document.documentMode) {
-      alert('Internet Explorer is too old for this application. Please use a modern browser like Chrome, Firefox, Edge or Brave')
+      document.getElementById('ie_error_message').style.display="block"
     }
     </script>
   </body>

@@ -264,6 +264,7 @@ export default {
     },
 
     get_visibility () {
+      // TODO: USE THE SAME API CALL AS ABOVE
       // Gets the groups wi which this application is visible
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}/visibility`
 
@@ -314,7 +315,7 @@ export default {
       }
     },
     delete_template (id) {
-      if (confirm('ホンマ？')) {
+      if (confirm('ホンマ？ Really?')) {
         let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
         this.axios.delete(url)
         .then((response) => this.$router.push({ name: 'application_templates' }))
