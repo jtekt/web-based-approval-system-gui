@@ -238,7 +238,7 @@ export default {
   mounted () {
     if (this.template_id) {
       this.get_template()
-      this.get_visibility()
+      //this.get_visibility()
     }
   },
   methods: {
@@ -247,7 +247,7 @@ export default {
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
       this.axios.get(url)
       .then((response) => {
-        let record = response.data[0]
+        let record = response.data
         let aft = record._fields[record._fieldLookup['aft']]
 
         let parsed_fields = JSON.parse(aft.properties.fields)
@@ -259,24 +259,12 @@ export default {
         this.description = aft.properties.description
 
         this.author = record._fields[record._fieldLookup['creator']]
+
+        this.groups = record._fields[record._fieldLookup['groups']]
+
+
       })
       .catch(error => console.log(error))
-    },
-
-    get_visibility () {
-      // TODO: USE THE SAME API CALL AS ABOVE
-      // Gets the groups wi which this application is visible
-      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}/visibility`
-
-      this.axios.get(url)
-        .then(response => {
-          this.groups = []
-          response.data.forEach((record) => {
-            let group = record._fields[record._fieldLookup['group']]
-            this.groups.push(group)
-          })
-        })
-        .catch((error) => console.log(error))
     },
 
     add_field () {
@@ -303,7 +291,6 @@ export default {
       // otherwise create
       else {
         let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates`
-
         this.axios.post(url, {
           fields: this.fields,
           label: this.label,
@@ -315,7 +302,7 @@ export default {
       }
     },
     delete_template (id) {
-      if (confirm('ホンマ？ Really?')) {
+      if (confirm('ホンマ？ / Really?')) {
         let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
         this.axios.delete(url)
         .then((response) => this.$router.push({ name: 'application_templates' }))
