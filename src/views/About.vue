@@ -85,7 +85,6 @@ export default {
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/count`
       this.axios.get(url)
       .then((response) => {
-        console.log(response.data)
         this.application_count = response.data.low
       })
       .catch(error => console.log(error))
