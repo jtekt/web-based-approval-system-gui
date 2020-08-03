@@ -146,7 +146,6 @@ export default {
   },
   mounted () {
     this.get_application()
-    //this.get_approval_flow()
   },
   data () {
     return {
@@ -367,7 +366,9 @@ ${window.location.origin}/applications/${this.application.identity.low}%0D%0A
   /* horizontal layout */
   display: flex;
   justify-content: flex-end;
-  align-items: flex-start;
+  /* because wrap reverse */
+  align-items: flex-end;
+  flex-wrap: wrap-reverse;
 }
 
 
