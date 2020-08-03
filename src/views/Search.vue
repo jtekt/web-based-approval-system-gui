@@ -319,4 +319,13 @@ tr:not(:last-child) {
   align-items: center;
 }
 
+.group_picker_wrapper {
+  height: 50vh;
+  width: 75vw;
+}
+
+.visibility_group_picker {
+  height: 100%;
+}
+
 </style>
