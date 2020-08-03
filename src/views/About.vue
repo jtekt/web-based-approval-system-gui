@@ -5,6 +5,14 @@
       申請マネージャ / Shinsei manager version {{version}}
     </p>
     <p>
+      Developped and maintained by <a href="https://maximemoreillon.com">Maxime MOREILLON</a>
+    </p>
+    <h2>Statistics</h2>
+    <p>
+      <span style="font-weight: bold;">{{application_count}}</span> Submitted applications forms
+    </p>
+    <h2>Technologies</h2>
+    <p>
       This application is built using the following open-source technologies:
     </p>
 
@@ -24,7 +32,7 @@
     <p>
       If you find a bug or a problem, please report it on GitLab
     </p>
-    
+
 
 
   </div>
@@ -38,6 +46,7 @@ export default {
   name: 'About',
   data () {
     return {
+      application_count: null,
       version: pjson.version,
       technologies: [
         {
@@ -66,6 +75,20 @@ export default {
         }
 
       ]
+    }
+  },
+  mounted(){
+    this.get_application_count()
+  },
+  methods: {
+    get_application_count(){
+      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/count`
+      this.axios.get(url)
+      .then((response) => {
+        console.log(response.data)
+        this.application_count = response.data.low
+      })
+      .catch(error => console.log(error))
     }
   }
 
