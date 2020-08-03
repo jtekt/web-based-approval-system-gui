@@ -232,7 +232,7 @@ export default {
     },
     reject () {
       let reason = prompt('なぜ？ / Why?', '')
-      if(!reason) return
+      if(reason === null) return
 
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/reject`
       this.axios.post(url, { reason: reason })

@@ -186,7 +186,9 @@
     </table>
 
     <!-- Model used for group visibility -->
-    <Modal :open="modal_open" @close="modal_open=false">
+    <Modal
+      :open="modal_open"
+      @close="modal_open=false">
       <h2 class="">
         共有 / Visibility
       </h2>
@@ -286,15 +288,21 @@ export default {
 </script>
 
 <style scoped>
+.application_info {
+  overflow-y: auto;
+  width: 100%;
+}
 .application_info table {
   width: 100%;
   border-collapse: collapse;
   text-align: center;
+  table-layout: fixed;
 }
 
 .application_info td, .application_info th {
   padding: 5px;
 }
+
 
 .application_info th {
   padding-top: 10px;
