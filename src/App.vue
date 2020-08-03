@@ -65,6 +65,11 @@ button:disabled {
   cursor: not-allowed;
 }
 
+button .material-design-icon {
+  display: flex;
+  align-items: center;
+}
+
 button > *:not(:last-child) {
   margin-right: 0.25em;
 }
