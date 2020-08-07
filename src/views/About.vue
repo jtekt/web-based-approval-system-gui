@@ -1,13 +1,15 @@
 <template>
   <div>
-    <h1>Info</h1>
+    <h1>申請マネージャ / Shinsei manager</h1>
     <p>
-      申請マネージャ / Shinsei manager version {{version}}
+       Front end version: {{version}}
+    </p>
+    <p>
+      Back-end version: {{back_end_version}}
     </p>
     <p>
       Developped and maintained by <a href="https://maximemoreillon.com">Maxime MOREILLON</a>
     </p>
-    <h2>Statistics</h2>
     <p>
       <span style="font-weight: bold;">{{application_count}}</span> Submitted applications forms
     </p>
@@ -47,6 +49,7 @@ export default {
   data () {
     return {
       application_count: null,
+      back_end_version: null,
       version: pjson.version,
       technologies: [
         {
@@ -79,6 +82,7 @@ export default {
   },
   mounted(){
     this.get_application_count()
+    this.get_back_end_version()
   },
   methods: {
     get_application_count(){
@@ -86,6 +90,14 @@ export default {
       this.axios.get(url)
       .then((response) => {
         this.application_count = response.data.low
+      })
+      .catch(error => console.log(error))
+    },
+    get_back_end_version(){
+      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/`
+      this.axios.get(url)
+      .then((response) => {
+        this.back_end_version = response.data.version
       })
       .catch(error => console.log(error))
     }
