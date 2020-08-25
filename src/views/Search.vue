@@ -105,7 +105,7 @@
           type="button"
           @click="export_table()">
           <download-icon/>
-          <span>エキスパート / Export</span>
+          <span>エクスポート / Export</span>
         </button>
       </div>
 
