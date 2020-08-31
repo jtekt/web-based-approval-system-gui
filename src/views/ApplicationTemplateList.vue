@@ -42,8 +42,8 @@
       class="templates_table"
       v-if="!shared_templates.loading && !shared_templates.error">
       <tr>
-        <th>フォームタイトル / Form Title</th>
-        <th>Author</th>
+        <th>タイトル / Title</th>
+        <th>著者 / Author</th>
       </tr>
       <tr
         v-for="template in shared_templates"

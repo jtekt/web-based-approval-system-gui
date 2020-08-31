@@ -12,7 +12,7 @@
 
       <div class="template_metadata_wrapper">
         <div class="title_wrapper">
-          <label for="">イトル / Title</label>
+          <label for="">タイトル / Title</label>
           <input type="text" v-model="label" placeholder="タイトル / Title">
         </div>
 
