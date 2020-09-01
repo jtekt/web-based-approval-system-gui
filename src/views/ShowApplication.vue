@@ -48,8 +48,10 @@
             </div>
 
             <!-- area for refusals reasons -->
-            <RefusalReason
+            <ApprovalComments
+              :submissions="ordered_submissions"
               :rejections="rejections"
+              :approvals="approvals"
               :recipients="recipients"/>
 
           </div>
@@ -133,7 +135,7 @@
 import WebHankoContainer from '@/components/web_hanko/WebHankoContainer.vue'
 
 import PdfViewer from '@/components/PdfViewer.vue'
-import RefusalReason from '@/components/RefusalReason.vue'
+import ApprovalComments from '@/components/ApprovalComments.vue'
 import ApplicationInfo from '@/components/ApplicationInfo.vue'
 
 export default {
@@ -141,7 +143,7 @@ export default {
   components: {
     WebHankoContainer,
     PdfViewer,
-    RefusalReason,
+    ApprovalComments,
     ApplicationInfo,
   },
   mounted () {
@@ -206,22 +208,24 @@ export default {
     },
     approve () {
       // ask for confirmation
-      if (!confirm('ホンマ？ Confirm approval?')) return
+      //if (!confirm('ホンマ？ Confirm approval?')) return
+
+      let comment = prompt('コメント (任意)/ Comment (optional)')
+
+      // if pressed cancel, return
+      if(comment === null) return
 
       // send POST to mark as approved
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/approve`
-      this.axios.post(url)
+      this.axios.post(url, { comment: comment })
         .then(() => {
 
           // Send an email
           console.log(this.next_recipient)
           if(this.next_recipient) this.send_email(this.next_recipient)
 
-
           // Refresh the approval flow
           this.get_application()
-
-
 
         })
         .catch((error) => {
@@ -230,11 +234,14 @@ export default {
         })
     },
     reject () {
-      let reason = prompt('なぜ？ / Why?', '')
-      if(reason === null) return
+      //if (!confirm('ホンマ？ Confirm rejection?')) return
+      let comment = prompt('コメント (任意)/ Comment (optional)')
+
+      // if pressed cancel, return
+      if(comment === null) return
 
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/reject`
-      this.axios.post(url, { reason: reason })
+      this.axios.post(url, { comment: comment })
         .then(() => { this.get_application() })
         .catch(() => alert('Error rejecting application'))
     },
