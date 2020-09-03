@@ -221,7 +221,6 @@ export default {
         .then(() => {
 
           // Send an email
-          console.log(this.next_recipient)
           if(this.next_recipient) this.send_email(this.next_recipient)
 
           // Refresh the approval flow
@@ -269,9 +268,7 @@ export default {
       window.location.href = `
 mailto:${recipient.properties.email_address}
 ?subject=[申請マネージャ自動送信] ${this.application.properties.title} (${this.application.properties.type})
-&body=English text available below %0D%0A
-%0D%0A
-${recipient.properties.name_kanji} 様 %0D%0A
+&body=${recipient.properties.name_kanji} 様 %0D%0A
 %0D%0A
 申請マネージャーの通知メールです。 %0D%0A
 %0D%0A
@@ -280,7 +277,7 @@ ${recipient.properties.name_kanji} 様 %0D%0A
 申請者: ${this.applicant.properties.name_kanji} %0D%0A
 タイプ: ${this.application.properties.type} %0D%0A
 タイトル: ${this.application.properties.title} %0D%0A
-提出先URL: ${window.location.origin}/applications/${this.application.identity.low}%0D%0A
+提出先URL: ${window.location.origin}/applications/${this.application.identity.low} %0D%0A
 %0D%0A
 ※IEでは動作しません。Edge/Firefox/GoogleChromeをご使用ください。　%0D%0A
 %0D%0A
@@ -291,18 +288,13 @@ ${recipient.properties.name_kanji} 様 %0D%0A
 Dear ${recipient.properties.name_kanji}, %0D%0A
 %0D%0A
 This is an automated message from Shinsei Manager. %0D%0A
-%0D%0A
-An application requires your approval. %0D%0A
+The following application requires your approval: %0D%0A
 %0D%0A
 Applicant: ${this.applicant.properties.name_kanji} %0D%0A
 Type: ${this.application.properties.type} %0D%0A
 Title: ${this.application.properties.title} %0D%0A
-%0D%0A
-Please visit the following link to review the application: %0D%0A
-${window.location.origin}/applications/${this.application.identity.low}%0D%0A
-%0D%0A
-Please note that Internet Explorer is no longer supported by Shinsei Manager. %0D%0A
-The supported browsers are: Google Chrome, Mozilla Firefox, Microsoft Edge, Safari. %0D%0A
+Link: ${window.location.origin}/applications/${this.application.identity.low} %0D%0A
+
         `
     },
     recipient_of_submission(submission){
