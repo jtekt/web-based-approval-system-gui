@@ -40,7 +40,7 @@
 
                   @approve="approve()"
                   @reject="reject()"
-                  @send_email="send_email($event)"/>
+                  @send_email="send_email_to_recipient($event)"/>
 
 
               </template>
@@ -220,15 +220,17 @@ export default {
       this.axios.post(url, { comment: comment })
         .then(() => {
 
-          // Send an email
-          if(this.next_recipient) this.send_email(this.next_recipient)
+          // Notify the next recipient
+          if(this.next_recipient) this.send_email_to_recipient(this.next_recipient)
+          // or the applicant if flow is complete
+          else this.send_email_to_applicant()
 
           // Refresh the approval flow
           this.get_application()
 
         })
         .catch((error) => {
-          console.log(error)
+          console.error(error)
           alert(`Error approving application`)
         })
     },
@@ -241,7 +243,14 @@ export default {
 
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/reject`
       this.axios.post(url, { comment: comment })
-        .then(() => { this.get_application() })
+        .then(() => {
+
+          // Notify the applicant
+          this.send_email_to_applicant()
+
+          // Refresh the application
+          this.get_application()
+        })
         .catch(() => alert('Error rejecting application'))
     },
     delete_application () {
@@ -262,7 +271,7 @@ export default {
       this.selected_file_id = file_id
     },
 
-    send_email(recipient){
+    send_email_to_recipient(recipient){
       // Weird formatting because preserves indentation
       // TODO: Stop relying on name_kanji
       window.location.href = `
@@ -283,18 +292,28 @@ mailto:${recipient.properties.email_address}
 %0D%0A
 確認お願いします。%0D%0A
 %0D%0A
---- %0D%0A
+        `
+    },
+    send_email_to_applicant(){
+      // Weird formatting because preserves indentation
+      // TODO: Stop relying on name_kanji
+      window.location.href = `
+mailto:${this.applicant.properties.email_address}
+?subject=[申請マネージャ自動送信] ${this.application.properties.title} (${this.application.properties.type})
+&body=${this.applicant.properties.name_kanji} 様 %0D%0A
 %0D%0A
-Dear ${recipient.properties.name_kanji}, %0D%0A
+申請マネージャーの通知メールです。 %0D%0A
 %0D%0A
-This is an automated message from Shinsei Manager. %0D%0A
-The following application requires your approval: %0D%0A
+こちらの申請の承認は完了です。 %0D%0A
 %0D%0A
-Applicant: ${this.applicant.properties.name_kanji} %0D%0A
-Type: ${this.application.properties.type} %0D%0A
-Title: ${this.application.properties.title} %0D%0A
-Link: ${window.location.origin}/applications/${this.application.identity.low} %0D%0A
-
+タイプ: ${this.application.properties.type} %0D%0A
+タイトル: ${this.application.properties.title} %0D%0A
+提出先URL: ${window.location.origin}/applications/${this.application.identity.low} %0D%0A
+%0D%0A
+※IEでは動作しません。Edge/Firefox/GoogleChromeをご使用ください。　%0D%0A
+%0D%0A
+確認お願いします。%0D%0A
+%0D%0A
         `
     },
     recipient_of_submission(submission){
