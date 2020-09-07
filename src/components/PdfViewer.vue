@@ -40,7 +40,7 @@
             min="0.01"
             max="0.1"
             step="0.005"
-            @change="refresh_pdf()">
+            @change="resize_hankos()">
         </div>
 
         <button
@@ -360,6 +360,12 @@ export default {
       this.view_pdf(this.selected_file_id)
     },
 
+    resize_hankos(){
+      let approvals_with_hanko = this.approvals.filter(approval => {
+        return !!approval.properties.attachment_hankos
+      })
+      if(approvals_with_hanko.length > 0) this.refresh_pdf()
+    },
     download_pdf(){
 
       let pdf_blob = new Blob([this.shown_pdf], { type: 'application/pdf' })
