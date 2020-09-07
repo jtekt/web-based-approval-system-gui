@@ -32,12 +32,25 @@
           <span>Download (with ハンコ)</span>
         </button>
 
+        <div class="hanko_size_wrapper">
+          <label>Hanko size:</label>
+          <input
+            type="range"
+            v-model.number="hanko_scale"
+            min="0.01"
+            max="0.1"
+            step="0.005"
+            @change="refresh_pdf()">
+        </div>
+
         <button
           type="button"
           @click="next_page()"
           :disabled="(page_number+1) >= page_count">
           <arrow-right-icon/>
         </button>
+
+
 
       </div>
 
@@ -114,6 +127,8 @@ export default {
           visibility: 'none',
         }
       },
+
+      hanko_scale: 0.034,
     }
   },
   mounted(){
@@ -231,7 +246,7 @@ export default {
           // Get the png image bytes from the canvas
           const pngImageBytes = await fetch(png_url).then((res) => {return res.arrayBuffer()})
           const pngImage = await this.pdfDoc.embedPng(pngImageBytes)
-          const pngDims = pngImage.scale(0.034)
+          const pngDims = pngImage.scale(this.hanko_scale)
 
           const pages = this.pdfDoc.getPages()
 
@@ -266,7 +281,7 @@ export default {
 
       const wrapper_width = this.$refs.pdf_container.offsetWidth
       const wrapper_height = this.$refs.pdf_container.offsetHeight
-      const scaling = 0.059
+      const scaling = 1.735 * this.hanko_scale
 
       this.new_hanko.style = {
         left: `calc(${event.offsetX}px - 0.5 * ${this.new_hanko.style.width})`,
@@ -278,15 +293,7 @@ export default {
     },
 
     hide_new_hanko(){
-      this.new_hanko.style= {
-        /*
-        top: '-100px',
-        left: '-100px',
-        width: '0px',
-        height: '0px',
-        */
-        visibility: 'none',
-      }
+      this.new_hanko.style= { visibility: 'none' }
     },
     async pdf_clicked(event){
 
@@ -334,8 +341,7 @@ export default {
 
         this.axios.put(url, { attachment_hankos: approval.properties.attachment_hankos })
         .then((response) => {
-          this.shown_pdf = null
-          this.view_pdf(this.selected_file_id)
+          this.refresh_pdf()
           this.hide_new_hanko()
 
         })
@@ -347,6 +353,11 @@ export default {
       }, 50)
 
 
+    },
+
+    refresh_pdf(){
+      this.shown_pdf = null
+      this.view_pdf(this.selected_file_id)
     },
 
     download_pdf(){
@@ -436,6 +447,15 @@ export default {
 
 .loader_wrapper {
   text-align: center;
+}
+
+.hanko_size_wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.hanko_size_wrapper label {
+  margin-right: 0.5em;
 }
 
 </style>
