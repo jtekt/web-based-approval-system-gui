@@ -100,7 +100,7 @@
           <span>{{group.properties.name}}</span>
 
           <button type="button"
-            @click="delete_group(group)">
+            @click="delete_group(index)">
             <delete-icon />
           </button>
 
