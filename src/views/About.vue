@@ -30,11 +30,6 @@
       </div>
     </div>
 
-    <h2>Bug report</h2>
-    <p>
-      If you find a bug or a problem, please report it on GitLab
-    </p>
-
 
 
   </div>
