@@ -2,14 +2,18 @@
   <div>
     <h1>申請マネージャ / Shinsei manager</h1>
     <p>
+      A web-based application form approval system.
+    </p>
+    <p>
+      Developped and maintained by <a href="https://maximemoreillon.com">Maxime MOREILLON</a>
+    </p>
+    <p>
        Front end version: {{version}}
     </p>
     <p>
       Back-end version: {{back_end_version}}
     </p>
-    <p>
-      Developped and maintained by <a href="https://maximemoreillon.com">Maxime MOREILLON</a>
-    </p>
+
     <p>
       <span style="font-weight: bold;">{{application_count}}</span> Submitted applications forms
     </p>

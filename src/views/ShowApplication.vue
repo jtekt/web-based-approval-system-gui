@@ -304,8 +304,6 @@ mailto:${this.applicant.properties.email_address}
 %0D%0A
 申請マネージャーの通知メールです。 %0D%0A
 %0D%0A
-こちらの申請の承認は完了です。 %0D%0A
-%0D%0A
 タイプ: ${this.application.properties.type} %0D%0A
 タイトル: ${this.application.properties.title} %0D%0A
 提出先URL: ${window.location.origin}/applications/${this.application.identity.low} %0D%0A
