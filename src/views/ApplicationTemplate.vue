@@ -11,6 +11,7 @@
       <h2>フォームデータ / Form data</h2>
 
       <div class="template_metadata_wrapper">
+
         <div class="title_wrapper">
           <label for="">タイトル / Title</label>
           <input type="text" v-model="label" placeholder="タイトル / Title">
@@ -19,6 +20,56 @@
         <div class="description_wrapper">
           <label for="">説明 / Description</label>
           <textarea rows="8" v-model="description"/>
+        </div>
+
+        <div class="">
+          <label for="">共有 / Visibility</label>
+          <div class="">
+            <!-- Approal flow group (dummy group) -->
+            <div class="visibility_group">
+              <span>
+                著者 / Author
+              </span>
+              <div class="growing_spacer"/>
+
+              <button type="button" disabled>
+                <delete-icon />
+              </button>
+            </div>
+
+            <div
+              v-for="(group, index) in groups"
+              class="visibility_group"
+              v-bind:key="group.identity.low">
+
+              <span class="">
+                {{group.properties.name}}
+              </span>
+
+              <div class="growing_spacer"/>
+
+              <button type="button"
+                @click="delete_group(index)">
+                <delete-icon />
+              </button>
+
+            </div>
+
+
+
+            <!-- Button to add a group to visibility -->
+            <div
+              class="visibility_group_add_button_wrapper">
+              <button
+                type="button"
+                @click="modal_open = true">
+                <account-multiple-plus-icon />
+                <span>グループ追加 / Add a group</span>
+              </button>
+
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -79,44 +130,12 @@
       </div>
 
 
-      <h2>共有 / sharing</h2>
-
-      <div class="picker_wrapper">
-        <GroupPicker
-          class="corporate_structure"
-          :apiUrl="picker_api_url"
-          v-on:selection="add_to_groups($event)"/>
-      </div>
-
-      <!-- DIRTY to use p but for now it'll do -->
-      <p class="">
-        このフォームがこちらのグループと共有されます / This form will be shared with the following:
-      </p>
-
-      <div class="groups_wrapper" v-if="groups.length > 0">
-        <div class="group"
-          v-for="(group, index) in groups"
-          v-bind:key="group.identity.low">
-          <span>{{group.properties.name}}</span>
-
-          <button type="button"
-            @click="delete_group(index)">
-            <delete-icon />
-          </button>
-
-        </div>
-      </div>
-      <div class="error_message" v-else>
-        Template must be shared with at least one group
-      </div>
-
-
       <div class="buttons_wrapper">
 
         <button
           type="button"
           class="bordered"
-          :disabled="groups.length === 0 || fields.length === 0"
+          :disabled="fields.length === 0"
           @click="submit()">
           <content-save-icon />
           <span>保存 / Save</span>
@@ -132,6 +151,21 @@
         </button>
 
       </div>
+
+      <!-- Model used for group visibility -->
+      <Modal
+        :open="modal_open"
+        @close="modal_open=false">
+        <h2 class="">
+          共有 / Visibility
+        </h2>
+        <div class="group_picker_wrapper">
+          <GroupPicker
+            class="picker"
+            :apiUrl="picker_api_url"
+            v-on:selection="add_to_groups($event)"/>
+        </div>
+      </Modal>
     </template>
 
     <!-- view for people who do not own the template -->
@@ -140,7 +174,7 @@
 
       <div class="template_metadata_wrapper">
         <div class="author_wrapper" v-if="author">
-          <label for="">Author</label>
+          <label for="">著者 / Author</label>
           <a
             :href="author_profile_url"
             class="author_name">
@@ -161,6 +195,32 @@
           <label for="">説明 / Description</label>
           <textarea rows="8" v-model="description" readonly/>
         </div>
+
+        <div class="">
+          <label for="">共有 / Visibility</label>
+          <div class="">
+            <div class="visibility_group">
+              <span>
+                著者 / Author
+              </span>
+
+            </div>
+
+            <div
+              v-for="(group) in groups"
+              class="visibility_group"
+              v-bind:key="group.identity.low">
+
+              <span class="">
+                {{group.properties.name}}
+              </span>
+
+            </div>
+
+          </div>
+        </div>
+
+
       </div>
 
       <!-- fields -->
@@ -176,21 +236,11 @@
         </tr>
       </table>
 
-      <h2>共有 / sharing</h2>
-      <div class="groups_wrapper" v-if="groups.length > 0">
-        <div class="group"
-          v-for="(group, index) in groups"
-          v-bind:key="group.identity.low">
-          <span>{{group.properties.name}}</span>
-        </div>
-      </div>
-      <div class="" v-else>
-        共有無し / No sharing
-      </div>
-
 
 
     </template>
+
+
 
   </div>
 </template>
@@ -198,14 +248,18 @@
 <script>
 
 import GroupPicker from '@moreillon/vue_group_picker'
+import Modal from '@moreillon/vue_modal'
 
 import DeleteIcon from 'vue-material-design-icons/Delete.vue'
 import PlusIcon from 'vue-material-design-icons/Plus.vue'
 import ContentSaveIcon from 'vue-material-design-icons/ContentSave.vue'
 
+
+
 export default {
   name: 'ApplicationTemplate',
   components: {
+    Modal,
     GroupPicker,
     DeleteIcon,
     PlusIcon,
@@ -231,7 +285,9 @@ export default {
 
       ],
 
-      author: null
+      author: null,
+
+      modal_open: false,
 
     }
   },
@@ -276,32 +332,45 @@ export default {
       }
     },
     submit () {
-      // If id exists, then edit
+
       if (this.template_id) {
-        let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
-        this.axios.put(url, {
-          fields: this.fields,
-          label: this.label,
-          description: this.description,
-          group_ids: this.groups.map(group => group.identity.low),
-        })
-        .then(() => this.$router.push({ name: 'application_templates' }))
-        .catch(error => console.log(error))
+        // If id exists, then edit
+        this.update_template()
       }
       // otherwise create
       else {
-        let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates`
-        this.axios.post(url, {
-          fields: this.fields,
-          label: this.label,
-          description: this.description,
-          group_ids: this.groups.map(group => group.identity.low)
-        })
-        .then(() => this.$router.push({ name: 'application_templates' }))
-        .catch(error => console.log(error))
+        this.create_template()
       }
     },
-    delete_template (id) {
+    create_template(){
+      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates`
+      this.axios.post(url, {
+        fields: this.fields,
+        label: this.label,
+        description: this.description,
+        group_ids: this.groups.map(group => group.identity.low)
+      })
+      .then(() => this.$router.push({ name: 'application_templates' }))
+      .catch(error => {
+        alert('Error while updating the template')
+        console.log(error)
+      })
+    },
+    update_template(){
+      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
+      this.axios.put(url, {
+        fields: this.fields,
+        label: this.label,
+        description: this.description,
+        group_ids: this.groups.map(group => group.identity.low),
+      })
+      .then(() => this.$router.push({ name: 'application_templates' }))
+      .catch(error => {
+        alert('Error while updating the template')
+        console.log(error)
+      })
+    },
+    delete_template () {
       if (confirm('ホンマ？ / Really?')) {
         let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
         this.axios.delete(url)
@@ -314,10 +383,15 @@ export default {
       this.groups.splice(index, 1)
     },
     add_to_groups (group_to_add) {
+      this.modal_open = false
+      
       // Prevent duplicates
-      if (!this.groups.includes(group_to_add)) {
-        this.groups.push(group_to_add)
-      }
+      let existing_group = this.groups.find( group => {
+        return group.identity.low === group_to_add.identity.low
+      })
+
+      if(!existing_group) this.groups.push(group_to_add)
+
     }
 
   },
@@ -353,9 +427,11 @@ export default {
 
 .template_metadata_wrapper > div {
   display: flex;
+  padding: 0.5em 0;
 }
-.template_metadata_wrapper > div:not(:first-child) {
-  margin-top: 1em;
+
+.template_metadata_wrapper > div:not(:last-child) {
+  border-bottom: 1px solid #dddddd;
 }
 .template_metadata_wrapper > div > *:first-child{
   flex-basis: 10em;
@@ -366,14 +442,7 @@ export default {
 }
 
 
-.visibility_header{
-  padding: 10px;
-}
-.corporate_structure {
 
-  max-height: 300px;
-  overflow-y: auto;
-}
 
 .fields_table {
   width: 100%;
@@ -409,8 +478,14 @@ export default {
 }
 
 .group_picker_wrapper {
-  height: 200px;
+  height: 50vh;
+  width: 75vw;
 }
+
+.picker {
+  height: 100%;
+}
+
 
 .group {
   display: flex;
@@ -435,5 +510,16 @@ export default {
 .author_name {
   display: inline-flex;
   align-items: center;
+}
+
+.visibility_group {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 0.25em;
+}
+
+.visibility_group:not(:last-child) {
+  border-bottom: 1px solid #dddddd;
 }
 </style>

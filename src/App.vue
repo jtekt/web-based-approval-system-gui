@@ -115,5 +115,9 @@ main a:hover {
   content: "秘密 / Secret";
 }
 
+.growing_spacer {
+  flex-grow: 1;
+}
+
 
 </style>
