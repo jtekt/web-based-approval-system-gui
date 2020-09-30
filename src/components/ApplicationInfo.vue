@@ -33,23 +33,8 @@
       </tr>
       <tr>
         <td>申請者 / Applicant</td>
-        <!-- Todo: put a link here -->
         <td>
-          <a
-            :href="applicant_profile_url"
-            class="applicant_name">
-            <img
-              class="applicant_avatar"
-              v-if="applicant.properties.avatar_src"
-              :src="applicant.properties.avatar_src">
-            <span>
-              {{ applicant.properties.display_name
-                || applicant.properties.name_kanji
-                || applicant.properties.name
-                || applicant.properties.username}}
-            </span>
-
-          </a>
+          <UserPreview :user="applicant" />
         </td>
       </tr>
       <tr>
@@ -208,11 +193,14 @@
 import Modal from '@moreillon/vue_modal'
 import GroupPicker from '@moreillon/vue_group_picker'
 
+import UserPreview from '@/components/UserPreview.vue'
+
 export default {
   name: 'ApplicationInfo',
   components: {
     Modal,
     GroupPicker,
+    UserPreview,
   },
   props: {
     application: Object,

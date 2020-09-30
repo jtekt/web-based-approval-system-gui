@@ -115,20 +115,8 @@
           <tr v-if="selected_form.properties.author">
             <td>フォーム著者 / Form author</td>
             <td>
-              <a
-                :href="form_author_profile_url"
-                class="author_name">
-                <img
-                  class="author_avatar"
-                  v-if="selected_form.properties.author.properties.avatar_src"
-                  :src="selected_form.properties.author.properties.avatar_src">
-                <span>
-                  {{ selected_form.properties.author.properties.display_name
-                    || selected_form.properties.author.properties.name_kanji
-                    || selected_form.properties.author.properties.name
-                    || selected_form.properties.author.properties.username}}
-                </span>
-              </a>
+              <UserPreview :user="selected_form.properties.author" />
+
             </td>
           </tr>
 
@@ -270,7 +258,7 @@ import ApprovalFlow from '@/components/ApprovalFlow.vue'
 import UserPicker from '@moreillon/vue_user_picker'
 import GroupPicker from '@moreillon/vue_group_picker'
 import Modal from '@moreillon/vue_modal'
-
+import UserPreview from '@/components/UserPreview.vue'
 
 export default {
   name: 'CreateApplication',
@@ -279,6 +267,7 @@ export default {
     GroupPicker,
     ApprovalFlow,
     Modal,
+    UserPreview
   },
 
   data () {

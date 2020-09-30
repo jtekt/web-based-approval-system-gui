@@ -175,20 +175,7 @@
       <div class="template_metadata_wrapper">
         <div class="author_wrapper" v-if="author">
           <label for="">著者 / Author</label>
-          <a
-            :href="author_profile_url"
-            class="author_name">
-            <img
-              class="author_avatar"
-              v-if="author.properties.avatar_src"
-              :src="author.properties.avatar_src">
-            <span>
-              {{ author.properties.display_name
-                || author.properties.name_kanji
-                || author.properties.name
-                || author.properties.username}}
-            </span>
-          </a>
+          <UserPreview :user="author" />
         </div>
 
         <div class="description_wrapper">
@@ -249,10 +236,7 @@
 
 import GroupPicker from '@moreillon/vue_group_picker'
 import Modal from '@moreillon/vue_modal'
-
-import DeleteIcon from 'vue-material-design-icons/Delete.vue'
-import PlusIcon from 'vue-material-design-icons/Plus.vue'
-import ContentSaveIcon from 'vue-material-design-icons/ContentSave.vue'
+import UserPreview from '@/components/UserPreview.vue'
 
 
 
@@ -261,9 +245,8 @@ export default {
   components: {
     Modal,
     GroupPicker,
-    DeleteIcon,
-    PlusIcon,
-    ContentSaveIcon,
+    UserPreview,
+
   },
   data () {
     return {
@@ -384,7 +367,7 @@ export default {
     },
     add_to_groups (group_to_add) {
       this.modal_open = false
-      
+
       // Prevent duplicates
       let existing_group = this.groups.find( group => {
         return group.identity.low === group_to_add.identity.low
