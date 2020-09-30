@@ -15,6 +15,7 @@
       <tr>
         <td>申請種類 / type</td>
         <td>
+
           <!-- if the form is filled from scratch -->
           <template v-if="!$route.query.copy_of">
             <span v-if="application_form_templates.loading">Loading...</span>
@@ -40,7 +41,7 @@
             <span v-else-if="selected_form.loading">Loading</span>
             <span v-else-if="selected_form.properties">
               {{selected_form.properties.label}} (Duplicate of ID {{$route.query.copy_of}})
-              <a href="create_application">Start from scratch</a>
+              <router-link :to="{ name: 'create_application'}">Start from scratch</router-link>
             </span>
           </template>
         </td>
@@ -104,40 +105,65 @@
     <template v-if="selected_form.properties">
 
       <h3 class="form_template_title">
-        <span>{{selected_form.properties.label}}</span>
-        <button
-          type="button"
-          @click="view_form_template(selected_form.identity.low)" >
-          <open-in-new-icon />
-        </button>
+        {{selected_form.properties.label}}
       </h3>
 
+      <template v-if="!$route.query.copy_of">
+        <h4>フォームについて / About this form</h4>
+        <table class="form_content_table">
+
+          <tr v-if="selected_form.properties.author">
+            <td>フォーム著者 / Form author</td>
+            <td>
+              <a
+                :href="form_author_profile_url"
+                class="author_name">
+                <img
+                  class="author_avatar"
+                  v-if="selected_form.properties.author.properties.avatar_src"
+                  :src="selected_form.properties.author.properties.avatar_src">
+                <span>
+                  {{ selected_form.properties.author.properties.display_name
+                    || selected_form.properties.author.properties.name_kanji
+                    || selected_form.properties.author.properties.name
+                    || selected_form.properties.author.properties.username}}
+                </span>
+              </a>
+            </td>
+          </tr>
+
+          <tr v-if="selected_form.properties.description">
+            <td>フォーム説明 / Form description</td>
+            <td>
+              <textarea
+                class="template_description"
+                rows="4"
+                v-model="selected_form.properties.description"
+                readonly/>
+            </td>
+          </tr>
+
+          <tr>
+            <td>フォームのページ / Form page</td>
+            <td>
+              <router-link
+                :to="{ name: 'application_template', params: {template_id: selected_form.identity.low} }">
+                ここにクリック / Click here
+              </router-link>
+            </td>
+
+          </tr>
+
+        </table>
+      </template>
+
+
+      <h4>申請内容 / Application content</h4>
       <table class="form_content_table">
 
-        <!--
-        <tr v-if="selected_form.identity">
-          <td>フォーム詳細 / Form details</td>
-          <td>
-            <router-link :to="{ name: 'application_template', query: {id: selected_form.identity.low} }">
-              フォームのページへ / Form page
-            </router-link>
-          </td>
-        </tr>
-        -->
-        <!-- Application form description -->
-
-        <tr v-if="selected_form.properties.description">
-          <td>フォーム説明 / Form description</td>
-          <td>
-            <textarea
-              class="template_description"
-              rows="4"
-              v-model="selected_form.properties.description"
-              readonly/>
-          </td>
-        </tr>
 
 
+        <!-- The actual fields of the application form -->
         <tr
           v-for="(field, index) in selected_form.properties.fields">
           <td>
@@ -183,6 +209,7 @@
         </tr>
       </table>
     </template>
+
     <template v-else>
       <h3>申請内容 / Application content</h3>
       <p class="error_message">申請種類が選ばれていません / Application type not selected</p>
@@ -266,13 +293,19 @@ export default {
       copy_of: '',
 
       groups: [], // Groups for visibility
-      // modal for group visibility
-      modal_open: false,
+
+      modal_open: false, // modal for group visibility
     }
   },
   mounted () {
-    if (this.$route.query.copy_of) this.recreate_application_content()
     this.get_templates()
+
+    if (this.$route.query.copy_of) this.recreate_application_content()
+  },
+  watch: {
+    original_application_id(){
+      this.selected_form = {}
+    }
   },
   methods: {
     recreate_application_content () {
@@ -289,7 +322,7 @@ export default {
           let recipients = record._fields[record._fieldLookup['recipients']]
           let submissions = record._fields[record._fieldLookup['submissions']]
 
-          // recreate visibility
+          // recreate visibility (confidentiality)
           this.groups = record._fields[record._fieldLookup['visibility']]
 
           // Set application details back
@@ -303,8 +336,11 @@ export default {
           })
 
           this.$set(this.selected_form, 'properties', {
+            // The application form label (type)
             label: original_application.properties.type,
-            fields: fields
+
+            // The fields of the application
+            fields: fields,
           })
 
 
@@ -334,11 +370,16 @@ export default {
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/visible_to_user`
       this.axios.get(url)
         .then(response => {
-        // delete templates to recreate them
+          // delete templates to recreate them
           this.application_form_templates = []
           response.data.forEach(record => {
             let template = record._fields[record._fieldLookup['aft']]
+            let author = record._fields[record._fieldLookup['creator']]
             template.properties.fields = JSON.parse(template.properties.fields)
+
+            // a bit dirty
+            template.properties.author = author
+
             this.application_form_templates.push(template)
           })
         })
@@ -433,7 +474,14 @@ export default {
     picker_api_url () {
       // TODO: THIS SHOULD NOT BE NEEDED ANYMORE
       return process.env.VUE_APP_GROUP_MANAGER_API_URL
-    }
+    },
+    original_application_id (){
+      return this.$route.query.copy_of
+    },
+    form_author_profile_url(){
+      let author_id = this.selected_form.properties.author.identity.low
+      return `${process.env.VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/?id=${author_id}`
+    },
   }
 }
 </script>
@@ -581,8 +629,7 @@ export default {
   outline: none;
   width: 100%;
   margin-top: 0.5em;
-  resize: none;
-  //resize: vertical;
+  resize: vertical;
   cursor: default;
 
 }
@@ -654,5 +701,15 @@ table.application_info select {
   align-items: center;
 }
 
+.author_avatar {
+  height: 1em;
+  width: 1em;
+  margin-right: 0.25em;
+}
+
+.author_name {
+  display: inline-flex;
+  align-items: center;
+}
 
 </style>
