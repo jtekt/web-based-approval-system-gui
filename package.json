@@ -1,6 +1,6 @@
 {
   "name": "application_form_manager_front",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -19,6 +19,7 @@
     "canvg": "^2.0.0",
     "core-js": "^2.6.11",
     "dotenv": "^8.2.0",
+    "downloadjs": "^1.4.7",
     "pdf-lib": "^1.9.0",
     "qrcode": "^1.4.4",
     "vue": "^2.6.11",

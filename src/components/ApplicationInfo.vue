@@ -190,6 +190,8 @@
 
 <script>
 
+import download from 'downloadjs'
+
 import Modal from '@moreillon/vue_modal'
 import GroupPicker from '@moreillon/vue_group_picker'
 
@@ -241,7 +243,27 @@ export default {
         .catch(() => alert('Error updating privacy of application'))
     },
     download_attachment (id) {
-      window.location.href = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/files/${id}`
+      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/files/${id}`
+
+      //window.location.href = url
+
+      // Temporary use of fetch because permission problems
+      fetch(url, {
+        headers: new Headers({
+          'Authorization': `Bearer ${this.$cookies.get('jwt')}`,
+        }),
+      })
+      .then((response) => {
+        return response.blob()
+      })
+      .then((blob) => {
+        download(blob,id)
+       })
+       .catch((error) => {
+         alert(`Failed to download file`)
+         console.error(error)
+       })
+
     },
     share_with_group (group) {
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/visibility_to_group`
