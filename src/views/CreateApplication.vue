@@ -18,21 +18,31 @@
 
           <!-- if the form is filled from scratch -->
           <template v-if="!$route.query.copy_of">
-            <span v-if="application_form_templates.loading">Loading...</span>
+
+            <Loader v-if="application_form_templates.loading">
+              Loading templates
+            </Loader>
 
             <span v-else-if="application_form_templates.error">
               {{application_form_templates.error}}
             </span>
 
-            <select
-              v-else v-model="selected_form">
-              <!--<option value=undefined>Please select</option>-->
-              <option
-                v-for="application_type in application_form_templates"
-                v-bind:value="application_type">
-                {{application_type.properties.label}}
-              </option>
-            </select>
+            <template v-else>
+              <select v-model="selected_form">
+                <option
+                  v-for="application_type in application_form_templates"
+                  v-bind:value="application_type">
+                  {{application_type.properties.label}}
+                </option>
+              </select>
+
+              <div class="application_type_info">
+                このリストには必要な申請タイプがない倍委は、<router-link :to="{ name: 'application_templates'}">こちら</router-link>で作るのはできます。<br>
+                If the desired application type is not in this list, you can create it <router-link :to="{ name: 'application_templates'}">here</router-link>
+              </div>
+            </template>
+
+
           </template>
 
           <!-- if the form is a duplicate -->
@@ -642,6 +652,10 @@ table.application_info {
 
 .application_info td, .application_info th {
   padding: 0.5em 0;
+}
+
+td > *:not(:last-child) {
+  margin-bottom: 0.5em;
 }
 
 table.application_info input[type="text"],

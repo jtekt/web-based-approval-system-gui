@@ -1,6 +1,6 @@
 {
   "name": "application_form_manager_front",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
