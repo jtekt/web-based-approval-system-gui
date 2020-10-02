@@ -136,7 +136,7 @@
             type="button"
             @click="download_attachment(field.value)">
             <download-icon />
-            <span>Download (original)</span>
+            <span>Download (ハンコ無し / original)</span>
           </button>
 
           <button
@@ -258,6 +258,7 @@ export default {
       })
       .then((blob) => {
         download(blob,id)
+
        })
        .catch((error) => {
          alert(`Failed to download file`)

@@ -29,7 +29,7 @@
           type="button"
           @click="download_pdf()">
           <download-icon/>
-          <span>Download (with ハンコ)</span>
+          <span>Download (ハンコあり)</span>
         </button>
 
         <div class="hanko_size_wrapper">
