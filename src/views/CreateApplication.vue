@@ -704,15 +704,11 @@ table.application_info select {
   align-items: center;
 }
 
-.author_avatar {
-  height: 1em;
-  width: 1em;
-  margin-right: 0.25em;
-}
 
-.author_name {
-  display: inline-flex;
-  align-items: center;
+
+.application_type_info{
+  color: #666666;
+  font-size: 80%;
 }
 
 </style>
