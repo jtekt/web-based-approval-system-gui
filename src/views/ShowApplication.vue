@@ -12,6 +12,7 @@
             :applicant="applicant"
             :forbidden="forbidden"
             :visibility="visibility"
+            :approvals="approvals"
             @view_pdf="view_pdf($event)"
             @visibility_update="get_application()"/>
 
@@ -228,6 +229,9 @@ export default {
           // Refresh the approval flow
           this.get_application()
 
+          // test
+          this.notify_attachment()
+
         })
         .catch((error) => {
           console.error(error)
@@ -252,6 +256,22 @@ export default {
           this.get_application()
         })
         .catch(() => alert('Error rejecting application'))
+    },
+    notify_attachment(){
+      const form_data = JSON.parse(this.application.properties.form_data)
+
+      const found_file = form_data.find( field => {
+        return field.type === 'file'
+      })
+
+      if(found_file) {
+        alert(`申請には承認されました。
+ただし、この申請は添付ファイル付いている申請なので、ファイルにハンコを押すのを忘れないようにお願いいたします。`)
+      }
+
+
+
+
     },
     delete_application () {
       if (!confirm('ホンマ？ Confirm deletion?')) return

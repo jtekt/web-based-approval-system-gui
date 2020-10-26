@@ -88,8 +88,12 @@ button.bordered:disabled {
   border-color: #dddddd;
 }
 
-.error_message {
+.error_message, .error {
   color: #c00000;
+}
+
+.success {
+  color: #00c000;
 }
 
 main a {

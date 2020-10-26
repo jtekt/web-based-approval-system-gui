@@ -126,25 +126,45 @@
       <tr
         v-else-if="Array.isArray(form_data)"
         v-for="field in form_data">
+
         <td>{{field.label || 'Unnamed field'}}</td>
 
         <td
           class="file_actions_container"
           v-if="field.type === 'file' && field.value">
 
-          <button
-            type="button"
-            @click="download_attachment(field.value)">
-            <download-icon />
-            <span>Download (ハンコ無し / original)</span>
-          </button>
+          <div
+            class="success"
+            v-if="user_has_stamped_attachment(field.value)">
+            ハンコを押しました
+          </div>
 
-          <button
-            type="button"
-            @click="view_pdf(field.value)">
-            <magnify-icon />
-            <span>View</span>
-          </button>
+          <div class="error" v-else>
+            まだハンコを押してません
+          </div>
+
+          <div class="">
+            <button
+              type="button"
+              @click="download_attachment(field.value)">
+              <download-icon />
+              <span>Download (ハンコ無し / original)</span>
+            </button>
+          </div>
+
+          <div class="">
+            <button
+              type="button"
+              @click="view_pdf(field.value)">
+              <magnify-icon />
+              <span>PDFを見る / View</span>
+            </button>
+          </div>
+
+
+
+
+
 
 
         </td>
@@ -174,9 +194,9 @@
     <Modal
       :open="modal_open"
       @close="modal_open=false">
-      <h2 class="">
-        共有 / Visibility
-      </h2>
+
+      <h2 class="">共有 / Visibility</h2>
+
       <div class="group_picker_wrapper">
         <GroupPicker
           class="picker"
@@ -209,6 +229,7 @@ export default {
     applicant: Object,
     forbidden: Boolean,
     visibility: Array,
+    approvals: Array,
   },
   data(){
     return {
@@ -231,7 +252,8 @@ export default {
     },
     applicant_profile_url(){
       return `${process.env.VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/?id=${this.applicant.identity.low}`
-    }
+    },
+
 
   },
   methods: {
@@ -292,6 +314,18 @@ export default {
     },
     view_pdf(file_id){
       this.$emit('view_pdf',file_id)
+    },
+    user_has_stamped_attachment(file_id){
+      let found_approval = this.approvals.find( (approval) => {
+        return approval.start.low === this.$store.state.current_user.identity.low
+      })
+
+      if(!found_approval) return
+
+      let attachment_hankos = found_approval.properties.attachment_hankos
+
+      return !!attachment_hankos
+
     }
   }
 

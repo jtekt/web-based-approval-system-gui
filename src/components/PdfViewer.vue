@@ -321,7 +321,7 @@ export default {
 
         // Create a list of attachment hankos if they don't exist yet
         if(!approval.properties.attachment_hankos) {
-          approval.properties.attachment_hankos = []
+          this.$set(approval.properties, 'attachment_hankos', [])
         }
 
         let attachment_hanko = {
