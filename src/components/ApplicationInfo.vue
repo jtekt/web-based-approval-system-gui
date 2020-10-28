@@ -121,7 +121,7 @@
         </td>
       </tr>
 
-      <!-- If form data is stored as an array (experiment) -->
+      <!-- If form data is stored as an array -->
       <!-- THIS IS HOW CURRENT APPLICATIONS ARE RENDERED -->
       <tr
         v-else-if="Array.isArray(form_data)"
@@ -161,12 +161,6 @@
             </button>
           </div>
 
-
-
-
-
-
-
         </td>
 
         <td v-else-if="field.type === 'checkbox'">
@@ -177,6 +171,18 @@
         <td v-else-if="field.type === 'date'">
           <span v-if="field.value">{{new Date(field.value).toLocaleDateString('ja-JP')}}</span>
           <span v-else>-</span>
+        </td>
+
+        <td v-else-if="field.type === 'link'">
+          <a :href="field.value">
+            <open-in-new-icon />
+          </a>
+        </td>
+
+        <td v-else-if="field.type === 'application'">
+          <router-link :to="{ name: 'application', params: {application_id: field.value} }">
+            {{field.value}}
+          </router-link>
         </td>
 
         <td v-else>{{field.value || '-'}}</td>
@@ -190,7 +196,7 @@
 
     </table>
 
-    <!-- Model used for group visibility -->
+    <!-- Modal used for group visibility -->
     <Modal
       :open="modal_open"
       @close="modal_open=false">
@@ -240,7 +246,6 @@ export default {
     }
   },
   mounted(){
-    //this.get_visibility()
 
   },
   computed: {

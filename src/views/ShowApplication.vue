@@ -172,6 +172,11 @@ export default {
 
     }
   },
+  watch: {
+    application_id(){
+      this.get_application()
+    }
+  },
   methods: {
     get_application () {
       // Get the body of the application, regardless of its recipients
@@ -179,13 +184,15 @@ export default {
 
       this.loading = true
 
+      /*
       let application_id = this.$route.params.application_id
         || this.$route.params.id
         || this.$route.query.application_id
         || this.$route.query.id
+      */
 
 
-      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${application_id}`
+      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}`
       this.axios.get(url)
         .then(response => {
 
@@ -353,6 +360,12 @@ mailto:${this.applicant.properties.email_address}
 
   },
   computed: {
+    application_id() {
+      return this.$route.params.application_id
+        || this.$route.params.id
+        || this.$route.query.application_id
+        || this.$route.query.id
+    },
     ordered_submissions() {
       return this.submissions.sort((a,b) => {
         return b.properties.flow_index.low - a.properties.flow_index.low
