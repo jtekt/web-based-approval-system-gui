@@ -3,7 +3,7 @@ import Router from 'vue-router'
 import CreateApplication from './views/CreateApplication.vue'
 import ApplicationTemplateList from './views/ApplicationTemplateList.vue'
 import ApplicationTemplate from './views/ApplicationTemplate.vue'
-import ShowApplication from './views/ShowApplication.vue'
+//import ShowApplication from './views/ShowApplication.vue'
 import ApplicationList from './views/ApplicationList.vue'
 
 import Search from './views/Search.vue'
@@ -33,7 +33,8 @@ export default new Router({
     {
       path: '/applications/:application_id',
       name: 'application',
-      component: ShowApplication
+      //component: ShowApplication
+      component: () => import('@/views/ShowApplication.vue')
     },
     {
       path: '/application_templates',
@@ -75,7 +76,7 @@ export default new Router({
     {
       path: '/show_application',
       name: 'show_application',
-      component: ShowApplication
+      component: () => import('@/views/ShowApplication.vue')
     },
     {
       path: '/application_template_list',
@@ -85,7 +86,7 @@ export default new Router({
 
     {
       // will match everything
-      path: '*', redirect: {name :'submitted_applications'}
+      path: '*', redirect: { name: 'submitted_applications' }
     }
 
   ]
