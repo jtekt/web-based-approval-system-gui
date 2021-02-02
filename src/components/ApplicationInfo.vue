@@ -205,6 +205,7 @@
 
       <div class="group_picker_wrapper">
         <GroupPicker
+          v-if="modal_open"
           class="picker"
           :apiUrl="picker_api_url"
           v-on:selection="share_with_group($event)"/>
