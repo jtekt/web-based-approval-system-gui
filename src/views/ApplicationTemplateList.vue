@@ -20,7 +20,7 @@
       v-if="!application_templates.loading && !application_templates.error">
       <tr
         v-for="template in application_templates"
-        v-on:click="view_template(template._fields[template._fieldLookup['aft']].identity.low)"
+        v-on:click="view_template(template._fields[template._fieldLookup['aft']].identity)"
         class="clickable_row">
         <td>{{template._fields[template._fieldLookup['aft']].properties.label}}</td>
         <td></td>
@@ -47,7 +47,7 @@
       </tr>
       <tr
         v-for="template in shared_templates"
-        v-on:click="view_template(template._fields[template._fieldLookup['aft']].identity.low)"
+        v-on:click="view_template(template._fields[template._fieldLookup['aft']].identity)"
         class="clickable_row">
         <td>{{template._fields[template._fieldLookup['aft']].properties.label}}</td>
         <td>{{template._fields[template._fieldLookup['creator']].properties.name_kanji}}</td>
@@ -70,7 +70,6 @@
 </template>
 
 <script>
-
 
 export default {
   name: 'ApplicationTemplateList',
@@ -117,7 +116,7 @@ export default {
     },
 
     new_template () {
-      this.$router.push({ name: 'application_template' })
+      this.$router.push({ name: 'application_template', params: { template_id: 'new' } })
     }
 
   },

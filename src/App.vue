@@ -18,13 +18,14 @@
 </template>
 
 <script>
+
 import AppTemplate from '@moreillon/vue_application_template_flex'
+import InboxArrowUpIcon from 'vue-material-design-icons/InboxArrowUp.vue'
+import InboxArrowDownIcon from 'vue-material-design-icons/InboxArrowDown.vue'
+import FileSettingsOutlineIcon from 'vue-material-design-icons/FileSettingsOutline.vue'
+import InformationOutlineIcon from 'vue-material-design-icons/InformationOutline.vue'
 
-import InboxArrowUpIcon from 'vue-material-design-icons/InboxArrowUp.vue';
-import InboxArrowDownIcon from 'vue-material-design-icons/InboxArrowDown.vue';
-import FileSettingsOutlineIcon from 'vue-material-design-icons/FileSettingsOutline.vue';
-import InformationOutlineIcon from 'vue-material-design-icons/InformationOutline.vue';
-
+import 'vue-material-design-icons/styles.css'
 
 export default {
   components: {
@@ -32,12 +33,16 @@ export default {
     InboxArrowUpIcon,
     InboxArrowDownIcon,
     FileSettingsOutlineIcon,
-    InformationOutlineIcon,
-  },
+    InformationOutlineIcon
+  }
 }
 </script>
 
 <style>
+
+.material-design-icon__svg {
+  bottom: 0 !important;
+}
 
 * {
   box-sizing: border-box;
@@ -66,8 +71,7 @@ button:disabled {
 }
 
 button .material-design-icon {
-  display: flex;
-  align-items: center;
+  font-size: 150%;
 }
 
 button > *:not(:last-child) {
@@ -122,6 +126,5 @@ main a:hover {
 .growing_spacer {
   flex-grow: 1;
 }
-
 
 </style>

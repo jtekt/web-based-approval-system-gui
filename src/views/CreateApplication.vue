@@ -27,7 +27,13 @@
               {{application_form_templates.error}}
             </span>
 
+            <span class="" v-else-if="application_form_templates.length < 1">
+              申請のテンプレートがまだありません、<router-link :to="{ name: 'application_templates'}">こちら</router-link>で申請のテンプレートを作ってください。<br>
+              There are no application form template available at the moment. Please visit the <router-link :to="{ name: 'application_templates'}">forms manager</router-link> to create one.
+            </span>
+
             <template v-else>
+
               <select v-model="selected_form">
                 <option
                   v-for="application_type in application_form_templates"
@@ -41,7 +47,6 @@
                 If the desired application type is not in this list, you can create it <router-link :to="{ name: 'application_templates'}">here</router-link>
               </div>
             </template>
-
 
           </template>
 
@@ -76,11 +81,10 @@
             </button>
           </div>
 
-
           <div
             v-for="(group, group_index) in groups"
             class="visibility_group"
-            v-bind:key="group.identity.low">
+            v-bind:key="`shared_group_${group_index}`">
 
             <span class="">
               {{group.properties.name}}
@@ -94,7 +98,6 @@
             </button>
 
           </div>
-
 
           <!-- Button to add a group to visibility -->
           <div class="visibility_group_add_button_wrapper">
@@ -110,7 +113,6 @@
       </tr>
     </table>
 
-
     <!-- container for the application itself -->
     <template v-if="selected_form.properties">
 
@@ -122,10 +124,10 @@
         <h4>フォームについて / About this form</h4>
         <table class="form_content_table">
 
-          <tr v-if="selected_form.properties.author">
+          <tr v-if="selected_form.author">
             <td>フォーム著者 / Form author</td>
             <td>
-              <UserPreview :user="selected_form.properties.author" />
+              <UserPreview :user="selected_form.author" />
 
             </td>
           </tr>
@@ -145,7 +147,7 @@
             <td>フォームのページ / Form page</td>
             <td>
               <router-link
-                :to="{ name: 'application_template', params: {template_id: selected_form.identity.low} }">
+                :to="{ name: 'application_template', params: {template_id: selected_form.identity} }">
                 ここにクリック / Click here
               </router-link>
             </td>
@@ -155,11 +157,8 @@
         </table>
       </template>
 
-
       <h4>申請内容 / Application content</h4>
       <table class="form_content_table">
-
-
 
         <!-- The actual fields of the application form -->
         <tr
@@ -201,7 +200,6 @@
               v-bind:type="field.type"
               :placeholder="field.label"
               v-model="field.value">
-
           </td>
 
         </tr>
@@ -222,7 +220,6 @@
     <h3>承認者選択 / Recipient selection</h3>
     <UserPicker
       class="picker"
-      :apiUrl="picker_api_url"
       v-on:selection="add_to_recipients($event)"/>
 
     <!-- Approval flow -->
@@ -238,10 +235,18 @@
         type="button"
         class="bordered"
         @click="create_application()"
-        :disabled="!form_valid">
-        <send-icon />
-        <span>送る / Send</span>
+        :disabled="!form_valid || submitting">
+
+        <template v-if="!submitting">
+          <send-icon />
+          <span>送る / Send</span>
+        </template>
+        <Loader v-else>Submitting</Loader>
+
+
       </button>
+
+
 
     </div>
 
@@ -253,7 +258,6 @@
       <div class="group_picker_wrapper">
         <GroupPicker
           class="visibility_group_picker"
-          :apiUrl="picker_api_url"
           v-on:selection="add_to_groups($event)"/>
       </div>
     </Modal>
@@ -294,6 +298,9 @@ export default {
       groups: [], // Groups for visibility
 
       modal_open: false, // modal for group visibility
+
+      submitting: false,
+      file_uploading: false,
     }
   },
   mounted () {
@@ -302,19 +309,23 @@ export default {
     if (this.$route.query.copy_of) this.recreate_application_content()
   },
   watch: {
-    original_application_id(){
+    original_application_id () {
       this.selected_form = {}
+      this.title = ''
+      this.recipients = []
     }
   },
   methods: {
     recreate_application_content () {
+      // This function is called when the application is a dubplicate of an existing one
+
       // Todo: add a loader for the content of the application itself
+
       this.$set(this.selected_form, 'loading', true)
       let application_id = this.$route.query.copy_of
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${application_id}`
       this.axios.get(url)
         .then(response => {
-
           let record = response.data
 
           let original_application = record._fields[record._fieldLookup['application']]
@@ -335,26 +346,21 @@ export default {
           })
 
           this.$set(this.selected_form, 'properties', {
-            // The application form label (type)
-            label: original_application.properties.type,
-
-            // The fields of the application
-            fields: fields,
+            label: original_application.properties.type, // The application form label (type)
+            fields, // The fields of the application
           })
 
-
           // Recreate flow
-          let ordered_submissions = submissions.sort((a,b) => {
-            return a.properties.flow_index.low - b.properties.flow_index.low
+          const ordered_submissions = submissions.sort((a, b) => {
+            return a.properties.flow_index - b.properties.flow_index
           })
 
           ordered_submissions.forEach((submission) => {
-            let recipient_of_submission = recipients.find(recipient => {
-              return JSON.stringify(recipient.identity) === JSON.stringify(submission.end)
+            const recipient_of_submission = recipients.find(recipient => {
+              return recipient.identity === submission.end
             })
             this.recipients.push(recipient_of_submission)
           })
-
         })
         .catch((error) => {
           console.error(error)
@@ -363,21 +369,20 @@ export default {
         .finally(() => this.$set(this.selected_form, 'loading', false))
     },
 
-
     get_templates () {
       this.$set(this.application_form_templates, 'loading', true)
-      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/visible_to_user`
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/visible_to_user`
       this.axios.get(url)
         .then(response => {
           // delete templates to recreate them
           this.application_form_templates = []
           response.data.forEach(record => {
             let template = record._fields[record._fieldLookup['aft']]
-            let author = record._fields[record._fieldLookup['creator']]
+            const author = record._fields[record._fieldLookup['creator']]
             template.properties.fields = JSON.parse(template.properties.fields)
 
             // a bit dirty
-            template.properties.author = author
+            template.author = author
 
             this.application_form_templates.push(template)
           })
@@ -390,42 +395,53 @@ export default {
     },
 
     create_application () {
-      if (this.form_valid) {
-        this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications`, {
-          // Create the request body
-          // TODO: there should be a simpler way to pass all that information
-          title: this.title,
-          form_data: this.selected_form.properties.fields,
-          type: this.selected_form.properties.label,
-          recipients_ids: this.recipients.map(recipient => recipient.identity.low),
-          private: this.private,
-          group_ids: this.groups.map(group => group.identity.low)
-        })
-        .then(response => {
+      if (!this.form_valid) return alert('There are missing items in this application form')
 
-          let application_id = response.data[0]._fields[0].identity.low
+      this.submitting = true
 
-          this.$router.push({ name: 'application', params: {application_id: application_id} })
-        })
-        .catch(error => {
-          console.error(error)
-          alert(error)
-        })
-      } else alert('There are missing items in this application form')
+      const recipients_ids = this.recipients.map((recipient) => {
+        return recipient.identity.low || recipient.identity
+      })
+
+      const group_ids = this.groups.map((group) => {
+        return group.identity.low || group.identity
+      })
+
+      // Create the request body
+      const body = {
+        title: this.title,
+        form_data: this.selected_form.properties.fields,
+        type: this.selected_form.properties.label,
+        recipients_ids,
+        private: this.private,
+        group_ids
+      }
+
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications`
+
+      this.axios.post(url, body)
+      .then(response => {
+        const application_id = response.data[0]._fields[0].identity
+        this.$router.push({ name: 'application', params: { application_id } })
+      })
+      .catch(error => {
+        console.error(error)
+        alert(error)
+        this.submitting = false
+      })
     },
 
     delete_recipient (index) {
       this.recipients.splice(index, 1)
     },
     add_to_recipients (recipient_to_add) {
-
-      let existing_recipient = this.recipients.find(recipient => {
+      const existing_recipient = this.recipients.find(recipient => {
+        // This is robust against losslessintegers
         return JSON.stringify(recipient.identity) === JSON.stringify(recipient_to_add.identity)
       })
 
-      if(existing_recipient) return alert('Duplicates not allowed')
+      if (existing_recipient) return alert('Duplicates not allowed')
       else this.recipients.push(recipient_to_add)
-
     },
     delete_group (index) {
       this.groups.splice(index, 1)
@@ -435,52 +451,50 @@ export default {
       this.modal_open = false
       if (!this.groups.includes(group_to_add)) {
         this.groups.push(group_to_add)
-      }
-      else alert('Duplicates are not allowed')
+      } else alert('Duplicates are not allowed')
     },
     file_upload (event, field) {
+      this.file_uploading = true
       let formData = new FormData()
       formData.append('file_to_upload', event.target.files[0])
       this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/files`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
-        .then(response => {
-        // Needed for responsiviity
-        // Is this the right way?
-          this.$set(field, 'value', response.data)
-        })
-        .catch(error => alert(error.response.data))
+      .then(response => {
+      // Needed for responsiviity
+      // Is this the right way?
+        this.$set(field, 'value', response.data)
+      })
+      .catch(error => alert(error.response.data))
+      .finally(()=>{this.file_uploading = false})
     },
     delete_file (field) {
       // Is this the right way to set value?
       this.$set(field, 'value', '')
     },
-    view_form_template(template_id){
-      let routeData = this.$router.resolve({
+    view_form_template (template_id) {
+      // Open form in new page
+      const routeData = this.$router.resolve({
         name: 'application_template',
-        params: {template_id: template_id}
-      });
-      window.open(routeData.href, '_blank');
+        params: { template_id: template_id }
+      })
+      window.open(routeData.href, '_blank')
     }
   },
   computed: {
     form_valid () {
-      return this.selected_form
-        && this.recipients.length > 0
-        && this.title
-        && this.selected_form.properties
+      return this.selected_form &&
+        this.recipients.length > 0 &&
+        this.title &&
+        this.selected_form.properties
     },
     picker_api_url () {
       // TODO: THIS SHOULD NOT BE NEEDED ANYMORE
       return process.env.VUE_APP_GROUP_MANAGER_API_URL
     },
-    original_application_id (){
+    original_application_id () {
       return this.$route.query.copy_of
-    },
-    form_author_profile_url(){
-      let author_id = this.selected_form.properties.author.identity.low
-      return `${process.env.VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/?id=${author_id}`
-    },
+    }
   }
 }
 </script>
@@ -491,7 +505,6 @@ export default {
   height: 300px;
   margin-bottom: 1px;
 }
-
 
 .employee {
   padding: 2px 5px;
@@ -587,9 +600,8 @@ export default {
   border-bottom: 1px solid #dddddd;
 }
 
-
 .form_content_table td {
-  padding: 5px;
+  padding: 0.5em;
   vertical-align: top;
 }
 
@@ -597,7 +609,6 @@ export default {
 .application_info td:first-child{
   width: 40%;
 }
-
 
 .form_content_table td input{
   width: 100%;
@@ -607,7 +618,6 @@ export default {
   font-size: 150%;
   cursor: pointer;
 }
-
 
 .group {
   display: flex;
@@ -643,8 +653,6 @@ table.application_info {
   border-collapse: collapse;
   table-layout: fixed;
 }
-
-
 
 .application_info tr:not(:last-child) {
   border-bottom: 1px solid #dddddd;
@@ -690,8 +698,6 @@ table.application_info select {
   margin-top: 0.25em;
 }
 
-
-
 .attatchment_confirm {
   margin-right: 0.5em;
 }
@@ -703,8 +709,6 @@ table.application_info select {
   display: flex;
   align-items: center;
 }
-
-
 
 .application_type_info{
   color: #666666;

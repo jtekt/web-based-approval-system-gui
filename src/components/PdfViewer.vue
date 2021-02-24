@@ -6,7 +6,8 @@
       <p
         class="error_message"
         v-if="!approval_of_current_user">
-        申請が承認された時、資料にハンコを押すようになります / This document can be stamped once the application is approved.
+        申請が承認された時、資料にハンコを押すようになります。<br>
+        This document can be stamped once the application is approved.
       </p>
       <div class="pdf_actions_wrapper">
 
@@ -50,15 +51,12 @@
           <arrow-right-icon/>
         </button>
 
-
-
       </div>
 
       <div
         class="pdf_container"
         ref="pdf_container"
         @click="pdf_clicked($event)">
-
 
         <pdf
           :page="page_number+1"
@@ -86,32 +84,35 @@
       <Loader >Loading PDF</Loader>
     </div>
 
-
     <div
       v-if="load_error"
-      class="error_message" >
-      {{load_error}}
+      class="error_message"
+      v-html="load_error">
     </div>
 
   </div>
 </template>
 
 <script>
-import { PDFDocument } from 'pdf-lib';
+import { PDFDocument } from 'pdf-lib'
 import pdf from 'vue-pdf'
 import Canvg from 'canvg'
+import CurrentUserID from '@/mixins/CurrentUserID.js'
 
 export default {
   name: 'PdfViewer',
   components: {
-    pdf,
+    pdf
   },
   props: {
     selected_file_id: String,
     approvals: Array,
     application_id: Number,
   },
-  data(){
+  mixins: [
+    CurrentUserID,
+  ],
+  data () {
     return {
       load_error: null,
       loading: false,
@@ -124,39 +125,38 @@ export default {
 
       new_hanko: {
         style: {
-          visibility: 'none',
+          visibility: 'none'
         }
       },
 
       hanko_scale: 0.034,
     }
   },
-  mounted(){
-    if(this.selected_file_id){
+  mounted () {
+    if (this.selected_file_id) {
       this.view_pdf(this.selected_file_id)
     }
   },
   watch: {
     // whenever question changes, this function will run
-    selected_file_id() {
+    selected_file_id () {
       this.view_pdf(this.selected_file_id)
     },
-    approvals() {
+    approvals () {
       this.view_pdf(this.selected_file_id)
     }
   },
   methods: {
-    page_count_event(page_count){
-      if(page_count) this.page_count = page_count
+    page_count_event (page_count) {
+      if (page_count) this.page_count = page_count
     },
-    next_page(){
-      if(this.page_number+1 < this.page_count) this.page_number ++
+    next_page () {
+      if (this.page_number + 1 < this.page_count) this.page_number++
     },
-    previous_page(){
-      if(this.page_number > 0) this.page_number --
+    previous_page () {
+      if (this.page_number > 0) this.page_number--
     },
-    view_pdf(file_id){
-
+    view_pdf (file_id) {
       // Check if IE
       if (!!window.MSInputMethodContext && !!document.documentMode) {
         this.load_error = 'Internet Explorer is to old for this feature'
@@ -171,34 +171,32 @@ export default {
       this.page_number = 0
 
       // Load the file as an arrayBuffer
-      let file_url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/files/${file_id}`
-      fetch(file_url, {
+      const file_url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/files/${file_id}`
+      const options = {
         headers: new Headers({
-          'Authorization': `Bearer ${this.$cookies.get('jwt')}`,
-        }),
-      })
+          'Authorization': `Bearer ${this.$cookies.get('jwt')}`
+        })
+      }
+      fetch(file_url, options)
       .then((response) => { return response.arrayBuffer() })
       .then((buffer) => { this.load_pdf(buffer) })
     },
-    async load_pdf(buffer) {
-
+    async load_pdf (buffer) {
       this.load_error = null
       let success = true
       try {
         this.pdfDoc = await PDFDocument.load(buffer)
       }
       catch (e) {
-        this.load_error = 'This feature only supports .pdf files'
+        this.load_error = `この機能は.pdfのファイルしかつかえません<br>This feature only supports .pdf files`
         success = false
       }
 
-      if(success) this.load_pdf_hankos()
-
+      if (success) this.load_pdf_hankos()
     },
 
-    svg_to_png_url(svg){
-
-      return new Promise( (resolve, reject) => {
+    svg_to_png_url (svg) {
+      return new Promise((resolve, reject) => {
         let SVG_sata = (new XMLSerializer()).serializeToString(svg)
         let canvas = document.createElement('canvas')
         canvas.width = 1000
@@ -206,7 +204,6 @@ export default {
 
         Canvg(canvas, SVG_sata, {
           renderCallback: () => {
-
             let png_URL = canvas
               .toDataURL('image/png')
               .replace('image/png', 'image/octet-stream')
@@ -215,36 +212,33 @@ export default {
           }
         })
       })
-
     },
 
-    async load_pdf_hankos(){
-
+    async load_pdf_hankos () {
       // using promises to only save the pdf when all hankos are drawn
       let promises = []
 
       // For each recipient
       this.approvals.forEach(async (approval) => {
-
         // using promises to only save the pdf when all hankos are drawn
-        let promise = new Promise ( async(resolve, reject) => {
-          if(!approval) return resolve()
-          if(!approval.properties.attachment_hankos) return resolve()
+        let promise = new Promise(async (resolve, reject) => {
+          if (!approval) return resolve()
+          if (!approval.properties.attachment_hankos) return resolve()
 
           // Parse attachment hankos if not JSON already
-          if(typeof approval.properties.attachment_hankos === 'string') {
+          if (typeof approval.properties.attachment_hankos === 'string') {
             approval.properties.attachment_hankos = JSON.parse(approval.properties.attachment_hankos)
           }
 
           // Get the hanko's svg
-          const hanko_svg = document.getElementById(`hanko_${approval.identity.low}`)
+          const hanko_svg = document.getElementById(`hanko_${approval.identity}`)
 
           // Convert the hanko's svg into a png URL
           // FIREFOX PROBLEM HERE!
-          const png_url = await this.svg_to_png_url(hanko_svg).then((png_url) => {return png_url})
+          const png_url = await this.svg_to_png_url(hanko_svg).then((png_url) => { return png_url })
 
           // Get the png image bytes from the canvas
-          const pngImageBytes = await fetch(png_url).then((res) => {return res.arrayBuffer()})
+          const pngImageBytes = await fetch(png_url).then((res) => { return res.arrayBuffer() })
           const pngImage = await this.pdfDoc.embedPng(pngImageBytes)
           const pngDims = pngImage.scale(this.hanko_scale)
 
@@ -253,7 +247,7 @@ export default {
           // Draw every hanko
           approval.properties.attachment_hankos.forEach(async (hanko) => {
             // Skip if hanko is not part of the current file
-            if(hanko.file_id !== this.selected_file_id) return resolve()
+            if (hanko.file_id !== this.selected_file_id) return resolve()
 
             const page = pages[hanko.page_number]
 
@@ -261,11 +255,10 @@ export default {
               x: hanko.position.x - 0.5 * pngDims.width,
               y: hanko.position.y - 0.5 * pngDims.height,
               width: pngDims.width,
-              height: pngDims.height,
+              height: pngDims.height
             })
 
             return resolve()
-
           })
         })
         promises.push(promise)
@@ -274,11 +267,8 @@ export default {
       Promise.all(promises).then(async () => {
         this.shown_pdf = await this.pdfDoc.save()
       })
-
-
     },
-    update_new_hanko_position(event){
-
+    update_new_hanko_position (event) {
       const wrapper_width = this.$refs.pdf_container.offsetWidth
       const wrapper_height = this.$refs.pdf_container.offsetHeight
       const scaling = 1.735 * this.hanko_scale
@@ -287,25 +277,22 @@ export default {
         left: `calc(${event.offsetX}px - 0.5 * ${this.new_hanko.style.width})`,
         top: `calc(${event.offsetY}px - 0.5 * ${this.new_hanko.style.height})`,
         width: `${scaling * wrapper_width}px`,
-        height: `${scaling * wrapper_height}px`,
+        height: `${scaling * wrapper_height}px`
       }
-
     },
-
-    hide_new_hanko(){
-      this.new_hanko.style= { visibility: 'none' }
+    hide_new_hanko () {
+      this.new_hanko.style = { visibility: 'none' }
     },
-    async pdf_clicked(event){
+    async pdf_clicked (event) {
+      // Draw a hanko where the user has clicked if the user has approved the application
 
-      //return alert('研究企画が官僚的な考え方をやめてくれないとこの機能を使えないようにします')
-
-      let approval = this.approval_of_current_user
-      if(!approval) return
-      let approval_id = approval.identity.low
+      const approval = this.approval_of_current_user
+      if (!approval) return
+      const approval_id = approval.identity
 
       // Using a timeout so as to let time to Hanko to appear before showing the alert
       setTimeout(() => {
-        if(!confirm(`Apply Hanko here?`)) return
+        if (!confirm(`Apply Hanko here?`)) return
 
         const pages = this.pdfDoc.getPages()
         const page = pages[this.page_number]
@@ -313,85 +300,75 @@ export default {
 
         const wrapper_width = this.$refs.pdf_container.offsetWidth
         const click_x = event.offsetX || event.layerX
-        const position_x = width * (click_x/wrapper_width)
+        const position_x = width * (click_x / wrapper_width)
 
         const wrapper_height = this.$refs.pdf_container.offsetHeight
         const click_y = event.offsetY || event.layerY
-        const position_y = height - (height * (click_y/wrapper_height))
+        const position_y = height - (height * (click_y / wrapper_height))
 
         // Create a list of attachment hankos if they don't exist yet
-        if(!approval.properties.attachment_hankos) {
+        if (!approval.properties.attachment_hankos) {
           this.$set(approval.properties, 'attachment_hankos', [])
         }
 
-        let attachment_hanko = {
+        const attachment_hanko = {
           file_id: this.selected_file_id,
           page_number: this.page_number,
           position: {
             x: position_x,
-            y: position_y,
+            y: position_y
           }
         }
 
-
-
         approval.properties.attachment_hankos.push(attachment_hanko)
 
-        let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/approvals/${approval_id}`
+        const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/approvals/${approval_id}`
+        const body = { attachment_hankos: approval.properties.attachment_hankos }
 
-        this.axios.put(url, { attachment_hankos: approval.properties.attachment_hankos })
-        .then((response) => {
-          this.refresh_pdf()
-          this.hide_new_hanko()
-
-        })
-        .catch((error) => {
-          console.log(error)
-          alert(error)
-        })
-
+        this.axios.put(url, body)
+          .then((response) => {
+            this.refresh_pdf()
+            this.hide_new_hanko()
+          })
+          .catch((error) => {
+            console.log(error)
+            alert(error)
+          })
       }, 50)
-
-
     },
 
-    refresh_pdf(){
+    refresh_pdf () {
       this.shown_pdf = null
       this.view_pdf(this.selected_file_id)
     },
 
-    resize_hankos(){
-      let approvals_with_hanko = this.approvals.filter(approval => {
+    resize_hankos () {
+      const approvals_with_hanko = this.approvals.filter(approval => {
         return !!approval.properties.attachment_hankos
       })
-      if(approvals_with_hanko.length > 0) this.refresh_pdf()
+      if (approvals_with_hanko.length > 0) this.refresh_pdf()
     },
-    download_pdf(){
-
+    download_pdf () {
       let pdf_blob = new Blob([this.shown_pdf], { type: 'application/pdf' })
 
       if (window.navigator.msSaveOrOpenBlob) {
-        window.navigator.msSaveBlob(pdf_blob, `${this.selected_file_id}.pdf`);
+        window.navigator.msSaveBlob(pdf_blob, `${this.selected_file_id}.pdf`)
       }
       else {
-        const elem = window.document.createElement('a');
-        elem.href = window.URL.createObjectURL(pdf_blob);
-        elem.download = `${this.selected_file_id}.pdf`;
-        document.body.appendChild(elem);
-        elem.click();
-        document.body.removeChild(elem);
+        const elem = window.document.createElement('a')
+        elem.href = window.URL.createObjectURL(pdf_blob)
+        elem.download = `${this.selected_file_id}.pdf`
+        document.body.appendChild(elem)
+        elem.click()
+        document.body.removeChild(elem)
       }
-
-
     }
   },
   computed: {
-    approval_of_current_user(){
-
+    approval_of_current_user () {
       return this.approvals.find(approval => {
-        return JSON.stringify(approval.start) === JSON.stringify(this.$store.state.current_user.identity)
+        return approval.start === this.current_user_id
       })
-
     }
   }
 }

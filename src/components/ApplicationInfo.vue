@@ -9,7 +9,7 @@
       </tr>
       <tr>
         <td>ID</td>
-        <td>{{application.identity.low}}</td>
+        <td>{{application.identity}}</td>
       </tr>
       <tr>
         <td>タイトル / Title</td>
@@ -25,11 +25,7 @@
 
       <tr>
         <td>日付 / Date</td>
-        <td>
-          {{application.properties.creation_date.year.low}}/
-          {{application.properties.creation_date.month.low}}/
-          {{application.properties.creation_date.day.low}}
-        </td>
+        <td>{{format_date(application.properties.creation_date)}}</td>
       </tr>
       <tr>
         <td>申請者 / Applicant</td>
@@ -48,17 +44,14 @@
         </td>
       </tr>
 
-      <!-- Visibility -->
+      <!-- Visibility / confidentiality -->
       <tr v-if="application.properties.private">
         <td>共有 / Visibility</td>
         <td class="visibility_wrapper">
 
-
           <!-- Approal flow group (dummy group) -->
           <div class="visibility_group">
-            <span>
-              承認フロー / Approval flow
-            </span>
+            <span>承認フロー / Approval flow</span>
             <template v-if="user_is_applicant">
               <div class="growing_spacer"/>
 
@@ -71,13 +64,9 @@
           <div
             v-for="group in visibility"
             class="visibility_group"
-            v-bind:key="group.identity.low">
+            v-bind:key="group.identity.low || group.identity">
 
-
-
-            <span class="">
-              {{group.properties.name}}
-            </span>
+            <span class="">{{group.properties.name}}</span>
 
             <template v-if="user_is_applicant">
               <div class="growing_spacer"/>
@@ -87,12 +76,9 @@
                 <delete-icon />
               </button>
 
-
             </template>
 
           </div>
-
-
 
           <!-- Button to add a group to visibility -->
           <div
@@ -133,6 +119,7 @@
           class="file_actions_container"
           v-if="field.type === 'file' && field.value">
 
+          <!-- TODO: CHECK IF PDF -->
           <div
             class="success"
             v-if="user_has_stamped_attachment(field.value)">
@@ -224,29 +211,36 @@ import GroupPicker from '@moreillon/vue_group_picker'
 
 import UserPreview from '@/components/UserPreview.vue'
 
+import CurrentUserID from '@/mixins/CurrentUserID.js'
+import DateFormatting from '@/mixins/DateFormatting.js'
+
 export default {
   name: 'ApplicationInfo',
   components: {
     Modal,
     GroupPicker,
-    UserPreview,
+    UserPreview
   },
+  mixins: [
+    CurrentUserID,
+    DateFormatting
+  ],
   props: {
     application: Object,
     applicant: Object,
     forbidden: Boolean,
     visibility: Array,
-    approvals: Array,
+    approvals: Array
   },
-  data(){
+  data () {
     return {
       // modal for group visibility
       modal_open: false,
-      //groups: [],
+      // groups: [],
       picker_api_url: process.env.VUE_APP_GROUP_MANAGER_API_URL
     }
   },
-  mounted(){
+  mounted () {
 
   },
   computed: {
@@ -254,84 +248,85 @@ export default {
       return JSON.parse(this.application.properties.form_data)
     },
     user_is_applicant () {
-      return this.applicant.identity.low === this.$store.state.current_user.identity.low
+      return this.applicant.identity === this.current_user_id
     },
-    applicant_profile_url(){
-      return `${process.env.VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/?id=${this.applicant.identity.low}`
-    },
-
+    applicant_profile_url () {
+      // THis should be done in an applicant component
+      return `${process.env.VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/?id=${this.applicant.identity}`
+    }
 
   },
   methods: {
 
     update_privacy_of_application () {
-      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/privacy`
-      this.axios.put(url, {private: this.application.properties.private})
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity}/privacy`
+      this.axios.put(url, { private: this.application.properties.private })
         .then(() => {})
         .catch(() => alert('Error updating privacy of application'))
     },
     download_attachment (id) {
-      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/files/${id}`
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity}/files/${id}`
 
-      //window.location.href = url
+      // window.location.href = url
 
       // Temporary use of fetch because permission problems
       fetch(url, {
         headers: new Headers({
-          'Authorization': `Bearer ${this.$cookies.get('jwt')}`,
-        }),
+          'Authorization': `Bearer ${this.$cookies.get('jwt')}`
+        })
       })
-      .then((response) => {
-        return response.blob()
-      })
-      .then((blob) => {
-        download(blob,id)
-
-       })
-       .catch((error) => {
-         alert(`Failed to download file`)
-         console.error(error)
-       })
-
+        .then((response) => {
+          return response.blob()
+        })
+        .then((blob) => {
+          download(blob, id)
+        })
+        .catch((error) => {
+          alert(`Failed to download file`)
+          console.error(error)
+        })
     },
     share_with_group (group) {
-      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/visibility_to_group`
-
-      this.axios.post(url, { group_id: group.identity.low })
-      .then(() => {
-        this.modal_open = false
-        this.$emit('visibility_update')
-      })
-      .catch(() => {
-        alert('Error updating visibility of application')
-      })
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity}/visibility_to_group`
+      const body = {
+        group_id: group.identity.low || group.identity
+      }
+      this.axios.post(url, body)
+        .then(() => {
+          this.modal_open = false
+          this.$emit('visibility_update')
+        })
+        .catch(() => {
+          alert('Error updating visibility of application')
+        })
     },
     remove_application_visibility_to_group (group) {
-      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity.low}/visibility_to_group`
-
-      this.axios.delete(url, { params: { group_id: group.identity.low } })
-      .then(() => {
-        this.$emit('visibility_update')
-      })
-      .catch((error) => {
-        console.error(error)
-        alert('Error updating visibility of application')
-      })
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity}/visibility_to_group`
+      const params = {
+        group_id: group.identity.low || group.identity
+      }
+      this.axios.delete(url, { params })
+        .then(() => {
+          this.$emit('visibility_update')
+        })
+        .catch((error) => {
+          console.error(error)
+          alert('Error updating visibility of application')
+        })
     },
-    view_pdf(file_id){
-      this.$emit('view_pdf',file_id)
+    view_pdf (file_id) {
+      this.$emit('view_pdf', file_id)
     },
-    user_has_stamped_attachment(file_id){
-      let found_approval = this.approvals.find( (approval) => {
-        return approval.start.low === this.$store.state.current_user.identity.low
+    user_has_stamped_attachment (file_id) {
+      const found_approval = this.approvals.find((approval) => {
+        return approval.start === this.current_user_id
       })
 
-      if(!found_approval) return
+      if (!found_approval) return
 
       let attachment_hankos = found_approval.properties.attachment_hankos
 
       return !!attachment_hankos
-
     }
   }
 
@@ -353,7 +348,6 @@ export default {
 .application_info td, .application_info th {
   padding: 5px;
 }
-
 
 .application_info th {
   padding-top: 10px;

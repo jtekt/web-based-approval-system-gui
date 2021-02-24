@@ -34,8 +34,6 @@
       </div>
     </div>
 
-
-
   </div>
 </template>
 
@@ -79,26 +77,26 @@ export default {
       ]
     }
   },
-  mounted(){
+  mounted () {
     this.get_application_count()
     this.get_back_end_version()
   },
   methods: {
-    get_application_count(){
+    get_application_count () {
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/count`
       this.axios.get(url)
-      .then((response) => {
-        this.application_count = response.data.low
-      })
-      .catch(error => console.log(error))
+        .then((response) => {
+          this.application_count = response.data.application_count
+        })
+        .catch(error => console.log(error))
     },
-    get_back_end_version(){
+    get_back_end_version () {
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/`
       this.axios.get(url)
-      .then((response) => {
-        this.back_end_version = response.data.version
-      })
-      .catch(error => console.log(error))
+        .then((response) => {
+          this.back_end_version = response.data.version
+        })
+        .catch(error => console.log(error))
     }
   }
 

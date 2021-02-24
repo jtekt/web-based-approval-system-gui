@@ -22,7 +22,7 @@
 export default {
   name: 'UserPreview',
   props: {
-    user: Object,
+    user: Object
   },
   components: {
 
@@ -34,19 +34,18 @@ export default {
     }
   },
 
-
   methods: {
-    view_profile(){
+    view_profile () {
       window.open(this.user_profile_url)
     }
 
   },
   computed: {
 
-    user_profile_url(){
-      let author_id = this.user.identity.low
-      return `${process.env.VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/?id=${author_id}`
-    },
+    user_profile_url () {
+      const user_id = this.user.identity.low || this.user.identity
+      return `${process.env.VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/users/${user_id}`
+    }
   }
 }
 </script>

@@ -55,7 +55,7 @@
         font-family="monospace, monospace"
         font-size="14"
         x="50%" y="94%">
-        {{String(date.year.low).slice(2,4)}}.{{date.month.low}}.{{date.day.low}}
+        {{String(date.year).slice(2,4)}}.{{date.month}}.{{date.day}}
       </text>
 
     </svg>
@@ -72,7 +72,7 @@
 <script>
 import QRCode from 'qrcode'
 import Canvg from 'canvg'
-import "blueimp-canvas-to-blob/js/canvas-to-blob"
+import 'blueimp-canvas-to-blob/js/canvas-to-blob'
 
 export default {
   name: 'WebHanko',
@@ -83,15 +83,16 @@ export default {
       type: Object,
       default () {
         return {
-          year: { low: 2000 },
-          month: { low: 1 },
-          day: { low: 1 } }
+          year: 0,
+          month: 0,
+          day: 0
+        }
       }
     }
   },
   data () {
     return {
-      qr_code_svg: '',
+      qr_code_svg: ''
     }
   },
   mounted () {
@@ -99,14 +100,14 @@ export default {
   },
   computed: {
     name_font_size () {
-      return Math.min(55 / this.name.length, 55/2)
+      return Math.min(55 / this.name.length, 55 / 2)
     },
     name_y () {
-      return 17.5 + 0.5*this.name_font_size
+      return 17.5 + 0.5 * this.name_font_size
     }
   },
   methods: {
-    generate_qr(){
+    generate_qr () {
       QRCode.toString(String(this.approvalId), {
         margin: 0,
         color: {
@@ -114,12 +115,12 @@ export default {
           light: '#0000' // Transparent background
         }
       })
-      .then(string => {
-        var parser = new DOMParser()
-        var doc = parser.parseFromString(string, 'image/svg+xml')
-        this.qr_code_svg = doc.getElementsByTagName('path')[0].getAttribute('d')
-      })
-      .catch(err => console.error(err))
+        .then(string => {
+          var parser = new DOMParser()
+          var doc = parser.parseFromString(string, 'image/svg+xml')
+          this.qr_code_svg = doc.getElementsByTagName('path')[0].getAttribute('d')
+        })
+        .catch(err => console.error(err))
     },
 
     async download () {
@@ -134,24 +135,22 @@ export default {
 
       Canvg(canvas, SVG_sata, {
         renderCallback: () => {
-          canvas.toBlob( (blob) => {
-            this.actual_download(`${this.approvalId}.png`,blob)
+          canvas.toBlob((blob) => {
+            this.actual_download(`${this.approvalId}.png`, blob)
           })
         }
       })
-
     },
-    actual_download(filename, blob ) {
+    actual_download (filename, blob) {
       if (window.navigator.msSaveOrOpenBlob) {
-        window.navigator.msSaveBlob(blob, filename);
-      }
-      else {
-        const elem = window.document.createElement('a');
-        elem.href = window.URL.createObjectURL(blob);
-        elem.download = filename;
-        document.body.appendChild(elem);
-        elem.click();
-        document.body.removeChild(elem);
+        window.navigator.msSaveBlob(blob, filename)
+      } else {
+        const elem = window.document.createElement('a')
+        elem.href = window.URL.createObjectURL(blob)
+        elem.download = filename
+        document.body.appendChild(elem)
+        elem.click()
+        document.body.removeChild(elem)
       }
     }
   }
@@ -186,6 +185,8 @@ svg {
   height: 100%;
   width: 100%;
 
+  font-size: 200%;
+
   display: flex;
   align-items: center;
   justify-content: center;
@@ -198,7 +199,5 @@ svg {
 .download_button_container:hover {
   opacity: 1;
 }
-
-
 
 </style>

@@ -4,7 +4,6 @@
       <div class="comments_header">コメント / Comments</div>
       <table>
 
-
         <tr
           v-for="(submission) in submissions_with_comment.reverse()">
           <td class="refuser_name">
@@ -29,52 +28,50 @@
 
 <script>
 
-
 export default {
   name: 'rejectionReason',
   props: {
     submissions: Array,
     recipients: Array,
     approvals: Array,
-    rejections: Array,
+    rejections: Array
   },
   methods: {
-    recipient_of_approval(approval){
+    recipient_of_approval (approval) {
       return this.recipients.find(recipient => {
         return JSON.stringify(approval.start) === JSON.stringify(recipient.identity)
       })
     },
-    recipient_of_submission(submission){
-      if(!submission) return null
+    recipient_of_submission (submission) {
+      if (!submission) return null
       return this.recipients.find(recipient => {
         return JSON.stringify(recipient.identity) === JSON.stringify(submission.end)
       })
     },
-    approval_of_recipient(recipient){
+    approval_of_recipient (recipient) {
       return this.approvals.find(approval => {
         return JSON.stringify(approval.start) === JSON.stringify(recipient.identity)
       })
     },
-    rejection_of_recipient(recipient){
+    rejection_of_recipient (recipient) {
       return this.rejections.find(rejection => {
         return JSON.stringify(rejection.start) === JSON.stringify(recipient.identity)
       })
     },
-    approval_or_rejection_of_recipient(recipient){
+    approval_or_rejection_of_recipient (recipient) {
       return this.approval_of_recipient(recipient) || this.rejection_of_recipient(recipient)
-    },
+    }
 
   },
   computed: {
-    submissions_with_comment(){
+    submissions_with_comment () {
       return this.submissions.filter(submission => {
         let recipient = this.recipient_of_submission(submission)
         let approval_or_rejection = this.approval_or_rejection_of_recipient(recipient)
-        if(!approval_or_rejection) return false
+        if (!approval_or_rejection) return false
         return approval_or_rejection.properties.comment
       })
     }
-
 
   }
 

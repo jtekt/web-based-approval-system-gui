@@ -1,13 +1,12 @@
 <template>
   <div class="rejection" >
-    <close-circle-outline-icon :size="70"/>
+    <close-circle-outline-icon/>
   </div>
 </template>
 
 <script>
 
 import CloseCircleOutlineIcon from 'vue-material-design-icons/CloseCircleOutline.vue'
-
 
 export default {
   name: 'Rejection',
@@ -27,6 +26,7 @@ export default {
   align-items: center;
   justify-content: center;
   color: #c00000;
+  font-size: 400%;
 }
 
 </style>

@@ -16,7 +16,7 @@
       <WebHanko
         v-if="approval"
         v-bind:name="recipient.properties.last_name"
-        v-bind:approvalId="approval.identity.low"
+        v-bind:approvalId="approval.identity"
         v-bind:date="approval.properties.date"/>
 
       <!-- probably need date of rejection as well as motive -->
@@ -62,29 +62,31 @@
 <script>
 import WebHanko from './WebHanko.vue'
 import Rejection from './Rejection.vue'
+import CurrentUserID from '@/mixins/CurrentUserID.js'
 
 export default {
   name: 'WebHankoContainer',
   components: {
     WebHanko,
-    Rejection,
+    Rejection
   },
+  mixins: [
+    CurrentUserID
+  ],
   props: {
     recipient: { type: Object, required: true },
     approval: { type: Object },
     rejection: { type: Object },
-
     applicant: { type: Object },
-
     is_current_submission: { type: Boolean, default () { return false } }
   },
   data () {
     return {
-      approval_status: undefined,
+      approval_status: undefined
     }
   },
   methods: {
-    send_email(){
+    send_email () {
       this.$emit('send_email', this.recipient)
     }
   },
@@ -92,20 +94,20 @@ export default {
 
     show_toolbox () {
       // If the user is a recipient that has not approved or rejected the application and also is next recipient
-      return this.user_is_recipient
-        && !this.approval
-        && !this.rejection
-        && this.is_current_submission
+      return this.user_is_recipient &&
+        !this.approval &&
+        !this.rejection &&
+        this.is_current_submission
     },
     user_profile_url () {
-      return `${process.env.VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/?id=${this.recipient.identity.low}`
+      return `${process.env.VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/users/${this.recipient.identity}`
     },
     user_is_applicant () {
-      return JSON.stringify(this.$store.state.current_user.identity) === JSON.stringify(this.applicant.identity)
+      return this.current_user_id === this.applicant.identity
     },
     user_is_recipient () {
-      return JSON.stringify(this.$store.state.current_user.identity) === JSON.stringify(this.recipient.identity)
-    },
+      return this.current_user_id === this.recipient.identity
+    }
   }
 }
 </script>
@@ -202,7 +204,5 @@ export default {
   background-color: #c00000;
   color: white;
 }
-
-
 
 </style>

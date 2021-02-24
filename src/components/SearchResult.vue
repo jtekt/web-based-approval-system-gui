@@ -3,13 +3,11 @@
   <tr
     @click="$router.push({
       name: 'application',
-      params: {application_id: application.identity.low}
+      params: {application_id: application.identity}
     })">
-    <td>{{application.identity.low}}</td>
+    <td>{{application.identity}}</td>
     <td>
-      {{application.properties.creation_date.year.low}}/
-      {{application.properties.creation_date.month.low}}/
-      {{application.properties.creation_date.day.low}}
+      {{format_date(application.properties.creation_date)}}
     </td>
 
     <td>
@@ -32,7 +30,7 @@
 
     <td
       v-for="(field_label, i) in fields"
-      :key="`${application.identity.low}_field_${i}`">
+      :key="`${application.identity}_field_${i}`">
 
       <!-- Hiding confidential fields -->
       <span v-if="forbidden">
@@ -41,13 +39,10 @@
 
       <!-- Nprmal fields -->
       <template v-if="!forbidden">
-        {{field_value(field_label, application.identity.low)}}
+        {{field_value(field_label, application.identity)}}
       </template>
 
-
-
     </td>
-
 
   </tr>
 
@@ -55,52 +50,52 @@
 
 <script>
 
+import DateFormatting from '@/mixins/DateFormatting.js'
 
 export default {
-  name: 'RefusalReason',
+  name: 'SearchResult',
+  mixins: [
+    DateFormatting
+  ],
   props: {
     record: Object,
-    fields: Array,
+    fields: Array
   },
   methods: {
-    field_value(field_label, application_id){
-
-      if(!Array.isArray(this.form_data)) return null
+    field_value (field_label, application_id) {
+      if (!Array.isArray(this.form_data)) return null
       let found_field = this.form_data.find(field => {
         return field.label === field_label
       })
 
       // Do not return anything if the field is not found
-      if(!found_field) return null
-      if(this.isValidDate(new Date(found_field.value))) {
+      if (!found_field) return null
+      if (this.isValidDate(new Date(found_field.value))) {
         let options = {
           year: 'numeric',
           month: '2-digit',
           day: '2-digit'
         }
         return new Date(found_field.value).toLocaleString('ja-JP', options)
-      }
-      else return found_field.value
-
-
+      } else return found_field.value
     },
-    isValidDate(date) {
-      return date && Object.prototype.toString.call(date) === "[object Date]" && !isNaN(date);
+    isValidDate (date) {
+      return date && Object.prototype.toString.call(date) === '[object Date]' && !isNaN(date)
     }
   },
   computed: {
-    application(){
+    application () {
       return this.record._fields[this.record._fieldLookup.application]
     },
-    applicant(){
+    applicant () {
       return this.record._fields[this.record._fieldLookup.applicant]
     },
-    forbidden(){
+    forbidden () {
       return this.record._fields[this.record._fieldLookup.forbidden]
     },
-    form_data(){
+    form_data () {
       return JSON.parse(this.application.properties.form_data)
-    },
+    }
   }
 
 }

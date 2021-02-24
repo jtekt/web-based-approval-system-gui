@@ -87,9 +87,6 @@
 
     <h2>Results</h2>
 
-
-
-
     <div
       v-if="loading"
       class="loader_container">
@@ -172,7 +169,7 @@ export default {
   components: {
     SearchResult,
     Modal,
-    GroupPicker,
+    GroupPicker
 
   },
   data () {
@@ -191,7 +188,7 @@ export default {
       end_date: null,
       selected_group: null,
 
-      modal_open: false,
+      modal_open: false
     }
   },
   methods: {
@@ -206,46 +203,45 @@ export default {
           application_type: this.application_type,
           start_date: this.start_date,
           end_date: this.end_date,
-          group_id: this.selected_group_id,
+          group_id: this.selected_group_id
         }
       })
-      .then(response => {
-        this.application_records = []
-        this.field_labels = []
-        response.data.forEach((record) => {
-          this.application_records.push(record)
-          let application = record._fields[record._fieldLookup.application]
+        .then(response => {
+          this.application_records = []
+          this.field_labels = []
+          response.data.forEach((record) => {
+            this.application_records.push(record)
+            let application = record._fields[record._fieldLookup.application]
 
-          // Form data
-          if(!application.properties.form_data) return
-          let form_data = JSON.parse(application.properties.form_data)
-          if(!Array.isArray(form_data)) return
-          form_data.forEach((field) => {
-            if(!this.field_labels.includes(field.label) && field.type !== 'file' ) {
-              this.field_labels.push(field.label)
-            }
+            // Form data
+            if (!application.properties.form_data) return
+            let form_data = JSON.parse(application.properties.form_data)
+            if (!Array.isArray(form_data)) return
+            form_data.forEach((field) => {
+              if (!this.field_labels.includes(field.label) && field.type !== 'file') {
+                this.field_labels.push(field.label)
+              }
+            })
           })
         })
-      })
-      .catch(error => { console.log(error) })
-      .finally(() => { this.loading = false })
-
+        .catch(error => { console.log(error) })
+        .finally(() => { this.loading = false })
     },
-    select_group(group){
+    select_group (group) {
       this.modal_open = false
       this.selected_group = group
     },
-    export_table() {
-      var workbook = XLSX.utils.book_new();
+    export_table () {
+      var workbook = XLSX.utils.book_new()
       var ws1 = XLSX.utils.table_to_sheet(document.getElementById('search_results_table'))
-      XLSX.utils.book_append_sheet(workbook, ws1, "Sheet1")
+      XLSX.utils.book_append_sheet(workbook, ws1, 'Sheet1')
       XLSX.writeFile(workbook, 'export.xlsx')
     }
   },
   computed: {
-    selected_group_id(){
-      if(!this.selected_group) return null
-      else return this.selected_group.identity.low
+    selected_group_id () {
+      if (!this.selected_group) return null
+      else return this.selected_group.identity.low || this.selected_group.identity
     }
   }
 }

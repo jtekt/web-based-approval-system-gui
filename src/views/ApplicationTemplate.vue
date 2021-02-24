@@ -2,9 +2,6 @@
   <div class="">
     <h1>フォーム / Forms</h1>
 
-
-
-
     <!-- template is editable if new form of if current user is author -->
     <template v-if="is_editable">
 
@@ -40,7 +37,7 @@
             <div
               v-for="(group, index) in groups"
               class="visibility_group"
-              v-bind:key="group.identity.low">
+              v-bind:key="`shared_group_${index}`">
 
               <span class="">
                 {{group.properties.name}}
@@ -54,8 +51,6 @@
               </button>
 
             </div>
-
-
 
             <!-- Button to add a group to visibility -->
             <div
@@ -129,7 +124,6 @@
         </button>
       </div>
 
-
       <div class="buttons_wrapper">
 
         <button
@@ -162,7 +156,6 @@
         <div class="group_picker_wrapper">
           <GroupPicker
             class="picker"
-            :apiUrl="picker_api_url"
             v-on:selection="add_to_groups($event)"/>
         </div>
       </Modal>
@@ -194,9 +187,9 @@
             </div>
 
             <div
-              v-for="(group) in groups"
+              v-for="(group, index) in groups"
               class="visibility_group"
-              v-bind:key="group.identity.low">
+              v-bind:key="`shared_group_${index}`">
 
               <span class="">
                 {{group.properties.name}}
@@ -206,7 +199,6 @@
 
           </div>
         </div>
-
 
       </div>
 
@@ -223,11 +215,7 @@
         </tr>
       </table>
 
-
-
     </template>
-
-
 
   </div>
 </template>
@@ -237,17 +225,18 @@
 import GroupPicker from '@moreillon/vue_group_picker'
 import Modal from '@moreillon/vue_modal'
 import UserPreview from '@/components/UserPreview.vue'
-
-
+import CurrentUserID from '@/mixins/CurrentUserID.js'
 
 export default {
   name: 'ApplicationTemplate',
   components: {
     Modal,
     GroupPicker,
-    UserPreview,
-
+    UserPreview
   },
+  mixins: [
+    CurrentUserID
+  ],
   data () {
     return {
 
@@ -259,53 +248,50 @@ export default {
         { type: 'checkbox', label: 'チェックボックス / Checkbox' },
         { type: 'date', label: '日付 / Date' },
         { type: 'link', label: 'リンク / Link' },
-        { type: 'application', label: '申請番号 / Application no' },
+        { type: 'application', label: '申請番号 / Application no' }
       ],
 
       label: '',
       description: '',
 
       fields: [
-        { type: 'text', label: '' },
+        { type: 'text', label: '' }
 
       ],
 
       author: null,
 
-      modal_open: false,
+      modal_open: false
 
     }
   },
   mounted () {
     if (this.template_id) {
       this.get_template()
-      //this.get_visibility()
     }
   },
   methods: {
 
     get_template () {
-      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
       this.axios.get(url)
-      .then((response) => {
-        let record = response.data
-        let aft = record._fields[record._fieldLookup['aft']]
+        .then((response) => {
+          let record = response.data
+          let aft = record._fields[record._fieldLookup['aft']]
 
-        let parsed_fields = JSON.parse(aft.properties.fields)
+          let parsed_fields = JSON.parse(aft.properties.fields)
 
-        this.fields = []
-        parsed_fields.forEach(field => this.fields.push(field))
+          this.fields = []
+          parsed_fields.forEach(field => this.fields.push(field))
 
-        this.label = aft.properties.label
-        this.description = aft.properties.description
+          this.label = aft.properties.label
+          this.description = aft.properties.description
 
-        this.author = record._fields[record._fieldLookup['creator']]
+          this.author = record._fields[record._fieldLookup['creator']]
 
-        this.groups = record._fields[record._fieldLookup['groups']]
-
-
-      })
-      .catch(error => console.log(error))
+          this.groups = record._fields[record._fieldLookup['groups']]
+        })
+        .catch(error => console.log(error))
     },
 
     add_field () {
@@ -317,7 +303,6 @@ export default {
       }
     },
     submit () {
-
       if (this.template_id) {
         // If id exists, then edit
         this.update_template()
@@ -327,41 +312,56 @@ export default {
         this.create_template()
       }
     },
-    create_template(){
-      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates`
-      this.axios.post(url, {
+    create_template () {
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates`
+      const group_ids = this.groups.map((group) => {
+        return group.identity.low || group.identity
+      })
+
+      const body = {
         fields: this.fields,
         label: this.label,
         description: this.description,
-        group_ids: this.groups.map(group => group.identity.low)
-      })
-      .then(() => this.$router.push({ name: 'application_templates' }))
-      .catch(error => {
-        alert('Error while updating the template')
-        console.log(error)
-      })
+        group_ids
+      }
+
+      this.axios.post(url, body)
+        .then(() => this.$router.push({ name: 'application_templates' }))
+        .catch(error => {
+          alert('Error while updating the template')
+          console.log(error)
+        })
     },
-    update_template(){
-      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
-      this.axios.put(url, {
+    update_template () {
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
+
+      const group_ids = this.groups.map((group) => {
+        return group.identity.low || group.identity
+      })
+
+      const body = {
         fields: this.fields,
         label: this.label,
         description: this.description,
-        group_ids: this.groups.map(group => group.identity.low),
-      })
-      .then(() => this.$router.push({ name: 'application_templates' }))
-      .catch(error => {
-        alert('Error while updating the template')
-        console.log(error)
-      })
+        group_ids
+      }
+
+      this.axios.put(url, body)
+        .then(() => this.$router.push({ name: 'application_templates' }))
+        .catch(error => {
+          alert('Error while updating the template')
+          console.log(error)
+        })
     },
     delete_template () {
-      if (confirm('ホンマ？ / Really?')) {
-        let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
-        this.axios.delete(url)
+      if (!confirm('ホンマ？ / Really?')) return
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
+      this.axios.delete(url)
         .then((response) => this.$router.push({ name: 'application_templates' }))
-        .catch(error => console.log(error))
-      }
+        .catch(error => {
+          alert('Error while deleting the template')
+          console.log(error)
+        })
     },
 
     delete_group (index) {
@@ -371,12 +371,13 @@ export default {
       this.modal_open = false
 
       // Prevent duplicates
-      let existing_group = this.groups.find( group => {
-        return group.identity.low === group_to_add.identity.low
+      const existing_group = this.groups.find(group => {
+        const group_id = group.identity.low || group.identity
+        const group_to_add_id = group_to_add.identity.low || group_to_add.identity
+        return group_id === group_to_add_id
       })
 
-      if(!existing_group) this.groups.push(group_to_add)
-
+      if (!existing_group) this.groups.push(group_to_add)
     }
 
   },
@@ -385,18 +386,13 @@ export default {
       // if this is a new template, automatically in edit mode
       if (!this.template_id) return true
       if (!this.$store.state.current_user || !this.author) return false
-      return this.$store.state.current_user.identity.low === this.author.identity.low
+      return this.current_user_id === this.author.identity
     },
-    picker_api_url () {
-      return process.env.VUE_APP_GROUP_MANAGER_API_URL
-    },
-    author_profile_url(){
-      return `${process.env.VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/?id=${this.author.identity.low}`
-    },
-    template_id() {
-      return this.$route.query.id
-        || this.$route.params.id
-        || this.$route.params.template_id
+
+    template_id () {
+      const id = this.$route.params.template_id
+      if (!id || id === 'new') return undefined
+      else return id
     }
   }
 }
@@ -425,9 +421,6 @@ export default {
 .template_metadata_wrapper > div > *:last-child{
   flex-grow: 1;
 }
-
-
-
 
 .fields_table {
   width: 100%;
@@ -471,7 +464,6 @@ export default {
   height: 100%;
 }
 
-
 .group {
   display: flex;
   justify-content: space-between;
@@ -484,7 +476,6 @@ export default {
 .group:not(:last-child){
   border-bottom: 1px solid #dddddd;
 }
-
 
 .author_avatar {
   height: 1em;

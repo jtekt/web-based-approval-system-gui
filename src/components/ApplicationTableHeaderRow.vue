@@ -39,7 +39,7 @@ import PercentIcon from 'vue-material-design-icons/Percent.vue'
 export default {
   name: 'ApplicationTableHeaderRow',
   props: {
-    application_records: Array,
+    application_records: Array
   },
   components: {
     CalendarIcon,
@@ -49,18 +49,22 @@ export default {
 
   },
   computed: {
-    show_progress(){
-      let application_record = this.application_records[0]
-      return !!application_record._fields[application_record._fieldLookup['approval_count']]
+    show_progress () {
+      // Show progress if one or more application has a defined approval_count
+      return this.application_records.find(record => {
+        return typeof (record._fields[record._fieldLookup['approval_count']]) !== 'undefined'
+      })
     },
-    show_applicant(){
-      let application_record = this.application_records[0]
-      return !!application_record._fields[application_record._fieldLookup['applicant']]
+    show_applicant () {
+      return this.application_records.find(record => {
+        return typeof (record._fields[record._fieldLookup['applicant']]) !== 'undefined'
+      })
     },
-    show_next_recipient(){
-      let application_record = this.application_records[0]
-      return !!application_record._fields[application_record._fieldLookup['next_recipient']]
-    },
+    show_next_recipient () {
+      return this.application_records.find(record => {
+        return typeof (record._fields[record._fieldLookup['next_recipient']]) !== 'undefined'
+      })
+    }
   }
 }
 </script>

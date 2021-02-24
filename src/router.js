@@ -3,7 +3,7 @@ import Router from 'vue-router'
 import CreateApplication from './views/CreateApplication.vue'
 import ApplicationTemplateList from './views/ApplicationTemplateList.vue'
 import ApplicationTemplate from './views/ApplicationTemplate.vue'
-//import ShowApplication from './views/ShowApplication.vue'
+// import ShowApplication from './views/ShowApplication.vue'
 import ApplicationList from './views/ApplicationList.vue'
 
 import Search from './views/Search.vue'
@@ -17,23 +17,23 @@ export default new Router({
   base: process.env.BASE_URL,
   routes: [
     // redirect everything else to inbox
-    { path: '/', redirect: {name :'submitted_applications'}},
+    { path: '/', redirect: { name: 'submitted_applications' } },
     {
       path: '/applications/submitted',
       name: 'submitted_applications',
       component: ApplicationList,
-      props: {type: 'submitted'},
+      props: { type: 'submitted' }
     },
     {
       path: '/applications/received',
       name: 'received_applications',
       component: ApplicationList,
-      props: {type: 'received'},
+      props: { type: 'received' }
     },
     {
       path: '/applications/:application_id',
       name: 'application',
-      //component: ShowApplication
+      // component: ShowApplication
       component: () => import('@/views/ShowApplication.vue')
     },
     {
@@ -49,7 +49,7 @@ export default new Router({
     {
       path: '/create_application',
       name: 'create_application',
-      component: CreateApplication,
+      component: CreateApplication
     },
     {
       path: '/search',

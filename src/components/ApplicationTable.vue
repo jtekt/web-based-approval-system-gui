@@ -34,24 +34,26 @@
         </table>
       </template>
 
+      <!-- Currently, batching only for approved -->
+      <template v-if="state.name === 'approved'">
+        <Loader
+          v-if="application_records[state.name].loading">
+          Loading applications...
+        </Loader>
 
+        <div
+          class="load_more_wrapper"
+          v-else-if="!application_records[state.name].all_loaded">
+          <button
+            type="button"
+            class="bordered"
+            @click="$emit('load_more', state.name)">
+            <dots-horizontal-icon />
+            <span>Load more</span>
+          </button>
+        </div>
+      </template>
 
-      <Loader
-        v-if="application_records[state.name].loading">
-        Loading applications...
-      </Loader>
-
-      <div
-        class="load_more_wrapper"
-        v-else-if="!application_records[state.name].all_loaded">
-        <button
-          type="button"
-          class="bordered"
-          @click="$emit('load_more','approved')">
-          <dots-horizontal-icon />
-          <span>Load more</span>
-        </button>
-      </div>
 
       <div
         class=""
@@ -63,7 +65,6 @@
 
     </div>
 
-
   </div>
 </template>
 
@@ -71,12 +72,11 @@
 import ApplicationTableRow from '@/components/ApplicationTableRow.vue'
 import ApplicationTableHeaderRow from '@/components/ApplicationTableHeaderRow.vue'
 
-
 export default {
   name: 'ApplicationTable',
   components: {
     ApplicationTableRow,
-    ApplicationTableHeaderRow,
+    ApplicationTableHeaderRow
   },
   props: {
     application_records: Object,
@@ -89,24 +89,24 @@ export default {
       default () { return false }
     }
   },
-  data(){
+  data () {
     return {
       states: [
         {
           name: 'pending',
           heading: '申請中 / Pending',
-          icon: 'clock-outline-icon',
+          icon: 'clock-outline-icon'
         },
         {
           name: 'rejected',
           heading: '却下 / Rejected',
-          icon: 'close-icon',
+          icon: 'close-icon'
         },
         {
           name: 'approved',
           heading: '承認 / Approved',
-          icon: 'check-icon',
-        },
+          icon: 'check-icon'
+        }
 
       ]
     }

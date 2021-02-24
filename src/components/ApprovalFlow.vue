@@ -11,7 +11,7 @@
       <div
         class="flow_item"
         v-for="(employee, index) in employees"
-        v-bind:key="employee.identity.low">
+        v-bind:key="`flow_member_${index}`">
 
         <arrow-right-icon
           class="arrow"
@@ -23,7 +23,9 @@
             class="delete_button"
             v-on:click="$emit('deleteEmployee',index)"/>
           <div class="name">
-            {{employee.properties.display_name || employee.properties.name_kanji}}
+            {{employee.properties.display_name
+              || employee.properties.name_kanji
+              || employee.properties.full_name}}
           </div>
           <div class="role" v-if="employee.properties.role">
             ({{employee.properties.role}})
@@ -34,7 +36,6 @@
     </draggable>
 
     <p v-else class="error_message">承認者が選ばれていません　/　No recipient selected</p>
-
 
   </div>
 </template>
@@ -54,7 +55,7 @@ export default {
     draggable,
 
     CloseIcon,
-    ArrowRightIcon,
+    ArrowRightIcon
 
   },
   props: {
@@ -80,7 +81,6 @@ export default {
   display: flex;
   align-items: center;
 }
-
 
 .arrow {
   font-size: 150%;
