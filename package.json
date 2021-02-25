@@ -8,29 +8,29 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "@moreillon/vue_application_template_flex": "^1.1.8",
-    "@moreillon/vue_group_picker": "^0.1.14",
+    "@moreillon/vue_application_template_flex": "^1.1.18",
+    "@moreillon/vue_group_picker": "^1.0.0",
     "@moreillon/vue_loader": "^0.1.1",
-    "@moreillon/vue_modal": "0.0.4",
-    "@moreillon/vue_user_picker": "^1.0.6",
-    "axios": "^0.19.2",
-    "blueimp-canvas-to-blob": "^3.27.0",
+    "@moreillon/vue_modal": "^0.1.0",
+    "@moreillon/vue_user_picker": "^1.1.0",
+    "axios": "^0.21.1",
+    "blueimp-canvas-to-blob": "^3.28.0",
     "canvg": "^2.0.0",
-    "core-js": "^2.6.11",
+    "core-js": "^2.6.12",
     "dotenv": "^8.2.0",
     "downloadjs": "^1.4.7",
-    "pdf-lib": "^1.9.0",
+    "pdf-lib": "^1.16.0",
     "qrcode": "^1.4.4",
-    "vue": "^2.6.11",
+    "vue": "^2.6.12",
     "vue-axios": "^2.1.5",
-    "vue-cookies": "^1.7.2",
+    "vue-cookies": "^1.7.4",
     "vue-date": "^1.2.0",
-    "vue-material-design-icons": "^4.7.1",
-    "vue-pdf": "^4.1.0",
-    "vue-router": "^3.3.4",
-    "vuedraggable": "^2.24.0",
-    "vuex": "^3.5.1",
-    "xlsx": "^0.16.4"
+    "vue-material-design-icons": "^4.11.0",
+    "vue-pdf": "^4.2.0",
+    "vue-router": "^3.5.1",
+    "vuedraggable": "^2.24.3",
+    "vuex": "^3.6.2",
+    "xlsx": "^0.16.9"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.12.1",
@@ -40,6 +40,6 @@
     "babel-eslint": "^10.1.0",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
-    "vue-template-compiler": "^2.6.11"
+    "vue-template-compiler": "^2.6.12"
   }
 }
