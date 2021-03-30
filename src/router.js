@@ -57,11 +57,6 @@ export default new Router({
       component: Search
     },
     {
-      path: '/about',
-      name: 'about',
-      component: About
-    },
-    {
       path: '/info',
       name: 'info',
       component: Info

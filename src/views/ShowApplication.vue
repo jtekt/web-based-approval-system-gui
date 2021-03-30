@@ -297,7 +297,9 @@ mailto:${recipient.properties.email_address}
 タイトル: ${this.application.properties.title} %0D%0A
 提出先URL: ${window.location.origin}/applications/${this.application.identity} %0D%0A
 %0D%0A
-※IEでは動作しません。Edge/Firefox/GoogleChromeをご使用ください。　%0D%0A
+※IEでは動作しません。Edge (Chromium)/Firefox/GoogleChromeをご使用ください。　%0D%0A
+※現在、申請マネージャをEdge上でご使用になる場合PDF表示がおかしくなるようです。詳しくはこちらURLをご覧ください。%0D%0A
+${window.location.origin}/info %0D%0A
 %0D%0A
 確認お願いします。%0D%0A
 %0D%0A
@@ -317,7 +319,9 @@ mailto:${this.applicant.properties.email_address}
 タイトル: ${this.application.properties.title} %0D%0A
 提出先URL: ${window.location.origin}/applications/${this.application.identity} %0D%0A
 %0D%0A
-※IEでは動作しません。Edge/Firefox/GoogleChromeをご使用ください。　%0D%0A
+※IEでは動作しません。Edge (Chromium)/Firefox/GoogleChromeをご使用ください。　%0D%0A
+※現在、申請マネージャをEdge上でご使用になる場合PDF表示がおかしくなるようです。詳しくはこちらURLをご覧ください。%0D%0A
+${window.location.origin}/info %0D%0A
 %0D%0A
 確認お願いします。%0D%0A
 %0D%0A

@@ -7,6 +7,7 @@
     <p>
       Developped and maintained by <a href="https://maximemoreillon.com">Maxime MOREILLON</a>
     </p>
+    <h2>Compatibility notice</h2>
     <p>
        Front end version: {{version}}
     </p>

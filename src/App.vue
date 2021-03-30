@@ -10,7 +10,7 @@
         <router-link :to="{ name: 'received_applications'}"><inbox-arrow-down-icon />Inbox</router-link>
         <router-link :to="{ name: 'search'}"><magnify-icon />Search</router-link>
         <router-link :to="{ name: 'application_templates'}"><file-settings-outline-icon />Form templates</router-link>
-        <router-link :to="{ name: 'about'}"><information-outline-icon />About</router-link>
+        <router-link :to="{ name: 'info'}"><information-outline-icon />Info</router-link>
       </template>
 
     </AppTemplate>
