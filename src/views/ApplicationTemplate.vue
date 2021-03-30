@@ -73,39 +73,51 @@
       <template v-if="fields.length > 0">
 
         <table class="fields_table">
-          <tr>
-            <th>ラベル / Label</th>
-            <th>タイプ / Type</th>
-            <th class="delete_cell">削除 / Delete</th>
-          </tr>
-          <tr
-            v-for="(field, index) in fields"
-            v-bind:key="`field_${index}`">
+          <thead>
+            <tr>
+              <th>ラベル / Label</th>
+              <th>タイプ / Type</th>
+              <th class="delete_cell">削除 / Delete</th>
+              <th class="delete_cell">Reorder</th>
+            </tr>
+          </thead>
 
-            <!-- Field label input -->
-            <td>
-              <input type="text" v-model="field.label" placeholder="例：パソコン番号">
-            </td>
+          <draggable v-model="fields" tag="tbody">
+            <tr
+              v-for="(field, index) in fields"
+              v-bind:key="`field_${index}`">
 
-            <!-- Field type select -->
-            <td>
-              <select class="" v-model="field.type">
-                <option
-                  v-for="field_type in field_types"
-                  v-bind:value="field_type.type">{{field_type.label}}</option>
-              </select>
-            </td>
+              <!-- Field label input -->
+              <td>
+                <input type="text" v-model="field.label" placeholder="例：パソコン番号">
+              </td>
 
-            <!-- Delete field -->
-            <td class="delete_cell">
-              <button
-                type="button"
-                @click="delete_field(index)">
-                <delete-icon />
-              </button>
-            </td>
+              <!-- Field type select -->
+              <td>
+                <select class="" v-model="field.type">
+                  <option
+                    v-for="field_type in field_types"
+                    v-bind:value="field_type.type">{{field_type.label}}</option>
+                </select>
+              </td>
 
-          </tr>
+              <!-- Delete field -->
+              <td class="delete_cell">
+                <button
+                  type="button"
+                  @click="delete_field(index)">
+                  <delete-icon />
+                </button>
+              </td>
+
+              <td class="delete_cell">
+                <menu-icon />
+              </td>
+
+            </tr>
+          </draggable>
+
+
         </table>
 
       </template>
@@ -150,9 +162,7 @@
       <Modal
         :open="modal_open"
         @close="modal_open=false">
-        <h2 class="">
-          共有 / Visibility
-        </h2>
+        <h2 class="">共有 / Visibility</h2>
         <div class="group_picker_wrapper">
           <GroupPicker
             class="picker"
@@ -180,10 +190,7 @@
           <label for="">共有 / Visibility</label>
           <div class="">
             <div class="visibility_group">
-              <span>
-                著者 / Author
-              </span>
-
+              <span>著者 / Author</span>
             </div>
 
             <div
@@ -191,9 +198,7 @@
               class="visibility_group"
               v-bind:key="`shared_group_${index}`">
 
-              <span class="">
-                {{group.properties.name}}
-              </span>
+              <span class="">{{group.properties.name}}</span>
 
             </div>
 
@@ -226,13 +231,15 @@ import GroupPicker from '@moreillon/vue_group_picker'
 import Modal from '@moreillon/vue_modal'
 import UserPreview from '@/components/UserPreview.vue'
 import CurrentUserID from '@/mixins/CurrentUserID.js'
+import draggable from 'vuedraggable'
 
 export default {
   name: 'ApplicationTemplate',
   components: {
     Modal,
     GroupPicker,
-    UserPreview
+    UserPreview,
+    draggable
   },
   mixins: [
     CurrentUserID
@@ -266,20 +273,18 @@ export default {
     }
   },
   mounted () {
-    if (this.template_id) {
-      this.get_template()
-    }
+    if (this.template_id) this.get_template()
   },
   methods: {
 
     get_template () {
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
       this.axios.get(url)
-        .then((response) => {
-          let record = response.data
-          let aft = record._fields[record._fieldLookup['aft']]
+        .then( ({data}) => {
+          const record = data
+          const aft = record._fields[record._fieldLookup['aft']]
 
-          let parsed_fields = JSON.parse(aft.properties.fields)
+          const parsed_fields = JSON.parse(aft.properties.fields)
 
           this.fields = []
           parsed_fields.forEach(field => this.fields.push(field))
@@ -298,9 +303,8 @@ export default {
       this.fields.push({ type: 'text', label: '' })
     },
     delete_field (index) {
-      if (confirm('ホンマ？')) {
-        this.fields.splice(index, 1)
-      }
+      if (!confirm('ホンマ？')) return
+      this.fields.splice(index, 1)
     },
     submit () {
       if (this.template_id) {
@@ -326,11 +330,11 @@ export default {
       }
 
       this.axios.post(url, body)
-        .then(() => this.$router.push({ name: 'application_templates' }))
-        .catch(error => {
-          alert('Error while updating the template')
-          console.log(error)
-        })
+      .then(() => { this.$router.push({ name: 'application_templates' }) })
+      .catch(error => {
+        alert('Error while creating the template')
+        console.log(error)
+      })
     },
     update_template () {
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
@@ -347,21 +351,21 @@ export default {
       }
 
       this.axios.put(url, body)
-        .then(() => this.$router.push({ name: 'application_templates' }))
-        .catch(error => {
-          alert('Error while updating the template')
-          console.log(error)
-        })
+      .then(() => { this.$router.push({ name: 'application_templates' }) })
+      .catch(error => {
+        alert('Error while updating the template')
+        console.log(error)
+      })
     },
     delete_template () {
       if (!confirm('ホンマ？ / Really?')) return
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
       this.axios.delete(url)
-        .then((response) => this.$router.push({ name: 'application_templates' }))
-        .catch(error => {
-          alert('Error while deleting the template')
-          console.log(error)
-        })
+      .then((response) => this.$router.push({ name: 'application_templates' }))
+      .catch(error => {
+        alert('Error while deleting the template')
+        console.log(error)
+      })
     },
 
     delete_group (index) {

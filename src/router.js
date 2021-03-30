@@ -3,11 +3,9 @@ import Router from 'vue-router'
 import CreateApplication from './views/CreateApplication.vue'
 import ApplicationTemplateList from './views/ApplicationTemplateList.vue'
 import ApplicationTemplate from './views/ApplicationTemplate.vue'
-// import ShowApplication from './views/ShowApplication.vue'
 import ApplicationList from './views/ApplicationList.vue'
 
 import Search from './views/Search.vue'
-import About from './views/About.vue'
 import Info from './views/Info.vue'
 
 Vue.use(Router)

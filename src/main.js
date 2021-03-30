@@ -51,6 +51,7 @@ Vue.component('send-icon', SendIcon)
 Vue.component('content-save-icon', ContentSaveIcon)
 Vue.component('account-icon', AccountIcon)
 Vue.component('email-icon', EmailIcon)
+Vue.component('menu-icon', () => import('vue-material-design-icons/Menu.vue'))
 
 Vue.config.productionTip = false
 

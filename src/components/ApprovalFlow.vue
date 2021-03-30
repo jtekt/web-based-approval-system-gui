@@ -27,7 +27,9 @@
               || employee.properties.name_kanji
               || employee.properties.full_name}}
           </div>
-          <div class="role" v-if="employee.properties.role">
+          <div
+            class="role"
+            v-if="employee.properties.role">
             ({{employee.properties.role}})
           </div>
         </div>
@@ -43,20 +45,12 @@
 <script>
 // This component is used when creating an application
 
-import CloseIcon from 'vue-material-design-icons/Close.vue'
-import ArrowRightIcon from 'vue-material-design-icons/ArrowRight.vue'
-
-// Tools
 import draggable from 'vuedraggable'
 
 export default {
   name: 'ApprovalFlow',
   components: {
     draggable,
-
-    CloseIcon,
-    ArrowRightIcon
-
   },
   props: {
     employees: Array
