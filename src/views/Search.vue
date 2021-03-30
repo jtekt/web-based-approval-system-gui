@@ -147,7 +147,9 @@
       <h2 class="">
         Select a group
       </h2>
-      <div class="group_picker_wrapper">
+      <div
+        v-if="modal_open"
+        class="group_picker_wrapper">
         <GroupPicker
           class="visibility_group_picker"
           v-on:selection="select_group($event)"/>
