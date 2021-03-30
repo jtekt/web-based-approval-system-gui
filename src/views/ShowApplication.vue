@@ -299,6 +299,11 @@ mailto:${recipient.properties.email_address}
 %0D%0A
 ※IEでは動作しません。Edge/Firefox/GoogleChromeをご使用ください。　%0D%0A
 %0D%0A
+※現在、申請マネージャをEdge上でご使用になる場合PDF表示がおかしくなるようです。%0D%0A
+　・FirefoxおよびChromeでは正常に表示されます %0D%0A
+　・Edgeの場合は、PDFをダウンロードして頂き内容をご確認後、申請マネージャーの押印機能をご利用ください %0D%0A
+　　※表示がおかしくても、「電子印の押印→PDFのダウンロード」で正常に押印済PDFが取得できます %0D%0A
+%0D%0A
 確認お願いします。%0D%0A
 %0D%0A
         `
@@ -318,6 +323,11 @@ mailto:${this.applicant.properties.email_address}
 提出先URL: ${window.location.origin}/applications/${this.application.identity} %0D%0A
 %0D%0A
 ※IEでは動作しません。Edge/Firefox/GoogleChromeをご使用ください。　%0D%0A
+%0D%0A
+※現在、申請マネージャをEdge上でご使用になる場合PDF表示がおかしくなるようです。%0D%0A
+　・FirefoxおよびChromeでは正常に表示されます %0D%0A
+　・Edgeの場合は、PDFをダウンロードして頂き内容をご確認後、申請マネージャーの押印機能をご利用ください %0D%0A
+　　※表示がおかしくても、「電子印の押印→PDFのダウンロード」で正常に押印済PDFが取得できます %0D%0A
 %0D%0A
 確認お願いします。%0D%0A
 %0D%0A
