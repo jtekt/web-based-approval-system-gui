@@ -49,6 +49,17 @@
             </select>
           </td>
         </tr>
+
+        <tr>
+          <td>承認状態 / Approval state</td>
+          <td>
+            <select class="" v-model="approval_state">
+              <option :value="null">何でも / Any</option>
+              <option value="approved">承認完了 / Approved</option>
+            </select>
+          </td>
+        </tr>
+
         <tr>
           <td>申請者のグループ / Applicant group</td>
           <td>
@@ -71,6 +82,8 @@
             </div>
           </td>
         </tr>
+
+
 
       </table>
 
@@ -180,10 +193,12 @@ export default {
       application_records: [],
 
       // Filters
+      // Todo: group under filters object
       application_id: null,
       hanko_id: null,
       relationship_type: null,
       application_type: null,
+      approval_state: null,
 
       field_labels: [],
       start_date: null,
@@ -205,7 +220,8 @@ export default {
           application_type: this.application_type,
           start_date: this.start_date,
           end_date: this.end_date,
-          group_id: this.selected_group_id
+          group_id: this.selected_group_id,
+          approval_state: this.approval_state,
         }
       })
         .then(response => {
