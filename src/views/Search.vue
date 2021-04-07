@@ -22,7 +22,19 @@
         <tr>
           <td>申請タイプ / Application type</td>
           <td>
-            <input type="search" v-model="application_type" placeholder="申請タイプ / Application type">
+            <input
+              type="search"
+              list="application_types"
+              v-model="application_type"
+              placeholder="申請タイプ / Application type">
+
+            <datalist id="application_types">
+              <option
+                v-for="type in application_types"
+                :key="`type_${type}`"
+                :value="type">{{type}}</option>
+            </datalist>
+
           </td>
         </tr>
         <tr>
@@ -190,6 +202,7 @@ export default {
   data () {
     return {
       loading: false,
+      application_types: [],
       application_records: [],
 
       // Filters
@@ -208,42 +221,56 @@ export default {
       modal_open: false
     }
   },
+  mounted(){
+    this.get_application_types()
+  },
   methods: {
+    get_application_types(){
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/types`
+      this.axios.get(url)
+      .then( ({data}) => {
+        this.application_types = data.map(record => {
+          return record._fields[record._fieldLookup['application_type']]
+        })
+      })
+      .catch(error => { console.log(error) })
+    },
     search () {
       this.loading = true
-      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/search`
-      this.axios.get(url, {
-        params: {
-          hanko_id: this.hanko_id,
-          application_id: this.application_id,
-          relationship_type: this.relationship_type,
-          application_type: this.application_type,
-          start_date: this.start_date,
-          end_date: this.end_date,
-          group_id: this.selected_group_id,
-          approval_state: this.approval_state,
-        }
-      })
-        .then(response => {
-          this.application_records = []
-          this.field_labels = []
-          response.data.forEach((record) => {
-            this.application_records.push(record)
-            let application = record._fields[record._fieldLookup.application]
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/search`
 
-            // Form data
-            if (!application.properties.form_data) return
-            let form_data = JSON.parse(application.properties.form_data)
-            if (!Array.isArray(form_data)) return
-            form_data.forEach((field) => {
-              if (!this.field_labels.includes(field.label) && field.type !== 'file') {
-                this.field_labels.push(field.label)
-              }
-            })
+      const params = {
+        hanko_id: this.hanko_id,
+        application_id: this.application_id,
+        relationship_type: this.relationship_type,
+        application_type: this.application_type,
+        start_date: this.start_date,
+        end_date: this.end_date,
+        group_id: this.selected_group_id,
+        approval_state: this.approval_state,
+      }
+
+      this.axios.get(url, { params })
+      .then(response => {
+        this.application_records = []
+        this.field_labels = []
+        response.data.forEach((record) => {
+          this.application_records.push(record)
+          let application = record._fields[record._fieldLookup.application]
+
+          // Form data
+          if (!application.properties.form_data) return
+          let form_data = JSON.parse(application.properties.form_data)
+          if (!Array.isArray(form_data)) return
+          form_data.forEach((field) => {
+            if (!this.field_labels.includes(field.label) && field.type !== 'file') {
+              this.field_labels.push(field.label)
+            }
           })
         })
-        .catch(error => { console.log(error) })
-        .finally(() => { this.loading = false })
+      })
+      .catch(error => { console.log(error) })
+      .finally(() => { this.loading = false })
     },
     select_group (group) {
       this.modal_open = false
