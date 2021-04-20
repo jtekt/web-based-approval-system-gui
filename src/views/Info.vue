@@ -46,7 +46,7 @@
       This application is built using the following open-source technologies:
     </p>
 
-    <div class="" class="tech_wrapper">
+    <div class="tech_wrapper">
       <div
         class="tech"
         v-for="(tech, index) in technologies"
@@ -141,7 +141,7 @@ export default {
         service.version = 'Connecting...'
         this.axios.get(service.url)
         .then( ({data}) => { service.version = data.version })
-        .catch(error => service.version = 'Unable to connect')
+        .catch( () => service.version = 'Unable to connect')
       })
 
     },

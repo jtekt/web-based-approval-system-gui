@@ -13,7 +13,7 @@
               || recipient_of_submission(submission).properties.name}} :
 
           </td>
-          <td>
+          <td @click="update_comment(submission)">
             <template v-if="approval_or_rejection_of_recipient(recipient_of_submission(submission))">
               {{approval_or_rejection_of_recipient(recipient_of_submission(submission)).properties.comment}}
             </template>
@@ -39,39 +39,56 @@ export default {
   methods: {
     recipient_of_approval (approval) {
       return this.recipients.find(recipient => {
-        return JSON.stringify(approval.start) === JSON.stringify(recipient.identity)
+        return approval.start === recipient.identity
+      })
+    },
+    update_comment(submission){
+      const recipient = this.recipient_of_submission(submission)
+
+      const decision_id = this.approval_or_rejection_of_recipient(recipient).identity
+
+      if(!this.recipient_is_user(recipient)) return
+      const comment = prompt('コメント / Comment')
+      if (comment === null) return
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/irrelevant/decisions/${decision_id}/comment`
+      this.axios.put(url, {comment})
+      .then(() => {
+        this.$emit('comment_updated')
+      })
+      .catch(error => {
+        alert('Edit failed')
+        console.error(error)
       })
     },
     recipient_of_submission (submission) {
       if (!submission) return null
-      return this.recipients.find(recipient => {
-        return JSON.stringify(recipient.identity) === JSON.stringify(submission.end)
-      })
+      return this.recipients.find(recipient => recipient.identity === submission.end )
     },
     approval_of_recipient (recipient) {
-      return this.approvals.find(approval => {
-        return JSON.stringify(approval.start) === JSON.stringify(recipient.identity)
-      })
+      return this.approvals.find(approval => approval.start === recipient.identity)
     },
     rejection_of_recipient (recipient) {
-      return this.rejections.find(rejection => {
-        return JSON.stringify(rejection.start) === JSON.stringify(recipient.identity)
-      })
+      return this.rejections.find(rejection => rejection.start === recipient.identity )
     },
     approval_or_rejection_of_recipient (recipient) {
       return this.approval_of_recipient(recipient) || this.rejection_of_recipient(recipient)
+    },
+    recipient_is_user(recipient) {
+      const current_user = this.$store.state.current_user
+      return recipient.identity === (current_user.identity.low || current_user.identity)
     }
 
   },
   computed: {
     submissions_with_comment () {
       return this.submissions.filter(submission => {
-        let recipient = this.recipient_of_submission(submission)
-        let approval_or_rejection = this.approval_or_rejection_of_recipient(recipient)
+        const recipient = this.recipient_of_submission(submission)
+        const approval_or_rejection = this.approval_or_rejection_of_recipient(recipient)
         if (!approval_or_rejection) return false
         return approval_or_rejection.properties.comment
       })
-    }
+    },
+
 
   }
 

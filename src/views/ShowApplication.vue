@@ -51,7 +51,8 @@
               :submissions="ordered_submissions"
               :rejections="rejections"
               :approvals="approvals"
-              :recipients="recipients"/>
+              :recipients="recipients"
+              @comment_updated="get_application()"/>
 
           </div>
         </div>

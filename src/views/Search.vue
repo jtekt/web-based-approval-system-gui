@@ -237,7 +237,7 @@ export default {
     },
     search () {
       this.loading = true
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/search`
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications`
 
       const params = {
         hanko_id: this.hanko_id,
