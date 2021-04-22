@@ -19,7 +19,8 @@
       class="templates_table"
       v-if="!application_templates.loading && !application_templates.error">
       <tr
-        v-for="template in application_templates"
+        v-for="(template, index) in application_templates"
+        :key="`template_${index}`"
         v-on:click="view_template(template._fields[template._fieldLookup['aft']].identity)"
         class="clickable_row">
         <td>{{template._fields[template._fieldLookup['aft']].properties.label}}</td>
@@ -46,8 +47,9 @@
         <th>著者 / Author</th>
       </tr>
       <tr
-        v-for="template in shared_templates"
+        v-for="(template, index) in shared_templates"
         v-on:click="view_template(template._fields[template._fieldLookup['aft']].identity)"
+        :key="`shared_template_${index}`"
         class="clickable_row">
         <td>{{template._fields[template._fieldLookup['aft']].properties.label}}</td>
         <td>{{template._fields[template._fieldLookup['creator']].properties.name_kanji}}</td>

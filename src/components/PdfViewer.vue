@@ -2,7 +2,7 @@
   <div class="pdf_wrapper">
     <h1>PDF viewer</h1>
 
-    <template v-if="shown_pdf"->
+    <template v-if="shown_pdf">
       <p
         class="error_message"
         v-if="!approval_of_current_user">
@@ -22,8 +22,11 @@
           class=""
           v-model="page_number">
           <option
-          v-for="n in page_count"
-          :value="n-1">{{n}}</option>
+            v-for="n in page_count"
+            :key="`page_${n}`"
+            :value="n-1">
+            {{n}}
+          </option>
         </select>
 
         <button
@@ -107,10 +110,10 @@ export default {
   props: {
     selected_file_id: String,
     approvals: Array,
-    application_id: Number,
+    application_id: Number
   },
   mixins: [
-    CurrentUserID,
+    CurrentUserID
   ],
   data () {
     return {
@@ -129,7 +132,7 @@ export default {
         }
       },
 
-      hanko_scale: 0.034,
+      hanko_scale: 0.034
     }
   },
   mounted () {
@@ -138,7 +141,6 @@ export default {
     }
   },
   watch: {
-    // whenever question changes, this function will run
     selected_file_id () {
       this.view_pdf(this.selected_file_id)
     },
@@ -171,6 +173,7 @@ export default {
       this.page_number = 0
 
       // Load the file as an arrayBuffer
+      // Note: could be done using axios
       const file_url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/files/${file_id}`
       const options = {
         headers: new Headers({
@@ -178,21 +181,17 @@ export default {
         })
       }
       fetch(file_url, options)
-      .then((response) => { return response.arrayBuffer() })
-      .then((buffer) => { this.load_pdf(buffer) })
+        .then((response) => { return response.arrayBuffer() })
+        .then((buffer) => { this.load_pdf(buffer) })
     },
     async load_pdf (buffer) {
       this.load_error = null
-      let success = true
       try {
         this.pdfDoc = await PDFDocument.load(buffer)
-      }
-      catch (e) {
+        this.load_pdf_hankos()
+      } catch (e) {
         this.load_error = `この機能は.pdfのファイルしかつかえません<br>This feature only supports .pdf files`
-        success = false
       }
-
-      if (success) this.load_pdf_hankos()
     },
 
     svg_to_png_url (svg) {
@@ -221,7 +220,7 @@ export default {
       // For each recipient
       this.approvals.forEach(async (approval) => {
         // using promises to only save the pdf when all hankos are drawn
-        let promise = new Promise(async (resolve, reject) => {
+        const promise = new Promise(async (resolve, reject) => {
           if (!approval) return resolve()
           if (!approval.properties.attachment_hankos) return resolve()
 
@@ -240,7 +239,6 @@ export default {
           // Get the png image bytes from the canvas
           const pngImageBytes = await fetch(png_url).then((res) => { return res.arrayBuffer() })
           const pngImage = await this.pdfDoc.embedPng(pngImageBytes)
-          const pngDims = pngImage.scale(this.hanko_scale)
 
           const pages = this.pdfDoc.getPages()
 
@@ -250,6 +248,9 @@ export default {
             if (hanko.file_id !== this.selected_file_id) return resolve()
 
             const page = pages[hanko.page_number]
+
+            // Currently, some hankos have no scale set so allow the scale to be modified using the slider in that case
+            const pngDims = pngImage.scale(hanko.scale || this.hanko_scale)
 
             await page.drawImage(pngImage, {
               x: hanko.position.x - 0.5 * pngDims.width,
@@ -317,12 +318,13 @@ export default {
           position: {
             x: position_x,
             y: position_y
-          }
+          },
+          scale: this.hanko_scale
         }
 
         approval.properties.attachment_hankos.push(attachment_hanko)
 
-        const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/approvals/${approval_id}`
+        const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/approvals/${approval_id}/attachment_hankos`
         const body = { attachment_hankos: approval.properties.attachment_hankos }
 
         this.axios.put(url, body)
@@ -353,8 +355,7 @@ export default {
 
       if (window.navigator.msSaveOrOpenBlob) {
         window.navigator.msSaveBlob(pdf_blob, `${this.selected_file_id}.pdf`)
-      }
-      else {
+      } else {
         const elem = window.document.createElement('a')
         elem.href = window.URL.createObjectURL(pdf_blob)
         elem.download = `${this.selected_file_id}.pdf`

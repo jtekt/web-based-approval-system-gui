@@ -19,7 +19,6 @@
       <span style="font-weight: bold;">{{application_count}}</span> Submitted applications forms
     </p>
 
-
     <h2>Services</h2>
     <table>
       <tr>
@@ -35,8 +34,6 @@
         <td>{{service.url}}</td>
       </tr>
     </table>
-
-
 
     <h2>技術 / Technologies</h2>
     <p>
@@ -75,25 +72,24 @@ export default {
         {
           name: 'Shinsei manager GUI',
           url: window.location.origin,
-          version: pjson.version,
+          version: pjson.version
         },
         {
           name: 'Shinsei manager API',
           url: process.env.VUE_APP_SHINSEI_MANAGER_URL,
-          version: null,
+          version: null
         },
         {
           name: 'Group manager API',
           url: process.env.VUE_APP_GROUP_MANAGER_API_URL,
-          version: null,
+          version: null
         },
         {
           name: 'Authentication API',
           url: process.env.VUE_APP_AUTHENTICATION_API_URL,
-          version: null,
-        },
+          version: null
+        }
       ],
-
 
       technologies: [
         {
@@ -132,19 +128,18 @@ export default {
     get_application_count () {
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/count`
       this.axios.get(url)
-        .then(({data}) => { this.application_count = data.application_count })
-        .catch(error => console.log(error))
+        .then(({ data }) => { this.application_count = data.application_count })
+        .catch(error => { console.log(error) })
     },
-    get_services_version() {
+    get_services_version () {
       this.services.forEach((service) => {
-        if(service.version) return
+        if (service.version) return
         service.version = 'Connecting...'
         this.axios.get(service.url)
-        .then( ({data}) => { service.version = data.version })
-        .catch( () => service.version = 'Unable to connect')
+          .then(({ data }) => { service.version = data.version })
+          .catch(() => { service.version = 'Unable to connect' })
       })
-
-    },
+    }
   }
 
 }

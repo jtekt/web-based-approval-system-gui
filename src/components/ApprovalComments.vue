@@ -5,7 +5,8 @@
       <table>
 
         <tr
-          v-for="(submission) in submissions_with_comment.reverse()">
+          v-for="(submission, index) in submissions_with_comment.reverse()"
+          :key="`${index}`">
           <td class="refuser_name">
 
             {{recipient_of_submission(submission).properties.name_kanji
@@ -42,38 +43,38 @@ export default {
         return approval.start === recipient.identity
       })
     },
-    update_comment(submission){
+    update_comment (submission) {
       const recipient = this.recipient_of_submission(submission)
 
       const decision_id = this.approval_or_rejection_of_recipient(recipient).identity
 
-      if(!this.recipient_is_user(recipient)) return
+      if (!this.recipient_is_user(recipient)) return
       const comment = prompt('コメント / Comment')
       if (comment === null) return
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/irrelevant/decisions/${decision_id}/comment`
-      this.axios.put(url, {comment})
-      .then(() => {
-        this.$emit('comment_updated')
-      })
-      .catch(error => {
-        alert('Edit failed')
-        console.error(error)
-      })
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/decisions/${decision_id}/comment`
+      this.axios.put(url, { comment })
+        .then(() => {
+          this.$emit('comment_updated')
+        })
+        .catch(error => {
+          alert('Edit failed')
+          console.error(error)
+        })
     },
     recipient_of_submission (submission) {
       if (!submission) return null
-      return this.recipients.find(recipient => recipient.identity === submission.end )
+      return this.recipients.find(recipient => recipient.identity === submission.end)
     },
     approval_of_recipient (recipient) {
       return this.approvals.find(approval => approval.start === recipient.identity)
     },
     rejection_of_recipient (recipient) {
-      return this.rejections.find(rejection => rejection.start === recipient.identity )
+      return this.rejections.find(rejection => rejection.start === recipient.identity)
     },
     approval_or_rejection_of_recipient (recipient) {
       return this.approval_of_recipient(recipient) || this.rejection_of_recipient(recipient)
     },
-    recipient_is_user(recipient) {
+    recipient_is_user (recipient) {
       const current_user = this.$store.state.current_user
       return recipient.identity === (current_user.identity.low || current_user.identity)
     }
@@ -87,8 +88,7 @@ export default {
         if (!approval_or_rejection) return false
         return approval_or_rejection.properties.comment
       })
-    },
-
+    }
 
   }
 

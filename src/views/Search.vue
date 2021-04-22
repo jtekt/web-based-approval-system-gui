@@ -95,8 +95,6 @@
           </td>
         </tr>
 
-
-
       </table>
 
       <input type="submit" class="hidden">
@@ -221,19 +219,15 @@ export default {
       modal_open: false
     }
   },
-  mounted(){
+  mounted () {
     this.get_application_types()
   },
   methods: {
-    get_application_types(){
+    get_application_types () {
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/types`
       this.axios.get(url)
-      .then( ({data}) => {
-        this.application_types = data.map(record => {
-          return record._fields[record._fieldLookup['application_type']]
-        })
-      })
-      .catch(error => { console.log(error) })
+        .then(({ data }) => { this.application_types = data })
+        .catch(error => { console.log(error) })
     },
     search () {
       this.loading = true
@@ -247,30 +241,30 @@ export default {
         start_date: this.start_date,
         end_date: this.end_date,
         group_id: this.selected_group_id,
-        approval_state: this.approval_state,
+        approval_state: this.approval_state
       }
 
       this.axios.get(url, { params })
-      .then(response => {
-        this.application_records = []
-        this.field_labels = []
-        response.data.forEach((record) => {
-          this.application_records.push(record)
-          let application = record._fields[record._fieldLookup.application]
+        .then(response => {
+          this.application_records = []
+          this.field_labels = []
+          response.data.forEach((record) => {
+            this.application_records.push(record)
+            let application = record._fields[record._fieldLookup.application]
 
-          // Form data
-          if (!application.properties.form_data) return
-          let form_data = JSON.parse(application.properties.form_data)
-          if (!Array.isArray(form_data)) return
-          form_data.forEach((field) => {
-            if (!this.field_labels.includes(field.label) && field.type !== 'file') {
-              this.field_labels.push(field.label)
-            }
+            // Form data
+            if (!application.properties.form_data) return
+            let form_data = JSON.parse(application.properties.form_data)
+            if (!Array.isArray(form_data)) return
+            form_data.forEach((field) => {
+              if (!this.field_labels.includes(field.label) && field.type !== 'file') {
+                this.field_labels.push(field.label)
+              }
+            })
           })
         })
-      })
-      .catch(error => { console.log(error) })
-      .finally(() => { this.loading = false })
+        .catch(error => { console.log(error) })
+        .finally(() => { this.loading = false })
     },
     select_group (group) {
       this.modal_open = false

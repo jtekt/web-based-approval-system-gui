@@ -24,13 +24,16 @@
               <template
                 v-for="(submission, index) in ordered_submissions">
 
-                <div class="arrow_container"
-                  v-if="index>0">
+                <div
+                  class="arrow_container"
+                  v-if="index>0"
+                  :key="`flow_arrow_${index}`">
                   <arrow-left-icon
                     class="arrow" />
                 </div>
 
                 <WebHankoContainer
+                  :key="`hanko_container_${index}`"
                   :applicant="applicant"
                   :recipient="recipient_of_submission(submission)"
                   :approval="approval_of_recipient(recipient_of_submission(submission))"
@@ -203,7 +206,7 @@ export default {
           console.error(error)
           this.error = error
         })
-        .finally(() => this.loading = false)
+        .finally(() => { this.loading = false })
     },
     approve () {
       const comment = prompt('コメント (任意)/ Comment (optional)')
@@ -216,22 +219,22 @@ export default {
       // send POST to mark as approved
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity}/approve`
       this.axios.post(url, { comment })
-      .then(() => {
+        .then(() => {
         // Notify the next recipient
-        if (this.next_recipient) this.send_email_to_recipient(this.next_recipient)
-        // or the applicant if flow is complete
-        else this.send_email_to_applicant()
+          if (this.next_recipient) this.send_email_to_recipient(this.next_recipient)
+          // or the applicant if flow is complete
+          else this.send_email_to_applicant()
 
-        // Refresh the approval flow
-        this.get_application()
+          // Refresh the approval flow
+          this.get_application()
 
-        // notify the user that there is an attachment to stamp
-        this.notify_attachment()
-      })
-      .catch((error) => {
-        console.error(error)
-        alert(`Error approving application`)
-      })
+          // notify the user that there is an attachment to stamp
+          this.notify_attachment()
+        })
+        .catch((error) => {
+          console.error(error)
+          alert(`Error approving application`)
+        })
     },
     reject () {
       // if (!confirm('ホンマ？ Confirm rejection?')) return
@@ -354,7 +357,7 @@ ${window.location.origin}/info %0D%0A
         this.$route.query.id
     },
     ordered_submissions () {
-      return this.submissions.sort((a, b) => {
+      return this.submissions.slice().sort((a, b) => {
         return b.properties.flow_index - a.properties.flow_index
       })
     },

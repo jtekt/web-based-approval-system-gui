@@ -36,8 +36,9 @@
 
               <select v-model="selected_form">
                 <option
-                  v-for="application_type in application_form_templates"
-                  v-bind:value="application_type">
+                  v-for="(application_type, index) in application_form_templates"
+                  :key="`type_${index}`"
+                  :value="application_type">
                   {{application_type.properties.label}}
                 </option>
               </select>
@@ -64,11 +65,11 @@
       <tr>
         <td>機密 / Confidential</td>
         <td>
-          <input type="checkbox" v-model="private">
+          <input type="checkbox" v-model="confidential">
         </td>
       </tr>
       <!-- Visibility -->
-      <tr v-if="private">
+      <tr v-if="confidential">
         <td>共有 / Visibility</td>
         <td class="visibility_wrapper">
 
@@ -162,7 +163,8 @@
 
         <!-- The actual fields of the application form -->
         <tr
-          v-for="(field, index) in selected_form.properties.fields">
+          v-for="(field, index) in selected_form.properties.fields"
+          :key="`field_${index}`">
           <td>
             {{field.label || 'Unnamed field'}}
           </td>
@@ -193,7 +195,7 @@
                 </button>
               </div>
 
-            </template/>
+            </template>
 
             <input
               v-else
@@ -243,10 +245,7 @@
         </template>
         <Loader v-else>Submitting</Loader>
 
-
       </button>
-
-
 
     </div>
 
@@ -287,7 +286,7 @@ export default {
   data () {
     return {
       title: '',
-      private: false, // applications private by default
+      confidential: false, // applications public by default
       recipients: [], // approval Flow, can be filled by duplication
 
       application_form_templates: [],
@@ -300,7 +299,7 @@ export default {
       modal_open: false, // modal for group visibility
 
       submitting: false,
-      file_uploading: false,
+      file_uploading: false
     }
   },
   mounted () {
@@ -337,7 +336,7 @@ export default {
 
           // Set application details back
           this.title = original_application.properties.title
-          this.private = original_application.properties.private
+          this.confidential = original_application.properties.private
           original_application.properties.form_data = JSON.parse(original_application.properties.form_data)
 
           let fields = []
@@ -347,7 +346,7 @@ export default {
 
           this.$set(this.selected_form, 'properties', {
             label: original_application.properties.type, // The application form label (type)
-            fields, // The fields of the application
+            fields // The fields of the application
           })
 
           // Recreate flow
@@ -399,36 +398,30 @@ export default {
 
       this.submitting = true
 
-      const recipients_ids = this.recipients.map((recipient) => {
-        return recipient.identity.low || recipient.identity
-      })
+      const recipients_ids = this.recipients.map((recipient) => recipient.identity.low || recipient.identity)
+      const group_ids = this.groups.map((group) => group.identity.low || group.identity)
 
-      const group_ids = this.groups.map((group) => {
-        return group.identity.low || group.identity
-      })
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications`
 
       // Create the request body
       const body = {
         title: this.title,
-        form_data: this.selected_form.properties.fields,
         type: this.selected_form.properties.label,
+        form_data: this.selected_form.properties.fields,
+        private: this.confidential,
         recipients_ids,
-        private: this.private,
         group_ids
       }
 
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications`
-
       this.axios.post(url, body)
-      .then(response => {
-        const application_id = response.data[0]._fields[0].identity
-        this.$router.push({ name: 'application', params: { application_id } })
-      })
-      .catch(error => {
-        console.error(error)
-        alert(error)
-        this.submitting = false
-      })
+        .then(({ data }) => {
+          this.$router.push({ name: 'application', params: { application_id: data.identity } })
+        })
+        .catch(error => {
+          console.error(error)
+          alert(error)
+          this.submitting = false
+        })
     },
 
     delete_recipient (index) {
@@ -460,13 +453,13 @@ export default {
       this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/files`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
-      .then(response => {
-      // Needed for responsiviity
-      // Is this the right way?
-        this.$set(field, 'value', response.data)
-      })
-      .catch(error => alert(error.response.data))
-      .finally(()=>{this.file_uploading = false})
+        .then(response => {
+          // Needed for responsiviity
+          // Is this the right way?
+          this.$set(field, 'value', response.data)
+        })
+        .catch(error => alert(error.response.data))
+        .finally(() => { this.file_uploading = false })
     },
     delete_file (field) {
       // Is this the right way to set value?

@@ -108,10 +108,10 @@
       </tr>
 
       <!-- If form data is stored as an array -->
-      <!-- THIS IS HOW CURRENT APPLICATIONS ARE RENDERED -->
       <tr
         v-else-if="Array.isArray(form_data)"
-        v-for="field in form_data">
+        v-for="(field, index) in form_data"
+        :key="`field_${index}`">
 
         <td>{{field.label || 'Unnamed field'}}</td>
 

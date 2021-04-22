@@ -80,7 +80,10 @@ export default {
             this.$set(this.application_records[state], 'all_loaded', true)
           }
         })
-        .catch(error => this.$set(this.application_records[state], 'error', 'Error loading applications'))
+        .catch((error) => {
+          console.error(error)
+          this.$set(this.application_records[state], 'error', 'Error loading applications')
+        })
         .finally(() => { this.$set(this.application_records[state], 'loading', false) })
     },
     load_more (event) {

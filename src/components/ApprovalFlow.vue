@@ -50,7 +50,7 @@ import draggable from 'vuedraggable'
 export default {
   name: 'ApprovalFlow',
   components: {
-    draggable,
+    draggable
   },
   props: {
     employees: Array

@@ -96,8 +96,11 @@
               <td>
                 <select class="" v-model="field.type">
                   <option
-                    v-for="field_type in field_types"
-                    v-bind:value="field_type.type">{{field_type.label}}</option>
+                    v-for="(field_type, index) in field_types"
+                    :key="`type_${index}`"
+                    :value="field_type.type">
+                    {{field_type.label}}
+                  </option>
                 </select>
               </td>
 
@@ -116,7 +119,6 @@
 
             </tr>
           </draggable>
-
 
         </table>
 
@@ -196,7 +198,7 @@
             <div
               v-for="(group, index) in groups"
               class="visibility_group"
-              v-bind:key="`shared_group_${index}`">
+              :key="`shared_group_${index}`">
 
               <span class="">{{group.properties.name}}</span>
 
@@ -214,7 +216,9 @@
           <th>Label</th>
           <th>Type</th>
         </tr>
-        <tr v-for="field in fields">
+        <tr
+          v-for="(field, index) in fields"
+          :key="`field_${index}`">
           <td>{{field.label}}</td>
           <td>{{field.type}}</td>
         </tr>
@@ -280,7 +284,7 @@ export default {
     get_template () {
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
       this.axios.get(url)
-        .then( ({data}) => {
+        .then(({ data }) => {
           const record = data
           const aft = record._fields[record._fieldLookup['aft']]
 
@@ -307,14 +311,8 @@ export default {
       this.fields.splice(index, 1)
     },
     submit () {
-      if (this.template_id) {
-        // If id exists, then edit
-        this.update_template()
-      }
-      // otherwise create
-      else {
-        this.create_template()
-      }
+      if (this.template_id) this.update_template()
+      else this.create_template()
     },
     create_template () {
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates`
@@ -330,11 +328,11 @@ export default {
       }
 
       this.axios.post(url, body)
-      .then(() => { this.$router.push({ name: 'application_templates' }) })
-      .catch(error => {
-        alert('Error while creating the template')
-        console.log(error)
-      })
+        .then(() => { this.$router.push({ name: 'application_templates' }) })
+        .catch(error => {
+          alert('Error while creating the template')
+          console.log(error)
+        })
     },
     update_template () {
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
@@ -351,21 +349,21 @@ export default {
       }
 
       this.axios.put(url, body)
-      .then(() => { this.$router.push({ name: 'application_templates' }) })
-      .catch(error => {
-        alert('Error while updating the template')
-        console.log(error)
-      })
+        .then(() => { this.$router.push({ name: 'application_templates' }) })
+        .catch(error => {
+          alert('Error while updating the template')
+          console.log(error)
+        })
     },
     delete_template () {
       if (!confirm('ホンマ？ / Really?')) return
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
       this.axios.delete(url)
-      .then((response) => this.$router.push({ name: 'application_templates' }))
-      .catch(error => {
-        alert('Error while deleting the template')
-        console.log(error)
-      })
+        .then((response) => this.$router.push({ name: 'application_templates' }))
+        .catch(error => {
+          alert('Error while deleting the template')
+          console.log(error)
+        })
     },
 
     delete_group (index) {

@@ -54,7 +54,6 @@
         </div>
       </template>
 
-
       <div
         class=""
         v-if="application_records[state.name].length === 0
