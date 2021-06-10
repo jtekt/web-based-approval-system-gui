@@ -185,7 +185,7 @@
 
         <div class="description_wrapper">
           <label for="">説明 / Description</label>
-          <textarea rows="8" v-model="description" readonly/>
+          <div style="white-space: pre-line;">{{description}}</div>
         </div>
 
         <div class="">

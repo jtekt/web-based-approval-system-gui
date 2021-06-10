@@ -135,13 +135,7 @@
 
           <tr v-if="selected_form.properties.description">
             <td>フォーム説明 / Form description</td>
-            <td>
-              <textarea
-                class="template_description"
-                rows="4"
-                v-model="selected_form.properties.description"
-                readonly/>
-            </td>
+            <td style="white-space: pre-line;">{{selected_form.properties.description}}</td>
           </tr>
 
           <tr>

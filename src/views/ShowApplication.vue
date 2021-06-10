@@ -191,6 +191,7 @@ export default {
       let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}`
       this.axios.get(url)
         .then(response => {
+          //console.log(response.data)
           let record = response.data
 
           this.application = record._fields[record._fieldLookup['application']]
@@ -289,8 +290,8 @@ export default {
       // TODO: Stop relying on name_kanji
       window.location.href = `
 mailto:${recipient.properties.email_address}
-?subject=[申請マネージャ自動送信] ${this.application.properties.title} (${this.application.properties.type})
-&body=${recipient.properties.name_kanji} 様 %0D%0A
+?subject=${this.email_subject}
+&body=${recipient.properties.display_name} 様 %0D%0A
 %0D%0A
 申請マネージャーの通知メールです。 %0D%0A
 %0D%0A
@@ -314,8 +315,8 @@ ${window.location.origin}/info %0D%0A
       // TODO: Stop relying on name_kanji
       window.location.href = `
 mailto:${this.applicant.properties.email_address}
-?subject=[申請マネージャ自動送信] ${this.application.properties.title} (${this.application.properties.type})
-&body=${this.applicant.properties.name_kanji} 様 %0D%0A
+?subject=${this.email_subject}
+&body=${this.applicant.properties.display_name} 様 %0D%0A
 %0D%0A
 申請マネージャーの通知メールです。 %0D%0A
 %0D%0A
@@ -388,7 +389,18 @@ ${window.location.origin}/info %0D%0A
       if (!next_recipient) return false
 
       return next_recipient.identity === this.current_user_id
+    },
+    /*
+    email_subject(){
+      const title_limit = 20
+      const type_limit = 20
+      const {title, type} = this.application.properties
+      const title_limited = `${title.substring(0, title_limit+1)}${title.length > title_limit ? '...' : ''}`
+      const type_limited = `${type.substring(0, type_limit+1)}${type.length > type_limit ? '...' : ''}`
+      const subject = `[申請マネージャ] ${title_limited} (${type_limited})`
+      return subject
     }
+    */
 
   }
 }
