@@ -390,17 +390,12 @@ ${window.location.origin}/info %0D%0A
 
       return next_recipient.identity === this.current_user_id
     },
-    /*
+
     email_subject(){
-      const title_limit = 20
-      const type_limit = 20
       const {title, type} = this.application.properties
-      const title_limited = `${title.substring(0, title_limit+1)}${title.length > title_limit ? '...' : ''}`
-      const type_limited = `${type.substring(0, type_limit+1)}${type.length > type_limit ? '...' : ''}`
-      const subject = `[申請マネージャ] ${title_limited} (${type_limited})`
-      return subject
+      return `[申請マネージャ] ${title} (${type})`
     }
-    */
+
 
   }
 }
