@@ -364,7 +364,7 @@ export default {
 
     get_templates () {
       this.$set(this.application_form_templates, 'loading', true)
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/visible_to_user`
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates`
       this.axios.get(url)
         .then(response => {
           // delete templates to recreate them
