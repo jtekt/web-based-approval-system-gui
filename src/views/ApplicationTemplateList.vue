@@ -14,59 +14,51 @@
        </button>
     </div>
 
-    <h2>自分のフォーム / My forms</h2>
-    <table
-      class="templates_table"
-      v-if="!application_templates.loading && !application_templates.error">
-      <tr
-        v-for="(template, index) in application_templates"
-        :key="`template_${index}`"
-        v-on:click="view_template(template._fields[template._fieldLookup['aft']].identity)"
-        class="clickable_row">
-        <td>{{template._fields[template._fieldLookup['aft']].properties.label}}</td>
-        <td></td>
-      </tr>
-    </table>
-
     <div
       class="loader_container"
-      v-if="application_templates.loading">
-      <Loader>Loading forms</Loader>
+      v-if="loading">
+      <Loader>Loading form templates</Loader>
     </div>
 
-    <div class="error_message" v-if="application_templates.error">
+    <div class="error_message" v-if="error">
       Error loading forms
     </div>
 
-    <h2>共有されているフォーム / Shared with me</h2>
-    <table
-      class="templates_table"
-      v-if="!shared_templates.loading && !shared_templates.error">
-      <tr>
-        <th>タイトル / Title</th>
-        <th>著者 / Author</th>
-      </tr>
-      <tr
-        v-for="(template, index) in shared_templates"
-        v-on:click="view_template(template._fields[template._fieldLookup['aft']].identity)"
-        :key="`shared_template_${index}`"
-        class="clickable_row">
-        <td>{{template._fields[template._fieldLookup['aft']].properties.label}}</td>
-        <td>{{template._fields[template._fieldLookup['creator']].properties.name_kanji}}</td>
-      </tr>
-    </table>
+    <template v-if="!loading && !error">
+      <h2>自分のフォーム / My forms</h2>
+      <table class="templates_table">
+        <tr
+          v-for="(template, index) in templates_of_user"
+          :key="`template_${index}`"
+          v-on:click="view_template(template.identity)"
+          class="clickable_row">
+          <td>{{template.properties.label}}</td>
+          <td></td>
+        </tr>
+      </table>
 
-    <div
-      class="loader_container"
-      v-if="shared_templates.loading">
-      <Loader>Loading forms</Loader>
-    </div>
+      <h2>共有されているフォーム / Shared with me</h2>
+      <table class="templates_table" >
 
-    <div
-      class="error_message"
-      v-if="shared_templates.error">
-      Error loading forms
-    </div>
+        <tr>
+          <th>タイトル / Title</th>
+          <th>著者 / Author</th>
+        </tr>
+
+        <tr
+          v-for="(template, index) in shared_templates"
+          :key="`template_${index}`"
+          v-on:click="view_template(template.identity)"
+          class="clickable_row">
+          <td>{{template.properties.label}}</td>
+          <td>{{template.author.properties.display_name}}</td>
+        </tr>
+
+      </table>
+    </template>
+
+
+
 
   </div>
 </template>
@@ -78,51 +70,50 @@ export default {
   data () {
     return {
       application_templates: [],
-      shared_templates: []
+      //shared_templates: [],
+      loading: false,
+      error: null,
     }
   },
   mounted () {
-    this.get_my_templates()
-    this.get_shared_templates()
+    //this.get_my_templates()
+    //this.get_shared_templates()
+    this.get_templates()
   },
   methods: {
-    get_my_templates () {
-      this.$set(this.application_templates, 'loading', true)
-      this.application_templates.splice(0, this.application_templates.length)
-      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/made_by_user`)
-        .then((response) => {
-          this.application_templates.splice(0, this.application_templates.length)
-          response.data.forEach(record => {
-          // Dealing with records here because involves creator and group
-            this.application_templates.push(record)
-          })
-        })
-        .catch(() => { this.$set(this.application_templates, 'error', true) })
-        .finally(() => { this.$set(this.application_templates, 'loading', false) })
-    },
-    get_shared_templates () {
-      this.$set(this.shared_templates, 'loading', true)
-      this.axios.get(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/shared_with_user`)
-        .then((response) => {
-          this.shared_templates.splice(0, this.shared_templates.length)
-          response.data.forEach(record => {
-          // Dealing with records here because involves creator and group
-            this.shared_templates.push(record)
-          })
-        })
-        .catch(() => { this.$set(this.shared_templates, 'error', true) })
-        .finally(() => { this.$set(this.shared_templates, 'loading', false) })
+    get_templates(){
+      this.loading = true
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates`
+      this.axios.get(url)
+      .then( ({data}) => { this.application_templates = data })
+      .catch( (error) => {
+        console.error(error)
+        this.error = 'Error loading templates'
+      })
+      .finally(() => {this.loading = false})
     },
     view_template (id) {
       this.$router.push({ name: 'application_template', params: { template_id: id } })
     },
-
     new_template () {
       this.$router.push({ name: 'application_template', params: { template_id: 'new' } })
     }
 
   },
   computed: {
+    current_user_id(){
+      return this.$store.state.current_user.identity.low || this.$store.state.current_user.identity
+    },
+    templates_of_user(){
+      return this.application_templates.filter(template => {
+        return template.author.identity === this.current_user_id
+      })
+    },
+    shared_templates(){
+      return this.application_templates.filter(template => {
+        return template.author.identity !== this.current_user_id
+      })
+    }
 
   }
 }
