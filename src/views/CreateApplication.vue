@@ -366,25 +366,12 @@ export default {
       this.$set(this.application_form_templates, 'loading', true)
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates`
       this.axios.get(url)
-        .then(response => {
-          // delete templates to recreate them
-          this.application_form_templates = []
-          response.data.forEach(record => {
-            let template = record._fields[record._fieldLookup['aft']]
-            const author = record._fields[record._fieldLookup['creator']]
-            template.properties.fields = JSON.parse(template.properties.fields)
-
-            // a bit dirty
-            template.author = author
-
-            this.application_form_templates.push(template)
-          })
-        })
-        .catch(error => {
-          console.error(error)
-          this.$set(this.application_form_templates, 'error', 'Error loading templates')
-        })
-        .finally(() => this.$set(this.application_form_templates, 'loading', false))
+      .then( ({data}) => { this.application_form_templates = data })
+      .catch(error => {
+        console.error(error)
+        this.$set(this.application_form_templates, 'error', 'Error loading templates')
+      })
+      .finally(() => this.$set(this.application_form_templates, 'loading', false))
     },
 
     create_application () {
