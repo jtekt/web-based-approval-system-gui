@@ -1,6 +1,6 @@
 <template>
   <div class="">
-    <h1>フォーム / Forms</h1>
+    <h1>フォームテンプレート / Form templates</h1>
 
     <!-- template is editable if new form of if current user is author -->
     <template v-if="is_editable">
@@ -11,12 +11,12 @@
 
         <div class="title_wrapper">
           <label for="">タイトル / Title</label>
-          <input type="text" v-model="label" placeholder="タイトル / Title">
+          <input type="text" v-model="template.properties.label" placeholder="タイトル / Title">
         </div>
 
         <div class="description_wrapper">
           <label for="">説明 / Description</label>
-          <textarea rows="8" v-model="description"/>
+          <textarea rows="8" v-model="template.properties.description"/>
         </div>
 
         <div class="">
@@ -35,7 +35,7 @@
             </div>
 
             <div
-              v-for="(group, index) in groups"
+              v-for="(group, index) in template.groups"
               class="visibility_group"
               v-bind:key="`shared_group_${index}`">
 
@@ -70,7 +70,7 @@
 
       <!-- fields -->
       <h3>フィールド / Fields</h3>
-      <template v-if="fields.length > 0">
+      <template v-if="template.properties.fields.length > 0">
 
         <table class="fields_table">
           <thead>
@@ -82,9 +82,9 @@
             </tr>
           </thead>
 
-          <draggable v-model="fields" tag="tbody">
+          <draggable v-model="template.properties.fields" tag="tbody">
             <tr
-              v-for="(field, index) in fields"
+              v-for="(field, index) in template.properties.fields"
               v-bind:key="`field_${index}`">
 
               <!-- Field label input -->
@@ -143,7 +143,7 @@
         <button
           type="button"
           class="bordered"
-          :disabled="fields.length === 0"
+          :disabled="template.properties.fields.length === 0"
           @click="submit()">
           <content-save-icon />
           <span>保存 / Save</span>
@@ -175,17 +175,17 @@
 
     <!-- view for people who do not own the template -->
     <template v-else>
-      <h2>{{label}}</h2>
+      <h2>{{template.properties.label}}</h2>
 
       <div class="template_metadata_wrapper">
-        <div class="author_wrapper" v-if="author">
+        <div class="author_wrapper" v-if="template.author">
           <label for="">著者 / Author</label>
-          <UserPreview :user="author" />
+          <UserPreview :user="template.author" />
         </div>
 
         <div class="description_wrapper">
           <label for="">説明 / Description</label>
-          <div style="white-space: pre-line;">{{description}}</div>
+          <div style="white-space: pre-line;">{{template.properties.description}}</div>
         </div>
 
         <div class="">
@@ -196,7 +196,7 @@
             </div>
 
             <div
-              v-for="(group, index) in groups"
+              v-for="(group, index) in template.groups"
               class="visibility_group"
               :key="`shared_group_${index}`">
 
@@ -217,7 +217,7 @@
           <th>Type</th>
         </tr>
         <tr
-          v-for="(field, index) in fields"
+          v-for="(field, index) in template.properties.fields"
           :key="`field_${index}`">
           <td>{{field.label}}</td>
           <td>{{field.type}}</td>
@@ -251,8 +251,6 @@ export default {
   data () {
     return {
 
-      groups: [],
-
       field_types: [
         { type: 'text', label: 'テキスト / Text' },
         { type: 'file', label: 'ファイル / File' },
@@ -262,17 +260,18 @@ export default {
         { type: 'application', label: '申請番号 / Application no' }
       ],
 
-      label: '',
-      description: '',
+      template: {
+        properties: {
+          label: '',
+          description: '',
+          fields: [ { type: 'text', label: '' } ],
+        },
+        author: null,
+        groups: []
+      },
 
-      fields: [
-        { type: 'text', label: '' }
 
-      ],
-
-      author: null,
-
-      modal_open: false
+      modal_open: false,
 
     }
   },
@@ -284,31 +283,16 @@ export default {
     get_template () {
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
       this.axios.get(url)
-        .then(({ data }) => {
-          const record = data
-          const aft = record._fields[record._fieldLookup['aft']]
-
-          const parsed_fields = JSON.parse(aft.properties.fields)
-
-          this.fields = []
-          parsed_fields.forEach(field => this.fields.push(field))
-
-          this.label = aft.properties.label
-          this.description = aft.properties.description
-
-          this.author = record._fields[record._fieldLookup['creator']]
-
-          this.groups = record._fields[record._fieldLookup['groups']]
-        })
-        .catch(error => console.log(error))
+      .then(({ data }) => { this.template = data })
+      .catch(error => console.log(error))
     },
 
     add_field () {
-      this.fields.push({ type: 'text', label: '' })
+      this.template.properties.fields.push({ type: 'text', label: '' })
     },
     delete_field (index) {
       if (!confirm('ホンマ？')) return
-      this.fields.splice(index, 1)
+      this.template.properties.fields.splice(index, 1)
     },
     submit () {
       if (this.template_id) this.update_template()
@@ -316,15 +300,15 @@ export default {
     },
     create_template () {
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates`
-      const group_ids = this.groups.map((group) => {
-        return group.identity.low || group.identity
-      })
+      const group_ids = this.template.groups.map((group) => group.identity.low || group.identity)
+
+      const {fields, label, description} = this.template.properties
 
       const body = {
-        fields: this.fields,
-        label: this.label,
-        description: this.description,
-        group_ids
+        fields,
+        label,
+        description,
+        group_ids,
       }
 
       this.axios.post(url, body)
@@ -337,49 +321,49 @@ export default {
     update_template () {
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
 
-      const group_ids = this.groups.map((group) => {
-        return group.identity.low || group.identity
-      })
+      const group_ids = this.template.groups.map((group) => group.identity.low || group.identity)
+
+      const {fields, label, description} = this.template.properties
 
       const body = {
-        fields: this.fields,
-        label: this.label,
-        description: this.description,
-        group_ids
+        fields,
+        label,
+        description,
+        group_ids,
       }
 
       this.axios.put(url, body)
-        .then(() => { this.$router.push({ name: 'application_templates' }) })
-        .catch(error => {
-          alert('Error while updating the template')
-          console.log(error)
-        })
+      .then(() => { this.$router.push({ name: 'application_templates' }) })
+      .catch(error => {
+        alert('Error while updating the template')
+        console.log(error)
+      })
     },
     delete_template () {
       if (!confirm('ホンマ？ / Really?')) return
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
       this.axios.delete(url)
-        .then((response) => this.$router.push({ name: 'application_templates' }))
-        .catch(error => {
-          alert('Error while deleting the template')
-          console.log(error)
-        })
+      .then((response) => this.$router.push({ name: 'application_templates' }))
+      .catch(error => {
+        alert('Error while deleting the template')
+        console.log(error)
+      })
     },
 
     delete_group (index) {
-      this.groups.splice(index, 1)
+      this.template.groups.splice(index, 1)
     },
     add_to_groups (group_to_add) {
       this.modal_open = false
 
       // Prevent duplicates
-      const existing_group = this.groups.find(group => {
+      const existing_group = this.template.groups.find(group => {
         const group_id = group.identity.low || group.identity
         const group_to_add_id = group_to_add.identity.low || group_to_add.identity
         return group_id === group_to_add_id
       })
 
-      if (!existing_group) this.groups.push(group_to_add)
+      if(!existing_group) this.template.groups.push(group_to_add)
     }
 
   },
@@ -387,8 +371,8 @@ export default {
     is_editable () {
       // if this is a new template, automatically in edit mode
       if (!this.template_id) return true
-      if (!this.$store.state.current_user || !this.author) return false
-      return this.current_user_id === this.author.identity
+      if (!this.$store.state.current_user || !this.template.author) return false
+      return this.current_user_id === this.template.author.identity
     },
 
     template_id () {
