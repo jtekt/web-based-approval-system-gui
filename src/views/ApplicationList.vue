@@ -72,19 +72,19 @@ export default {
           start_index: this.application_records[state].length
         }
       })
-        .then(response => {
-          response.data.forEach(record => {
-            this.application_records[state].push(record)
-          })
-          if (response.data.length < this.batch_size) {
-            this.$set(this.application_records[state], 'all_loaded', true)
-          }
+      .then(response => {
+        response.data.forEach(record => {
+          this.application_records[state].push(record)
         })
-        .catch((error) => {
-          console.error(error)
-          this.$set(this.application_records[state], 'error', 'Error loading applications')
-        })
-        .finally(() => { this.$set(this.application_records[state], 'loading', false) })
+        if (response.data.length < this.batch_size) {
+          this.$set(this.application_records[state], 'all_loaded', true)
+        }
+      })
+      .catch((error) => {
+        console.error(error)
+        this.$set(this.application_records[state], 'error', 'Error loading applications')
+      })
+      .finally(() => { this.$set(this.application_records[state], 'loading', false) })
     },
     load_more (event) {
       let application_direction = this.type

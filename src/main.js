@@ -10,48 +10,33 @@ import VueCookies from 'vue-cookies'
 // Global components
 import Loader from '@moreillon/vue_loader'
 
-// Global Icons
-import DownloadIcon from 'vue-material-design-icons/Download.vue'
-import DeleteIcon from 'vue-material-design-icons/Delete.vue'
-import CheckIcon from 'vue-material-design-icons/Check.vue'
-import CloseIcon from 'vue-material-design-icons/Close.vue'
-import ArrowLeftIcon from 'vue-material-design-icons/ArrowLeft.vue'
-import ArrowRightIcon from 'vue-material-design-icons/ArrowRight.vue'
-import ContentDuplicateIcon from 'vue-material-design-icons/ContentDuplicate.vue'
-import MagnifyIcon from 'vue-material-design-icons/Magnify.vue'
-import AccountMultiplePlusIcon from 'vue-material-design-icons/AccountMultiplePlus.vue'
-import ClockOutlineIcon from 'vue-material-design-icons/ClockOutline.vue'
-import PlusIcon from 'vue-material-design-icons/Plus.vue'
-import DotsHorizontalIcon from 'vue-material-design-icons/DotsHorizontal.vue'
-import OpenInNewIcon from 'vue-material-design-icons/OpenInNew.vue'
-import SendIcon from 'vue-material-design-icons/Send.vue'
-import ContentSaveIcon from 'vue-material-design-icons/ContentSave.vue'
-import AccountIcon from 'vue-material-design-icons/Account.vue'
-import EmailIcon from 'vue-material-design-icons/Email.vue'
+
 
 Vue.use(VueCookies)
 Vue.use(VueAxios, axios)
 
 Vue.component('Loader', Loader)
 
-Vue.component('download-icon', DownloadIcon)
-Vue.component('delete-icon', DeleteIcon)
-Vue.component('check-icon', CheckIcon)
-Vue.component('close-icon', CloseIcon)
-Vue.component('arrow-left-icon', ArrowLeftIcon)
-Vue.component('arrow-right-icon', ArrowRightIcon)
-Vue.component('content-duplicate-icon', ContentDuplicateIcon)
-Vue.component('magnify-icon', MagnifyIcon)
-Vue.component('account-multiple-plus-icon', AccountMultiplePlusIcon)
-Vue.component('clock-outline-icon', ClockOutlineIcon)
-Vue.component('plus-icon', PlusIcon)
-Vue.component('dots-horizontal-icon', DotsHorizontalIcon)
-Vue.component('open-in-new-icon', OpenInNewIcon)
-Vue.component('send-icon', SendIcon)
-Vue.component('content-save-icon', ContentSaveIcon)
-Vue.component('account-icon', AccountIcon)
-Vue.component('email-icon', EmailIcon)
+// Icons
+Vue.component('download-icon', () => import('vue-material-design-icons/Download.vue'))
+Vue.component('delete-icon', () => import('vue-material-design-icons/Delete.vue'))
+Vue.component('check-icon', () => import('vue-material-design-icons/Check.vue'))
+Vue.component('close-icon', () => import('vue-material-design-icons/Close.vue'))
+Vue.component('arrow-left-icon', () => import('vue-material-design-icons/ArrowLeft.vue'))
+Vue.component('arrow-right-icon', () => import('vue-material-design-icons/ArrowRight.vue'))
+Vue.component('content-duplicate-icon', () => import('vue-material-design-icons/ContentDuplicate.vue'))
+Vue.component('magnify-icon', () => import('vue-material-design-icons/Magnify.vue'))
+Vue.component('account-multiple-plus-icon', () => import('vue-material-design-icons/AccountMultiplePlus.vue'))
+Vue.component('clock-outline-icon', () => import('vue-material-design-icons/ClockOutline.vue'))
+Vue.component('plus-icon', () => import('vue-material-design-icons/Plus.vue'))
+Vue.component('dots-horizontal-icon', () => import('vue-material-design-icons/DotsHorizontal.vue'))
+Vue.component('open-in-new-icon', () => import('vue-material-design-icons/OpenInNew.vue'))
+Vue.component('send-icon', () => import('vue-material-design-icons/Send.vue'))
+Vue.component('content-save-icon', () => import('vue-material-design-icons/ContentSave.vue'))
+Vue.component('account-icon', () => import('vue-material-design-icons/Account.vue'))
+Vue.component('email-icon', () => import('vue-material-design-icons/Email.vue'))
 Vue.component('menu-icon', () => import('vue-material-design-icons/Menu.vue'))
+Vue.component('pencil-icon', () => import('vue-material-design-icons/Pencil.vue'))
 
 Vue.config.productionTip = false
 

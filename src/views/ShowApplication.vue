@@ -220,22 +220,22 @@ export default {
       // send POST to mark as approved
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity}/approve`
       this.axios.post(url, { comment })
-        .then(() => {
-        // Notify the next recipient
-          if (this.next_recipient) this.send_email_to_recipient(this.next_recipient)
-          // or the applicant if flow is complete
-          else this.send_email_to_applicant()
+      .then(() => {
+      // Notify the next recipient
+        if (this.next_recipient) this.send_email_to_recipient(this.next_recipient)
+        // or the applicant if flow is complete
+        else this.send_email_to_applicant()
 
-          // Refresh the approval flow
-          this.get_application()
+        // Refresh the approval flow
+        this.get_application()
 
-          // notify the user that there is an attachment to stamp
-          this.notify_attachment()
-        })
-        .catch((error) => {
-          console.error(error)
-          alert(`Error approving application`)
-        })
+        // notify the user that there is an attachment to stamp
+        this.notify_attachment()
+      })
+      .catch((error) => {
+        console.error(error)
+        alert(`Error approving application`)
+      })
     },
     reject () {
       // if (!confirm('ホンマ？ Confirm rejection?')) return
@@ -253,19 +253,15 @@ export default {
           // Refresh the application
           this.get_application()
         })
-        .catch(() => alert('Error rejecting application'))
+        .catch(() => {
+          console.log(error)
+          alert('Error rejecting application')
+        })
     },
     notify_attachment () {
-      const form_data = JSON.parse(this.application.properties.form_data)
-
-      const found_file = form_data.find(field => {
-        return field.type === 'file'
-      })
-
-      if (found_file) {
-        alert(`申請には承認されました。
-ただし、この申請は添付ファイル付いている申請なので、ファイルにハンコを押すのを忘れないようにお願いいたします。`)
-      }
+      // const form_data = JSON.parse(this.application.properties.form_data)
+      // const found_file = form_data.find(field => field.type === 'file')
+      // if (found_file) alert(`申請には承認されました。ただし、この申請は添付ファイル付いている申請なので、ファイルにハンコを押すのを忘れないようにお願いいたします。`)
     },
     delete_application () {
       if (!confirm('ホンマ？ Confirm deletion?')) return
@@ -297,7 +293,7 @@ mailto:${recipient.properties.email_address}
 %0D%0A
 申請を提出しました。 %0D%0A
 %0D%0A
-申請者: ${this.applicant.properties.name_kanji} %0D%0A
+申請者: ${this.applicant.properties.display_name} %0D%0A
 タイプ: ${this.application.properties.type} %0D%0A
 タイトル: ${this.application.properties.title} %0D%0A
 提出先URL: ${window.location.origin}/applications/${this.application.identity} %0D%0A

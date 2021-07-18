@@ -1,10 +1,23 @@
 <template>
-  <div class="rejection_reasons">
-    <template v-if="submissions_with_comment.length > 0">
+  <div class="comments_wrapper">
+    <template v-if="submissions.length > 0">
       <div class="comments_header">コメント / Comments</div>
       <table>
 
-        <tr
+        <template v-for="(submission, index) in submissions.reverse()">
+
+          <ApprovalComment
+            :key="`${index}`"
+            v-if="approval_or_rejection_of_recipient(recipient_of_submission(submission))"
+            @comment_updated="$emit('comment_updated')"
+            :recipient="recipient_of_submission(submission)"
+            :decision="approval_or_rejection_of_recipient(recipient_of_submission(submission))"/>
+
+        </template>
+
+
+
+        <!-- <tr
           v-for="(submission, index) in submissions_with_comment.reverse()"
           :key="`${index}`">
           <td class="refuser_name">
@@ -20,7 +33,7 @@
             </template>
 
           </td>
-        </tr>
+        </tr> -->
 
       </table>
     </template>
@@ -28,9 +41,12 @@
 </template>
 
 <script>
-
+import ApprovalComment from '@/components/ApprovalComment.vue'
 export default {
-  name: 'rejectionReason',
+  name: 'ApprovalComments',
+  components: {
+    ApprovalComment
+  },
   props: {
     submissions: Array,
     recipients: Array,
@@ -100,31 +116,20 @@ export default {
 .comments_header {
   font-weight: bold;
 }
-.rejection_reasons{
+.comments_wrapper{
   margin: 15px;
 }
 
-.rejection_reasons table {
+table {
   margin-top: 0.5em;
   width: 100%;
   table-layout: fixed;
   border-collapse: collapse;
   text-align: left;
 }
-.rejection_reasons table tr:not(:last-child) {
+table tr:not(:last-child) {
   border-bottom: 1px solid #dddddd;
 }
 
-.rejection_reasons table td {
-  padding: 0.25em 0;
-}
-
-.rejection_reasons table .refuser_name {
-  width: 25%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-
-}
 
 </style>
