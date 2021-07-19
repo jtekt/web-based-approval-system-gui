@@ -62,7 +62,7 @@ export default {
       })
     },
     enable_editing(){
-      if (!this.recipient_is_user()) return
+      if (!this.recipient_is_user) return
       this.new_comment = this.decision.properties.comment || ''
       this.editing = true
     },
@@ -71,7 +71,7 @@ export default {
     },
     update_comment () {
 
-      if (!this.recipient_is_user()) return
+      if (!this.recipient_is_user) return
 
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/decisions/${this.decision.identity}/comment`
       this.axios.put(url, { comment: this.new_comment || "No comment" })
