@@ -4,7 +4,7 @@
       <div class="comments_header">コメント / Comments</div>
       <table>
 
-        <template v-for="(submission, index) in submissions.reverse()">
+        <template v-for="(submission, index) in submissions.slice().reverse()">
 
           <ApprovalComment
             :key="`${index}`"
