@@ -334,6 +334,7 @@ export default {
     },
     user_has_stamped_attachment (file_id) {
 
+
       const found_approval = this.approvals.find((approval) => approval.start === this.current_user_id )
 
       if (!found_approval) return
@@ -341,10 +342,13 @@ export default {
       let attachment_hankos = found_approval.properties.attachment_hankos
 
       try { attachment_hankos = JSON.parse(attachment_hankos) }
-      catch (error) { return false }
+      catch (error) { 
+        console.error('Failed to parse attachment hankos')
+      }
 
-      
-      return !!attachment_hankos.find(a => a.file_id ===  file_id)
+      return !!attachment_hankos.find(a => a.file_id === file_id)
+
+
     },
     file_has_hankos(file_id){
       return this.approvals.find((approval) => {
