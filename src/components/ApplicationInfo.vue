@@ -152,7 +152,9 @@
               <span>Download</span>
             </button>
           </div>
-          <div class="">
+          <div
+            class=""
+            v-if="file_has_hankos(field.value)">
             <button
               type="button"
               @click="view_pdf(field.value)">
@@ -343,6 +345,13 @@ export default {
 
       
       return !!attachment_hankos.find(a => a.file_id ===  file_id)
+    },
+    file_has_hankos(file_id){
+      return this.approvals.find((approval) => {
+        let attachment_hankos = approval.properties.attachment_hankos
+        return attachment_hankos
+      } )
+
     }
   }
 
