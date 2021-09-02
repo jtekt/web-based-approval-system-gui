@@ -122,8 +122,9 @@
       </h3>
 
       <template v-if="!$route.query.copy_of">
-        <h4>フォームについて / About this form</h4>
-        <table class="form_content_table">
+        <details>
+          <summary>フォームについて / About this form</summary>
+          <table class="form_content_table">
 
           <tr v-if="selected_form.author">
             <td>フォーム著者 / Form author</td>
@@ -150,6 +151,8 @@
           </tr>
 
         </table>
+        </details>
+        
       </template>
 
       <h4>申請内容 / Application content</h4>
@@ -165,12 +168,13 @@
 
           <td>
             <!-- file input when file is not selected -->
-            <template v-if="field.type === 'file'">
+            <template v-if="['file','pdf'].includes(field.type)">
 
-              <!-- SHow input when no file -->
+              <!-- Show input when no file -->
               <input
                 v-if="!field.value"
-                :type="field.type"
+                type="file"
+                :accept="field.type === 'pdf' ? 'application/pdf': '*' "
                 v-on:change="file_upload($event, field)">
 
               <!-- file input when file is selected -->

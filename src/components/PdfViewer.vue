@@ -6,7 +6,7 @@
       <p
         class="error_message"
         v-if="!approval_of_current_user">
-        申請が承認された時、資料にハンコを押すようになります。<br>
+        「承認」ボタンを押すとPDFに捺印できます。<br>
         This document can be stamped once the application is approved.
       </p>
       <div class="pdf_actions_wrapper">

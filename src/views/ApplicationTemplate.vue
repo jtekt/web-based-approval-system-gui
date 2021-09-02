@@ -254,6 +254,7 @@ export default {
       field_types: [
         { type: 'text', label: 'テキスト / Text' },
         { type: 'file', label: 'ファイル / File' },
+        { type: 'pdf', label: 'PDF (承認)' },
         { type: 'checkbox', label: 'チェックボックス / Checkbox' },
         { type: 'date', label: '日付 / Date' },
         { type: 'link', label: 'リンク / Link' },

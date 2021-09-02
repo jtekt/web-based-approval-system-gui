@@ -117,9 +117,8 @@
 
         <td
           class="file_actions_container"
-          v-if="field.type === 'file' && field.value">
+          v-if="field.type === 'pdf' && field.value">
 
-          <!-- TODO: CHECK IF PDF -->
           <div
             class="success"
             v-if="user_has_stamped_attachment(field.value)">
@@ -133,18 +132,24 @@
           <div class="">
             <button
               type="button"
-              @click="download_attachment(field.value)">
-              <download-icon />
-              <span>Download (ハンコ無し / original)</span>
+              @click="view_pdf(field.value)">
+              <magnify-icon />
+              <span>承認する / View and approve .pdf</span>
             </button>
           </div>
+
+        </td>
+
+        <td
+          v-else-if="field.type === 'file' && field.value"
+          class="file_actions_container" >
 
           <div class="">
             <button
               type="button"
-              @click="view_pdf(field.value)">
-              <magnify-icon />
-              <span>PDFを見る / View</span>
+              @click="download_attachment(field.value)">
+              <download-icon />
+              <span>Download</span>
             </button>
           </div>
 
@@ -318,15 +323,18 @@ export default {
       this.$emit('view_pdf', file_id)
     },
     user_has_stamped_attachment (file_id) {
-      const found_approval = this.approvals.find((approval) => {
-        return approval.start === this.current_user_id
-      })
+
+      const found_approval = this.approvals.find((approval) => approval.start === this.current_user_id )
 
       if (!found_approval) return
 
       let attachment_hankos = found_approval.properties.attachment_hankos
 
-      return !!attachment_hankos
+      try { attachment_hankos = JSON.parse(attachment_hankos) }
+      catch (error) { return false }
+
+      
+      return !!attachment_hankos.find(a => a.file_id ===  file_id)
     }
   }
 
