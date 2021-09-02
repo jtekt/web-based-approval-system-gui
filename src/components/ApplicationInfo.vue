@@ -152,6 +152,14 @@
               <span>Download</span>
             </button>
           </div>
+          <div class="">
+            <button
+              type="button"
+              @click="view_pdf(field.value)">
+              <magnify-icon />
+              <span>承認する / View and approve .pdf</span>
+            </button>
+          </div>
 
         </td>
 
