@@ -341,21 +341,28 @@ export default {
 
       let attachment_hankos = found_approval.properties.attachment_hankos
 
-      try { attachment_hankos = JSON.parse(attachment_hankos) }
-      catch (error) { 
-        console.error('Failed to parse attachment hankos')
+      if(typeof attachment_hankos === 'string'){
+        try {  attachment_hankos = JSON.parse(attachment_hankos)  }
+        catch (e) {  console.error('Failed to parse attachment hankos') }
       }
 
       if(!attachment_hankos) return
 
       return !!attachment_hankos.find(a => a.file_id === file_id)
 
-
     },
     file_has_hankos(file_id){
+
       return this.approvals.find((approval) => {
         let attachment_hankos = approval.properties.attachment_hankos
-        return attachment_hankos
+        if(!attachment_hankos) return false
+
+        if(typeof attachment_hankos === 'string'){
+          try {  attachment_hankos = JSON.parse(attachment_hankos)  }
+          catch (e) {  console.error('Failed to parse attachment hankos') }
+        }
+
+        return !!attachment_hankos.find(a => a.file_id === file_id)
       } )
 
     }
