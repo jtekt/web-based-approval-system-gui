@@ -346,6 +346,8 @@ export default {
         console.error('Failed to parse attachment hankos')
       }
 
+      if(!attachment_hankos) return
+
       return !!attachment_hankos.find(a => a.file_id === file_id)
 
 
