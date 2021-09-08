@@ -152,7 +152,7 @@
 
         </table>
         </details>
-        
+
       </template>
 
       <h4>申請内容 / Application content</h4>
@@ -195,11 +195,17 @@
 
             </template>
 
+            <textarea
+              v-else-if="field.type === 'text'"
+              :placeholder="field.label"
+              v-model="field.value" />
+
             <input
               v-else
               v-bind:type="field.type"
               :placeholder="field.label"
               v-model="field.value">
+
           </td>
 
         </tr>
@@ -588,8 +594,9 @@ export default {
   width: 40%;
 }
 
-.form_content_table td input{
+.form_content_table td :is(input, textarea){
   width: 100%;
+  resize: vertical;
 }
 
 .form_content_table .file_delete_button {

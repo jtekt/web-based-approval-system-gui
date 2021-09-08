@@ -393,6 +393,7 @@ export default {
 
 .application_info td {
   border-top: 1px solid #dddddd;
+  white-space: pre-line;
 }
 
 .group_picker_wrapper {
