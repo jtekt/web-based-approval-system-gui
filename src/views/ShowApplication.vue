@@ -9,10 +9,6 @@
           <!-- information about the application form -->
           <ApplicationInfo
             :application="application"
-            :applicant="applicant"
-            :forbidden="forbidden"
-            :visibility="visibility"
-            :approvals="approvals"
             @view_pdf="view_pdf($event)"
             @visibility_update="get_application()"/>
 
@@ -20,9 +16,25 @@
           <div class="approval_flow_column">
             <div class="approval_flow" >
 
-              <!-- inner wrapper exists so that arrows can be placed between hanko containers -->
               <template
-                v-for="(submission, index) in ordered_submissions">
+                v-if="!!user_as_recipient && !current_recipient" >
+
+                <div class="flow_applicant">
+                  <EmailButton
+                    :user="application.applicant"
+                    @send_email="send_email_to_applicant()" />
+                </div>
+
+                <div
+                  class="arrow_container">
+                  <arrow-left-icon
+                    class="arrow" />
+                </div>
+
+              </template>
+
+              <template
+                v-for="(recipient, index) in ordered_recipients" >
 
                 <div
                   class="arrow_container"
@@ -34,16 +46,12 @@
 
                 <WebHankoContainer
                   :key="`hanko_container_${index}`"
-                  :applicant="applicant"
-                  :recipient="recipient_of_submission(submission)"
-                  :approval="approval_of_recipient(recipient_of_submission(submission))"
-                  :rejection="rejection_of_recipient(recipient_of_submission(submission))"
-
-                  :is_current_submission="submission === current_submission"
+                  :recipient="recipient"
+                  :application="application"
 
                   @approve="approve()"
                   @reject="reject()"
-                  @send_email="send_email_to_recipient($event)"/>
+                  @send_email="send_email_to_recipient(recipient)"/>
 
               </template>
 
@@ -51,10 +59,7 @@
 
             <!-- area for refusals reasons -->
             <ApprovalComments
-              :submissions="ordered_submissions"
-              :rejections="rejections"
-              :approvals="approvals"
-              :recipients="recipients"
+              :application="application"
               @comment_updated="get_application()"/>
 
           </div>
@@ -84,7 +89,7 @@
           </template>
 
           <!-- Controls to approve or reject an application -->
-          <template v-if="user_is_current_recipient && rejections.length === 0">
+          <template v-if="user_is_current_recipient && !application_has_refusal">
             <button
               type="button"
               class="bordered approve_button"
@@ -113,8 +118,8 @@
       <PdfViewer
         v-if="selected_file_id"
         :selected_file_id="selected_file_id"
-        :approvals="approvals"
-        :application_id="application.identity"/>
+        :application="application"
+        @pdf_stamped="get_application()"/>
 
     </template>
 
@@ -134,11 +139,12 @@
 </template>
 
 <script>
-import WebHankoContainer from '@/components/web_hanko/WebHankoContainer.vue'
 
-import PdfViewer from '@/components/PdfViewer.vue'
-import ApprovalComments from '@/components/ApprovalComments.vue'
-import ApplicationInfo from '@/components/ApplicationInfo.vue'
+import EmailButton from '@/components/application_details/EmailButton.vue'
+import WebHankoContainer from '@/components/application_details/web_hanko/WebHankoContainer.vue'
+import PdfViewer from '@/components/application_details/PdfViewer.vue'
+import ApprovalComments from '@/components/application_details/ApprovalComments.vue'
+import ApplicationInfo from '@/components/application_details/ApplicationInfo.vue'
 
 import CurrentUserID from '@/mixins/CurrentUserID.js'
 
@@ -148,7 +154,8 @@ export default {
     WebHankoContainer,
     PdfViewer,
     ApprovalComments,
-    ApplicationInfo
+    ApplicationInfo,
+    EmailButton,
   },
   mixins: [
     CurrentUserID
@@ -162,14 +169,8 @@ export default {
       loading: false,
       error: null,
 
-      // experimental
       application: null,
-      applicant: null,
-      forbidden: null,
-      approvals: [],
-      rejections: [],
-      submissions: [],
-      visibility: [],
+
 
       // Stamping pdfs
       selected_file_id: null
@@ -182,33 +183,35 @@ export default {
     }
   },
   methods: {
-    get_application () {
-      // Get the body of the application, regardless of its recipients
-      // This gets the applicant as well (for the time being)
-
+    get_application(){
       this.loading = true
-
-      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}`
+      this.application = null
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v2/applications/${this.application_id}`
       this.axios.get(url)
-        .then(response => {
-          //console.log(response.data)
-          let record = response.data
+      .then(({data}) => {
+        this.application = data
+        
+        try {
+          const parsed_form_data = JSON.parse(this.application.properties.form_data)
+          this.application.properties.form_data = parsed_form_data
+        } catch (e) {
+          console.warn('Application form data could not be parsed')
+        }
 
-          this.application = record._fields[record._fieldLookup['application']]
-          this.applicant = record._fields[record._fieldLookup['applicant']]
-          this.forbidden = record._fields[record._fieldLookup['forbidden']]
-          this.recipients = record._fields[record._fieldLookup['recipients']]
-          this.submissions = record._fields[record._fieldLookup['submissions']]
-          this.approvals = record._fields[record._fieldLookup['approvals']]
-          this.rejections = record._fields[record._fieldLookup['rejections']]
-          this.visibility = record._fields[record._fieldLookup['visibility']]
-        })
-        .catch((error) => {
+      })
+      .catch((error) => {
+        if(error.response) {
+          console.error(error.response.data)
+          this.error = error.error.response.data
+        }
+        else {
           console.error(error)
           this.error = error
-        })
-        .finally(() => { this.loading = false })
+        }
+      })
+      .finally(() => { this.loading = false })
     },
+
     approve () {
       const comment = prompt('コメント (任意)/ Comment (optional)')
 
@@ -221,16 +224,18 @@ export default {
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity}/approve`
       this.axios.post(url, { comment })
       .then(() => {
+
       // Notify the next recipient
-        if (this.next_recipient) this.send_email_to_recipient(this.next_recipient)
-        // or the applicant if flow is complete
-        else this.send_email_to_applicant()
+        // if (this.next_recipient) this.send_email_to_recipient(this.next_recipient)
+        // // or the applicant if flow is complete
+        // else this.send_email_to_applicant()
+
+        // if(this.current_recipient) this.send_email_to_recipient(this.current_recipient)
+        // else this.send_email_to_applicant()
 
         // Refresh the approval flow
         this.get_application()
 
-        // notify the user that there is an attachment to stamp
-        this.notify_attachment()
       })
       .catch((error) => {
         console.error(error)
@@ -248,7 +253,7 @@ export default {
       this.axios.post(url, { comment })
         .then(() => {
           // Notify the applicant
-          this.send_email_to_applicant()
+          //this.send_email_to_applicant()
 
           // Refresh the application
           this.get_application()
@@ -258,11 +263,7 @@ export default {
           alert('Error rejecting application')
         })
     },
-    notify_attachment () {
-      // const form_data = JSON.parse(this.application.properties.form_data)
-      // const found_file = form_data.find(field => field.type === 'file')
-      // if (found_file) alert(`申請には承認されました。ただし、この申請は添付ファイル付いている申請なので、ファイルにハンコを押すのを忘れないようにお願いいたします。`)
-    },
+
     delete_application () {
       if (!confirm('ホンマ？ Confirm deletion?')) return
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity}`
@@ -293,7 +294,7 @@ mailto:${recipient.properties.email_address}
 %0D%0A
 申請を提出しました。 %0D%0A
 %0D%0A
-申請者: ${this.applicant.properties.display_name} %0D%0A
+申請者: ${this.application.applicant.properties.display_name} %0D%0A
 タイプ: ${this.application.properties.type} %0D%0A
 タイトル: ${this.application.properties.title} %0D%0A
 提出先URL: ${window.location.origin}/applications/${this.application.identity} %0D%0A
@@ -309,9 +310,9 @@ mailto:${recipient.properties.email_address}
       // Weird formatting because preserves indentation
       // TODO: Stop relying on name_kanji
       window.location.href = `
-mailto:${this.applicant.properties.email_address}
+mailto:${this.application.applicant.properties.email_address}
 ?subject=${this.email_subject}
-&body=${this.applicant.properties.display_name} 様 %0D%0A
+&body=${this.application.applicant.properties.display_name} 様 %0D%0A
 %0D%0A
 申請マネージャーの通知メールです。 %0D%0A
 %0D%0A
@@ -326,22 +327,6 @@ mailto:${this.applicant.properties.email_address}
 %0D%0A
         `
     },
-    recipient_of_submission (submission) {
-      if (!submission) return null
-      return this.recipients.find(recipient => {
-        return recipient.identity === submission.end
-      })
-    },
-    approval_of_recipient (recipient) {
-      return this.approvals.find(approval => {
-        return approval.start === recipient.identity
-      })
-    },
-    rejection_of_recipient (recipient) {
-      return this.rejections.find(rejection => {
-        return rejection.start === recipient.identity
-      })
-    }
 
   },
   computed: {
@@ -351,45 +336,49 @@ mailto:${this.applicant.properties.email_address}
         this.$route.query.application_id ||
         this.$route.query.id
     },
-    ordered_submissions () {
-      return this.submissions.slice().sort((a, b) => {
-        return b.properties.flow_index - a.properties.flow_index
-      })
-    },
-    approval_count () {
-      return this.approvals.length
-    },
-    current_submission () {
-      return this.submissions.find(submission => {
-        return submission.properties.flow_index === this.approval_count
-      })
-    },
-    current_recipient () {
-      return this.recipient_of_submission(this.current_submission)
-    },
-    next_submission () {
-      return this.submissions.find(submission => {
-        return submission.properties.flow_index === this.approval_count + 1
-      })
-    },
-    next_recipient () {
-      return this.recipient_of_submission(this.next_submission)
-    },
-    user_is_applicant () {
-      return this.applicant.identity === this.current_user_id
-    },
-    user_is_current_recipient () {
-      const next_recipient = this.current_recipient
-      if (!next_recipient) return false
 
-      return next_recipient.identity === this.current_user_id
+    ordered_recipients(){
+      return this.application.recipients
+        .slice()
+        .sort((a, b) => b.submission.properties.flow_index - a.submission.properties.flow_index)
+    },
+
+    current_recipient(){
+      // recipients sorted by flow index apparently
+      if(this.application.recipients.find(recipient => recipient.refusal)) return null
+
+      return this.application.recipients
+      .slice()
+      .sort((a, b) => a.submission.properties.flow_index - b.submission.properties.flow_index)
+      .find(recipient => !recipient.approval && !recipient.refusal)
+    },
+
+    user_is_applicant () {
+      if(!this.application) return false
+      return this.application.applicant.identity === this.current_user_id
+
+    },
+
+    user_as_recipient(){
+      const current_user =  this.$store.state.current_user
+      const current_user_id = current_user.identity.low || current_user.identity
+      return this.application.recipients.find(recipient => recipient.identity === current_user_id)
+    },
+
+    user_is_current_recipient () {
+      if(!this.current_recipient) return false
+      return this.current_recipient.identity === this.current_user_id
     },
 
     email_subject(){
       const {title, type} = this.application.properties
       //return `[申請マネージャ] ${title} (${type})`
       return `[申請マネージャ] ${type}`
-    }
+    },
+
+    application_has_refusal(){
+      return this.application.recipients.find(recipient => recipient.refusal)
+    },
 
 
   }
@@ -481,6 +470,14 @@ mailto:${this.applicant.properties.email_address}
   color: white;
   background-color: #c00000;
   border-color: #c00000;
+}
+
+.flow_applicant{
+  width: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 150px;
 }
 
 </style>

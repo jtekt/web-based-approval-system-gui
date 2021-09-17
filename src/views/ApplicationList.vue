@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import ApplicationTable from '@/components/ApplicationTable.vue'
+import ApplicationTable from '@/components/application_list/ApplicationTable.vue'
 
 export default {
   name: 'ApplicationList',

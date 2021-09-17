@@ -187,7 +187,7 @@
           </router-link>
         </td>
 
-        <td v-else>{{field.value || '-'}}</td>
+        <td v-else class="application_field_value">{{field.value || '-'}}</td>
 
       </tr>
 
@@ -242,10 +242,6 @@ export default {
   ],
   props: {
     application: Object,
-    applicant: Object,
-    forbidden: Boolean,
-    visibility: Array,
-    approvals: Array
   },
   data () {
     return {
@@ -260,7 +256,8 @@ export default {
   },
   computed: {
     form_data () {
-      return JSON.parse(this.application.properties.form_data)
+      //return JSON.parse(this.application.properties.form_data)
+      return this.application.properties.form_data
     },
     user_is_applicant () {
       return this.applicant.identity === this.current_user_id
@@ -268,7 +265,25 @@ export default {
     applicant_profile_url () {
       // THis should be done in an applicant component
       return `${process.env.VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/?id=${this.applicant.identity}`
-    }
+    },
+    visibility() {
+      return this.application.visibility
+    },
+    applicant() {
+      return this.application.applicant
+    },
+    forbidden() {
+      return this.application.forbidden
+    },
+    approvals() {
+      return this.application.recipients
+        .filter(a => !!a.approval)
+        .map(r => r.approval)
+    },
+    user_as_recipient(){
+      const user =  this.$store.state.current_user
+      return this.application.recipients.find(recipient => recipient.identity === user.identity)
+    },
 
   },
   methods: {
@@ -334,7 +349,6 @@ export default {
     },
     user_has_stamped_attachment (file_id) {
 
-
       const found_approval = this.approvals.find((approval) => approval.start === this.current_user_id )
 
       if (!found_approval) return
@@ -353,20 +367,25 @@ export default {
     },
     file_has_hankos(file_id){
 
+
+
       return this.approvals.find((approval) => {
         let attachment_hankos = approval.properties.attachment_hankos
         if(!attachment_hankos) return false
+
 
         if(typeof attachment_hankos === 'string'){
           try {  attachment_hankos = JSON.parse(attachment_hankos)  }
           catch (e) {  console.error('Failed to parse attachment hankos') }
         }
 
-        return !!attachment_hankos.find(a => a.file_id === file_id)
+        //return !!attachment_hankos.find(a => a.file_id === file_id)
+        return !!attachment_hankos
       } )
 
-    }
-  }
+    },
+  },
+
 
 }
 </script>
@@ -393,7 +412,7 @@ export default {
 
 .application_info td {
   border-top: 1px solid #dddddd;
-  white-space: pre-line;
+
 }
 
 .group_picker_wrapper {
@@ -437,6 +456,10 @@ export default {
 .applicant_name {
   display: inline-flex;
   align-items: center;
+}
+
+.application_field_value{
+  white-space: pre-line;
 }
 
 </style>

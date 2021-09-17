@@ -14,7 +14,7 @@
         v-model="new_comment"/>
       <div
         v-else
-        style="white-space: pre-line;" v-text="decision.properties.comment || 'No comment'" />
+        style="white-space: pre-line;" v-text="recipient_comment || 'No comment'" />
 
     </td>
     <td class="actions">
@@ -47,7 +47,6 @@ export default {
   name: 'ApprovalComment',
   props: {
     recipient: Object,
-    decision: Object,
   },
   data(){
     return {
@@ -63,7 +62,7 @@ export default {
     },
     enable_editing(){
       if (!this.recipient_is_user) return
-      this.new_comment = this.decision.properties.comment || ''
+      this.new_comment = this.recipient_comment || ''
       this.editing = true
     },
     disble_editing(){
@@ -92,8 +91,17 @@ export default {
   computed: {
     recipient_is_user () {
       const current_user = this.$store.state.current_user
+      // Get rid of auth v1 as soon as possible
       return this.recipient.identity === (current_user.identity.low || current_user.identity)
-    }
+    },
+    decision(){
+      return this.recipient.approval || this.recipient.refusal
+    },
+    recipient_comment(){
+      if(!this.decision) return null
+      return this.decision.properties.comment
+
+    },
   }
 
 }

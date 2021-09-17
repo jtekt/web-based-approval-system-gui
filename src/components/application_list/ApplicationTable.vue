@@ -68,8 +68,8 @@
 </template>
 
 <script>
-import ApplicationTableRow from '@/components/ApplicationTableRow.vue'
-import ApplicationTableHeaderRow from '@/components/ApplicationTableHeaderRow.vue'
+import ApplicationTableRow from './ApplicationTableRow.vue'
+import ApplicationTableHeaderRow from './ApplicationTableHeaderRow.vue'
 
 export default {
   name: 'ApplicationTable',

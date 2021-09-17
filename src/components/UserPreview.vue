@@ -69,7 +69,6 @@ export default {
 
 .author_name {
   text-decoration: underline;
-
 }
 
 </style>
