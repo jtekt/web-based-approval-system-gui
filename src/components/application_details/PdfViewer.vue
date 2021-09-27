@@ -57,7 +57,7 @@
 
         <pdf
           :page="page_number+1"
-          :src="shown_pdf"
+          :src="pdf_src"
           @num-pages="page_count_event"/>
 
         <div
@@ -405,6 +405,17 @@ export default {
     }
   },
   computed: {
+    pdf_src(){
+      const pdf_blob = new Blob([this.shown_pdf], { type: 'application/pdf' })
+
+      const src =  pdf.createLoadingTask({
+        url: window.URL.createObjectURL(pdf_blob),
+        cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.5.207/cmaps/',
+        cMapPacked: true,
+      })
+
+      return src
+    },
     application_id(){
       return this.application.identity
     },
