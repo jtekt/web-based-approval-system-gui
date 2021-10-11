@@ -65,6 +65,8 @@
           </div>
         </div>
 
+
+
         <!-- actions at the bottom: Delete or duplicate-->
         <div
           class="actions_container">
@@ -72,6 +74,7 @@
           <!-- deletion and duplication buttons -->
           <template v-if="user_is_applicant">
             <button
+              :disabled="application_is_fully_approved"
               type="button"
               class="bordered"
               @click="delete_application()">
@@ -89,8 +92,9 @@
           </template>
 
           <!-- Controls to approve or reject an application -->
-          <template v-if="user_is_current_recipient && !application_has_refusal">
+          <template v-if="user_as_recipient">
             <button
+              :disabled="!user_is_current_recipient || application_has_refusal"
               type="button"
               class="bordered approve_button"
               @click="approve()">
@@ -99,6 +103,7 @@
             </button>
 
             <button
+              :disabled="!user_is_current_recipient || application_has_refusal"
               type="button"
               class="bordered refuse_button"
               @click="reject()">
@@ -114,6 +119,8 @@
         v-else>
         Application not found
       </div>
+
+
 
       <PdfViewer
         v-if="selected_file_id"
@@ -190,7 +197,7 @@ export default {
       this.axios.get(url)
       .then(({data}) => {
         this.application = data
-        
+
         try {
           const parsed_form_data = JSON.parse(this.application.properties.form_data)
           this.application.properties.form_data = parsed_form_data
@@ -379,6 +386,11 @@ mailto:${this.application.applicant.properties.email_address}
     application_has_refusal(){
       return this.application.recipients.find(recipient => recipient.refusal)
     },
+    application_is_fully_approved(){
+      const recipient_count = this.application.recipients.length
+      const approval_count = this.application.recipients.reduce((acc, recipient) => acc + (recipient.approval ? 1 : 0), 0)
+      return approval_count === recipient_count
+    }
 
 
   }

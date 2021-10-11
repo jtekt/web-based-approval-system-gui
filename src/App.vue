@@ -66,8 +66,9 @@ button:hover{
 }
 
 button:disabled {
-  color: #dddddd;
+  //color: #dddddd;
   cursor: not-allowed;
+  opacity: 0.25;
 }
 
 button .material-design-icon {
@@ -89,7 +90,7 @@ button.bordered:hover {
 }
 
 button.bordered:disabled {
-  border-color: #dddddd;
+  //border-color: #dddddd;
 }
 
 .error_message, .error {
