@@ -176,15 +176,24 @@
         </td>
 
         <td v-else-if="field.type === 'link'">
-          <a :href="field.value">
+          <a
+            class="field_link"
+            :href="field.value"
+            target="_blank">
+            <span>{{field.value}}</span>
             <open-in-new-icon />
           </a>
         </td>
 
         <td v-else-if="field.type === 'application'">
-          <router-link :to="{ name: 'application', params: {application_id: field.value} }">
-            {{field.value}}
-          </router-link>
+          <a
+            class="field_link"
+            :href="`/applications/${field.value}`"
+            target="_blank">
+            <span>{{field.value}}</span>
+            <open-in-new-icon />
+          </a>
+
         </td>
 
         <td v-else class="application_field_value">{{field.value || '-'}}</td>
@@ -460,6 +469,19 @@ export default {
 
 .application_field_value{
   white-space: pre-line;
+}
+
+.field_link {
+  display: inline-flex;
+  align-items: center;
+}
+
+.field_link span {
+  margin-right: 0.25em;
+  max-width: 150px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 </style>
