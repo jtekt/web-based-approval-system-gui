@@ -66,6 +66,7 @@
         <td>機密 / Confidential</td>
         <td>
           <input type="checkbox" v-model="confidential">
+          <label>機密にチェックを付けない場合は、申請内容を誰でも閲覧できます。</label>
         </td>
       </tr>
       <!-- Visibility -->
@@ -698,6 +699,10 @@ table.application_info select {
 .application_type_info{
   color: #666666;
   font-size: 80%;
+}
+
+label {
+  margin: 0 0.5em;
 }
 
 </style>

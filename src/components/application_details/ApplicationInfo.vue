@@ -193,8 +193,16 @@
             <span>{{field.value}}</span>
             <open-in-new-icon />
           </a>
-
         </td>
+
+        <!-- <td v-else-if="field.type === 'file_path'">
+          <a
+            class="field_link"
+            :href="`file:///${field.value}`">
+            <span>{{field.value}}</span>
+            <open-in-new-icon />
+          </a>
+        </td> -->
 
         <td v-else class="application_field_value">{{field.value || '-'}}</td>
 

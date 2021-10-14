@@ -258,7 +258,8 @@ export default {
         { type: 'checkbox', label: 'チェックボックス / Checkbox' },
         { type: 'date', label: '日付 / Date' },
         { type: 'link', label: 'リンク / Link' },
-        { type: 'application', label: '申請番号 / Application no' }
+        { type: 'application', label: '申請番号 / Application no' },
+        //{ type: 'file_path', label: 'ファイルパス / File path' },
       ],
 
       template: {
