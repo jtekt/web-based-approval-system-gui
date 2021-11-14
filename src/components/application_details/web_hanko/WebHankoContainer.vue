@@ -7,9 +7,7 @@
     <a
       :href="user_profile_url"
       class="hanko_container_header">
-      {{ recipient.properties.last_name
-        || recipient.properties.family_name_kanji
-        || recipient.family_name}}
+      {{ recipient_displayed_name_name }}
     </a>
 
     <div class="hanko_area">
@@ -67,6 +65,14 @@ export default {
 
   },
   computed: {
+    recipient_displayed_name_name(){
+      return this.recipient.properties.last_name
+        || this.recipient.properties.family_name_kanji
+        || this.recipient.family_name
+        || this.recipient.display_name
+        || this.recipient.username
+    },
+
     current_recipient(){
       // recipients sorted by flow index apparently
       if(this.application.recipients.find(recipient => recipient.refusal)) return null
