@@ -37,8 +37,7 @@
             v-model.number="hanko_scale_slider_value"
             min="1"
             max="100"
-            step="2"
-            @change="resize_hankos()">
+            step="2">
         </div>
 
         <button
@@ -58,6 +57,7 @@
         <pdf
           :page="page_number+1"
           :src="pdf_src"
+          :rotate="rotation"
           @num-pages="page_count_event"/>
 
         <div
@@ -93,7 +93,7 @@
 <script>
 import { PDFDocument } from 'pdf-lib'
 import pdf from 'vue-pdf'
-import canvg from 'canvg'
+import canvg from 'canvg' // used to turn Hankos into PNG so as to include them in the pdf
 
 import CurrentUserID from '@/mixins/CurrentUserID.js'
 
@@ -114,8 +114,10 @@ export default {
       load_error: null,
       loading: false,
 
+      // Pages data
       page_number: 0,
       page_count: 1,
+      rotation: 0,
 
       pdfDoc: null,
       shown_pdf: null,
@@ -142,6 +144,9 @@ export default {
     selected_file_id () {
       this.view_pdf(this.selected_file_id)
     },
+    page_number () {
+      this.set_pdf_rotation()
+    }
   },
   methods: {
     page_count_event (page_count) {
@@ -153,13 +158,7 @@ export default {
     previous_page () {
       if (this.page_number > 0) this.page_number--
     },
-    resize_hankos () {
-      console.warn('This feature is disabled')
-      // const approvals_with_hanko = this.approvals.filter(approval => {
-      //   return !!approval.properties.attachment_hankos
-      // })
-      // if (approvals_with_hanko.length > 0) this.refresh_pdf()
-    },
+
     view_pdf (file_id) {
       // Check if IE
       if (!!window.MSInputMethodContext && !!document.documentMode) {
@@ -191,13 +190,20 @@ export default {
       })
 
     },
+    set_pdf_rotation(){
+      const pages = this.pdfDoc.getPages()
+      const current_page = pages[this.page_number]
+      const {angle} = current_page.getRotation()
+      this.rotation = - angle
+    },
     async load_pdf (buffer) {
       this.load_error = null
       try {
         this.pdfDoc = await PDFDocument.load(buffer)
-        //this.shown_pdf = await this.pdfDoc.save()
+        this.set_pdf_rotation()
         this.load_pdf_hankos()
-      } catch (e) {
+      }
+      catch (e) {
         this.load_error = `この機能は.pdfのファイルしかつかえません<br>This feature only supports .pdf files`
       }
     },
