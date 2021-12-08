@@ -5,10 +5,10 @@
       applicationName="申請マネージャー">
 
       <template v-slot:navigation>
-        <router-link :to="{ name: 'create_application'}"><plus-icon />New application</router-link>
-        <router-link :to="{ name: 'submitted_applications'}"><inbox-arrow-up-icon />Outbox</router-link>
-        <router-link :to="{ name: 'received_applications'}"><inbox-arrow-down-icon />Inbox</router-link>
-        <router-link :to="{ name: 'search'}"><magnify-icon />Search</router-link>
+        <router-link :to="{ name: 'create_application'}"><plus-icon />作成 / New</router-link>
+        <router-link :to="{ name: 'submitted_applications'}"><inbox-arrow-up-icon />送信トレイ / Outbox</router-link>
+        <router-link :to="{ name: 'received_applications'}"><inbox-arrow-down-icon />受信トレイ / Inbox</router-link>
+        <router-link :to="{ name: 'search'}"><magnify-icon />検索 / Search</router-link>
         <router-link :to="{ name: 'application_templates'}"><file-settings-outline-icon />Form templates</router-link>
         <router-link :to="{ name: 'info'}"><information-outline-icon />Info</router-link>
       </template>
