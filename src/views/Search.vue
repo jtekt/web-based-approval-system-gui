@@ -110,14 +110,9 @@
 
     <h2>Results</h2>
 
-    <div
-      v-if="loading"
-      class="loader_container">
-      <Loader>Searching...</Loader>
-    </div>
 
     <template
-      v-if="!loading && application_records.length > 0">
+      v-if="applications.length">
 
       <div class="export_button_wrapper">
         <button
@@ -148,19 +143,42 @@
           </tr>
 
           <SearchResult
-            v-for="(record, i) in application_records"
+            v-for="(application, i) in applications"
             v-bind:key="`result_${i}`"
-            :record="record"
+            :application="application"
             :fields="field_labels"/>
 
         </table>
       </div>
+
+      <div
+        v-if="!all_loaded && !loading && !error"
+        class="load_more_wrapper">
+        <button
+          type="button"
+          class="bordered"
+          @click="get_applications()">
+          Load more
+        </button>
+      </div>
     </template>
 
     <div
-      v-if="!loading && application_records.length === 0"
+      v-if="!loading && !applications.length && !error"
       class="">
       No results
+    </div>
+
+    <div
+      v-if="error"
+      class="error">
+      Failed to query data
+    </div>
+
+    <div
+      v-if="loading"
+      class="loader_container">
+      <Loader />
     </div>
 
     <!-- Modal for group visibility -->
@@ -200,8 +218,10 @@ export default {
   data () {
     return {
       loading: false,
+      error: null,
       application_types: [],
-      application_records: [],
+      applications: [],
+      count: null,
 
       // Filters
       // Todo: group under filters object
@@ -216,7 +236,7 @@ export default {
       end_date: null,
       selected_group: null,
 
-      modal_open: false
+      modal_open: false,
     }
   },
   mounted () {
@@ -227,32 +247,34 @@ export default {
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/types`
       this.axios.get(url)
         .then(({ data }) => { this.application_types = data })
-        .catch(error => { console.log(error) })
+        .catch(error => { console.error(error) })
     },
-    search () {
+    get_applications () {
+
       this.loading = true
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications`
+      this.error = false
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v3/applications`
 
       const params = {
         hanko_id: this.hanko_id,
         application_id: this.application_id,
-        relationship_type: this.relationship_type,
-        application_type: this.application_type,
+        relationship: this.relationship_type,
+        type: this.application_type,
         start_date: this.start_date,
         end_date: this.end_date,
         group_id: this.selected_group_id,
-        approval_state: this.approval_state
+        state: this.approval_state,
+        batch_size: 50,
+        start_index: this.applications.length
       }
 
       this.axios.get(url, { params })
-        .then(response => {
-          this.application_records = []
-          this.field_labels = []
-          response.data.forEach((record) => {
-            this.application_records.push(record)
-            let application = record._fields[record._fieldLookup.application]
+        .then( ({data}) => {
+          this.applications = [...this.applications,...data.applications]
+          this.count = data.count
 
-            // Form data
+          // Unpack form-data
+          this.applications.forEach( application => {
             if (!application.properties.form_data) return
             let form_data = JSON.parse(application.properties.form_data)
             if (!Array.isArray(form_data)) return
@@ -263,8 +285,19 @@ export default {
             })
           })
         })
-        .catch(error => { console.log(error) })
+        .catch(error => {
+          console.log(error)
+          this.error = error
+         })
         .finally(() => { this.loading = false })
+
+    },
+    search () {
+      this.applications = []
+      this.field_labels = []
+      this.get_applications()
+
+
     },
     select_group (group) {
       this.modal_open = false
@@ -281,6 +314,9 @@ export default {
     selected_group_id () {
       if (!this.selected_group) return null
       else return this.selected_group.identity.low || this.selected_group.identity
+    },
+    all_loaded(){
+      return this.applications.length === this.count
     }
   }
 }
@@ -299,7 +335,7 @@ form > * {
 }
 .table_wrapper {
   overflow: auto;
-  max-height: 70vh;
+  //max-height: 70vh;
 }
 
 table {
@@ -342,6 +378,7 @@ tr:not(:last-child) {
 }
 
 .loader_container {
+  margin-top: 2em;
   text-align: center;
 }
 
@@ -362,5 +399,11 @@ tr:not(:last-child) {
 .visibility_group_picker {
   height: 100%;
 }
+
+.load_more_wrapper {
+  margin: 1em;
+  text-align: center;
+}
+
 
 </style>

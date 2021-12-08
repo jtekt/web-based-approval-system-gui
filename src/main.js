@@ -18,6 +18,9 @@ Vue.use(VueAxios, axios)
 Vue.component('Loader', Loader)
 
 // Icons
+Vue.component('account-check-icon', () => import('vue-material-design-icons/AccountCheck.vue'))
+Vue.component('percent-icon', () => import('vue-material-design-icons/Percent.vue'))
+Vue.component('calendar-icon', () => import('vue-material-design-icons/Calendar.vue'))
 Vue.component('download-icon', () => import('vue-material-design-icons/Download.vue'))
 Vue.component('delete-icon', () => import('vue-material-design-icons/Delete.vue'))
 Vue.component('check-icon', () => import('vue-material-design-icons/Check.vue'))

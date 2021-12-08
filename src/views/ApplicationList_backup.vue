@@ -1,6 +1,7 @@
 <template>
   <div class="received applications">
-    <h1>{{title_lookup[direction]}}</h1>
+    <h1 v-if="type === 'received'">受け取った申請 / Received applications</h1>
+    <h1 v-else-if="type === 'submitted'">出した申請 / Submitted applications</h1>
 
     <div class="new_application_button_wrapper">
 
@@ -9,19 +10,16 @@
         class="bordered"
         @click="$router.push({name: 'create_application'})">
         <plus-icon />
-        <span>申請作成 / New application</span>
+        <span>新しい申請 / New application</span>
        </button>
 
     </div>
 
     <ApplicationTable
-      v-for="(table, index) in tables[direction]"
-      :key="`table_${index}`"
-      :direction="direction"
-      :title="table.title"
-      :state="table.state"
-      :options="table.options"/>
-
+      :application_records="application_records"
+      :hideRecipient="$route.params.type === 'received'"
+      :hideApplicant="$route.params.type === 'submitted'"
+      @load_more="load_more($event)"/>
   </div>
 </template>
 
@@ -34,69 +32,10 @@ export default {
     ApplicationTable
   },
   props: {
-    direction: String
+    type: String
   },
   data () {
     return {
-
-      title_lookup: {
-        'submitted' : '送信トレイ / Outbox',
-        'received': '受信トレイ / Inbox'
-      },
-
-      tables: {
-        submitted: [
-          {
-            title: '承認中 / Pending',
-            state: 'pending',
-            options: {
-              show_next_recipient: true,
-              show_progress: true,
-            }
-          },
-          {
-            title: '却下 / Rejected',
-            state: 'rejected',
-            options: {
-              show_next_recipient: true,
-              show_progress: true,
-            }
-          },
-          {
-            title: '承認完了 / Approved',
-            state: 'approved',
-            options: {
-
-            }
-          },
-        ],
-        received: [
-          {
-            title: '承認中 / Pending',
-            state: 'pending',
-            options: {
-              show_applicant: true
-            }
-          },
-          {
-            title: '却下 / Rejected',
-            state: 'rejected',
-            options: {
-              show_applicant: true
-            }
-          },
-          {
-            title: '承認完了 / Approved',
-            state: 'approved',
-            options: {
-              show_applicant: true
-            }
-          },
-        ]
-      },
-
-
-
       batch_size: 10,
       application_records: {
         pending: [],
@@ -106,18 +45,18 @@ export default {
     }
   },
   mounted () {
-    //this.get_applications()
+    this.get_applications()
   },
   watch: {
     // whenever question changes, this function will run
-    direction () {
-      //this.get_applications()
+    type () {
+      this.get_applications()
     }
   },
 
   methods: {
     get_applications () {
-      const application_direction = this.direction
+      const application_direction = this.type
       const application_states = ['pending', 'rejected', 'approved']
       application_states.forEach((state) => {
         this.$set(this.application_records, state, [])
@@ -147,7 +86,7 @@ export default {
       .finally(() => { this.$set(this.application_records[state], 'loading', false) })
     },
     load_more (event) {
-      let application_direction = this.direction
+      let application_direction = this.type
       let state = event
 
       this.actual_api_call(application_direction, state)

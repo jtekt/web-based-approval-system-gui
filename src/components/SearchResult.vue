@@ -58,7 +58,7 @@ export default {
     DateFormatting
   ],
   props: {
-    record: Object,
+    application: Object,
     fields: Array
   },
   methods: {
@@ -84,14 +84,12 @@ export default {
     }
   },
   computed: {
-    application () {
-      return this.record._fields[this.record._fieldLookup.application]
-    },
+
     applicant () {
-      return this.record._fields[this.record._fieldLookup.applicant]
+      return this.application.applicant
     },
     forbidden () {
-      return this.record._fields[this.record._fieldLookup.forbidden]
+      return this.application.forbidden
     },
     form_data () {
       return JSON.parse(this.application.properties.form_data)

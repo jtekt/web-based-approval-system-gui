@@ -1,118 +1,153 @@
 <template>
-  <div class="application_table_container">
+  <div class="">
+    <h2>{{title}} ({{count}})</h2>
 
-    <!-- list generated -->
+    <table
+      v-if="applications.length && !error"
+      class="application_table">
+
+      <tr>
+        <th class="date_header"><calendar-icon/></th>
+        <th class="type_header">Type</th>
+        <th class="title_header">Title</th>
+
+        <th
+          class="applicant_header"
+          v-if="options.show_applicant">
+          <account-icon />
+        </th>
+
+        <th
+          class="recipient_header"
+          v-if="options.show_next_recipient">
+          <account-check-icon/>
+        </th>
+        <th
+          class="progress_header"
+          v-if="options.show_progress" >
+          <percent-icon />
+        </th>
+      </tr>
+
+      <ApplicationTableRow
+        v-for="(application) in applications"
+        :key="application.identity"
+        :application="application"
+        :options="options"/>
+
+
+    </table>
+
+
+
+    <div
+      class="loader_wrapper"
+      v-if="loading && !error">
+      <Loader />
+    </div>
+
     <div
       class=""
-      v-for="state in states"
-      v-bind:key="`${state.name}_wrapper`">
-
-      <h2>
-        <component v-bind:is="state.icon"/>
-        <span>{{state.heading}}</span>
-      </h2>
-
-      <div
-        class="error_message"
-        v-if="application_records[state.name].error">
-        Error loading applications
-      </div>
-
-      <template
-        v-else-if="application_records[state.name].length > 0">
-
-        <table
-          class="application_table">
-
-          <ApplicationTableHeaderRow
-            v-bind:application_records="application_records[state.name]"/>
-
-          <ApplicationTableRow
-            v-for="(record, index) in application_records[state.name]"
-            v-bind:key="`${state.name}_${index}`"
-            v-bind:application_record="record"/>
-        </table>
-      </template>
-
-      <!-- Currently, batching only for approved -->
-      <template v-if="state.name === 'approved'">
-        <Loader
-          v-if="application_records[state.name].loading">
-          Loading applications...
-        </Loader>
-
-        <div
-          class="load_more_wrapper"
-          v-else-if="!application_records[state.name].all_loaded">
-          <button
-            type="button"
-            class="bordered"
-            @click="$emit('load_more', state.name)">
-            <dots-horizontal-icon />
-            <span>Load more</span>
-          </button>
-        </div>
-      </template>
-
-      <div
-        class=""
-        v-if="application_records[state.name].length === 0
-          && !application_records[state.name].loading
-          && !application_records[state.name].error">
-        No application
-      </div>
-
+      v-if="!loading && !applications.length && !error">
+      No applications
     </div>
+
+    <div
+      class="error"
+      v-if="!loading && error">
+      Failed to query applications
+    </div>
+
+    <div
+      v-if="!all_loaded && !loading && !error"
+      class="load_more_wrapper">
+      <button
+        type="button"
+        class="bordered"
+        @click="get_applications()">
+        Load more
+      </button>
+    </div>
+
+
 
   </div>
 </template>
 
 <script>
 import ApplicationTableRow from './ApplicationTableRow.vue'
-import ApplicationTableHeaderRow from './ApplicationTableHeaderRow.vue'
+import DateFormatting from '@/mixins/DateFormatting.js'
 
 export default {
   name: 'ApplicationTable',
+  mixins: [
+    DateFormatting
+  ],
   components: {
     ApplicationTableRow,
-    ApplicationTableHeaderRow
+    // ApplicationTableHeaderRow
   },
   props: {
-    application_records: Object,
-    hideApplicant: {
-      type: Boolean,
-      default () { return false }
-    },
-    hideRecipient: {
-      type: Boolean,
-      default () { return false }
-    }
+    direction: String,
+    title: String,
+    state: String,
+    options: {type:Object, default: () => ({})},
+
   },
   data () {
     return {
-      states: [
-        {
-          name: 'pending',
-          heading: '申請中 / Pending',
-          icon: 'clock-outline-icon'
-        },
-        {
-          name: 'rejected',
-          heading: '却下 / Rejected',
-          icon: 'close-icon'
-        },
-        {
-          name: 'approved',
-          heading: '承認 / Approved',
-          icon: 'check-icon'
-        }
-
-      ]
+      loading: false,
+      count: null,
+      error: null,
+      applications: [],
+      relationship_lookup: {
+        'submitted': 'SUBMITTED_BY',
+        'received': 'SUBMITTED_TO'
+      },
+    }
+  },
+  mounted(){
+    this.applications = []
+    this.get_applications()
+  },
+  watch: {
+    direction () {
+      this.applications = []
+      this.get_applications()
     }
   },
   methods: {
     see_application (application_id) {
       this.$router.push({ name: 'show_application', query: { id: application_id } })
+    },
+    get_applications(){
+      this.loading = true
+
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v3/applications`
+
+      const params = {
+        relationship: this.relationship_lookup[this.direction],
+        state: this.state,
+        batch_size: 10,
+        start_index: this.applications.length,
+      }
+
+      this.axios.get(url, {params})
+      .then( ({data}) => {
+        this.applications = [...this.applications,...data.applications]
+        this.count = data.count
+      })
+      .catch((error) => {
+        console.error(error)
+        this.error = error
+      })
+      .finally(() => { this.loading = false})
+    },
+
+  },
+  computed: {
+    all_loaded(){
+      return this.applications.length === this.count
     }
   }
 }
@@ -125,9 +160,7 @@ h2 {
   align-items: center;
 }
 
-h2 > * {
-  margin-right: 0.25em;
-}
+
 .application_table{
   width: 100%;
   border-collapse: collapse;
@@ -156,7 +189,8 @@ h2 > * {
   width: 10%;
 }
 
-.application_table .recipient_header, .application_table .applicant_header {
+.application_table .recipient_header,
+.application_table .applicant_header {
   width: 10%;
 }
 
@@ -187,13 +221,15 @@ h2 > * {
   background-color: #eeeeee;
 }
 
-.application_table progress {
-  width: 100%;
-}
 
+.loader_wrapper{
+  font-size: 150%;
+  text-align: center;
+}
 .load_more_wrapper {
   margin: 1em;
   text-align: center;
 }
+
 
 </style>

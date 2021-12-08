@@ -272,8 +272,8 @@ export default {
     },
 
     delete_application () {
-      if (!confirm('ホンマ？ Confirm deletion?')) return
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity}`
+      if (!confirm(`Delete application ${this.application.identity} ?`)) return
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v2/applications/${this.application.identity}`
       this.axios.delete(url)
         .then(() => { this.$router.push({ name: 'submitted_applications' }) })
         .catch(() => alert(`Error deleting application`))

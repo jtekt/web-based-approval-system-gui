@@ -31,6 +31,10 @@
 </template>
 
 <script>
+import CalendarIcon from 'vue-material-design-icons/Calendar.vue'
+import AccountIcon from 'vue-material-design-icons/Account.vue'
+import AccountCheckIcon from 'vue-material-design-icons/AccountCheck.vue'
+import PercentIcon from 'vue-material-design-icons/Percent.vue'
 
 export default {
   name: 'ApplicationTableHeaderRow',
@@ -38,6 +42,11 @@ export default {
     application_records: Array
   },
   components: {
+    CalendarIcon,
+    PercentIcon,
+    AccountIcon,
+    AccountCheckIcon
+
   },
   computed: {
     show_progress () {

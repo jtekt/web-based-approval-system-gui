@@ -20,13 +20,13 @@ export default new Router({
       path: '/applications/submitted',
       name: 'submitted_applications',
       component: ApplicationList,
-      props: { type: 'submitted' }
+      props: { direction: 'submitted' }
     },
     {
       path: '/applications/received',
       name: 'received_applications',
       component: ApplicationList,
-      props: { type: 'received' }
+      props: { direction: 'received' }
     },
     {
       path: '/applications/:application_id',
