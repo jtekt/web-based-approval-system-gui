@@ -326,45 +326,29 @@ export default {
       // Todo: add a loader for the content of the application itself
 
       this.$set(this.selected_form, 'loading', true)
-      let application_id = this.$route.query.copy_of
-      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${application_id}`
+      const application_id = this.$route.query.copy_of
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v2/applications/${application_id}`
       this.axios.get(url)
-        .then(response => {
-          let record = response.data
+        .then(({data}) => {
 
-          let original_application = record._fields[record._fieldLookup['application']]
-          let recipients = record._fields[record._fieldLookup['recipients']]
-          let submissions = record._fields[record._fieldLookup['submissions']]
+          const original_application = data
 
-          // recreate visibility (confidentiality)
-          this.groups = record._fields[record._fieldLookup['visibility']]
-
-          // Set application details back
           this.title = original_application.properties.title
           this.confidential = original_application.properties.private
           original_application.properties.form_data = JSON.parse(original_application.properties.form_data)
+          this.form_data = original_application.properties.form_data
 
-          let fields = []
-          original_application.properties.form_data.forEach((field) => {
-            fields.push(field)
+          this.recipients = original_application.recipients.sort((a, b) => {
+            return a.submission.properties.flow_index - b.submission.properties.flow_index
           })
 
+          this.groups = original_application.visibility
+  
           this.$set(this.selected_form, 'properties', {
             label: original_application.properties.type, // The application form label (type)
-            fields // The fields of the application
+            fields: original_application.properties.form_data // The fields of the application
           })
 
-          // Recreate flow
-          const ordered_submissions = submissions.sort((a, b) => {
-            return a.properties.flow_index - b.properties.flow_index
-          })
-
-          ordered_submissions.forEach((submission) => {
-            const recipient_of_submission = recipients.find(recipient => {
-              return recipient.identity === submission.end
-            })
-            this.recipients.push(recipient_of_submission)
-          })
         })
         .catch((error) => {
           console.error(error)
