@@ -1,14 +1,14 @@
 stages:
-  - containerization
-  - deployment
+  - build
+  - deploy
 
 variables:
   APPLICATION_NAME: shinsei-manager-front
   CONTAINER_IMAGE: ${DOCKER_HUB_USERNAME}/${APPLICATION_NAME}
   CONTAINER_IMAGE_TAGGED: ${DOCKER_HUB_USERNAME}/${APPLICATION_NAME}:${CI_COMMIT_SHORT_SHA}
 
-containerization:
-  stage: containerization
+build:
+  stage: build
   tags:
     - moreillon
   script:
@@ -25,8 +25,8 @@ containerization:
     - docker image rm ${CONTAINER_IMAGE}
     - docker image rm ${CONTAINER_IMAGE_TAGGED}
 
-deployment:
-  stage: deployment
+deploy:
+  stage: deploy
   tags:
     - moreillon
   script:

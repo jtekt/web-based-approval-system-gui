@@ -80,14 +80,14 @@ export default {
           version: null
         },
         {
-          name: 'Group manager API',
-          url: process.env.VUE_APP_GROUP_MANAGER_API_URL,
-          version: null
+          name: 'Login URL',
+          url: process.env.VUE_APP_LOGIN_URL,
+          version: 'N/A'
         },
         {
-          name: 'Authentication API',
-          url: process.env.VUE_APP_AUTHENTICATION_API_URL,
-          version: null
+          name: 'Identification URL',
+          url: process.env.VUE_APP_IDENTIFICATION_URL,
+          version: 'N/A'
         }
       ],
 
