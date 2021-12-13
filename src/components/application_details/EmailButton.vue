@@ -49,10 +49,11 @@ export default {
 }
 
 .user_name {
-  max-width: 80px;
+  width: 40px;
   overflow-x: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  font-size: 75%;
 }
 
 </style>

@@ -16,7 +16,7 @@
       <WebHanko
         v-if="recipient.approval"
         :name="recipient.properties.last_name"
-        :approvalId="recipient.approval.identity"
+        :approvalId="get_id_of_item(recipient.approval)"
         :date="recipient.approval.properties.date"/>
 
 
@@ -44,6 +44,7 @@ import WebHanko from './WebHanko.vue'
 import Rejection from './Rejection.vue'
 
 import EmailButton from '../EmailButton.vue'
+import IdUtils from '@/mixins/IdUtils.js'
 
 export default {
   name: 'WebHankoContainer',
@@ -52,6 +53,9 @@ export default {
     EmailButton,
     Rejection,
   },
+  mixins: [
+    IdUtils
+  ],
   props: {
     recipient: { type: Object, required: true },
     application: Object,
@@ -91,20 +95,18 @@ export default {
     },
     recipient_is_current_recipient(){
       if(!this.current_recipient) return false
-      return this.recipient.identity === this.current_recipient.identity
+
+      return this.get_id_of_item(this.recipient) === this.get_id_of_item(this.current_recipient)
     },
     user_profile_url () {
-      return `${process.env.VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/users/${this.recipient.identity}`
-    },
-    current_user_id() {
-      const current_user = this.$store.state.current_user
-      return current_user.identity.low || current_user.identity
+      const recipient_id = this.get_id_of_item(this.recipient)
+      return `${process.env.VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/users/${recipient_id}`
     },
     user_is_applicant () {
-      return this.current_user_id === this.application.applicant.identity
+      return this.current_user_id === this.get_id_of_item(this.application.applicant)
     },
     user_as_recipient(){
-      return this.application.recipients.find(recipient => recipient.identity === this.current_user_id)
+      return this.application.recipients.find(recipient => this.get_id_of_item(recipient) === this.current_user_id)
     },
   }
 }

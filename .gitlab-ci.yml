@@ -4,7 +4,8 @@ stages:
 
 variables:
   APPLICATION_NAME: shinsei-manager-front
-  DOCKER_IMAGE: ${DOCKER_HUB_USERNAME}/${APPLICATION_NAME}
+  CONTAINER_IMAGE: ${DOCKER_HUB_USERNAME}/${APPLICATION_NAME}
+  CONTAINER_IMAGE_TAGGED: ${DOCKER_HUB_USERNAME}/${APPLICATION_NAME}:${CI_COMMIT_SHORT_SHA}
 
 containerization:
   stage: containerization
@@ -13,11 +14,16 @@ containerization:
   script:
     # Docker hub login
     - echo "${DOCKER_HUB_PASSWORD}" | docker login --username ${DOCKER_HUB_USERNAME} --password-stdin
-    # Buikd and push container image
-    - docker build -t ${DOCKER_IMAGE} .
-    - docker push ${DOCKER_IMAGE}
-    # Cleanup
-    - docker image rm ${DOCKER_IMAGE}
+    # Building
+    - docker build -t ${CONTAINER_IMAGE} .
+    # Tagging
+    - docker tag ${CONTAINER_IMAGE} ${CONTAINER_IMAGE_TAGGED}
+    # Pushing
+    - docker push ${CONTAINER_IMAGE}
+    - docker push ${CONTAINER_IMAGE_TAGGED}
+    # cleanup
+    - docker image rm ${CONTAINER_IMAGE}
+    - docker image rm ${CONTAINER_IMAGE_TAGGED}
 
 deployment:
   stage: deployment
@@ -28,18 +34,7 @@ deployment:
     - envsubst < kubernetes/deployment.yml | kubectl apply -f -
     # Pull latest image of deployment
     - kubectl rollout restart deployment/${APPLICATION_NAME}
-    # If a nodeport is specified, serve app through a nodeport service
-    #- >
-    #  if [ -z ${SERVICE_PORT} ];
-    #  then echo "SERVICE_PORT not set, skipping creation of NodePort service";
-    #  else envsubst < kubernetes/nodeport_service.yml | kubectl apply -f -;
-    #  fi
-    # if a domain name is specified, serve app through an ingress
-    #- >
-    #  if [ -z ${CERTIFICATE_DOMAIN} ];
-    #  then echo "CERTIFICATE_DOMAIN not set, skipping creation of ingress";
-    #  else envsubst < kubernetes/ingress.yml | kubectl apply -f -;
-    #  fi
+
   environment:
     name: production
     kubernetes:

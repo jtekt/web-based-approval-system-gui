@@ -14,8 +14,8 @@ spec:
     spec:
       containers:
       - name: ${APPLICATION_NAME}
-        image: ${DOCKER_IMAGE}
-        imagePullPolicy: Always
+        image: ${CONTAINER_IMAGE}:1.6.3
+        #imagePullPolicy: Always
         ports:
         - containerPort: 80
         # Get environment variables from secret

@@ -9,7 +9,7 @@
       </tr>
       <tr>
         <td>ID</td>
-        <td>{{application.identity}}</td>
+        <td>{{get_id_of_item(application)}}</td>
       </tr>
       <tr>
         <td>タイトル / Title</td>
@@ -37,10 +37,10 @@
         <td>機密 / Confidential</td>
         <td>
           <input
-          type="checkbox"
-          v-bind:disabled="!user_is_applicant"
-          v-model="application.properties.private"
-          v-on:change="update_privacy_of_application()">
+            type="checkbox"
+            v-bind:disabled="!user_is_applicant"
+            v-model="application.properties.private"
+            v-on:change="update_privacy_of_application()">
         </td>
       </tr>
 
@@ -62,9 +62,9 @@
           </div>
 
           <div
-            v-for="group in visibility"
+            v-for="(group, index) in visibility"
             class="visibility_group"
-            v-bind:key="group.identity.low || group.identity">
+            :key="`visibility_group_${index}`">
 
             <span class="">{{group.properties.name}}</span>
 
@@ -236,15 +236,16 @@
 
 <script>
 
-import download from 'downloadjs'
 
+import download from 'downloadjs'
 import Modal from '@moreillon/vue_modal'
 import GroupPicker from '@moreillon/vue_group_picker'
 
 import UserPreview from '@/components/UserPreview.vue'
 
-import CurrentUserID from '@/mixins/CurrentUserID.js'
 import DateFormatting from '@/mixins/DateFormatting.js'
+import IdUtils from '@/mixins/IdUtils.js'
+
 
 export default {
   name: 'ApplicationInfo',
@@ -254,8 +255,8 @@ export default {
     UserPreview
   },
   mixins: [
-    CurrentUserID,
-    DateFormatting
+    DateFormatting,
+    IdUtils,
   ],
   props: {
     application: Object,
@@ -269,19 +270,23 @@ export default {
     }
   },
   mounted () {
-
+    if(!this.application) console.log(`UNWANTED EXECUTION`);
   },
   computed: {
+    application_id(){
+      return this.get_id_of_item(this.application)
+    },
     form_data () {
       //return JSON.parse(this.application.properties.form_data)
       return this.application.properties.form_data
     },
     user_is_applicant () {
-      return this.applicant.identity === this.current_user_id
+      return this.get_id_of_item(this.applicant) === this.current_user_id
     },
     applicant_profile_url () {
       // THis should be done in an applicant component
-      return `${process.env.VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/?id=${this.applicant.identity}`
+      const applicant_id = this.get_id_of_item(this.applicant)
+      return `${process.env.VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/users/${applicant_id}`
     },
     visibility() {
       return this.application.visibility
@@ -290,6 +295,7 @@ export default {
       return this.application.applicant
     },
     forbidden() {
+
       return this.application.forbidden
     },
     approvals() {
@@ -298,21 +304,20 @@ export default {
         .map(r => r.approval)
     },
     user_as_recipient(){
-      const user =  this.$store.state.current_user
-      return this.application.recipients.find(recipient => recipient.identity === user.identity)
+      return this.application.recipients.find(recipient => this.get_id_of_item(recipient) === this.current_user_id)
     },
 
   },
   methods: {
 
     update_privacy_of_application () {
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity}/privacy`
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/privacy`
       this.axios.put(url, { private: this.application.properties.private })
         .then(() => {})
         .catch(() => alert('Error updating privacy of application'))
     },
     download_attachment (id) {
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity}/files/${id}`
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/files/${id}`
 
       // window.location.href = url
 
@@ -334,10 +339,8 @@ export default {
         })
     },
     share_with_group (group) {
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity}/visibility_to_group`
-      const body = {
-        group_id: group.identity.low || group.identity
-      }
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/visibility_to_group`
+      const body = { group_id: this.get_id_of_item(group) }
       this.axios.post(url, body)
         .then(() => {
           this.modal_open = false
@@ -348,10 +351,8 @@ export default {
         })
     },
     remove_application_visibility_to_group (group) {
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity}/visibility_to_group`
-      const params = {
-        group_id: group.identity.low || group.identity
-      }
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/visibility_to_group`
+      const params = { group_id: this.get_id_of_item(group) }
       this.axios.delete(url, { params })
         .then(() => {
           this.$emit('visibility_update')
@@ -402,6 +403,7 @@ export default {
 
     },
   },
+
 
 
 }

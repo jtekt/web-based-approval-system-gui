@@ -234,8 +234,8 @@
 import GroupPicker from '@moreillon/vue_group_picker'
 import Modal from '@moreillon/vue_modal'
 import UserPreview from '@/components/UserPreview.vue'
-import CurrentUserID from '@/mixins/CurrentUserID.js'
 import draggable from 'vuedraggable'
+import IdUtils from '@/mixins/IdUtils.js'
 
 export default {
   name: 'ApplicationTemplate',
@@ -246,7 +246,7 @@ export default {
     draggable
   },
   mixins: [
-    CurrentUserID
+    IdUtils
   ],
   data () {
     return {
@@ -302,7 +302,8 @@ export default {
     },
     create_template () {
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates`
-      const group_ids = this.template.groups.map((group) => group.identity.low || group.identity)
+
+      const group_ids = this.template.groups.map( group => this.get_id_of_item(group))
 
       const {fields, label, description} = this.template.properties
 
@@ -323,7 +324,7 @@ export default {
     update_template () {
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
 
-      const group_ids = this.template.groups.map((group) => group.identity.low || group.identity)
+      const group_ids = this.template.groups.map( group => this.get_id_of_item(group))
 
       const {fields, label, description} = this.template.properties
 
@@ -360,8 +361,8 @@ export default {
 
       // Prevent duplicates
       const existing_group = this.template.groups.find(group => {
-        const group_id = group.identity.low || group.identity
-        const group_to_add_id = group_to_add.identity.low || group_to_add.identity
+        const group_id =  this.get_id_of_item(group)
+        const group_to_add_id =  this.get_id_of_item(group)
         return group_id === group_to_add_id
       })
 
@@ -374,7 +375,8 @@ export default {
       // if this is a new template, automatically in edit mode
       if (!this.template_id) return true
       if (!this.$store.state.current_user || !this.template.author) return false
-      return this.current_user_id === this.template.author.identity
+      const author_id = this.get_id_of_item(this.template.author)
+      return this.current_user_id === author_id
     },
 
     template_id () {

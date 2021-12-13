@@ -1,11 +1,8 @@
 <template>
 
   <tr
-    @click="$router.push({
-      name: 'application',
-      params: {application_id: application.identity}
-    })">
-    <td>{{application.identity}}</td>
+    @click="result_clicked()">
+    <td>{{get_id_of_item(application)}}</td>
     <td>
       {{format_date(application.properties.creation_date)}}
     </td>
@@ -30,7 +27,7 @@
 
     <td
       v-for="(field_label, i) in fields"
-      :key="`${application.identity}_field_${i}`">
+      :key="`${get_id_of_item(application)}_field_${i}`">
 
       <!-- Hiding confidential fields -->
       <span v-if="forbidden">
@@ -39,7 +36,7 @@
 
       <!-- Nprmal fields -->
       <template v-if="!forbidden">
-        {{field_value(field_label, application.identity)}}
+        {{field_value(field_label, get_id_of_item(application))}}
       </template>
 
     </td>
@@ -51,11 +48,13 @@
 <script>
 
 import DateFormatting from '@/mixins/DateFormatting.js'
+import IdUtils from '@/mixins/IdUtils.js'
 
 export default {
   name: 'SearchResult',
   mixins: [
-    DateFormatting
+    DateFormatting,
+    IdUtils
   ],
   props: {
     application: Object,
@@ -81,6 +80,10 @@ export default {
     },
     isValidDate (date) {
       return date && Object.prototype.toString.call(date) === '[object Date]' && !isNaN(date)
+    },
+    result_clicked(){
+      const application_id = this.get_id_of_item(this.application)
+      $router.push({ name: 'application', params: {application_id } })
     }
   },
   computed: {

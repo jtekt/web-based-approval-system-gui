@@ -30,8 +30,8 @@
       </tr>
 
       <ApplicationTableRow
-        v-for="(application) in applications"
-        :key="application.identity"
+        v-for="(application, index) in applications"
+        :key="`application_${index}`"
         :application="application"
         :options="options"/>
 
@@ -77,11 +77,13 @@
 <script>
 import ApplicationTableRow from './ApplicationTableRow.vue'
 import DateFormatting from '@/mixins/DateFormatting.js'
+import IdUtils from '@/mixins/IdUtils.js'
 
 export default {
   name: 'ApplicationTable',
   mixins: [
-    DateFormatting
+    DateFormatting,
+    IdUtils
   ],
   components: {
     ApplicationTableRow,
@@ -117,13 +119,10 @@ export default {
     }
   },
   methods: {
-    see_application (application_id) {
-      this.$router.push({ name: 'show_application', query: { id: application_id } })
-    },
     get_applications(){
       this.loading = true
 
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v3/applications`
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v1/applications`
 
       const params = {
         relationship: this.relationship_lookup[this.direction],

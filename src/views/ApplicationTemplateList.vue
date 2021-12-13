@@ -10,7 +10,7 @@
         class="bordered"
         @click="new_template()">
         <plus-icon />
-        <span>新しい申請フォーム / New application form</span>
+        <span>テンプレート作成 / New template</span>
        </button>
     </div>
 
@@ -30,7 +30,7 @@
         <tr
           v-for="(template, index) in templates_of_user"
           :key="`template_${index}`"
-          v-on:click="view_template(template.identity)"
+          @click="view_template(template)"
           class="clickable_row">
           <td>{{template.properties.label}}</td>
           <td></td>
@@ -48,7 +48,7 @@
         <tr
           v-for="(template, index) in shared_templates"
           :key="`template_${index}`"
-          v-on:click="view_template(template.identity)"
+          @click="view_template(template)"
           class="clickable_row">
           <td>{{template.properties.label}}</td>
           <td>{{template.author.properties.display_name}}</td>
@@ -64,9 +64,13 @@
 </template>
 
 <script>
+import IdUtils from '@/mixins/IdUtils.js'
 
 export default {
   name: 'ApplicationTemplateList',
+  mixins: [
+    IdUtils
+  ],
   data () {
     return {
       application_templates: [],
@@ -92,8 +96,9 @@ export default {
       })
       .finally(() => {this.loading = false})
     },
-    view_template (id) {
-      this.$router.push({ name: 'application_template', params: { template_id: id } })
+    view_template (template) {
+      const template_id = this.get_id_of_item(template)
+      this.$router.push({ name: 'application_template', params: { template_id} })
     },
     new_template () {
       this.$router.push({ name: 'application_template', params: { template_id: 'new' } })
@@ -101,17 +106,16 @@ export default {
 
   },
   computed: {
-    current_user_id(){
-      return this.$store.state.current_user.identity.low || this.$store.state.current_user.identity
-    },
     templates_of_user(){
       return this.application_templates.filter(template => {
-        return template.author.identity === this.current_user_id
+        const author_id = this.get_id_of_item(template.author)
+        return author_id === this.current_user_id
       })
     },
     shared_templates(){
       return this.application_templates.filter(template => {
-        return template.author.identity !== this.current_user_id
+        const author_id = this.get_id_of_item(template.author)
+        return author_id !== this.current_user_id
       })
     }
 

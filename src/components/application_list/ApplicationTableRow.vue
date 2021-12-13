@@ -30,6 +30,7 @@
 
 <script>
 import DateFormatting from '@/mixins/DateFormatting.js'
+import IdUtils from '@/mixins/IdUtils.js'
 
 export default {
   name: 'ApplicationTableRow',
@@ -39,7 +40,8 @@ export default {
 
   },
   mixins: [
-    DateFormatting
+    DateFormatting,
+    IdUtils
   ],
   data () {
     return {
@@ -49,7 +51,7 @@ export default {
   },
   methods: {
     see_application () {
-      const application_id = this.application.identity
+      const application_id = this.get_id_of_item(this.application)
       this.$router.push({ name: 'application', params: { application_id } })
     }
   },

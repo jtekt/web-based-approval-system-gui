@@ -206,6 +206,7 @@ import SearchResult from '@/components/SearchResult.vue'
 import XLSX from 'xlsx'
 import GroupPicker from '@moreillon/vue_group_picker'
 import Modal from '@moreillon/vue_modal'
+import IdUtils from '@/mixins/IdUtils.js'
 
 export default {
   name: 'Search',
@@ -215,6 +216,9 @@ export default {
     GroupPicker
 
   },
+  mixins: [
+    IdUtils
+  ],
   data () {
     return {
       loading: false,
@@ -313,7 +317,7 @@ export default {
   computed: {
     selected_group_id () {
       if (!this.selected_group) return null
-      else return this.selected_group.identity.low || this.selected_group.identity
+      return this.get_id_of_item(this.selected_group)
     },
     all_loaded(){
       return this.applications.length === this.count

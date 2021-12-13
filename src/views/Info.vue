@@ -126,9 +126,10 @@ export default {
   },
   methods: {
     get_application_count () {
-      let url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/count`
-      this.axios.get(url)
-        .then(({ data }) => { this.application_count = data.application_count })
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v1/applications`
+      const params = {batch_size: 1}
+      this.axios.get(url, {params})
+        .then(({ data }) => { this.application_count = data.count })
         .catch(error => { console.log(error) })
     },
     get_services_version () {

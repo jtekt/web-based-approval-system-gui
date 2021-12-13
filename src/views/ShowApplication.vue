@@ -1,8 +1,8 @@
 <template>
   <div class="show_application">
 
-    <template v-if="!loading && !error">
-      <div class="application_container" v-if="application">
+    <template v-if="!loading && !error && application">
+      <div class="application_container">
 
         <div class="two_column_layout">
 
@@ -115,10 +115,7 @@
         </div>
 
       </div><!-- End of application container -->
-      <div class="not_found error_message"
-        v-else>
-        Application not found
-      </div>
+
 
 
 
@@ -142,6 +139,12 @@
       Error loading application
     </div>
 
+    <div
+      class="not_found error_message"
+      v-if="!loading && !error && !application">
+      Application not found
+    </div>
+
   </div>
 </template>
 
@@ -153,7 +156,7 @@ import PdfViewer from '@/components/application_details/PdfViewer.vue'
 import ApprovalComments from '@/components/application_details/ApprovalComments.vue'
 import ApplicationInfo from '@/components/application_details/ApplicationInfo.vue'
 
-import CurrentUserID from '@/mixins/CurrentUserID.js'
+import IdUtils from '@/mixins/IdUtils.js'
 
 export default {
   name: 'ShowApplication',
@@ -165,23 +168,18 @@ export default {
     EmailButton,
   },
   mixins: [
-    CurrentUserID
+    IdUtils
   ],
   mounted () {
     this.get_application()
   },
   data () {
     return {
-
       loading: false,
       error: null,
-
       application: null,
-
-
       // Stamping pdfs
       selected_file_id: null
-
     }
   },
   watch: {
@@ -193,18 +191,19 @@ export default {
     get_application(){
       this.loading = true
       this.application = null
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v2/applications/${this.application_id}`
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v1/applications/${this.application_id}`
       this.axios.get(url)
       .then(({data}) => {
-        this.application = data
 
+        const application = data
         try {
-          const parsed_form_data = JSON.parse(this.application.properties.form_data)
-          this.application.properties.form_data = parsed_form_data
+          const parsed_form_data = JSON.parse(application.properties.form_data)
+          application.properties.form_data = parsed_form_data
         } catch (e) {
           console.warn('Application form data could not be parsed')
         }
 
+        this.application = application
       })
       .catch((error) => {
         if(error.response) {
@@ -228,17 +227,9 @@ export default {
       // TODO: SHOW A LOADER
 
       // send POST to mark as approved
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity}/approve`
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/approve`
       this.axios.post(url, { comment })
       .then(() => {
-
-      // Notify the next recipient
-        // if (this.next_recipient) this.send_email_to_recipient(this.next_recipient)
-        // // or the applicant if flow is complete
-        // else this.send_email_to_applicant()
-
-        // if(this.current_recipient) this.send_email_to_recipient(this.current_recipient)
-        // else this.send_email_to_applicant()
 
         // Refresh the approval flow
         this.get_application()
@@ -256,7 +247,7 @@ export default {
       // if pressed cancel, return
       if (comment === null) return
 
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity}/reject`
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/reject`
       this.axios.post(url, { comment })
         .then(() => {
           // Notify the applicant
@@ -272,8 +263,8 @@ export default {
     },
 
     delete_application () {
-      if (!confirm(`Delete application ${this.application.identity} ?`)) return
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v2/applications/${this.application.identity}`
+      if (!confirm(`Delete application ${this.application_id} ?`)) return
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v1/applications/${this.application_id}`
       this.axios.delete(url)
         .then(() => { this.$router.push({ name: 'submitted_applications' }) })
         .catch(() => alert(`Error deleting application`))
@@ -281,7 +272,7 @@ export default {
     edit_a_copy () {
       this.$router.push({
         path: '/create_application',
-        query: { copy_of: this.application.identity }
+        query: { copy_of: this.application_id }
       })
     },
 
@@ -304,7 +295,7 @@ mailto:${recipient.properties.email_address}
 申請者: ${this.application.applicant.properties.display_name} %0D%0A
 タイプ: ${this.application.properties.type} %0D%0A
 タイトル: ${this.application.properties.title} %0D%0A
-提出先URL: ${window.location.origin}/applications/${this.application.identity} %0D%0A
+提出先URL: ${window.location.origin}/applications/${this.application_id} %0D%0A
 %0D%0A
 ※IEでは動作しません。Edge (Chromium)/Firefox/GoogleChromeをご使用ください。　%0D%0A
 ※詳しくは ${window.location.origin}/info%0D%0A
@@ -325,7 +316,7 @@ mailto:${this.application.applicant.properties.email_address}
 %0D%0A
 タイプ: ${this.application.properties.type} %0D%0A
 タイトル: ${this.application.properties.title} %0D%0A
-提出先URL: ${window.location.origin}/applications/${this.application.identity} %0D%0A
+提出先URL: ${window.location.origin}/applications/${this.application_id} %0D%0A
 %0D%0A
 ※IEでは動作しません。Edge (Chromium)/Firefox/GoogleChromeをご使用ください。　%0D%0A
 ※詳しくは ${window.location.origin}/info%0D%0A
@@ -338,10 +329,11 @@ mailto:${this.application.applicant.properties.email_address}
   },
   computed: {
     application_id () {
+      // This does not change if the user edits the URL and does not press enter
       return this.$route.params.application_id ||
         this.$route.params.id ||
-        this.$route.query.application_id ||
-        this.$route.query.id
+        this.$route.query.application_id || // To be removed
+        this.$route.query.id // T be removed
     },
 
     ordered_recipients(){
@@ -362,19 +354,21 @@ mailto:${this.application.applicant.properties.email_address}
 
     user_is_applicant () {
       if(!this.application) return false
-      return this.application.applicant.identity === this.current_user_id
+      const applicant_id = this.application.applicant.properties._id
+      return applicant_id === this.current_user_id
 
     },
 
     user_as_recipient(){
-      const current_user =  this.$store.state.current_user
-      const current_user_id = current_user.identity.low || current_user.identity
-      return this.application.recipients.find(recipient => recipient.identity === current_user_id)
+       // current_user_id is mixin
+      return this.application.recipients.find( ({properties: {_id}}) => _id === this.current_user_id)
     },
 
     user_is_current_recipient () {
+      // USED
       if(!this.current_recipient) return false
-      return this.current_recipient.identity === this.current_user_id
+      const current_recipient_id = this.current_recipient.properties._id
+      return current_recipient_id === this.current_user_id
     },
 
     email_subject(){
@@ -400,12 +394,15 @@ mailto:${this.application.applicant.properties.email_address}
 <style scoped>
 
 .loader_wrapper{
+
+  margin-top: 4em;
   display: flex;
   justify-content: center;
   font-size: 120%;
 }
 .application_container {
 
+  margin-top: 1em;
   border: 1px solid #444444;
   border-radius: 5px;
 

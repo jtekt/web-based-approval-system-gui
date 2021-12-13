@@ -18,12 +18,13 @@
 </template>
 
 <script>
-
+import IdUtils from '@/mixins/IdUtils.js'
 export default {
   name: 'UserPreview',
   props: {
     user: Object
   },
+  mixins: [IdUtils],
   components: {
 
   },
@@ -36,14 +37,15 @@ export default {
 
   methods: {
     view_profile () {
-      window.open(this.user_profile_url)
+      window.open(this.user_profile_url, '_blank')
     }
 
   },
   computed: {
 
     user_profile_url () {
-      const user_id = this.user.identity.low || this.user.identity
+      if(!this.user) return undefined
+      const user_id = this.get_id_of_item(this.user)
       return `${process.env.VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/users/${user_id}`
     }
   }

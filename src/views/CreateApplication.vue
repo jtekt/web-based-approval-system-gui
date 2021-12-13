@@ -53,7 +53,7 @@
 
           <!-- if the form is a duplicate -->
           <template v-else>
-            <span v-if="selected_form.error">Error duplicating form {{copy_of}}</span>
+            <span v-if="selected_form.error">Error duplicating form {{$route.query.copy_of}}</span>
             <span v-else-if="selected_form.loading">Loading</span>
             <span v-else-if="selected_form.properties">
               {{selected_form.properties.label}} (Duplicate of ID {{$route.query.copy_of}})
@@ -144,7 +144,7 @@
             <td>フォームのページ / Form page</td>
             <td>
               <router-link
-                :to="{ name: 'application_template', params: {template_id: selected_form.identity} }">
+                :to="{ name: 'application_template', params: {template_id: selected_form.properties._id} }">
                 ここにクリック / Click here
               </router-link>
             </td>
@@ -277,6 +277,7 @@ import UserPicker from '@moreillon/vue_user_picker'
 import GroupPicker from '@moreillon/vue_group_picker'
 import Modal from '@moreillon/vue_modal'
 import UserPreview from '@/components/UserPreview.vue'
+import IdUtils from '@/mixins/IdUtils.js'
 
 export default {
   name: 'CreateApplication',
@@ -287,7 +288,9 @@ export default {
     Modal,
     UserPreview
   },
-
+  mixins: [
+    IdUtils
+  ],
   data () {
     return {
       title: '',
@@ -296,8 +299,6 @@ export default {
 
       application_form_templates: [],
       selected_form: {},
-
-      copy_of: '',
 
       groups: [], // Groups for visibility
 
@@ -327,7 +328,7 @@ export default {
 
       this.$set(this.selected_form, 'loading', true)
       const application_id = this.$route.query.copy_of
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v2/applications/${application_id}`
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v1/applications/${application_id}`
       this.axios.get(url)
         .then(({data}) => {
 
@@ -343,7 +344,7 @@ export default {
           })
 
           this.groups = original_application.visibility
-  
+
           this.$set(this.selected_form, 'properties', {
             label: original_application.properties.type, // The application form label (type)
             fields: original_application.properties.form_data // The fields of the application
@@ -374,8 +375,8 @@ export default {
 
       this.submitting = true
 
-      const recipients_ids = this.recipients.map((recipient) => recipient.identity.low || recipient.identity)
-      const group_ids = this.groups.map((group) => group.identity.low || group.identity)
+      const recipients_ids = this.recipients.map( ({properties: {_id}}) => _id)
+      const group_ids = this.groups.map( ({properties: {_id}}) => _id)
 
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications`
 
@@ -391,7 +392,8 @@ export default {
 
       this.axios.post(url, body)
         .then(({ data }) => {
-          this.$router.push({ name: 'application', params: { application_id: data.identity } })
+          const application_id = data.properties._id
+          this.$router.push({ name: 'application', params: { application_id } })
         })
         .catch(error => {
           console.error(error)
@@ -406,7 +408,11 @@ export default {
     add_to_recipients (recipient_to_add) {
       const existing_recipient = this.recipients.find(recipient => {
         // This is robust against losslessintegers
-        return JSON.stringify(recipient.identity) === JSON.stringify(recipient_to_add.identity)
+        // FIX THIS WHEN THIS SHITSTORM IS OVER
+
+        const existing_recipient_id = this.get_id_of_item(recipient)
+        const new_recipient_id = this.get_id_of_item(recipient_to_add)
+        return JSON.stringify(existing_recipient_id) === JSON.stringify(new_recipient_id)
       })
 
       if (existing_recipient) return alert('Duplicates not allowed')

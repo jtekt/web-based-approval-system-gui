@@ -40,10 +40,15 @@ Vue.component('account-icon', () => import('vue-material-design-icons/Account.vu
 Vue.component('email-icon', () => import('vue-material-design-icons/Email.vue'))
 Vue.component('menu-icon', () => import('vue-material-design-icons/Menu.vue'))
 Vue.component('pencil-icon', () => import('vue-material-design-icons/Pencil.vue'))
+Vue.component('inbox-arrow-up-icon', () => import('vue-material-design-icons/InboxArrowUp.vue'))
+Vue.component('inbox-arrow-down-icon', () => import('vue-material-design-icons/InboxArrowDown.vue'))
+Vue.component('file-settings-outline-icon', () => import('vue-material-design-icons/FileSettingsOutline.vue'))
+Vue.component('information-outline-icon', () => import('vue-material-design-icons/InformationOutline.vue'))
 
 Vue.config.productionTip = false
 
 // Enforce authentication
+/*
 router.beforeEach((to, from, next) => {
   var jwt = Vue.$cookies.get('jwt') // IS THIS OK?
   if (jwt) {
@@ -70,6 +75,7 @@ router.beforeEach((to, from, next) => {
     // window.location.href = process.env.VUE_APP_AUTHENTICATION_MANAGER_FRONT_URL
   }
 })
+*/
 
 new Vue({
   router,

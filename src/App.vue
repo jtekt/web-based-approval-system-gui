@@ -1,44 +1,49 @@
 <template>
-  <div id="app">
-    <AppTemplate
-      authenticate
-      applicationName="申請マネージャー">
+  <AppTemplate
+    :options="options"
+    @user="get_user($event)">
 
-      <template v-slot:navigation>
-        <router-link :to="{ name: 'create_application'}"><plus-icon />作成 / New</router-link>
-        <router-link :to="{ name: 'submitted_applications'}"><inbox-arrow-up-icon />送信トレイ / Outbox</router-link>
-        <router-link :to="{ name: 'received_applications'}"><inbox-arrow-down-icon />受信トレイ / Inbox</router-link>
-        <router-link :to="{ name: 'search'}"><magnify-icon />検索 / Search</router-link>
-        <router-link :to="{ name: 'application_templates'}"><file-settings-outline-icon />Form templates</router-link>
-        <router-link :to="{ name: 'info'}"><information-outline-icon />Info</router-link>
-      </template>
+    <template v-slot:nav>
+      <router-link :to="{ name: 'create_application'}"><plus-icon />New</router-link>
+      <router-link :to="{ name: 'submitted_applications'}"><inbox-arrow-up-icon />Outbox</router-link>
+      <router-link :to="{ name: 'received_applications'}"><inbox-arrow-down-icon />Inbox</router-link>
+      <router-link :to="{ name: 'search'}"><magnify-icon />Search</router-link>
+      <router-link :to="{ name: 'application_templates'}"><file-settings-outline-icon />Form templates</router-link>
+      <router-link :to="{ name: 'info'}"><information-outline-icon />Info</router-link>
+    </template>
 
-    </AppTemplate>
-  </div>
+  </AppTemplate>
 </template>
 
 <script>
 
-import AppTemplate from '@moreillon/vue_application_template_flex'
-import InboxArrowUpIcon from 'vue-material-design-icons/InboxArrowUp.vue'
-import InboxArrowDownIcon from 'vue-material-design-icons/InboxArrowDown.vue'
-import FileSettingsOutlineIcon from 'vue-material-design-icons/FileSettingsOutline.vue'
-import InformationOutlineIcon from 'vue-material-design-icons/InformationOutline.vue'
-
-import 'vue-material-design-icons/styles.css'
+import AppTemplate from '@moreillon/vue_application_template'
 
 export default {
+  name: 'App',
   components: {
     AppTemplate,
-    InboxArrowUpIcon,
-    InboxArrowDownIcon,
-    FileSettingsOutlineIcon,
-    InformationOutlineIcon
+  },
+  data(){
+    return {
+      options: {
+        authenticate: true,
+        title: '申請マネージャ',
+        login_url: process.env.VUE_APP_LOGIN_URL,
+        identification_url: process.env.VUE_APP_IDENTIFICATION_URL,
+      }
+    }
+  },
+  methods: {
+    get_user(user){
+      this.$store.commit('set_current_user', user)
+    }
   }
 }
 </script>
 
 <style>
+/* THIS CSS GETS OVERRIDDEN BY TEMPLATE! */
 
 .material-design-icon__svg {
   bottom: 0 !important;
