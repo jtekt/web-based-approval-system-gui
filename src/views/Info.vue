@@ -80,15 +80,10 @@ export default {
           version: null
         },
         {
-          name: 'Login URL',
-          url: process.env.VUE_APP_LOGIN_URL,
-          version: 'N/A'
+          name: 'Employee manager API',
+          url: process.env.VUE_APP_EMPLOYEE_MANAGER_API_URL,
+          version: null
         },
-        {
-          name: 'Identification URL',
-          url: process.env.VUE_APP_IDENTIFICATION_URL,
-          version: 'N/A'
-        }
       ],
 
       technologies: [
