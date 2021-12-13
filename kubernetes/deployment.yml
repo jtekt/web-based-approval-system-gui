@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: ${APPLICATION_NAME}
-        image: ${CONTAINER_IMAGE}:1.6.3
+        image: ${CONTAINER_IMAGE_TAGGED}
         #imagePullPolicy: Always
         ports:
         - containerPort: 80

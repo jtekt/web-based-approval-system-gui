@@ -29,8 +29,8 @@ export default {
       options: {
         authenticate: true,
         title: '申請マネージャ',
-        login_url: process.env.VUE_APP_LOGIN_URL,
-        identification_url: process.env.VUE_APP_IDENTIFICATION_URL,
+        login_url: `${process.env.VUE_APP_EMPLOYEE_MANAGER_API_URL}/v2/auth/login`,
+        identification_url: `${process.env.VUE_APP_EMPLOYEE_MANAGER_API_URL}/v2/users/self`,
       }
     }
   },
