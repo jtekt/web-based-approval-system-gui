@@ -9,6 +9,19 @@
     </v-card-subtitle>
 
     <v-card-text>
+
+      <v-row>
+        <v-col>
+          <v-combobox
+            :items="application_form_templates"
+            item-text="properties.label"
+            return-object
+            v-model="selected_form"
+            label="Template"/>
+        </v-col>
+      </v-row>
+
+
       <v-row>
         <v-col>
           <v-text-field
@@ -16,37 +29,58 @@
             label="件名 / Application title"/>
         </v-col>
       </v-row>
-      <v-row>
-        <v-col>
 
-          <v-progress-linear
-            v-if="file_uploading"
-            indeterminate/>
 
-          <v-chip
-            v-else-if="form_data[0].value"
-            close
-            label
-            @click:close="form_data[0].value = null">
-            アップロード完了 / Upload OK
-          </v-chip>
+      <!--  -->
+      <template v-if="selected_form">
 
-          <v-file-input
-            v-else
-            @change="file_upload($event)"
-            accept="application/pdf"
-            label=".pdf ファイル / .pdf file"/>
+        <v-card outlined>
 
-        </v-col>
+          <v-card-title>{{selected_form.properties.label}}</v-card-title>
 
-      </v-row>
-      <v-row>
-        <v-col>
-          <v-text-field
-            v-model="form_data[1].value"
-            label="メモ / Comment"/>
-        </v-col>
-      </v-row>
+          <v-card-text>
+            <v-row
+              v-for="(field, index) in selected_form.properties.fields"
+              :key="`field_${index}`">
+              <v-col>
+                {{field.label || 'Unnamed field'}}
+              </v-col>
+              <v-col>
+
+                <template v-if="['file','pdf'].includes(field.type)">
+
+                  <v-chip
+                    v-if="field.value"
+                    close
+                    label
+                    @click:close="field.value = null">
+                    アップロード完了 / Upload OK
+                  </v-chip>
+
+                <v-file-input
+                  v-else
+                  @change="file_upload($event, field)"
+                  :label="field.label"/>
+
+                </template>
+
+                <v-text-field
+                  v-else
+                  v-model="field.value"
+                  :label="field.label"/>
+
+              </v-col>
+            </v-row>
+          </v-card-text>
+
+        </v-card>
+
+
+      </template>
+
+
+
+
     </v-card-text>
 
     <v-card-subtitle class="mt-2 text-h6">
@@ -96,7 +130,7 @@
             </v-card-text>
 
             <v-card-actions>
-              <v-spacer></v-spacer>
+              <v-spacer />
               <v-btn
                 color="#c00000"
                 text
@@ -139,16 +173,21 @@
 <script>
 import UserPicker from '@moreillon/vue_user_picker'
 import NewApplicationApprovalFlow from '@/components/NewApplicationApprovalFlow.vue'
+import IdUtils from '@/mixins/IdUtils.js'
 
 export default {
   name: 'NewApplication',
+  mixins: [
+    IdUtils
+  ],
   data(){
     return {
+      application_form_templates: [],
+      templates_loading: false,
+      selected_form: null, // not null?
+
+
       title: '',
-      form_data: [
-        {type: 'pdf', label: 'file', value: null},
-        {type: 'text', label: 'memo', value: ''},
-      ],
       recipients: [],
       add_recipient_dialog: false,
       file_uploading: false,
@@ -162,25 +201,41 @@ export default {
     NewApplicationApprovalFlow,
   },
   mounted () {
+    this.get_templates()
     if (this.$route.query.copy_of) this.recreate_application_content()
   },
   methods: {
+    get_templates () {
+      this.templates_loading = true
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates`
+      this.axios.get(url)
+      .then( ({data}) => { this.application_form_templates = data })
+      .catch(error => {
+        console.error(error)
+      })
+      .finally(() => { this.templates_loading = false})
+    },
     submit(){
 
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications`
 
+      const recipients_ids = this.recipients.map( ({properties: {_id}}) => _id)
+
+
       const body = {
         title: this.title,
-        type: 'PDF',
-        form_data: this.form_data,
-        recipients_ids: this.recipients.map( recipient => recipient.identity),
+        type: this.selected_form.properties.label,
+        form_data: this.selected_form.properties.fields,
+        recipients_ids,
         private: true, // A bit dangerous
       }
 
 
       this.axios.post(url, body)
       .then(({ data }) => {
-        this.$router.push({ name: 'application', params: { application_id: data.identity } })
+        this.$store.commit('require_email', true)
+        const application_id = this.get_id_of_item(data)
+        this.$router.push({ name: 'application', params: { application_id } })
       })
       .catch(error => {
         console.error(error)
@@ -188,21 +243,22 @@ export default {
         this.submitting = false
       })
     },
-    file_upload(file){
+    file_upload(file, field){
       this.file_uploading = true
       let formData = new FormData()
       formData.append('file_to_upload', file)
+      // there is a better way to set headers!
       this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/files`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
       .then(({data}) => {
-        this.form_data[0].value = data
+        this.$set(field, 'value', data)
        })
       .catch(error => alert(error.response.data))
       .finally(() => { this.file_uploading = false })
     },
     add_to_recipients(new_recipient) {
-      const existing_recipient = this.recipients.find(recipient => recipient.identity === new_recipient.identity)
+      const existing_recipient = this.recipients.find(recipient => this.get_id_of_item(recipient) === this.get_id_of_item(new_recipient))
       if (existing_recipient) return alert('Duplicates not allowed')
       this.recipients.push(new_recipient)
     },
@@ -215,7 +271,7 @@ export default {
       // NOTE: NO CONFIDENTIALITY FOR NOW!
 
       const application_id = this.$route.query.copy_of
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v2/applications/${application_id}`
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v1/applications/${application_id}`
       this.axios.get(url)
       .then(({data}) => {
 
@@ -243,7 +299,9 @@ export default {
   },
   computed: {
     application_valid(){
-      return this.title !== '' && this.form_data[0].value && this.recipients.length > 0
+      return this.title !== ''
+        && this.recipients.length > 0
+        && !!this.selected_form.properties
     }
   }
 }

@@ -16,7 +16,7 @@
       <WebHanko
         v-if="recipient.approval"
         :name="recipient.properties.last_name"
-        :approvalId="recipient.approval.identity"
+        :approvalId="get_id_of_item(recipient.approval)"
         :date="recipient.approval.properties.date"/>
 
 
@@ -44,6 +44,7 @@
 <script>
 import WebHanko from './WebHanko.vue'
 import EmailButton from '@/components/EmailButton.vue'
+import IdUtils from '@/mixins/IdUtils.js'
 
 export default {
   name: 'WebHankoContainer',
@@ -51,6 +52,9 @@ export default {
     WebHanko,
     EmailButton,
   },
+  mixins: [
+    IdUtils
+  ],
   props: {
     recipient: { type: Object, required: true },
     application: Object,
@@ -72,7 +76,9 @@ export default {
       .sort((a, b) => a.submission.properties.flow_index - b.submission.properties.flow_index)
       .find(recipient => !recipient.approval && !recipient.refusal)
     },
-
+    recipient_id(){
+      return this.get_id_of_item(this.recipient)
+    },
     show_toolbox () {
       // If the user is a recipient that has not approved or rejected the application and also is next recipient
       return this.user_is_recipient &&
@@ -81,20 +87,18 @@ export default {
         this.is_current_recipient
     },
     recipient_is_current_recipient(){
+      // Is the recipient the next in the flow?
       if(!this.current_recipient) return false
-      return this.recipient.identity === this.current_recipient.identity
+      return this.recipient_id === this.get_id_of_item(this.current_recipient)
     },
     user_profile_url () {
-      return `${process.env.VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/users/${this.recipient.identity}`
-    },
-    current_user_id() {
-      return this.$store.state.current_user.identity
+      return `${process.env.VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/users/${this.recipient_id}`
     },
     user_is_applicant () {
-      return this.current_user_id === this.application.applicant.identity
+      return this.current_user_id === this.get_id_of_item(this.application.applicant)
     },
     user_as_recipient(){
-      return this.application.recipients.find(recipient => recipient.identity === this.current_user_id)
+      return this.application.recipients.find(recipient => this.get_id_of_item(recipient) === this.current_user_id)
     },
   }
 }

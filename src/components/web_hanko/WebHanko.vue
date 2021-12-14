@@ -29,15 +29,12 @@
       </text>
 
       <!-- original qr is 21 x 21, resizing to 80 x 80 -->
-      <!-- warning: translation is in the original reference frame (before scaline) -->
+      <!-- warning: translation is in the original reference frame (before scaling) -->
       <!-- 100/21*0.8 = 3.80952380952 -->
       <path
         v-bind:d="qr_code_svg"
         stroke="#c00000"
-        transform="
-          scale(3.80952380952)
-          translate(2.625,10.5)
-        "/>
+        :transform="transform"/>
 
         <!-- Lines above and below the QR code -->
       <line
@@ -56,7 +53,7 @@
         font-family="monospace, monospace"
         font-size="14"
         x="50%" y="94%">
-        {{String(date.year).slice(2,4)}}.{{date.month}}.{{date.day}}
+        {{date_formatted}}
       </text>
 
     </svg>
@@ -71,7 +68,7 @@ export default {
   name: 'WebHanko',
   props: {
     name: { type: String, default: '名前' },
-    approvalId: { type: Number, default: 1 },
+    approvalId: { type: String, default: '1' },
     date: {
       type: Object,
       default () {
@@ -85,7 +82,8 @@ export default {
   },
   data () {
     return {
-      qr_code_svg: ''
+      qr_code_svg: '',
+      qr_size: 21,
     }
   },
   mounted () {
@@ -97,21 +95,48 @@ export default {
     },
     name_y () {
       return 17.5 + 0.5 * this.name_font_size
-    }
+    },
+    date_formatted(){
+      return `${this.date.year.toString().slice(2,4)}.${this.date.month}.${this.date.day}`
+    },
+    transform(){
+
+      // Target size: 80 x 80
+      // Current size: this.qr_size
+      // original qr is 21 x 21, resizing to 80 x 80
+      // Margin: 1-px on each side
+      // Margin will depend on size
+
+      const scale = 0.8 * 100/this.qr_size
+      const margin = {
+        x: 10/scale,
+        y: 40/scale,
+
+      }
+
+      return `
+        scale(${scale})
+        translate(${margin.x},${margin.y})
+      `
+    },
   },
   methods: {
     generate_qr () {
-      QRCode.toString(String(this.approvalId), {
+      const content = this.approvalId.toString()
+      const options = {
         margin: 0,
         color: {
-          dark: '#C00000', // Dots
+          dark: '#C00000', // Dots: Red
           light: '#0000' // Transparent background
         }
-      })
-      .then(string => {
-        var parser = new DOMParser()
-        var doc = parser.parseFromString(string, 'image/svg+xml')
+      }
+
+      QRCode.toString(content, options)
+      .then( (qr_string) => {
+        const parser = new DOMParser()
+        const doc = parser.parseFromString(qr_string, 'image/svg+xml')
         this.qr_code_svg = doc.getElementsByTagName('path')[0].getAttribute('d')
+        this.qr_size = doc.getElementsByTagName('svg')[0].getAttribute('viewBox').split(' ')[2]
       })
       .catch(err => console.error(err))
     },

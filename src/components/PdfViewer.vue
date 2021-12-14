@@ -145,9 +145,10 @@
 
     <div
       v-if="load_error"
-      class="error_message"
+      class="red--text text-center pa-5 text-h6"
       v-html="load_error">
     </div>
+
   </v-card>
 
 
@@ -157,6 +158,7 @@
 import { PDFDocument } from 'pdf-lib'
 import pdf from 'vue-pdf'
 import canvg from 'canvg' // used to turn Hankos into PNG so as to include them in the pdf
+import IdUtils from '@/mixins/IdUtils.js'
 
 
 
@@ -168,7 +170,9 @@ export default {
   props: {
     application: Object,
   },
-
+  mixins: [
+    IdUtils
+  ],
   data () {
     return {
       load_error: null,
@@ -244,6 +248,8 @@ export default {
       .catch((error) => {
         if(error.response) console.error(error.response.data)
         else console.error(error)
+        this.load_error = `Failed to download file from server`
+        this.loading = false
       })
 
     },
@@ -317,15 +323,17 @@ export default {
       }
       attachment_hankos.push(new_hanko)
 
-      this.update_hankos(approval.identity, {attachment_hankos})
+      const approval_id = this.get_id_of_item(approval)
+      this.update_hankos(approval_id, {attachment_hankos})
 
     },
 
     approve_application(body){
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity}/approve`
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/approve`
       this.axios.post(url, body)
       .then(() => {
         this.$emit('pdf_stamped')
+        this.$store.commit('require_email', true)
       })
       .catch((error) => {
         console.error(error)
@@ -413,7 +421,8 @@ export default {
 
           if (typeof hankos === 'string') hankos = JSON.parse(hankos)
 
-          const png_url = this.get_hanko_blob_url_from_id(`hanko_${approval.identity}`)
+          const approval_id = this.get_id_of_item(approval)
+          const png_url = this.get_hanko_blob_url_from_id(`hanko_${approval_id}`)
 
           const axios_options = { responseType: 'arraybuffer' }
 
@@ -502,7 +511,7 @@ export default {
       return found_field.value
     },
     application_id(){
-      return this.application.identity
+      return this.get_id_of_item(this.application)
     },
     application_has_refusal(){
       return this.application.recipients.find(recipient => recipient.refusal)
@@ -517,11 +526,11 @@ export default {
     },
     current_recipient_is_current_user(){
       if(!this.current_recipient) return false
-      return this.current_recipient.identity === this.$store.state.current_user.identity
+      const current_recipient_id = this.get_id_of_item(this.current_recipient)
+      return current_recipient_id === this.current_user_id
     },
     current_user_as_recipient(){
-      const current_user = this.$store.state.current_user
-      return this.application.recipients.find(recipient => recipient.identity === current_user.identity)
+      return this.application.recipients.find(recipient => this.get_id_of_item(recipient) === this.current_user_id)
     },
 
     current_user_can_stamp(){

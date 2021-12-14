@@ -9,6 +9,17 @@ import VueAxios from 'vue-axios'
 Vue.use(VueAxios, axios)
 Vue.config.productionTip = false
 
+router.afterEach( () => {
+  const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v1/applications`
+  const params = {
+    relationship: 'SUBMITTED_TO',
+     state: 'pending',
+   }
+  Vue.axios.get(url, {params})
+  .then( ({data}) => { store.commit('set_received_pending_application_count', data.count) })
+  .catch(error => {console.error(error)})
+})
+
 new Vue({
   router,
   store,

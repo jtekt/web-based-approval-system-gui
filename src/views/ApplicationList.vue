@@ -72,7 +72,7 @@
           'submitted' : '送信トレイ / Outbox',
           'received': '受信トレイ / Inbox'
         },
-        items: ['承認中 / Pending', '却下 / Rejected', '承認完了 / Approved'],
+        items: ['承認待ち / Pending', '却下 / Rejected', '承認完了 / Approved'],
 
         tables: {
           submitted: [
@@ -81,6 +81,7 @@
               state: 'pending',
               headers: [
                 {text: '日付 / Date', value: "properties.creation_date"},
+                {text: 'タイプ / Type', value: 'properties.type'},
                 {text: '件名 / Title', value: 'properties.title'},
                 {text: '%', value: 'progress'},
                 {text: '承認者 / Current recipient', value: 'current_recipient.properties.display_name'},
@@ -91,6 +92,7 @@
               state: 'rejected',
               headers: [
                 {text: '日付 / Date', value: "properties.creation_date"},
+                {text: 'タイプ / Type', value: 'properties.type'},
                 {text: '件名 / Title', value: 'properties.title'},
                 {text: '%', value: 'progress'},
                 {text: '承認者 / Current recipient', value: 'current_recipient.properties.display_name'},
@@ -101,6 +103,7 @@
               state: 'approved',
               headers: [
                 {text: '日付 / Date', value: "properties.creation_date"},
+                {text: 'タイプ / Type', value: 'properties.type'},
                 {text: '件名 / Title', value: 'properties.title'},
               ],
             },
@@ -111,6 +114,7 @@
               state: 'pending',
               headers: [
                 {text: '日付 / Date', value: "properties.creation_date"},
+                {text: 'タイプ / Type', value: 'properties.type'},
                 {text: '件名 / Title', value: 'properties.title'},
                 {text: '申請者 / Applicant', value: 'applicant.properties.display_name'},
               ],
@@ -120,6 +124,7 @@
               state: 'rejected',
               headers: [
                 {text: '日付 / Date', value: "properties.creation_date"},
+                {text: 'タイプ / Type', value: 'properties.type'},
                 {text: '件名 / Title', value: 'properties.title'},
                 {text: '申請者 / Applicant', value: 'applicant.properties.display_name'},
               ],
@@ -129,6 +134,7 @@
               state: 'approved',
               headers: [
                 {text: '日付 / Date', value: "properties.creation_date"},
+                {text: 'タイプ / Type', value: 'properties.type'},
                 {text: '件名 / Title', value: 'properties.title'},
                 {text: '申請者 / Applicant', value: 'applicant.properties.display_name'},
               ],

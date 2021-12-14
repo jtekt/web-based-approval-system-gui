@@ -37,6 +37,21 @@ const routes = [
     component: () => import('../views/Application.vue')
   },
   {
+    path: '/templates',
+    name: 'templates',
+    component: () => import('../views/TemplateList.vue')
+  },
+  {
+    path: '/templates/new',
+    name: 'new_template',
+    component: () => import('../views/NewTemplate.vue')
+  },
+  {
+    path: '/templates/:template_id',
+    name: 'template',
+    component: () => import('../views/Template.vue')
+  },
+  {
     path: '/*',
     name: 'not_found',
     component: () => import('../views/NotFound.vue')

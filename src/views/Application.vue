@@ -18,7 +18,7 @@
 
         <v-btn
           text
-          @click="$router.push({ name: 'new_application', query: { copy_of: application.identity } })">
+          @click="$router.push({ name: 'new_application', query: { copy_of: get_id_of_item(application) } })">
           <v-icon>mdi-restore</v-icon>
           <span>再申請 / Re-submit</span>
         </v-btn>
@@ -37,7 +37,13 @@
 
 
       </v-toolbar>
-      <v-divider></v-divider>
+      <v-divider />
+      <v-banner
+        v-if="this.$store.state.email_required"
+        single-line
+        class="text-center red--text">
+        回覧はメールマークをクリックして作成されたメールを送信してください
+      </v-banner>
 
       <!-- Application info -->
       <v-card-text>
@@ -47,7 +53,7 @@
             <v-list-item two-line>
               <v-list-item-content>
                 <v-list-item-subtitle>ID</v-list-item-subtitle>
-                <v-list-item-title>{{application.identity}}</v-list-item-title>
+                <v-list-item-title>{{get_id_of_item(application)}}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-list-item two-line>
@@ -64,10 +70,15 @@
                 </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
-            <v-list-item two-line>
+
+            <!--  -->
+            <v-list-item
+              two-line
+              v-for="(field, index) in application.properties.form_data"
+              :key="`field_${index}`">
               <v-list-item-content>
-                <v-list-item-subtitle>申請者のコメント / Applicant comment</v-list-item-subtitle>
-                <v-list-item-title>{{application.properties.form_data[1].value || "-"}}</v-list-item-title>
+                <v-list-item-subtitle>{{field.label}}</v-list-item-subtitle>
+                <v-list-item-title>{{field.value || "-"}}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
 
@@ -77,9 +88,6 @@
           <!-- Approval flow -->
           <v-col>
 
-            <div class="email_warning">
-              回覧はメールマークをクリックして作成されたメールを送信してください
-            </div>
 
             <div class="approval_flow" >
 
@@ -135,6 +143,7 @@
 
       <v-card-text>
         <PdfViewer
+          v-if="false"
           :application="application"
           @pdf_stamped="get_application()"
           @reject="reject_application()"/>
@@ -165,6 +174,7 @@
 
 <script>
   import HelpDialog from '@/components/HelpDialog.vue'
+  import IdUtils from '@/mixins/IdUtils.js'
 
   import WebHankoContainer from '@/components/web_hanko/WebHankoContainer.vue'
   import EmailButton from '@/components/EmailButton.vue'
@@ -181,6 +191,9 @@
       EmailButton,
       HelpDialog,
     },
+    mixins: [
+      IdUtils
+    ],
     data(){
       return {
         help_dialog: false,
@@ -192,12 +205,22 @@
     mounted(){
       this.get_application()
     },
+    beforeRouteLeave(to, from, next) {
+      const email_required = this.$store.state.email_required
+      if(email_required){
+        if(confirm(`メール未送信なのにページから出ますか？`)) {
+          this.$store.commit('require_email', false)
+          next()
+        }
+      }
+      else next()
+    },
     methods: {
       get_application(){
         this.loading = true
         this.application = null
         this.error = null
-        const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v2/applications/${this.application_id}`
+        const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v1/applications/${this.application_id}`
         this.axios.get(url)
         .then(({data}) => {
           this.application = data
@@ -221,7 +244,7 @@
         })
       },
       reject_application(){
-        const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application.identity}/reject`
+        const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/reject`
 
         this.axios.post(url)
         .then(() => {
@@ -234,7 +257,7 @@
       },
       delete_application(){
         if(!confirm("本申請を削除致しますか？")) return
-        const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}`
+        const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v1/applications/${this.application_id}`
         this.axios.delete(url)
         .then( () => {
           this.$router.push({name: 'submitted_applications'})
@@ -248,11 +271,15 @@
         return `${date.year}/${date.month}/${date.day}`
       },
       email_button_clicked(){
+
         if(this.current_recipient) this.send_email_to_recipient(this.current_recipient)
         else this.send_email_to_applicant()
       },
 
       send_email_to_recipient (recipient) {
+
+        this.$store.commit('require_email', false)
+
         // Weird formatting because preserves indentation
 
         const email_body = `${recipient.properties.display_name} 様
@@ -264,7 +291,7 @@
 申請者: ${this.application.applicant.properties.display_name}
 タイプ: ${this.application.properties.type}
 タイトル: ${this.application.properties.title}
-提出先URL: ${window.location.origin}/applications/${this.application.identity}
+提出先URL: ${window.location.origin}/applications/${this.get_id_of_item(this.application)}
 
 ※IEでは動作しません。Edge (Chromium)/Firefox/GoogleChromeをご使用ください。　
 ※詳しくは ${window.location.origin}/info
@@ -279,6 +306,8 @@
 
       },
       send_email_to_applicant () {
+
+        this.$store.commit('require_email', false)
         // Weird formatting because preserves indentation
 
         const email_body = `${this.application.applicant.properties.display_name} 様
@@ -290,7 +319,7 @@
 申請者: ${this.application.applicant.properties.display_name}
 タイプ: ${this.application.properties.type}
 タイトル: ${this.application.properties.title}
-提出先URL: ${window.location.origin}/applications/${this.application.identity}
+提出先URL: ${window.location.origin}/applications/${this.get_id_of_item(this.application)}
 
 ※IEでは動作しません。Edge (Chromium)/Firefox/GoogleChromeをご使用ください。
 ※詳しくは ${window.location.origin}/info
@@ -323,8 +352,7 @@
         .find(recipient => !recipient.approval && !recipient.refusal)
       },
       user_as_recipient(){
-        const user =  this.$store.state.current_user
-        return this.application.recipients.find(recipient => recipient.identity === user.identity)
+        return this.application.recipients.find(recipient => this.get_id_of_item(recipient) === this.current_user_id)
       },
       application_is_rejected(){
         return !!this.application.recipients.find(recipient => recipient.refusal)
@@ -360,10 +388,6 @@
   justify-content: center;
   align-items: center;
   height: 150px;
-}
-
-.email_warning {
-  color: #c00000;
 }
 
 
