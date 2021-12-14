@@ -435,10 +435,10 @@ export default {
       this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/files`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
-        .then(response => {
+        .then( ({data}) => {
           // Needed for responsiviity
           // Is this the right way?
-          this.$set(field, 'value', response.data)
+          this.$set(field, 'value', data)
         })
         .catch(error => alert(error.response.data))
         .finally(() => { this.file_uploading = false })

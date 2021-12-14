@@ -257,7 +257,7 @@ export default {
 
       this.loading = true
       this.error = false
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v3/applications`
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications`
 
       const params = {
         hanko_id: this.hanko_id,
