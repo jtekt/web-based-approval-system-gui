@@ -118,6 +118,7 @@ export default {
       page_count: 1,
       rotation: 0,
 
+      filename: null,
       pdfDoc: null,
       shown_pdf: null,
 
@@ -157,7 +158,16 @@ export default {
     previous_page () {
       if (this.page_number > 0) this.page_number--
     },
+    get_file_name(file_id){
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/files/${file_id}/filename`
 
+      this.axios.get(url)
+      .then(({data}) => { this.filename = data.filename })
+      .catch((error) => {
+        if(error.response) console.error(error.response.data)
+        else console.error(error)
+      })
+    },
     view_pdf (file_id) {
       // Check if IE
       if (!!window.MSInputMethodContext && !!document.documentMode) {
@@ -181,11 +191,14 @@ export default {
 
       this.axios.get(file_url, axios_options)
       .then(({data}) => {
+        this.get_file_name(file_id)
         this.load_pdf(data)
       })
       .catch((error) => {
         if(error.response) console.error(error.response.data)
         else console.error(error)
+        this.load_error = `Failed to download file from server`
+        this.loading = false
       })
 
     },
@@ -411,13 +424,16 @@ export default {
     download_pdf () {
       const pdf_blob = new Blob([this.shown_pdf], { type: 'application/pdf' })
 
+      const filename = this.filename || `${this.file_id}.pdf`
+
+
       if (window.navigator.msSaveOrOpenBlob) {
-        window.navigator.msSaveBlob(pdf_blob, `${this.selected_file_id}.pdf`)
+        window.navigator.msSaveBlob(pdf_blob, filename)
       }
       else {
         const elem = window.document.createElement('a')
         elem.href = window.URL.createObjectURL(pdf_blob)
-        elem.download = `${this.selected_file_id}.pdf`
+        elem.download = filename
         document.body.appendChild(elem)
         elem.click()
         document.body.removeChild(elem)

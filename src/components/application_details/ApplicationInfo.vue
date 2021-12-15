@@ -318,25 +318,7 @@ export default {
     },
     download_attachment (id) {
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/files/${id}`
-
-      // window.location.href = url
-
-      // Temporary use of fetch because permission problems
-      fetch(url, {
-        headers: new Headers({
-          'Authorization': `Bearer ${this.$cookies.get('jwt')}`
-        })
-      })
-        .then((response) => {
-          return response.blob()
-        })
-        .then((blob) => {
-          download(blob, id)
-        })
-        .catch((error) => {
-          alert(`Failed to download file`)
-          console.error(error)
-        })
+      window.open(url,'_blank')
     },
     share_with_group (group) {
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/visibility_to_group`
