@@ -8,23 +8,25 @@
         :to="{name: 'templates'}" >
         <v-icon>mdi-arrow-left</v-icon>
       </v-btn>
-      <v-toolbar-title>
-        Template
-      </v-toolbar-title>
+      <v-toolbar-title v-if="template">{{template.properties.label}}</v-toolbar-title>
+      <v-toolbar-title v-else>Template</v-toolbar-title>
       <v-spacer/>
-      <v-btn
-        color="#c00000"
-        dark
-        text
-        @click="delete_template()">
-        <v-icon>mdi-delete</v-icon>
-        <span>Delete</span>
-      </v-btn>
-      <v-btn
-        text>
-        <v-icon>mdi-content-save</v-icon>
-        <span>Save</span>
-      </v-btn>
+
+      <template v-if="user_is_author">
+        <v-btn
+          color="#c00000"
+          dark
+          text
+          @click="delete_template()">
+          <v-icon>mdi-delete</v-icon>
+          <span>Delete</span>
+        </v-btn>
+        <v-btn
+          text>
+          <v-icon>mdi-content-save</v-icon>
+          <span>Save</span>
+        </v-btn>
+      </template>
 
     </v-toolbar>
     <v-divider/>
@@ -32,8 +34,28 @@
     <v-card-text v-if="template">
 
       <v-text-field
+        :readonly="!user_is_author"
         label="template name"
         v-model="template.properties.label" />
+
+      <v-textarea
+          label="Description"
+          v-model="template.properties.description"
+          hint="Hint text"/>
+
+      <div class="">
+        <v-chip>User</v-chip>
+        <v-chip
+          :close="user_is_author"
+          v-for="(group, index) in template.groups"
+          :key="`group_${index}`"
+          @click:close="remove_group()">
+          {{group.properties.name}}
+        </v-chip>
+        <AddGroupDialog v-if="user_is_author"/>
+      </div>
+
+
 
       <v-card outlined>
 
@@ -43,6 +65,7 @@
           </v-toolbar-title>
           <v-spacer/>
           <v-btn
+            v-if="user_is_author"
             dark
             @click="add_field()">
             <v-icon>mdi-plus</v-icon>
@@ -57,18 +80,22 @@
             :key="`field_${index}`">
             <v-col>
               <v-text-field
+                :readonly="!user_is_author"
                 label="Field name"
                 v-model="field.label" />
             </v-col>
             <v-col>
               <v-select
+                :readonly="!user_is_author"
                 :items="field_types"
                 item-text="label"
                 item-value="type"
                 v-model="field.type"
                 label="Type"/>
             </v-col>
-            <v-col cols="auto">
+            <v-col
+              v-if="user_is_author"
+              cols="auto">
               <v-btn
                 color="#c00000"
                 dark
@@ -91,11 +118,12 @@
 <script>
 import IdUtils from '@/mixins/IdUtils.js'
 
+import AddGroupDialog from '@/components/AddGroupDialog.vue'
 
 export default {
   name: 'Template',
   components: {
-
+    AddGroupDialog
   },
   mixins: [
     IdUtils
@@ -120,6 +148,8 @@ export default {
     this.get_template()
   },
   methods: {
+
+
 
     get_template () {
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
@@ -148,6 +178,11 @@ export default {
         console.log(error)
       })
     },
+
+    remove_group(){
+      console.log('Not implemented')
+    },
+
     delete_template(){
       if(!confirm(`Delete template ${this.template_id}?`)) return
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
@@ -171,6 +206,11 @@ export default {
   computed: {
     template_id(){
       return this.$route.params.template_id
+    },
+    user_is_author(){
+      if(!this.template) return false
+      const author_id = this.get_id_of_item(this.template.author)
+      return author_id === this.current_user_id
     }
   }
 }

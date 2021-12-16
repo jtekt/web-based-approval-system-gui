@@ -30,6 +30,35 @@
         </v-col>
       </v-row>
 
+      <v-row>
+        <v-col>
+          <v-switch
+            v-model="confidential"
+            :label="`Confidential`"/>
+        </v-col>
+      </v-row>
+
+      <template v-if="confidential">
+        <v-row>
+          <v-col>
+            Application visibility
+          </v-col>
+          <v-col>
+            <v-chip>Approval flow</v-chip>
+            <v-chip
+              close
+              v-for="(group, index) in groups"
+              :key="`group_${index}`"
+              @click:close="remove_group(index)">
+              {{group.properties.name}}
+            </v-chip>
+            <AddGroupDialog
+              @selection="add_group($event)"/>
+          </v-col>
+        </v-row>
+      </template>
+
+
 
       <!--  -->
       <template v-if="selected_form">
@@ -174,6 +203,7 @@
 import UserPicker from '@moreillon/vue_user_picker'
 import NewApplicationApprovalFlow from '@/components/NewApplicationApprovalFlow.vue'
 import IdUtils from '@/mixins/IdUtils.js'
+import AddGroupDialog from '@/components/AddGroupDialog.vue'
 
 export default {
   name: 'NewApplication',
@@ -188,9 +218,14 @@ export default {
 
 
       title: '',
+      confidential: false,
       recipients: [],
       add_recipient_dialog: false,
       file_uploading: false,
+
+      groups: [], // Groups for visibility
+
+      submitting: false,
 
 
     }
@@ -199,6 +234,7 @@ export default {
   components: {
     UserPicker,
     NewApplicationApprovalFlow,
+    AddGroupDialog,
   },
   mounted () {
     this.get_templates()
@@ -220,14 +256,16 @@ export default {
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications`
 
       const recipients_ids = this.recipients.map( ({properties: {_id}}) => _id)
+      const group_ids = this.groups.map( ({properties: {_id}}) => _id)
 
 
       const body = {
         title: this.title,
         type: this.selected_form.properties.label,
         form_data: this.selected_form.properties.fields,
+        private: this.confidential,
         recipients_ids,
-        private: true, // A bit dangerous
+        group_ids,
       }
 
 
@@ -295,6 +333,15 @@ export default {
       .catch((error) => {
         console.error(error)
       })
+    },
+    add_group (group_to_add) {
+      if (!this.groups.includes(group_to_add)) {
+        this.groups.push(group_to_add)
+      }
+      else alert('Duplicates are not allowed')
+    },
+    remove_group(index){
+      this.groups.splice(index, 1)
     },
   },
   computed: {
