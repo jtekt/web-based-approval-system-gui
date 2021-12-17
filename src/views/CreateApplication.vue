@@ -221,10 +221,10 @@
     <!-- End of application -->
 
     <!-- Creation of the approval flow -->
-    <h2>② 承認フロー / Approval flow</h2>
+    <h2>② 捺印者追加 / Approval flow</h2>
 
     <!-- Employee picker -->
-    <h3>承認者選択 / Recipient selection</h3>
+    <h3>捺印者追加 / Recipient selection</h3>
     <UserPicker
       class="picker"
       v-on:selection="add_to_recipients($event)"/>
