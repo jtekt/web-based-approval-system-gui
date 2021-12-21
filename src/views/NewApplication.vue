@@ -68,9 +68,7 @@
             <v-row
               v-for="(field, index) in selected_form.properties.fields"
               :key="`field_${index}`">
-              <v-col>
-                {{field.label || 'Unnamed field'}}
-              </v-col>
+
               <v-col>
 
                 <template v-if="['file','pdf'].includes(field.type)">
@@ -90,6 +88,13 @@
 
                 </template>
 
+                <DatePicker
+                  :label="field.label"
+                  v-else-if="field.type === 'date'"
+                  v-model="field.value"/>
+
+                <!-- Textarea for text inputs -->
+
                 <v-text-field
                   v-else
                   v-model="field.value"
@@ -100,6 +105,8 @@
           </v-card-text>
         </v-card>
       </template>
+
+
 
 
 
@@ -198,6 +205,7 @@ import UserPicker from '@moreillon/vue_user_picker'
 import NewApplicationApprovalFlow from '@/components/NewApplicationApprovalFlow.vue'
 import IdUtils from '@/mixins/IdUtils.js'
 import AddGroupDialog from '@/components/AddGroupDialog.vue'
+import DatePicker from '@/components/DatePicker.vue'
 
 export default {
   name: 'NewApplication',
@@ -229,6 +237,7 @@ export default {
     UserPicker,
     NewApplicationApprovalFlow,
     AddGroupDialog,
+    DatePicker,
   },
   mounted () {
     this.get_templates()
