@@ -30,21 +30,18 @@
         </v-col>
       </v-row>
 
-      <v-row>
-        <v-col>
+      <v-row align="center">
+        <v-col cols="auto">
           <v-switch
             v-model="confidential"
             :label="`Confidential`"/>
         </v-col>
-      </v-row>
+        <template v-if="confidential">
 
-      <template v-if="confidential">
-        <v-row>
-          <v-col>
-            Application visibility
-          </v-col>
-          <v-col>
+          <v-col cols="auto">
             <v-chip>Approval flow</v-chip>
+          </v-col>
+          <v-col cols="auto">
             <v-chip
               close
               v-for="(group, index) in groups"
@@ -52,15 +49,15 @@
               @click:close="remove_group(index)">
               {{group.properties.name}}
             </v-chip>
+          </v-col>
+          <v-col cols="auto">
             <AddGroupDialog
               @selection="add_group($event)"/>
           </v-col>
-        </v-row>
-      </template>
+        </template>
 
+      </v-row>
 
-
-      <!--  -->
       <template v-if="selected_form">
 
         <v-card outlined>
@@ -101,10 +98,7 @@
               </v-col>
             </v-row>
           </v-card-text>
-
         </v-card>
-
-
       </template>
 
 

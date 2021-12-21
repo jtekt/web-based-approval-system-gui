@@ -10,7 +10,7 @@
           {{application.properties.title}}
         </v-toolbar-title>
 
-        <v-spacer></v-spacer>
+        <v-spacer/>
 
         <!-- Help dialog -->
         <HelpDialog />
@@ -50,6 +50,8 @@
         <v-row>
 
           <v-col>
+            <v-subheader>Application Info</v-subheader>
+
             <v-list-item two-line>
               <v-list-item-content>
                 <v-list-item-subtitle>ID</v-list-item-subtitle>
@@ -71,7 +73,45 @@
               </v-list-item-content>
             </v-list-item>
 
-            <!--  -->
+            <v-list-item two-line>
+              <v-list-item-content>
+                <v-list-item-subtitle>Confidential</v-list-item-subtitle>
+                <v-list-item-title>
+                  <v-switch
+                    v-model="application.properties.private"
+                    :label="`Confidential`"
+                    @change="update_privacy_of_application()"/>
+                </v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+
+            <v-list-item
+              two-line
+              v-if="application.properties.private">
+              <v-list-item-content>
+                <v-list-item-subtitle>Visibility</v-list-item-subtitle>
+                <v-list-item-title>
+
+                  <v-chip>Approval flow</v-chip>
+
+                  <v-chip
+                    :close="user_is_applicant"
+                    v-for="(group, index) in application.visibility"
+                    :key="`group_${index}`"
+                    @click:close="remove_application_visibility_to_group(group)">
+                    {{group.properties.name}}
+                  </v-chip>
+
+                  <AddGroupDialog
+                    @selection="share_with_group($event)"/>
+
+                </v-list-item-title>
+
+              </v-list-item-content>
+            </v-list-item>
+
+            <!-- properties  -->
+            <v-subheader>Application content</v-subheader>
             <v-list-item
               two-line
               v-for="(field, index) in application.properties.form_data"
@@ -180,6 +220,7 @@
   import EmailButton from '@/components/EmailButton.vue'
   import PdfViewer from '@/components/PdfViewer.vue'
   import RecipientComments from '@/components/RecipientComments.vue'
+  import AddGroupDialog from '@/components/AddGroupDialog.vue'
 
   export default {
     name: 'Application',
@@ -190,6 +231,7 @@
       RecipientComments,
       EmailButton,
       HelpDialog,
+      AddGroupDialog,
     },
     mixins: [
       IdUtils
@@ -332,6 +374,39 @@
 
         window.location.href = email_string
       },
+      update_privacy_of_application () {
+        const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/privacy`
+        const body = { private: this.application.properties.private }
+        this.axios.put(url, body)
+          .then(() => {
+
+          })
+          .catch(() => alert('Error updating privacy of application'))
+      },
+      share_with_group (group) {
+        const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/visibility_to_group`
+        const body = { group_id: this.get_id_of_item(group) }
+        this.axios.post(url, body)
+          .then(() => {
+            this.get_application()
+          })
+          .catch((error) => {
+            alert('Error updating visibility of application')
+            console.error(error)
+          })
+      },
+      remove_application_visibility_to_group (group) {
+        const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/visibility_to_group`
+        const params = { group_id: this.get_id_of_item(group) }
+        this.axios.delete(url, { params })
+          .then(() => {
+            this.get_application()
+          })
+          .catch((error) => {
+            console.error(error)
+            alert('Error updating visibility of application')
+          })
+      },
     },
     computed: {
       application_id(){
@@ -361,6 +436,9 @@
         const recipient_count = this.application.recipients.length
         const approval_count = this.application.recipients.reduce((acc, recipient) => acc + (recipient.approval ? 1 : 0), 0)
         return approval_count === recipient_count
+      },
+      user_is_applicant () {
+        return this.get_id_of_item(this.application.applicant) === this.current_user_id
       },
 
 
