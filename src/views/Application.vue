@@ -60,6 +60,12 @@
             </v-list-item>
             <v-list-item two-line>
               <v-list-item-content>
+                <v-list-item-subtitle>Type</v-list-item-subtitle>
+                <v-list-item-title>{{application.properties.type}}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item two-line>
+              <v-list-item-content>
                 <v-list-item-subtitle>日付 / Date</v-list-item-subtitle>
                 <v-list-item-title>{{format_date_neo4j(application.properties.creation_date)}}</v-list-item-title>
               </v-list-item-content>
@@ -116,10 +122,50 @@
               two-line
               v-for="(field, index) in application.properties.form_data"
               :key="`field_${index}`">
-              <v-list-item-content>
+
+              <v-list-item-content
+                v-if="field.type === 'pdf'">
+                <v-list-item-subtitle>{{field.label}}</v-list-item-subtitle>
+                <v-list-item-title>
+                  <v-btn
+                    v-if="field.value"
+                    @click="view_pdf(field.value)">
+                    <v-icon>mdi-eye</v-icon>
+                  </v-btn>
+                  <span v-else>-</span>
+                </v-list-item-title>
+              </v-list-item-content>
+
+              <v-list-item-content
+                v-else-if="field.type === 'file'">
+                <v-list-item-subtitle>{{field.label}}</v-list-item-subtitle>
+                <v-list-item-title>
+                  <v-btn
+                    v-if="field.value"
+                    @click="download_attachment(field.value)">
+                    <v-icon>mdi-download</v-icon>
+                  </v-btn>
+                  <span v-else>-</span>
+                </v-list-item-title>
+              </v-list-item-content>
+
+
+              <v-list-item-content
+                v-else-if="field.type === 'checkbox'">
+                <v-list-item-subtitle>{{field.label}}</v-list-item-subtitle>
+                <v-list-item-title>
+                  <v-icon v-if="field.value">mdi-check</v-icon>
+                  <v-icon v-else>mdi-close</v-icon>
+                </v-list-item-title>
+              </v-list-item-content>
+
+              <v-list-item-content
+                v-else>
                 <v-list-item-subtitle>{{field.label}}</v-list-item-subtitle>
                 <v-list-item-title>{{field.value || "-"}}</v-list-item-title>
               </v-list-item-content>
+
+
             </v-list-item>
 
 
@@ -143,8 +189,6 @@
                 <div>
                   <v-icon class="mt-16">mdi-arrow-left</v-icon>
                 </div>
-
-
 
               </template>
 
@@ -183,7 +227,8 @@
 
       <v-card-text>
         <PdfViewer
-          v-if="false"
+          v-if="selected_file_id"
+          :selected_file_id="selected_file_id"
           :application="application"
           @pdf_stamped="get_application()"
           @reject="reject_application()"/>
@@ -242,6 +287,8 @@
         application: null,
         loading: false,
         error: null,
+        selected_file_id: null
+
       }
     },
     mounted(){
@@ -284,6 +331,9 @@
         .finally(() => {
           this.loading = false
         })
+      },
+      view_pdf (file_id) {
+        this.selected_file_id = file_id
       },
       reject_application(){
         const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/reject`
@@ -406,6 +456,10 @@
             console.error(error)
             alert('Error updating visibility of application')
           })
+      },
+      download_attachment (id) {
+        const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/files/${id}`
+        window.open(url,'_blank')
       },
     },
     computed: {

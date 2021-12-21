@@ -22,7 +22,8 @@
           <span>Delete</span>
         </v-btn>
         <v-btn
-          text>
+          text
+          @click="update_template()">
           <v-icon>mdi-content-save</v-icon>
           <span>Save</span>
         </v-btn>
@@ -40,6 +41,8 @@
 
       <v-textarea
           label="Description"
+          auto-grow
+          rows="1"
           v-model="template.properties.description"
           hint="Hint text"/>
 
@@ -172,7 +175,7 @@ export default {
       }
 
       this.axios.put(url, body)
-      .then(() => { this.$router.push({ name: 'application_templates' }) })
+      .then(() => { this.$router.push({ name: 'templates' }) })
       .catch(error => {
         alert('Error while updating the template')
         console.log(error)

@@ -105,8 +105,6 @@
                   :label="field.label"
                   v-model="field.value"/>
 
-
-
                 <v-text-field
                   v-else
                   v-model="field.value"

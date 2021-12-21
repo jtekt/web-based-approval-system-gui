@@ -169,6 +169,8 @@ export default {
   },
   props: {
     application: Object,
+    selected_file_id: String,
+
   },
   mixins: [
     IdUtils
@@ -198,15 +200,15 @@ export default {
     }
   },
   mounted () {
-    if (this.file_id) {
-      this.view_pdf(this.file_id)
+    if (this.selected_file_id) {
+      this.view_pdf(this.selected_file_id)
     }
 
     this.restore_hanko_size()
   },
   watch: {
     file_id () {
-      this.view_pdf(this.file_id)
+      this.view_pdf(this.selected_file_id)
     },
     page_number () {
       this.set_pdf_rotation()
@@ -303,7 +305,7 @@ export default {
       const position_y = height - (height * (click_y / wrapper_height))
 
       const new_hanko = {
-        file_id: this.file_id,
+        file_id: this.selected_file_id,
         page_number: this.page_number,
         position: {
           x: position_x,
@@ -356,7 +358,7 @@ export default {
 
     refresh_pdf () {
       this.shown_pdf = null
-      this.view_pdf(this.file_id)
+      this.view_pdf(this.selected_file_id)
     },
 
     update_new_hanko_position (event) {
@@ -437,7 +439,7 @@ export default {
             hankos.forEach( hanko => {
 
               // Skip if hanko is not part of the current file
-              if (hanko.file_id !== this.file_id) return resolve()
+              if (hanko.file_id !== this.selected_file_id) return resolve()
 
               const page = pages[hanko.page_number]
 
@@ -478,13 +480,15 @@ export default {
     download_pdf () {
       const pdf_blob = new Blob([this.shown_pdf], { type: 'application/pdf' })
 
+      const filename = this.filename || `${this.selected_file_id}.pdf`
+
       if (window.navigator.msSaveOrOpenBlob) {
-        window.navigator.msSaveBlob(pdf_blob, `${this.file_id}.pdf`)
+        window.navigator.msSaveBlob(pdf_blob, filename)
       }
       else {
         const elem = window.document.createElement('a')
         elem.href = window.URL.createObjectURL(pdf_blob)
-        elem.download = `${this.file_id}.pdf`
+        elem.download = filename
         document.body.appendChild(elem)
         elem.click()
         document.body.removeChild(elem)
@@ -504,12 +508,12 @@ export default {
 
       return src
     },
-    file_id(){
-      // Maybe not ideal
-      const found_field = this.application.properties.form_data
-        .find(field => field.type === "pdf" || field.type === "file")
-      return found_field.value
-    },
+    // file_id(){
+    //   // Maybe not ideal
+    //   const found_field = this.application.properties.form_data
+    //     .find(field => field.type === "pdf" || field.type === "file")
+    //   return found_field.value
+    // },
     application_id(){
       return this.get_id_of_item(this.application)
     },
