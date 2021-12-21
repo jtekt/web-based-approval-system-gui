@@ -88,12 +88,24 @@
 
                 </template>
 
+                <v-checkbox
+                  v-else-if="field.type === 'checkbox'"
+                  v-model="field.value"
+                  :label="field.label"/>
+
                 <DatePicker
-                  :label="field.label"
                   v-else-if="field.type === 'date'"
+                  :label="field.label"
                   v-model="field.value"/>
 
-                <!-- Textarea for text inputs -->
+                <v-textarea
+                  v-else-if="field.type === 'text'"
+                  rows="1"
+                  auto-grow
+                  :label="field.label"
+                  v-model="field.value"/>
+
+
 
                 <v-text-field
                   v-else
