@@ -33,11 +33,9 @@
           <span>申請削除 / Delete</span>
         </v-btn>
 
-
-
-
       </v-toolbar>
       <v-divider />
+
       <v-banner
         v-if="this.$store.state.email_required"
         single-line
@@ -91,6 +89,7 @@
               </v-list-item-content>
             </v-list-item>
 
+            <!-- Visibility -->
             <v-list-item
               two-line
               v-if="application.properties.private">
@@ -108,8 +107,7 @@
                     {{group.properties.name}}
                   </v-chip>
 
-                  <AddGroupDialog
-                    @selection="share_with_group($event)"/>
+                  <AddGroupDialog @selection="share_with_group($event)"/>
 
                 </v-list-item-title>
 
@@ -173,6 +171,40 @@
 
           <!-- Approval flow -->
           <v-col>
+
+            <v-row
+              v-if="current_recipient_is_current_user"
+              class="mb-3">
+              <v-spacer/>
+
+              <v-col cols="auto">
+                <v-btn
+                  color="#00c000"
+                  dark
+                  @click="approve_application()">
+                  <v-icon>mdi-check</v-icon>
+                  <span>承認 / Approve</span>
+                </v-btn>
+              </v-col>
+
+
+              <v-col cols="auto">
+                <v-btn
+                  color="#c00000"
+                  dark
+                  @click="reject_application()">
+                  <v-icon>mdi-close</v-icon>
+                  <span>却下 / Reject</span>
+                </v-btn>
+              </v-col>
+              <v-spacer/>
+            </v-row>
+
+            <div
+              v-if="current_recipient_is_current_user"
+              class="approval_controls">
+
+            </div>
 
 
             <div class="approval_flow" >
@@ -335,16 +367,35 @@
       view_pdf (file_id) {
         this.selected_file_id = file_id
       },
-      reject_application(){
-        const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/reject`
+      approve_application(){
+        const comment = prompt('コメント (任意)/ Comment (optional)')
 
-        this.axios.post(url)
-        .then(() => {
-          this.get_application()
-        })
+        // if pressed cancel, return
+        if (comment === null) return
+
+        const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/approve`
+
+        this.axios.post(url, { comment })
+        .then(() => { this.get_application() })
         .catch((error) => {
           console.error(error)
           alert(`Error approving application`)
+        })
+      },
+      reject_application(){
+
+        const comment = prompt('コメント (任意)/ Comment (optional)')
+
+        // if pressed cancel, return
+        if (comment === null) return
+
+        const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/reject`
+
+        this.axios.post(url, { comment })
+        .then(() => { this.get_application() })
+        .catch((error) => {
+          console.error(error)
+          alert(`Error rejecting application`)
         })
       },
       delete_application(){
@@ -493,6 +544,11 @@
       },
       user_is_applicant () {
         return this.get_id_of_item(this.application.applicant) === this.current_user_id
+      },
+      current_recipient_is_current_user(){
+        if(!this.current_recipient) return false
+        const current_recipient_id = this.get_id_of_item(this.current_recipient)
+        return current_recipient_id === this.current_user_id
       },
 
 

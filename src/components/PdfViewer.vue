@@ -9,7 +9,7 @@
             <span
               v-bind="attrs"
               v-on="on">
-              ① PDFにハンコを押す
+              PDF Reader
             </span>
             <!-- <span>申請削除 / Delete</span> -->
         </template>
@@ -86,14 +86,7 @@
 
       </v-menu>
 
-      <v-btn
-        v-if="current_recipient_is_current_user"
-        text
-        color="#c00000"
-        @click="$emit('reject')">
-        <v-icon>mdi-close</v-icon>
-        <span>却下 / Reject</span>
-      </v-btn>
+
 
 
       <v-btn
