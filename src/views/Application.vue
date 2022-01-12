@@ -96,18 +96,36 @@
               <v-list-item-content>
                 <v-list-item-subtitle>Visibility</v-list-item-subtitle>
                 <v-list-item-title>
+                  <v-row>
+                    <v-col cols="auto">
+                      <v-chip>Approval flow</v-chip>
+                    </v-col>
+                  <!-- </v-row>
+                  <v-row> -->
+                    <v-col
+                      cols="auto"
+                      v-for="(group, index) in application.visibility"
+                      :key="`group_${index}`">
+                      <v-chip>
+                        <v-chip
+                        :close="user_is_applicant"
+                        @click:close="remove_application_visibility_to_group(group)">
+                        {{group.properties.name}}
+                      </v-chip>
+                    </v-chip>
+                    </v-col>
+                  <!-- </v-row>
+                  <v-row> -->
+                    <v-col cols="auto">
+                      <AddGroupDialog @selection="share_with_group($event)"/>
+                    </v-col>
+                  </v-row>
 
-                  <v-chip>Approval flow</v-chip>
 
-                  <v-chip
-                    :close="user_is_applicant"
-                    v-for="(group, index) in application.visibility"
-                    :key="`group_${index}`"
-                    @click:close="remove_application_visibility_to_group(group)">
-                    {{group.properties.name}}
-                  </v-chip>
 
-                  <AddGroupDialog @selection="share_with_group($event)"/>
+
+
+
 
                 </v-list-item-title>
 
@@ -197,7 +215,6 @@
                   <span>却下 / Reject</span>
                 </v-btn>
               </v-col>
-              <v-spacer/>
             </v-row>
 
             <div

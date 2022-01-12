@@ -12,7 +12,7 @@
 
       <v-row>
         <v-col>
-          <v-combobox
+          <v-select
             :items="application_form_templates"
             item-text="properties.label"
             return-object
@@ -226,7 +226,7 @@ export default {
     return {
       application_form_templates: [],
       templates_loading: false,
-      selected_form: null, // not null?
+      selected_form: null, // when null, recreation throws errors
 
 
       title: '',
@@ -321,6 +321,8 @@ export default {
 
       // NOTE: NO CONFIDENTIALITY FOR NOW!
 
+      // alert(`再申請機能はまだできてません`)
+
       const application_id = this.$route.query.copy_of
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v1/applications/${application_id}`
       this.axios.get(url)
@@ -329,12 +331,23 @@ export default {
 
         const original_application = data
 
+
         // Set application details back
         this.title = original_application.properties.title
         this.confidential = original_application.properties.private
 
+
         original_application.properties.form_data = JSON.parse(original_application.properties.form_data)
         this.form_data = original_application.properties.form_data
+
+        this.selected_form = {}
+        this.$set(this.selected_form, 'properties', {
+          label: original_application.properties.type, // The application form label (type)
+          fields: original_application.properties.form_data // The fields of the application
+        })
+
+        this.groups = original_application.visibility
+
 
 
         // Recreate flow
