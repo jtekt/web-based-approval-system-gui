@@ -47,142 +47,145 @@
       <v-card-text>
         <v-row>
 
+          <!-- Left column: Properties -->
           <v-col>
-            <v-subheader>Application Info</v-subheader>
+            <v-subheader>申請について / Application Info</v-subheader>
 
-            <v-list-item two-line>
-              <v-list-item-content>
-                <v-list-item-subtitle>ID</v-list-item-subtitle>
-                <v-list-item-title>{{get_id_of_item(application)}}</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-            <v-list-item two-line>
-              <v-list-item-content>
-                <v-list-item-subtitle>Type</v-list-item-subtitle>
-                <v-list-item-title>{{application.properties.type}}</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-            <v-list-item two-line>
-              <v-list-item-content>
-                <v-list-item-subtitle>日付 / Date</v-list-item-subtitle>
-                <v-list-item-title>{{format_date_neo4j(application.properties.creation_date)}}</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-            <v-list-item two-line>
-              <v-list-item-content>
-                <v-list-item-subtitle>申請者 / Applicant</v-list-item-subtitle>
-                <v-list-item-title>
-                  <span>{{application.applicant.properties.display_name}}</span>
-                </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
+            <!-- <v-simple-table>
+              <template v-slot:default>
+                <thead>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>ID</td>
+                    <td>{{get_id_of_item(application)}}</td>
+                  </tr>
+                  <tr>
+                    <td>Type</td>
+                    <td>{{application.properties.type}}</td>
+                  </tr>
+                </tbody>
+              </template>
+            </v-simple-table> -->
 
-            <v-list-item two-line>
-              <v-list-item-content>
-                <v-list-item-subtitle>Confidential</v-list-item-subtitle>
-                <v-list-item-title>
+            <v-list dense>
+              <v-divider/>
+              <v-list-item>
+                <v-list-item-content>ID</v-list-item-content>
+                <v-list-item-content class="align-end">{{get_id_of_item(application)}}</v-list-item-content>
+              </v-list-item>
+
+              <v-divider/>
+              <v-list-item>
+                <v-list-item-content>Type</v-list-item-content>
+                <v-list-item-content class="align-end">{{application.properties.type}}</v-list-item-content>
+              </v-list-item>
+
+              <v-divider/>
+              <v-list-item>
+                <v-list-item-content>日付 / Date</v-list-item-content>
+                <v-list-item-content class="align-end">{{format_date_neo4j(application.properties.creation_date)}}</v-list-item-content>
+              </v-list-item>
+
+              <v-divider/>
+              <v-list-item>
+                <v-list-item-content>申請者 / Applicant</v-list-item-content>
+                <v-list-item-content class="align-end">{{application.applicant.properties.display_name}}</v-list-item-content>
+              </v-list-item>
+
+              <v-divider/>
+              <v-list-item>
+                <v-list-item-content>機密 / Confidential</v-list-item-content>
+                <v-list-item-content class="align-end">
                   <v-switch
                     v-model="application.properties.private"
-                    :label="`Confidential`"
                     @change="update_privacy_of_application()"/>
-                </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
+                </v-list-item-content>
+              </v-list-item>
 
-            <!-- Visibility -->
-            <v-list-item
-              two-line
-              v-if="application.properties.private">
-              <v-list-item-content>
-                <v-list-item-subtitle>Visibility</v-list-item-subtitle>
-                <v-list-item-title>
-                  <v-row>
-                    <v-col cols="auto">
-                      <v-chip>Approval flow</v-chip>
-                    </v-col>
-                  <!-- </v-row>
-                  <v-row> -->
-                    <v-col
-                      cols="auto"
-                      v-for="(group, index) in application.visibility"
-                      :key="`group_${index}`">
-                      <v-chip>
-                        <v-chip
-                        :close="user_is_applicant"
-                        @click:close="remove_application_visibility_to_group(group)">
-                        {{group.properties.name}}
+              <template v-if="application.properties.private">
+                <v-divider/>
+                <v-list-item >
+                  <v-list-item-content>Visibility</v-list-item-content>
+                  <v-list-item-content class="align-end">
+                    <v-row>
+                      <v-col cols="auto">
+                        <v-chip>Approval flow</v-chip>
+                      </v-col>
+                      <v-col
+                        cols="auto"
+                        v-for="(group, index) in application.visibility"
+                        :key="`group_${index}`">
+                        <v-chip>
+                          <v-chip
+                          :close="user_is_applicant"
+                          @click:close="remove_application_visibility_to_group(group)">
+                          {{group.properties.name}}
+                        </v-chip>
                       </v-chip>
-                    </v-chip>
-                    </v-col>
-                  <!-- </v-row>
-                  <v-row> -->
-                    <v-col cols="auto">
-                      <AddGroupDialog @selection="share_with_group($event)"/>
-                    </v-col>
-                  </v-row>
+                      </v-col>
+                      <v-col cols="auto">
+                        <AddGroupDialog @selection="share_with_group($event)"/>
+                      </v-col>
+                    </v-row>
+                  </v-list-item-content>
+                </v-list-item>
+              </template>
 
 
+            </v-list>
 
-
-
-
-
-                </v-list-item-title>
-
-              </v-list-item-content>
-            </v-list-item>
 
             <!-- properties  -->
-            <v-subheader>Application content</v-subheader>
-            <v-list-item
-              two-line
-              v-for="(field, index) in application.properties.form_data"
-              :key="`field_${index}`">
+            <v-subheader>申請内容 / Application content</v-subheader>
+            <v-list dense>
+              <template v-for="(field, index) in application.properties.form_data" >
 
-              <v-list-item-content
-                v-if="field.type === 'pdf'">
-                <v-list-item-subtitle>{{field.label}}</v-list-item-subtitle>
-                <v-list-item-title>
-                  <v-btn
-                    v-if="field.value"
-                    @click="view_pdf(field.value)">
-                    <v-icon>mdi-eye</v-icon>
-                  </v-btn>
-                  <span v-else>-</span>
-                </v-list-item-title>
-              </v-list-item-content>
+                <v-divider :key="`field_${index}_divider`"/>
+                
+                <v-list-item :key="`field_${index}`">
 
-              <v-list-item-content
-                v-else-if="field.type === 'file'">
-                <v-list-item-subtitle>{{field.label}}</v-list-item-subtitle>
-                <v-list-item-title>
-                  <v-btn
-                    v-if="field.value"
-                    @click="download_attachment(field.value)">
-                    <v-icon>mdi-download</v-icon>
-                  </v-btn>
-                  <span v-else>-</span>
-                </v-list-item-title>
-              </v-list-item-content>
+                  <v-list-item-content>{{field.label}}</v-list-item-content>
 
+                  <v-list-item-content
+                    class="align-end"
+                    v-if="field.type === 'pdf'">
 
-              <v-list-item-content
-                v-else-if="field.type === 'checkbox'">
-                <v-list-item-subtitle>{{field.label}}</v-list-item-subtitle>
-                <v-list-item-title>
-                  <v-icon v-if="field.value">mdi-check</v-icon>
-                  <v-icon v-else>mdi-close</v-icon>
-                </v-list-item-title>
-              </v-list-item-content>
+                    <v-btn
+                      v-if="field.value"
+                      @click="view_pdf(field.value)">
+                      <v-icon>mdi-eye</v-icon>
+                    </v-btn>
+                  </v-list-item-content>
 
-              <v-list-item-content
-                v-else>
-                <v-list-item-subtitle>{{field.label}}</v-list-item-subtitle>
-                <v-list-item-title>{{field.value || "-"}}</v-list-item-title>
-              </v-list-item-content>
+                  <v-list-item-content
+                    class="align-end"
+                    v-else-if="field.type === 'file'">
 
+                    <v-btn
+                      v-if="field.value"
+                      @click="download_attachment(field.value)">
+                      <v-icon>mdi-download</v-icon>
+                    </v-btn>
+                  </v-list-item-content>
 
-            </v-list-item>
+                  <v-list-item-content
+                    class="align-end"
+                    v-else-if="field.type === 'checkbox'">
+                    <v-icon v-if="field.value">mdi-check</v-icon>
+                    <v-icon v-else>mdi-close</v-icon>
+                  </v-list-item-content>
+
+                  <v-list-item-content
+                    class="align-end"
+                    v-else>
+                    {{field.value || "-"}}
+                  </v-list-item-content>
+
+                </v-list-item>
+
+              </template>
+            </v-list>
 
 
           </v-col>
