@@ -1,37 +1,39 @@
 <template>
-  <v-card>
+  <v-card
+    :loading="loading">
 
-    <template v-if="application && !loading && !error">
+    <template v-if="application && !error">
 
-      <v-toolbar
-        flat>
+      <v-toolbar flat>
 
-        <v-toolbar-title>
-          {{application.properties.title}}
-        </v-toolbar-title>
+        <v-row align="center">
+          <v-col cols="auto">
+            <v-toolbar-title>{{application.properties.title}}</v-toolbar-title>
+          </v-col>
+          <v-spacer/>
+          <v-col cols="auto">
+            <HelpDialog />
+          </v-col>
+          <v-col cols="auto">
+            <v-btn
+              text
+              @click="$router.push({ name: 'new_application', query: { copy_of: get_id_of_item(application) } })">
+              <v-icon>mdi-restore</v-icon>
+              <span>再申請 / Re-submit</span>
+            </v-btn>
+          </v-col>
+          <v-col cols="auto">
+            <v-btn
+              text
+              :disabled="application_is_fully_approved"
+              color="#c00000"
+              @click="delete_application()">
+              <v-icon>mdi-delete</v-icon>
+              <span>申請削除 / Delete</span>
+            </v-btn>
+          </v-col>
 
-        <v-spacer/>
-
-        <!-- Help dialog -->
-        <HelpDialog />
-
-
-        <v-btn
-          text
-          @click="$router.push({ name: 'new_application', query: { copy_of: get_id_of_item(application) } })">
-          <v-icon>mdi-restore</v-icon>
-          <span>再申請 / Re-submit</span>
-        </v-btn>
-
-
-        <v-btn
-          text
-          :disabled="application_is_fully_approved"
-          color="#c00000"
-          @click="delete_application()">
-          <v-icon>mdi-delete</v-icon>
-          <span>申請削除 / Delete</span>
-        </v-btn>
+        </v-row>
 
       </v-toolbar>
       <v-divider />
@@ -142,7 +144,7 @@
               <template v-for="(field, index) in application.properties.form_data" >
 
                 <v-divider :key="`field_${index}_divider`"/>
-                
+
                 <v-list-item :key="`field_${index}`">
 
                   <v-list-item-content>{{field.label}}</v-list-item-content>
@@ -288,14 +290,6 @@
 
 
     </template>
-
-    <v-card-text
-      v-if="loading"
-      class='text-center'>
-      <v-progress-circular
-        size="50"
-        indeterminate/>
-    </v-card-text>
 
     <v-card-text
       v-if="error"

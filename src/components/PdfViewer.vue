@@ -1,6 +1,8 @@
 <template>
+  <v-card
+    outlined
+    :loading="loading">
 
-  <v-card outlined>
     <v-toolbar flat>
 
       <v-tooltip bottom>
@@ -129,13 +131,7 @@
       </div>
 
     </template>
-
-    <v-progress-linear
-      v-if="loading"
-      indeterminate>
-    </v-progress-linear>
-
-
+    
     <div
       v-if="load_error"
       class="red--text text-center pa-5 text-h6"
