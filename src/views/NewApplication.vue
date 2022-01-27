@@ -83,6 +83,7 @@
 
                 <v-file-input
                   v-else
+                  :accept="field.type === 'pdf' ? 'application/pdf' : ''"
                   @change="file_upload($event, field)"
                   :label="field.label"/>
 
