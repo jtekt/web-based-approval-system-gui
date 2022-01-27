@@ -52,6 +52,11 @@ const routes = [
     component: () => import('../views/Template.vue')
   },
   {
+    path: '/search',
+    name: 'search',
+    component: () => import('../views/Search.vue')
+  },
+  {
     path: '/*',
     name: 'not_found',
     component: () => import('../views/NotFound.vue')

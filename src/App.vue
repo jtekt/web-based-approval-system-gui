@@ -65,6 +65,7 @@ export default {
         {title: '新規作成 / New', to: {name: 'new_application'}, icon: 'mdi-plus'},
         {title: '送信トレイ / Outbox', to: {name: 'submitted_applications'}, icon: 'mdi-inbox-arrow-up'},
         {title: '受信トレイ / Inbox', to: {name: 'received_applications'}, icon: 'mdi-inbox-arrow-down', count: this.$store.state.received_pending_application_count},
+        {title: '検索 / Search', to: {name: 'search'}, icon: 'mdi-magnify'},
         {title: 'テンプレート / Templates', to: {name: 'templates'}, icon: 'mdi-file-document-multiple-outline'},
         {title: 'アプリについて / About', to: {name: 'about'}, icon: 'mdi-information-outline'},
       ]
