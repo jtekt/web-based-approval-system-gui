@@ -1,5 +1,6 @@
 <template>
-  <v-card>
+  <v-card
+    :loading="loading">
 
     <v-toolbar flat>
       <v-btn
@@ -32,87 +33,114 @@
     </v-toolbar>
     <v-divider/>
 
-    <v-card-text v-if="template">
+    <template v-if="template">
+      <v-card-text >
 
-      <v-text-field
-        :readonly="!user_is_author"
-        label="template name"
-        v-model="template.properties.label" />
+        <v-row>
+          <v-col>
+            <v-text-field
+              :readonly="!user_is_author"
+              label="template name"
+              v-model="template.properties.label" />
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <v-textarea
+                label="Description"
+                auto-grow
+                rows="1"
+                v-model="template.properties.description"
+                hint="Hint text"/>
+          </v-col>
+        </v-row>
+        <v-row align="center">
+          <v-col cols="auto">
+            Visibility
+          </v-col>
 
-      <v-textarea
-          label="Description"
-          auto-grow
-          rows="1"
-          v-model="template.properties.description"
-          hint="Hint text"/>
+          <v-col cols="auto">
+            <v-chip>User</v-chip>
+          </v-col>
 
-      <div class="">
-        <v-chip>User</v-chip>
-        <v-chip
-          :close="user_is_author"
-          v-for="(group, index) in template.groups"
-          :key="`group_${index}`"
-          @click:close="remove_group()">
-          {{group.properties.name}}
-        </v-chip>
-        <AddGroupDialog v-if="user_is_author"/>
-      </div>
+          <v-col
+            cols="auto"
+            v-for="(group, index) in template.groups"
+            :key="`group_${index}`">
+            <v-chip
+              :close="user_is_author"
+              @click:close="remove_group()">
+              {{group.properties.name}}
+            </v-chip>
+          </v-col>
+
+          <v-col cols="auto">
+            <AddGroupDialog v-if="user_is_author"/>
+          </v-col>
+
+        </v-row>
+
+      </v-card-text>
+      <v-card-text>
 
 
 
-      <v-card outlined>
+        <v-card outlined>
 
-        <v-toolbar flat>
-          <v-toolbar-title>
-            Fields
-          </v-toolbar-title>
-          <v-spacer/>
-          <v-btn
-            v-if="user_is_author"
-            dark
-            @click="add_field()">
-            <v-icon>mdi-plus</v-icon>
-            <span>Add field</span>
-          </v-btn>
-        </v-toolbar>
-        <v-divider/>
-        <v-card-text>
-
-          <v-row
-            v-for="(field, index) in template.properties.fields"
-            :key="`field_${index}`">
-            <v-col>
-              <v-text-field
-                :readonly="!user_is_author"
-                label="Field name"
-                v-model="field.label" />
-            </v-col>
-            <v-col>
-              <v-select
-                :readonly="!user_is_author"
-                :items="field_types"
-                item-text="label"
-                item-value="type"
-                v-model="field.type"
-                label="Type"/>
-            </v-col>
-            <v-col
+          <v-toolbar flat>
+            <v-toolbar-title>
+              Fields
+            </v-toolbar-title>
+            <v-spacer/>
+            <v-btn
               v-if="user_is_author"
-              cols="auto">
-              <v-btn
-                color="#c00000"
-                dark
-                @click="delete_field(index)">
-                <v-icon>mdi-delete</v-icon>
-              </v-btn>
-            </v-col>
-          </v-row>
+              dark
+              @click="add_field()">
+              <v-icon>mdi-plus</v-icon>
+              <span>Add field</span>
+            </v-btn>
+          </v-toolbar>
+          <v-divider/>
+          <v-card-text>
 
-        </v-card-text>
+            <v-row
+              v-for="(field, index) in template.properties.fields"
+              :key="`field_${index}`">
+              <v-col>
+                <v-text-field
+                  :readonly="!user_is_author"
+                  label="Field name"
+                  v-model="field.label" />
+              </v-col>
+              <v-col>
+                <v-select
+                  :readonly="!user_is_author"
+                  :items="field_types"
+                  item-text="label"
+                  item-value="type"
+                  v-model="field.type"
+                  label="Type"/>
+              </v-col>
+              <v-col
+                v-if="user_is_author"
+                cols="auto">
+                <v-btn
+                  color="#c00000"
+                  dark
+                  @click="delete_field(index)">
+                  <v-icon>mdi-delete</v-icon>
+                </v-btn>
+              </v-col>
+            </v-row>
 
-      </v-card>
+          </v-card-text>
 
-    </v-card-text>
+        </v-card>
+
+      </v-card-text>
+    </template>
+
+
 
 
   </v-card>
@@ -134,6 +162,7 @@ export default {
   data(){
     return {
       template: null,
+      loading: false,
       field_types: [
         { type: 'text', label: 'テキスト / Text' },
         { type: 'file', label: 'ファイル / File' },
@@ -155,10 +184,12 @@ export default {
 
 
     get_template () {
+      this.loading = true
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
       this.axios.get(url)
       .then(({ data }) => { this.template = data })
       .catch(error => console.log(error))
+      .finally(() => {this.loading = false})
     },
 
     update_template () {
