@@ -119,15 +119,18 @@
           class="file_actions_container"
           v-if="field.type === 'pdf' && field.value">
 
-          <div
-            class="success"
-            v-if="user_has_stamped_attachment(field.value)">
-            ハンコを押しました
-          </div>
+          <template v-if="user_as_recipient">
+            <div
+              class="success"
+              v-if="user_has_stamped_attachment(field.value)">
+              ハンコを押しました
+            </div>
 
-          <div class="error" v-else>
-            まだハンコを押してません
-          </div>
+            <div class="error" v-else>
+              まだハンコを押してません
+            </div>
+          </template>
+
 
           <div class="">
             <button
