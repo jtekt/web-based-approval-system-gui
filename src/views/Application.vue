@@ -180,6 +180,16 @@
 
                   <v-list-item-content
                     class="align-end"
+                    v-else-if="field.type === 'link'">
+                    <a
+                      :href="field.value"
+                      target="_blank">
+                      {{field.value}}
+                    </a>
+                  </v-list-item-content>
+
+                  <v-list-item-content
+                    class="align-end"
                     v-else>
                     {{field.value || "-"}}
                   </v-list-item-content>
