@@ -8,9 +8,9 @@
 
         <v-row align="center">
           <v-col cols="auto">
-            <v-toolbar-title>{{application.properties.title}}</v-toolbar-title>
+            <v-toolbar-title>Application {{application_id}}</v-toolbar-title>
           </v-col>
-          <v-spacer/>
+          <v-spacer />
           <v-col cols="auto">
             <HelpDialog />
           </v-col>
@@ -50,7 +50,7 @@
         <v-row>
 
           <!-- Left column: Properties -->
-          <v-col>
+          <v-col cols="6">
             <v-subheader>申請について / Application Info</v-subheader>
 
             <v-list dense>
@@ -58,6 +58,11 @@
               <v-list-item>
                 <v-list-item-content>ID</v-list-item-content>
                 <v-list-item-content class="align-end">{{get_id_of_item(application)}}</v-list-item-content>
+              </v-list-item>
+              <v-divider/>
+              <v-list-item>
+                <v-list-item-content>件名 / Title</v-list-item-content>
+                <v-list-item-content class="align-end">{{application.properties.title}}</v-list-item-content>
               </v-list-item>
 
               <v-divider/>

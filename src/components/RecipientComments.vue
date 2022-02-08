@@ -10,7 +10,10 @@
 
         <v-list-item-content>
           <v-list-item-subtitle>{{recipient.properties.display_name}}</v-list-item-subtitle>
-          <v-list-item-title>{{get_recipient_comment(recipient) || 'コメント無し / No comment'}}</v-list-item-title>
+          <div class="">
+            {{get_recipient_comment(recipient) || 'コメント無し / No comment'}}
+          </div>
+          <!-- <v-list-item-title>{{get_recipient_comment(recipient) || 'コメント無し / No comment'}}</v-list-item-title> -->
         </v-list-item-content>
 
         <v-list-item-icon v-if="recipient_is_user(recipient)">
