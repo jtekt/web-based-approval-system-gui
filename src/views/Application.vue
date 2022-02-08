@@ -53,23 +53,6 @@
           <v-col>
             <v-subheader>申請について / Application Info</v-subheader>
 
-            <!-- <v-simple-table>
-              <template v-slot:default>
-                <thead>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>ID</td>
-                    <td>{{get_id_of_item(application)}}</td>
-                  </tr>
-                  <tr>
-                    <td>Type</td>
-                    <td>{{application.properties.type}}</td>
-                  </tr>
-                </tbody>
-              </template>
-            </v-simple-table> -->
-
             <v-list dense>
               <v-divider/>
               <v-list-item>
@@ -174,8 +157,7 @@
                   <v-list-item-content
                     class="align-end"
                     v-else-if="field.type === 'checkbox'">
-                    <v-icon v-if="field.value">mdi-check</v-icon>
-                    <v-icon v-else>mdi-close</v-icon>
+                    {{field.value ? '✓' : '✕'}}
                   </v-list-item-content>
 
                   <v-list-item-content
@@ -183,6 +165,17 @@
                     v-else-if="field.type === 'link'">
                     <a
                       :href="field.value"
+                      target="_blank">
+                      {{field.value}}
+                    </a>
+                  </v-list-item-content>
+
+                  <v-list-item-content
+                    class="align-end"
+                    v-else-if="field.type === 'application'">
+                    <a
+                      class="field_link"
+                      :href="`/applications/${field.value}`"
                       target="_blank">
                       {{field.value}}
                     </a>
