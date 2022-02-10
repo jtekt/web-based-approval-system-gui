@@ -47,20 +47,18 @@
         <v-row>
           <v-col>
             <v-textarea
-                label="Description"
-                auto-grow
-                rows="1"
-                v-model="template.properties.description"
-                hint="Hint text"/>
+              label="Description"
+              auto-grow
+              rows="1"
+              v-model="template.properties.description"
+              hint="Hint text"/>
           </v-col>
         </v-row>
         <v-row align="center">
-          <v-col cols="auto">
-            Visibility
-          </v-col>
+          <v-col cols="auto"> Visibility</v-col>
 
           <v-col cols="auto">
-            <v-chip>User</v-chip>
+            <v-chip>Current User</v-chip>
           </v-col>
 
           <v-col
@@ -69,13 +67,15 @@
             :key="`group_${index}`">
             <v-chip
               :close="user_is_author"
-              @click:close="remove_group()">
+              @click:close="remove_group(index)">
               {{group.properties.name}}
             </v-chip>
           </v-col>
 
           <v-col cols="auto">
-            <AddGroupDialog v-if="user_is_author"/>
+            <AddGroupDialog
+              v-if="user_is_author"
+              @selection="add_group($event)"/>
           </v-col>
 
         </v-row>
@@ -213,8 +213,13 @@ export default {
       })
     },
 
-    remove_group(){
-      console.log('Not implemented')
+    add_group(group){
+      if(!this.template.groups) this.$set(this.template,'groups',[])
+      this.template.groups.push(group)
+    },
+
+    remove_group(index){
+      this.template.groups.splice(index,1)
     },
 
     delete_template(){
