@@ -1,29 +1,15 @@
-# application_form_manager_front
+# Shinsei manager GUI
+This is the GUI for Shinsei-manager, a web application to manage approval workflows.
 
-## Project setup
-```
-npm install
-```
+Author: Maxime MOREILLON
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+## Environment variables
 
-### Compiles and minifies for production
-```
-npm run build
-```
+| Variable  | Description |
+| ---  | --- |
+| VUE_APP_SHINSEI_MANAGER_URL  | The URL of the Shinsei-manager API |
+| VUE_APP_EMPLOYEE_MANAGER_API_URL_PLACEHOLDER | The URL of the employee management service API |
+| VUE_APP_GROUP_MANAGER_API_URL_PLACEHOLDER | The URL of the group management service API |
 
-### Run your tests
-```
-npm run test
-```
 
-### Lints and fixes files
-```
-npm run lint
-```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
