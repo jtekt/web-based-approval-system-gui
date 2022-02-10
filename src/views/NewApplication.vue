@@ -1,68 +1,98 @@
 <template>
   <v-card>
-    <v-card-title class="text-h5">
+    <v-card-title class="text-h4">
       新規作成 / New submission
     </v-card-title>
 
-    <v-card-subtitle class="mt-2 text-h6">
-      ① 申請内容 / Application content
-    </v-card-subtitle>
+    <!-- Application form metadata -->
+    <v-card-text>
+      <v-card outlined>
 
+        <v-toolbar flat>
+          <v-card-title class="mt-2 text-h6">
+            ① 申請情報 / Application info
+          </v-card-title>
+        </v-toolbar>
+
+
+
+        <v-card-text>
+
+          <v-row>
+            <v-col>
+              <v-select
+                :items="application_form_templates"
+                item-text="properties.label"
+                return-object
+                v-model="selected_form"
+                label="申請種類 / Application type"/>
+            </v-col>
+          </v-row>
+
+
+          <v-row>
+            <v-col>
+              <v-text-field
+                v-model="title"
+                label="件名 / Application title"/>
+            </v-col>
+          </v-row>
+
+          <v-row align="center">
+            <v-col cols="auto">
+              機密 / Confidential
+            </v-col>
+            <v-col cols="auto">
+              <v-switch v-model="confidential"/>
+            </v-col>
+          </v-row>
+
+          <v-row
+            align="baseline"
+            v-if="confidential">
+            <v-col cols="auto">
+              共有 / Visibility
+            </v-col>
+            <v-col cols="auto">
+              <v-chip>Approval flow</v-chip>
+            </v-col>
+            <v-col cols="auto">
+              <v-chip
+                close
+                v-for="(group, index) in groups"
+                :key="`group_${index}`"
+                @click:close="remove_group(index)">
+                {{group.properties.name}}
+              </v-chip>
+            </v-col>
+            <v-col cols="auto">
+              <AddGroupDialog
+                @selection="add_group($event)"/>
+            </v-col>
+          </v-row>
+        </v-card-text>
+      </v-card>
+    </v-card-text>
+
+    <!-- Application content -->
     <v-card-text>
 
-      <v-row>
-        <v-col>
-          <v-select
-            :items="application_form_templates"
-            item-text="properties.label"
-            return-object
-            v-model="selected_form"
-            label="Template"/>
-        </v-col>
-      </v-row>
+      <v-card outlined>
+
+        <v-toolbar flat>
+          <v-card-title>
+            ② 申請内容 / Application content {{selected_form ? selected_form.properties.label : null}}
+          </v-card-title>
+        </v-toolbar>
 
 
-      <v-row>
-        <v-col>
-          <v-text-field
-            v-model="title"
-            label="件名 / Application title"/>
-        </v-col>
-      </v-row>
 
-      <v-row align="center">
-        <v-col cols="auto">
-          <v-switch
-            v-model="confidential"
-            :label="`Confidential`"/>
-        </v-col>
-        <template v-if="confidential">
+        <v-card-text v-if="!selected_form">
+          申請種類を選択してください / Please select an application type
+        </v-card-text>
 
-          <v-col cols="auto">
-            <v-chip>Approval flow</v-chip>
-          </v-col>
-          <v-col cols="auto">
-            <v-chip
-              close
-              v-for="(group, index) in groups"
-              :key="`group_${index}`"
-              @click:close="remove_group(index)">
-              {{group.properties.name}}
-            </v-chip>
-          </v-col>
-          <v-col cols="auto">
-            <AddGroupDialog
-              @selection="add_group($event)"/>
-          </v-col>
-        </template>
-
-      </v-row>
-
-      <template v-if="selected_form">
-
-        <v-card outlined>
-
-          <v-card-title>{{selected_form.properties.label}}</v-card-title>
+        <template v-if="selected_form">
+          <v-card-subtitle>{{selected_form.properties.label}}</v-card-subtitle>
 
           <v-card-text>
             <v-row
@@ -114,99 +144,113 @@
               </v-col>
             </v-row>
           </v-card-text>
-        </v-card>
-      </template>
+        </template>
 
 
-
-
-
-
+      </v-card>
     </v-card-text>
 
-    <v-card-subtitle class="mt-2 text-h6">
-      <span>② 承認フロー / Approval flow</span>
-    </v-card-subtitle>
-
-    <v-card-text >
-      <NewApplicationApprovalFlow
-        v-if="this.recipients.length > 0"
-        :recipients="recipients" />
-
-        <v-dialog
-          v-model="add_recipient_dialog"
-          width="900">
-
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              color="#c00000"
-              dark
-              v-bind="attrs"
-              v-on="on">
-              <v-icon>mdi-account-plus</v-icon>
-              <span>承認者追加 / Add recipient</span>
-
-            </v-btn>
-          </template>
-
-
-          <v-card>
-            <v-card-title class="text-h5">
-              承認者追加 / Add recipient
-            </v-card-title>
-
-            <v-card-text>
-              <UserPicker
-                class="user_picker"
-                v-on:selection="add_to_recipients($event)"/>
-            </v-card-text>
-
-            <v-card-text v-if="recipients.length > 0">
-              <NewApplicationApprovalFlow
-                :recipients="recipients"/>
-            </v-card-text>
-
-            <v-card-text v-else>
-              承認者が選ばれていません / No recipient selected
-            </v-card-text>
-
-            <v-card-actions>
-              <v-spacer />
-              <v-btn
-                color="#c00000"
-                text
-                @click="add_recipient_dialog = false">
-                Close
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-    </v-card-text>
-
-
-
-
-    <v-card-subtitle class="mt-2 text-h6">
-      ③ 承認手続き / Submission
-    </v-card-subtitle>
 
     <v-card-text>
-      <v-btn
-        color="#c00000"
-        :dark="application_valid"
-        @click="submit()"
-        :disabled="!application_valid">
-        <v-icon>mdi-send</v-icon>
-        <span>次へ / Submit</span>
+      <v-card outlined>
+        <v-toolbar flat>
+          <v-row
+            align="center">
+            <v-col cols="auto">
+              <v-card-subtitle class="mt-2 text-h6">
+                ③ 承認フロー / Approval flow
+              </v-card-subtitle>
+            </v-col>
+            <v-spacer />
+            <v-col cols="auto">
+              <!-- Add recipient dialog, ideally make it a component -->
+              <v-dialog
+                v-model="add_recipient_dialog"
+                width="900">
 
-      </v-btn>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                    color="#c00000"
+                    dark
+                    v-bind="attrs"
+                    v-on="on">
+                    <v-icon>mdi-account-plus</v-icon>
+                    <span>承認者追加 / Add recipient</span>
+
+                  </v-btn>
+                </template>
+
+
+                <v-card>
+                  <v-card-title class="text-h5">
+                    承認者追加 / Add recipient
+                  </v-card-title>
+
+                  <v-card-text>
+                    <UserPicker
+                      class="user_picker"
+                      v-on:selection="add_to_recipients($event)"/>
+                  </v-card-text>
+
+                  <v-card-text v-if="recipients.length > 0">
+                    <NewApplicationApprovalFlow
+                      :recipients="recipients"/>
+                  </v-card-text>
+
+                  <v-card-text v-else>
+                    承認者が選ばれていません / No recipient selected
+                  </v-card-text>
+
+                  <v-card-actions>
+                    <v-spacer />
+                    <v-btn
+                      color="#c00000"
+                      text
+                      @click="add_recipient_dialog = false">
+                      Close
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+            </v-col>
+          </v-row>
+        </v-toolbar>
+
+
+        <v-card-text v-if="this.recipients.length > 0">
+          <NewApplicationApprovalFlow
+
+            :recipients="recipients" />
+        </v-card-text>
+        <v-card-text v-else>承認者を追加してください / Please select the recipients of this application</v-card-text>
+      </v-card>
     </v-card-text>
 
 
+    <v-card-text>
+      <v-card outlined>
+
+        <v-toolbar flat>
+          <v-card-subtitle class="mt-2 text-h6">
+            ④ 承認手続き / Submission
+          </v-card-subtitle>
+        </v-toolbar>
 
 
+        <v-card-text class="text-center">
+          <v-btn
+            :loading="submitting"
+            color="#c00000"
+            :dark="application_valid"
+            @click="submit()"
+            :disabled="!application_valid">
+            <v-icon>mdi-send</v-icon>
+            <span>申請書を提出する / Submit application</span>
 
-
+          </v-btn>
+        </v-card-text>
+      </v-card>
+    </v-card-text>
 
   </v-card>
 </template>
@@ -266,6 +310,8 @@ export default {
       .finally(() => { this.templates_loading = false})
     },
     submit(){
+
+      this.submitting = true
 
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications`
 
