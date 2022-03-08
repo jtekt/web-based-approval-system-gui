@@ -187,7 +187,7 @@
                   </v-list-item-content>
 
                   <v-list-item-content
-                    class="align-end"
+                    class="align-end application_field_value"
                     v-else>
                     {{field.value || "-"}}
                   </v-list-item-content>
@@ -600,6 +600,9 @@
   height: 150px;
 }
 
+.application_field_value{
+  white-space: pre-line;
+}
 
 
 </style>
