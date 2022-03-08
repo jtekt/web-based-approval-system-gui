@@ -38,6 +38,7 @@
       <v-tab-item>
         <v-card-text>
           <v-data-table
+            :items-per-page="-1"
             :headers="base_headers"
             :items="templates_of_user"
             @click:row="view_template($event)"/>
@@ -46,6 +47,7 @@
       <v-tab-item>
         <v-card-text>
           <v-data-table
+            :items-per-page="-1"
             :headers="shared_templates_headers"
             :items="shared_templates"
             @click:row="view_template($event)"/>

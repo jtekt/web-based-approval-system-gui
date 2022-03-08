@@ -104,6 +104,7 @@
           <v-card-text>
 
             <v-row
+              align="baseline"
               v-for="(field, index) in template.properties.fields"
               :key="`field_${index}`">
               <v-col>
@@ -125,8 +126,24 @@
                 v-if="user_is_author"
                 cols="auto">
                 <v-btn
+                  icon
+                  :disabled="index === 0"
+                  @click="move_field(index, -1)">
+                  <v-icon>mdi-arrow-up</v-icon>
+                </v-btn>
+                <v-btn
+                  icon
+                  :disabled="index === template.properties.fields.length - 1"
+                  @click="move_field(index, 1)">
+                  <v-icon>mdi-arrow-down</v-icon>
+                </v-btn>
+              </v-col>
+              <v-col
+                v-if="user_is_author"
+                cols="auto">
+                <v-btn
+                  icon
                   color="#c00000"
-                  dark
                   @click="delete_field(index)">
                   <v-icon>mdi-delete</v-icon>
                 </v-btn>
@@ -236,6 +253,12 @@ export default {
     },
     add_field () {
       this.template.properties.fields.push({ type: 'text', label: '' })
+    },
+    move_field(index, step){
+      const item = this.template.properties.fields[index]
+      const next_item = this.template.properties.fields[index + step]
+      this.$set(this.template.properties.fields,index + step,item)
+      this.$set(this.template.properties.fields,index,next_item)
     },
     delete_field (index) {
       if (!confirm('ホンマ？')) return
