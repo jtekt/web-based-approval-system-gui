@@ -399,10 +399,11 @@ export default {
   overflow-y: auto;
   width: 100%;
 }
+
 .application_info table {
   width: 100%;
   border-collapse: collapse;
-  text-align: center;
+  /* text-align: center; */
   table-layout: fixed;
 }
 
@@ -411,6 +412,7 @@ export default {
 }
 
 .application_info th {
+  text-align: left;
   padding-top: 10px;
 }
 
