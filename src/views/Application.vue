@@ -14,25 +14,26 @@
           <v-col cols="auto">
             <HelpDialog />
           </v-col>
-          <v-col cols="auto">
-            <v-btn
-              text
-              @click="$router.push({ name: 'new_application', query: { copy_of: get_id_of_item(application) } })">
-              <v-icon>mdi-restore</v-icon>
-              <span>再申請 / Re-submit</span>
-            </v-btn>
-          </v-col>
-          <v-col cols="auto">
-            <v-btn
-              text
-              :disabled="application_is_fully_approved"
-              color="#c00000"
-              @click="delete_application()">
-              <v-icon>mdi-delete</v-icon>
-              <span>申請削除 / Delete</span>
-            </v-btn>
-          </v-col>
-
+          <template v-if="user_is_applicant">
+            <v-col cols="auto">
+              <v-btn
+                text
+                @click="$router.push({ name: 'new_application', query: { copy_of: get_id_of_item(application) } })">
+                <v-icon>mdi-restore</v-icon>
+                <span>再申請 / Re-submit</span>
+              </v-btn>
+            </v-col>
+            <v-col cols="auto">
+              <v-btn
+                text
+                :disabled="application_is_fully_approved"
+                color="#c00000"
+                @click="delete_application()">
+                <v-icon>mdi-delete</v-icon>
+                <span>申請削除 / Delete</span>
+              </v-btn>
+            </v-col>
+          </template>
         </v-row>
 
       </v-toolbar>
