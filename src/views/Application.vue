@@ -142,11 +142,24 @@
                     class="align-end"
                     v-if="field.type === 'pdf'">
 
+                    <div
+                      class="green--text text-center ma-2"
+                      v-if="user_has_stamped_attachment(field.value)">
+                      ハンコを押しました
+                    </div>
+
+                    <div
+                      class="red--text text-center ma-2"
+                      v-else>
+                      まだハンコを押してません
+                    </div>
+
                     <v-btn
                       v-if="field.value"
                       @click="view_pdf(field.value)">
                       <v-icon>mdi-eye</v-icon>
                     </v-btn>
+
                   </v-list-item-content>
 
                   <v-list-item-content
@@ -502,9 +515,7 @@
         const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/privacy`
         const body = { private: this.application.properties.private }
         this.axios.put(url, body)
-          .then(() => {
-
-          })
+          .then(() => { })
           .catch(() => alert('Error updating privacy of application'))
       },
       share_with_group (group) {
@@ -535,6 +546,25 @@
         const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/files/${id}`
         window.open(url,'_blank')
       },
+      user_has_stamped_attachment (file_id) {
+
+      const found_approval = this.user_as_recipient.approval
+
+      if (!found_approval) return
+
+      let attachment_hankos = found_approval.properties.attachment_hankos
+
+      if(typeof attachment_hankos === 'string'){
+        try {  attachment_hankos = JSON.parse(attachment_hankos)  }
+        catch (e) {  console.error('Failed to parse attachment hankos') }
+      }
+
+      if(!attachment_hankos) return
+
+      return !!attachment_hankos.find(a => a.file_id === file_id)
+
+    },
+
     },
     computed: {
       application_id(){
@@ -573,6 +603,12 @@
         const current_recipient_id = this.get_id_of_item(this.current_recipient)
         return current_recipient_id === this.current_user_id
       },
+      approvals() {
+        return this.application.recipients
+          .filter(a => !!a.approval)
+          .map(r => r.approval)
+      },
+
 
 
     }
