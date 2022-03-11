@@ -1,38 +1,21 @@
 <template>
   <div class="comments">
-    <v-subheader>承認者のコメント / Recipient comments</v-subheader>
+    <v-subheader>捺印者のコメント / Recipient comments</v-subheader>
 
-    <template v-for="(recipient, index) in ordered_recipients">
-      <v-list-item
-        two-line
-        :key="`comment_${index}`"
-        v-if="recipient.approval || recipient.refusal">
+    <RecipientComment
+      v-for="(recipient, index) in ordered_recipients"
+      :key="`comment_${index}`"
+      :recipient="recipient"
+      @comment_updated="$emit('comment_updated')"/>
 
-        <v-list-item-content>
-          <v-list-item-subtitle>{{recipient.properties.display_name}}</v-list-item-subtitle>
-          <div class="">
-            {{get_recipient_comment(recipient) || 'コメント無し / No comment'}}
-          </div>
-          <!-- <v-list-item-title>{{get_recipient_comment(recipient) || 'コメント無し / No comment'}}</v-list-item-title> -->
-        </v-list-item-content>
 
-        <v-list-item-icon v-if="recipient_is_user(recipient)">
-          <v-btn
-            v-if="recipient_is_user(recipient)"
-            @click="update_comment(recipient)"
-            icon>
-            <v-icon>mdi-pencil</v-icon>
-          </v-btn>
-        </v-list-item-icon>
-
-      </v-list-item>
-
-    </template>
 
   </div>
 </template>
 
 <script>
+
+import RecipientComment from '@/components/RecipientComment.vue'
 import IdUtils from '@/mixins/IdUtils.js'
 
 export default {
@@ -40,41 +23,13 @@ export default {
   props: {
     application: Object
   },
+  components: {
+    RecipientComment
+  },
   mixins: [
     IdUtils
   ],
   methods: {
-
-    update_comment (recipient) {
-
-      const decision =  this.approval_or_rejection_of_recipient(recipient)
-      const decision_id = this.get_id_of_item(decision)
-
-      if (!this.recipient_is_user(recipient)) return
-      const comment = prompt('コメント / Comment')
-      if (comment === null) return
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/decisions/${decision_id}/comment`
-      this.axios.put(url, { comment })
-      .then(() => {
-        this.$emit('comment_updated')
-      })
-      .catch(error => {
-        alert('Edit failed')
-        console.error(error)
-      })
-    },
-    get_recipient_comment(recipient){
-      const decision = recipient.approval || recipient.refusal
-      if(!decision) return
-      return decision.properties.comment
-    },
-
-    approval_or_rejection_of_recipient (recipient) {
-      return recipient.approval || recipient.refusal
-    },
-    recipient_is_user (recipient) {
-      return this.get_id_of_item(recipient) === this.current_user_id
-    }
 
   },
   computed: {
