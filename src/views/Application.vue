@@ -89,6 +89,7 @@
                 <v-list-item-content>機密 / Confidential</v-list-item-content>
                 <v-list-item-content class="align-end">
                   <v-switch
+                    :disabled="!user_is_applicant"
                     v-model="application.properties.private"
                     @change="update_privacy_of_application()"/>
                 </v-list-item-content>
@@ -127,9 +128,19 @@
             </v-list>
 
 
-            <!-- properties  -->
+            <!-- application form data  -->
             <v-subheader>申請内容 / Application content</v-subheader>
-            <v-list dense>
+
+            <v-list dense v-if="application.forbidden">
+              <v-list-item>
+                <v-list-item-content
+                  class="red--text">
+                  機密 / confidential
+                </v-list-item-content>
+              </v-list-item>
+            </v-list>
+
+            <v-list dense v-else>
               <template v-for="(field, index) in application.properties.form_data" >
 
                 <v-divider :key="`field_${index}_divider`"/>
@@ -381,6 +392,7 @@
         this.axios.get(url)
         .then(({data}) => {
           this.application = data
+          if(!this.application.properties.form_data) return
           this.application.properties.form_data = JSON.parse(this.application.properties.form_data)
         })
         .catch((error) => {
