@@ -153,17 +153,20 @@
                     class="align-end"
                     v-if="field.type === 'pdf'">
 
-                    <div
-                      class="green--text text-center ma-2"
-                      v-if="user_has_stamped_attachment(field.value)">
-                      ハンコを押しました
-                    </div>
+                    <template v-if="user_as_recipient">
+                      <div
+                        class="green--text text-center ma-2"
+                        v-if="user_has_stamped_attachment(field.value)">
+                        ハンコを押しました
+                      </div>
 
-                    <div
-                      class="red--text text-center ma-2"
-                      v-else>
-                      まだハンコを押してません
-                    </div>
+                      <div
+                        class="red--text text-center ma-2"
+                        v-else>
+                        まだハンコを押してません
+                      </div>
+                    </template>
+
 
                     <v-btn
                       v-if="field.value"
@@ -560,22 +563,24 @@
       },
       user_has_stamped_attachment (file_id) {
 
-      const found_approval = this.user_as_recipient.approval
+        if(!this.user_as_recipient) return false
 
-      if (!found_approval) return
+        const found_approval = this.user_as_recipient.approval
 
-      let attachment_hankos = found_approval.properties.attachment_hankos
+        if (!found_approval) return
 
-      if(typeof attachment_hankos === 'string'){
-        try {  attachment_hankos = JSON.parse(attachment_hankos)  }
-        catch (e) {  console.error('Failed to parse attachment hankos') }
-      }
+        let attachment_hankos = found_approval.properties.attachment_hankos
 
-      if(!attachment_hankos) return
+        if(typeof attachment_hankos === 'string'){
+          try {  attachment_hankos = JSON.parse(attachment_hankos)  }
+          catch (e) {  console.error('Failed to parse attachment hankos') }
+        }
 
-      return !!attachment_hankos.find(a => a.file_id === file_id)
+        if(!attachment_hankos) return
 
-    },
+        return !!attachment_hankos.find(a => a.file_id === file_id)
+
+      },
 
     },
     computed: {
