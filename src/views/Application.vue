@@ -8,7 +8,7 @@
 
         <v-row align="center">
           <v-col cols="auto">
-            <v-toolbar-title>Application {{application_id}}</v-toolbar-title>
+            <v-toolbar-title>{{application_id}}</v-toolbar-title>
           </v-col>
           <v-spacer />
           <v-col cols="auto">
