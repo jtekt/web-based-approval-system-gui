@@ -405,7 +405,6 @@
               this.error = `アイテム${this.application_id}見つけれませんでした
               Item ${this.application_id} not found`
             }
-            console.log(error.response.status)
           }
           else {
             console.error(error)
@@ -419,14 +418,9 @@
         this.selected_file_id = file_id
       },
       approve_application(){
-        const comment = prompt('コメント (任意)/ Comment (optional)')
-
-        // if pressed cancel, return
-        if (comment === null) return
-
+        if(!confirm(`承認しますか? / Approve application?`)) return
         const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/approve`
-
-        this.axios.post(url, { comment })
+        this.axios.post(url)
         .then(() => { this.get_application() })
         .catch((error) => {
           console.error(error)
@@ -434,15 +428,10 @@
         })
       },
       reject_application(){
-
-        const comment = prompt('コメント (任意)/ Comment (optional)')
-
-        // if pressed cancel, return
-        if (comment === null) return
-
+        if(!confirm(`却下しますか? / Reject application?`)) return
         const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/reject`
 
-        this.axios.post(url, { comment })
+        this.axios.post(url)
         .then(() => { this.get_application() })
         .catch((error) => {
           console.error(error)
