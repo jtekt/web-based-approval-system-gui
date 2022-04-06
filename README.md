@@ -1,24 +1,10 @@
-# shinsei_manager_vuetify
+# 申請マネージャ GUI
+This is the GUI for [申請マネージャ (Shinsei-manager)](https://github.com/jtekt/web-based-approval-system), a web application to manage approval workflows.
 
-## Project setup
-```
-npm install
-```
+## Environment variables
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+| Variable  | Description |
+| ---  | --- |
+| VUE_APP_SHINSEI_MANAGER_URL  | The URL of the 申請マネージャ API |
+| VUE_APP_EMPLOYEE_MANAGER_API_URL | The URL of the employee management service API |
+| VUE_APP_GROUP_MANAGER_API_URL | The URL of the group management service API |
