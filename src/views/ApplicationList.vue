@@ -1,165 +1,148 @@
 <template>
-  <div class="received applications">
-    <h1>{{title_lookup[direction]}}</h1>
+  <v-card>
 
-    <div class="new_application_button_wrapper">
+    <v-toolbar flat>
+      <v-toolbar-title
+        class="text-h4">
+        {{card_title_lookup[direction]}}
+      </v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-btn
+        color="#c00000"
+        dark
+        :to="{name:'new_application'}">
+        <v-icon>mdi-plus</v-icon>
+        <span>新規作成 / New submission</span>
 
-      <button
-        type="button"
-        class="bordered"
-        @click="$router.push({name: 'create_application'})">
-        <plus-icon />
-        <span>申請作成 / New application</span>
-       </button>
+      </v-btn>
 
-    </div>
+      <template v-slot:extension>
+        <v-tabs
+          color="#444444"
+          v-model="tab"
+          align-with-title>
 
-    <ApplicationTable
-      v-for="(table, index) in tables[direction]"
-      :key="`table_${index}`"
-      :direction="direction"
-      :title="table.title"
-      :state="table.state"
-      :options="table.options"/>
+          <v-tabs-slider color="#c00000"></v-tabs-slider>
 
-  </div>
+          <v-tab
+            v-for="table in tables[direction]"
+            :key="`tab_${table.state}`">
+            {{ table.title }}
+          </v-tab>
+        </v-tabs>
+      </template>
+    </v-toolbar>
+
+    <v-divider></v-divider>
+
+    <v-tabs-items v-model="tab">
+      <v-tab-item
+        v-for="table in tables[direction]"
+        :key="`tab_item_${table.state}`">
+        <v-card-text>
+          <ApplicationListTable
+            :title="table.title"
+            :state="table.state"
+            :headers="table.headers"
+            :direction="direction"/>
+        </v-card-text>
+      </v-tab-item>
+    </v-tabs-items>
+
+
+
+
+  </v-card>
 </template>
 
 <script>
-import ApplicationTable from '@/components/application_list/ApplicationTable.vue'
-
-export default {
-  name: 'ApplicationList',
-  components: {
-    ApplicationTable
-  },
-  props: {
-    direction: String
-  },
-  data () {
-    return {
-
-      title_lookup: {
-        'submitted' : '送信トレイ / Outbox',
-        'received': '受信トレイ / Inbox'
-      },
-
-      tables: {
-        submitted: [
-          {
-            title: '承認中 / Pending',
-            state: 'pending',
-            options: {
-              show_next_recipient: true,
-              show_progress: true,
-            }
-          },
-          {
-            title: '却下 / Rejected',
-            state: 'rejected',
-            options: {
-              show_next_recipient: true,
-              show_progress: true,
-            }
-          },
-          {
-            title: '承認完了 / Approved',
-            state: 'approved',
-            options: {
-
-            }
-          },
-        ],
-        received: [
-          {
-            title: '承認中 / Pending',
-            state: 'pending',
-            options: {
-              show_applicant: true
-            }
-          },
-          {
-            title: '却下 / Rejected',
-            state: 'rejected',
-            options: {
-              show_applicant: true
-            }
-          },
-          {
-            title: '承認完了 / Approved',
-            state: 'approved',
-            options: {
-              show_applicant: true
-            }
-          },
-        ]
-      },
-
-
-
-      batch_size: 10,
-      application_records: {
-        pending: [],
-        rejected: [],
-        approved: []
-      }
-    }
-  },
-  mounted () {
-    //this.get_applications()
-  },
-  watch: {
-    // whenever question changes, this function will run
-    direction () {
-      //this.get_applications()
-    }
-  },
-
-  methods: {
-    get_applications () {
-      const application_direction = this.direction
-      const application_states = ['pending', 'rejected', 'approved']
-      application_states.forEach((state) => {
-        this.$set(this.application_records, state, [])
-        this.actual_api_call(application_direction, state)
-      })
+  import ApplicationListTable from '@/components/ApplicationListTable.vue'
+  export default {
+    name: 'ApplicationList',
+    components: {
+      ApplicationListTable
     },
-    actual_api_call (application_direction, state) {
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${application_direction}/${state}`
-      const params = {
-        batch_size: this.batch_size,
-        start_index: this.application_records[state].length
-      }
-      this.$set(this.application_records[state], 'loading', true)
-      this.axios.get(url, {params})
-      .then(response => {
-        response.data.forEach(record => {
-          this.application_records[state].push(record)
-        })
-        if (response.data.length < this.batch_size) {
-          this.$set(this.application_records[state], 'all_loaded', true)
+    props: {
+      direction: String,
+    },
+    data(){
+      return {
+        tab: null,
+        card_title_lookup: {
+          'submitted' : '送信トレイ / Outbox',
+          'received': '受信トレイ / Inbox'
+        },
+        items: ['承認待ち / Pending', '却下 / Rejected', '承認完了 / Approved'],
+
+        tables: {
+          submitted: [
+            {
+              title: '承認中 / Pending',
+              state: 'pending',
+              headers: [
+                {text: '日付 / Date', value: "properties.creation_date"},
+                {text: 'タイプ / Type', value: 'properties.type'},
+                {text: '件名 / Title', value: 'properties.title'},
+                {text: '%', value: 'progress'},
+                {text: '承認者 / Current recipient', value: 'current_recipient.properties.display_name'},
+              ],
+            },
+            {
+              title: '却下 / Rejected',
+              state: 'rejected',
+              headers: [
+                {text: '日付 / Date', value: "properties.creation_date"},
+                {text: 'タイプ / Type', value: 'properties.type'},
+                {text: '件名 / Title', value: 'properties.title'},
+                {text: '%', value: 'progress'},
+                {text: '承認者 / Current recipient', value: 'current_recipient.properties.display_name'},
+              ],
+            },
+            {
+              title: '承認完了 / Approved',
+              state: 'approved',
+              headers: [
+                {text: '日付 / Date', value: "properties.creation_date"},
+                {text: 'タイプ / Type', value: 'properties.type'},
+                {text: '件名 / Title', value: 'properties.title'},
+              ],
+            },
+          ],
+          received: [
+            {
+              title: '承認中 / Pending',
+              state: 'pending',
+              headers: [
+                {text: '日付 / Date', value: "properties.creation_date"},
+                {text: 'タイプ / Type', value: 'properties.type'},
+                {text: '件名 / Title', value: 'properties.title'},
+                {text: '申請者 / Applicant', value: 'applicant.properties.display_name'},
+              ],
+            },
+            {
+              title: '却下 / Rejected',
+              state: 'rejected',
+              headers: [
+                {text: '日付 / Date', value: "properties.creation_date"},
+                {text: 'タイプ / Type', value: 'properties.type'},
+                {text: '件名 / Title', value: 'properties.title'},
+                {text: '申請者 / Applicant', value: 'applicant.properties.display_name'},
+              ],
+            },
+            {
+              title: '承認完了 / Approved',
+              state: 'approved',
+              headers: [
+                {text: '日付 / Date', value: "properties.creation_date"},
+                {text: 'タイプ / Type', value: 'properties.type'},
+                {text: '件名 / Title', value: 'properties.title'},
+                {text: '申請者 / Applicant', value: 'applicant.properties.display_name'},
+              ],
+            },
+          ]
         }
-      })
-      .catch((error) => {
-        console.error(error)
-        this.$set(this.application_records[state], 'error', 'Error loading applications')
-      })
-      .finally(() => { this.$set(this.application_records[state], 'loading', false) })
+
+      }
     },
-    load_more (event) {
-      let application_direction = this.direction
-      let state = event
-
-      this.actual_api_call(application_direction, state)
-    }
   }
-}
 </script>
-
-<style scoped>
-.new_application_button_wrapper{
-  text-align: center;
-  padding: 10px;
-
-}
-</style>

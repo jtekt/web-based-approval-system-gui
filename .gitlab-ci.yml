@@ -3,17 +3,20 @@ stages:
   - deploy
 
 variables:
-  APPLICATION_NAME: shinsei-manager-front
+  APPLICATION_NAME: shinsei-manager-front-vuetify
   CONTAINER_IMAGE: ${DOCKER_HUB_USERNAME}/${APPLICATION_NAME}
   CONTAINER_IMAGE_TAGGED: ${DOCKER_HUB_USERNAME}/${APPLICATION_NAME}:${CI_COMMIT_SHORT_SHA}
+  NODEPORT: 32725
+
 
 build:
   stage: build
   tags:
     - moreillon
-  script:
+  before_script:
     # Docker hub login
     - echo "${DOCKER_HUB_PASSWORD}" | docker login --username ${DOCKER_HUB_USERNAME} --password-stdin
+  script:
     # Building
     - docker build -t ${CONTAINER_IMAGE} .
     # Tagging
@@ -25,16 +28,14 @@ build:
     - docker image rm ${CONTAINER_IMAGE}
     - docker image rm ${CONTAINER_IMAGE_TAGGED}
 
+
 deploy:
   stage: deploy
   tags:
     - moreillon
   script:
     # create/update the deployment
-    - envsubst < kubernetes/deployment.yml | kubectl apply -f -
-    # Pull latest image of deployment
-    - kubectl rollout restart deployment/${APPLICATION_NAME}
-
+    - envsubst < kubernetes_manifest.yml | kubectl apply -f -
   environment:
     name: production
     kubernetes:

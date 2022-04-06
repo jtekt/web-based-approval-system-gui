@@ -1,220 +1,130 @@
 <template>
-  <div class="">
-    <h1>検索 / Search</h1>
+  <v-card>
+    <v-card-title>検索 / Search</v-card-title>
+    <v-card-text>
+      <v-card outlined>
+        <v-card-title>フィルター / Filters</v-card-title>
 
-    <h2>Filters</h2>
+        <v-form @submit.prevent="search()">
+          <v-card-text>
+            <v-row>
+              <v-col>
+                <v-text-field
+                  label="ハンコ ID / Hanko ID"
+                  v-model="hanko_id"/>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col>
+                <v-text-field
+                  label="申請 ID / Application ID"
+                  v-model="application_id"/>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col>
+                <v-combobox
+                  label="申請タイプ / Application type"
+                  :items="application_types"
+                  v-model="application_type"/>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col>
+                <DatePickerMenu
+                  label="いつから / From"
+                  @selection="start_date = $event"/>
+              </v-col>
+              <v-col>
+                <DatePickerMenu
+                  label="いつまで / To"
+                  @selection="end_date = $event"/>
+              </v-col>
+            </v-row>
+            <v-row align="center">
+              <v-col cols="auto">
+                申請者のグループ / Applicant group
+              </v-col>
+              <v-col cols="auto">
 
-    <form @submit.prevent="search()">
-      <table
-        class="filters_table">
-        <tr>
-          <td>ハンコ ID / Hanko ID</td>
-          <td>
-            <input type="search" v-model="hanko_id" placeholder="ハンコ ID / Hanko ID">
-          </td>
-        </tr>
-        <tr>
-          <td>申請 ID / Application ID</td>
-          <td>
-            <input type="search" v-model="application_id" placeholder="申請 ID / Application ID">
-          </td>
-        </tr>
-        <tr>
-          <td>申請タイプ / Application type</td>
-          <td>
-            <input
-              type="search"
-              list="application_types"
-              v-model="application_type"
-              placeholder="申請タイプ / Application type">
+                <v-chip
+                  v-if="selected_group"
+                  close
+                  @click:close="selected_group = null">
+                  {{selected_group.properties.name}}
+                </v-chip>
 
-            <datalist id="application_types">
-              <option
-                v-for="type in application_types"
-                :key="`type_${type}`"
-                :value="type">{{type}}</option>
-            </datalist>
+                <AddGroupDialog
+                  v-else
+                  @selection="select_group($event)"/>
 
-          </td>
-        </tr>
-        <tr>
-          <td>いつから / From</td>
-          <td>
-            <input type="date" v-model="start_date">
-          </td>
-        </tr>
-        <tr>
-          <td>いつまで / To</td>
-          <td>
-            <input type="date" v-model="end_date">
-          </td>
-        </tr>
-        <tr>
-          <td>関係 / Relationship</td>
-          <td>
-            <select class="" v-model="relationship_type">
-              <option :value="null">何でも / Any</option>
-              <option value="SUBMITTED_BY">出した申請 / Submitted by you</option>
-              <option value="SUBMITTED_TO">受け取った申請 / Submitted to you</option>
-              <option value="REJECTED">却下した申請 / Rejected by you</option>
-              <option value="APPROVED">承認した申請 / Approved by you</option>
-            </select>
-          </td>
-        </tr>
-
-        <tr>
-          <td>承認状態 / Approval state</td>
-          <td>
-            <select class="" v-model="approval_state">
-              <option :value="null">何でも / Any</option>
-              <option value="approved">承認完了 / Approved</option>
-            </select>
-          </td>
-        </tr>
-
-        <tr>
-          <td>申請者のグループ / Applicant group</td>
-          <td>
-
-            <button
-              v-if="!selected_group"
-              type="button"
-              @click="modal_open = true">
-              <account-multiple-plus-icon />
-              <span>Select a group</span>
-            </button>
-
-            <div
-              v-else
-              class="selected_group_wrapper">
-              <span>{{selected_group.properties.name}}</span>
-              <button type="button" @click="selected_group = null">
-                <close-icon />
-              </button>
-            </div>
-          </td>
-        </tr>
-
-      </table>
-
-      <input type="submit" class="hidden">
-      <button
-        type="button"
-        class="bordered search_button"
-        @click="search()">
-        <magnify-icon/>
-        <span>検索 / Search</span>
-      </button>
-
-    </form>
-
-    <h2>Results</h2>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col>
+                <v-select
+                  label="関係 / Relationship"
+                  :items="relationship_types"
+                  v-model="relationship_type"/>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col>
+                <v-select
+                  label="承認状態 / Approval state"
+                  :items="approval_states"
+                  v-model="approval_state"/>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col>
+                <v-btn
+                  type="submit">
+                  <v-icon>mdi-magnify</v-icon>
+                  <span>検索 / Search</span>
+                </v-btn>
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-form>
 
 
-    <template
-      v-if="applications.length">
 
-      <div class="export_button_wrapper">
-        <button
-          class="bordered"
-          type="button"
-          @click="export_table()">
-          <download-icon/>
-          <span>エクスポート / Export</span>
-        </button>
-      </div>
 
-      <div class="table_wrapper">
-        <table
-          class="search_results_table"
-          id="search_results_table">
-          <tr>
-            <th>ID</th>
-            <th>Date</th>
-            <th>Type</th>
-            <th>Title</th>
-            <th>Confidential</th>
-            <th>Applicant</th>
-            <th
-              v-for="(label, i) in field_labels"
-              :key="`field_label_${i}`">
-              {{label}}
-            </th>
-          </tr>
+      </v-card>
+    </v-card-text>
 
-          <SearchResult
-            v-for="(application, i) in applications"
-            v-bind:key="`result_${i}`"
-            :application="application"
-            :fields="field_labels"/>
+    <v-card-text>
+      <v-data-table
+        :loading="loading"
+        :items="applications"
+        :headers="headers"
+        :options.sync="options"
+        :server-items-length="count"
+        @click:row="row_clicked($event)">
 
-        </table>
-      </div>
+      <template v-slot:item.properties.creation_date="{ item }">
+        {{format_date(item.properties.creation_date)}}
+      </template>
 
-      <div
-        v-if="!all_loaded && !loading && !error"
-        class="load_more_wrapper">
-        <button
-          type="button"
-          class="bordered"
-          @click="get_applications()">
-          Load more
-        </button>
-      </div>
-    </template>
+      </v-data-table>
+    </v-card-text>
 
-    <div
-      v-if="!loading && !applications.length && !error"
-      class="">
-      No results
-    </div>
 
-    <div
-      v-if="error"
-      class="error">
-      Failed to query data
-    </div>
-
-    <div
-      v-if="loading"
-      class="loader_container">
-      <Loader />
-    </div>
-
-    <!-- Modal for group visibility -->
-    <Modal
-      :open="modal_open"
-      @close="modal_open=false">
-      <h2 class="">
-        Select a group
-      </h2>
-      <div
-        v-if="modal_open"
-        class="group_picker_wrapper">
-        <GroupPicker
-          class="visibility_group_picker"
-          v-on:selection="select_group($event)"/>
-      </div>
-    </Modal>
-
-  </div>
-
+  </v-card>
 </template>
 
 <script>
-import SearchResult from '@/components/SearchResult.vue'
 import XLSX from 'xlsx'
-import GroupPicker from '@moreillon/vue_group_picker'
-import Modal from '@moreillon/vue_modal'
 import IdUtils from '@/mixins/IdUtils.js'
+import AddGroupDialog from '@/components/AddGroupDialog.vue'
+import DatePickerMenu from '@/components/DatePickerMenu.vue'
 
 export default {
   name: 'Search',
   components: {
-    SearchResult,
-    Modal,
-    GroupPicker
-
+    AddGroupDialog,
+    DatePickerMenu,
   },
   mixins: [
     IdUtils
@@ -223,16 +133,39 @@ export default {
     return {
       loading: false,
       error: null,
-      application_types: [],
+
       applications: [],
+      options: {},
+
+      headers: [
+        {text: 'ID', value: 'properties._id'},
+        {text: 'Date', value: 'properties.creation_date'},
+        {text: 'Title', value: 'properties.title'},
+        {text: 'Type', value: 'properties.type'},
+        {text: 'Applicant', value: 'applicant.properties.display_name'},
+      ],
+
+      application_types: [],
+      application_type: null,
       count: null,
 
       // Filters
       // Todo: group under filters object
       application_id: null,
       hanko_id: null,
+      relationship_types: [
+        {value: null, text: '何でも / Any'},
+        {value: 'SUBMITTED_BY', text: '出した申請 / Submitted by you'},
+        {value: 'SUBMITTED_TO', text: '受け取った申請 / Submitted to you'},
+        {value: 'REJECTED', text: '却下した申請 / Rejected by you'},
+        {value: 'APPROVED', text: '承認した申請 / Approved by you'},
+      ],
       relationship_type: null,
-      application_type: null,
+
+      approval_states: [
+        {text: '何でも / Any', value: null},
+        {text: '承認完了 / Approved', value: 'approved'},
+      ],
       approval_state: null,
 
       field_labels: [],
@@ -245,6 +178,14 @@ export default {
   },
   mounted () {
     this.get_application_types()
+  },
+  watch: {
+    options: {
+      handler () {
+        this.search()
+      },
+      deep: true,
+    },
   },
   methods: {
     get_application_types () {
@@ -259,6 +200,9 @@ export default {
       this.error = false
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications`
 
+      const { page, itemsPerPage } = this.options
+
+
       const params = {
         hanko_id: this.hanko_id,
         application_id: this.application_id,
@@ -268,13 +212,13 @@ export default {
         end_date: this.end_date,
         group_id: this.selected_group_id,
         state: this.approval_state,
-        batch_size: 50,
-        start_index: this.applications.length
+        start_index: (page-1) * itemsPerPage,
+        batch_size: itemsPerPage,
       }
 
       this.axios.get(url, { params })
         .then( ({data}) => {
-          this.applications = [...this.applications,...data.applications]
+          this.applications = data.applications
           this.count = data.count
 
           // Unpack form-data
@@ -297,7 +241,6 @@ export default {
 
     },
     search () {
-      this.applications = []
       this.field_labels = []
       this.get_applications()
 
@@ -307,107 +250,25 @@ export default {
       this.modal_open = false
       this.selected_group = group
     },
+    row_clicked({properties: {_id}}){
+      this.$router.push({name: 'application', params: {application_id: _id}})
+    },
     export_table () {
       var workbook = XLSX.utils.book_new()
       var ws1 = XLSX.utils.table_to_sheet(document.getElementById('search_results_table'))
       XLSX.utils.book_append_sheet(workbook, ws1, 'Sheet1')
       XLSX.writeFile(workbook, 'export.xlsx')
-    }
+    },
+    format_date (date) {
+      const { year, month, day } = date
+      return `${year}/${String(month).padStart(2, '0')}/${String(day).padStart(2, '0')}`
+    },
   },
   computed: {
     selected_group_id () {
       if (!this.selected_group) return null
       return this.get_id_of_item(this.selected_group)
     },
-    all_loaded(){
-      return this.applications.length === this.count
-    }
   }
 }
 </script>
-
-<style scoped>
-form {
-  text-align: center;
-}
-form > * {
-  margin: 0.25em;
-}
-
-.search_button {
-  margin-top: 1em;
-}
-.table_wrapper {
-  overflow: auto;
-  //max-height: 70vh;
-}
-
-table {
-  border-collapse: collapse;
-  min-width: 100%;
-  text-align: left;
-}
-
-table input, table select {
-  width: 100%;
-}
-
-.search_results_table th {
-  max-width: 20em;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-}
-
-.search_results_table th:not(:last-child) {
-  padding-right: 1em;
-}
-
-tr:not(:last-child) {
-  border-bottom: 1px solid #dddddd;
-}
-
-.search_results_table tr:not(:first-child) {
-  cursor: pointer;
-  transition: background-color 0.25s;
-}
-
-.search_results_table tr:not(:first-child):hover {
-  background-color: #eeeeee;
-}
-
-.export_button_wrapper {
-  margin: 1em;
-  text-align: center;
-}
-
-.loader_container {
-  margin-top: 2em;
-  text-align: center;
-}
-
-.hidden {
-  display: none;
-}
-
-.selected_group_wrapper {
-  display: flex;
-  align-items: center;
-}
-
-.group_picker_wrapper {
-  height: 50vh;
-  width: 75vw;
-}
-
-.visibility_group_picker {
-  height: 100%;
-}
-
-.load_more_wrapper {
-  margin: 1em;
-  text-align: center;
-}
-
-
-</style>
