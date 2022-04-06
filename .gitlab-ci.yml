@@ -9,6 +9,8 @@ variables:
 
 build:
   stage: build
+  only:
+    - master
   tags:
     - moreillon
   script:
@@ -27,14 +29,13 @@ build:
 
 deploy:
   stage: deploy
+  only:
+    - master
   tags:
     - moreillon
   script:
     # create/update the deployment
     - envsubst < kubernetes/deployment.yml | kubectl apply -f -
-    # Pull latest image of deployment
-    - kubectl rollout restart deployment/${APPLICATION_NAME}
-
   environment:
     name: production
     kubernetes:
