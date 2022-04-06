@@ -11,7 +11,7 @@
   "license": "MIT",
   "dependencies": {
     "@moreillon/vue_application_template_vuetify": "^1.1.6",
-    "@moreillon/vue_user_picker": "^3.0.2",
+    "@moreillon/vue_user_picker": "^5.0.1",
     "axios": "^0.24.0",
     "canvg": "^3.0.10",
     "core-js": "^3.21.1",
