@@ -315,8 +315,8 @@ export default {
 
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications`
 
-      const recipients_ids = this.recipients.map( ({properties: {_id}}) => _id)
-      const group_ids = this.groups.map( ({properties: {_id}}) => _id)
+      const recipients_ids = this.recipients.map( (recipient) => recipient._id || recipient.properties._id)
+      const group_ids = this.groups.map( (group) => group._id || group.properties._id)
 
 
       const body = {

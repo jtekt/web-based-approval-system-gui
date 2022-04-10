@@ -19,9 +19,9 @@
         close
         label
         @click:close="delete_recipient(index)">
-        {{recipient.properties.display_name
-        || recipient.properties.name_kanji
-        || recipient.properties.full_name}}
+        {{recipient.display_name
+        || recipient.name_kanji
+        || recipient.full_name}}
       </v-chip>
 
 
