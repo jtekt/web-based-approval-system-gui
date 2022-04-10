@@ -395,8 +395,6 @@ export default {
 
         this.groups = original_application.visibility
 
-
-
         // Recreate flow
         this.recipients = original_application.recipients.sort((a, b) => {
           return a.submission.properties.flow_index - b.submission.properties.flow_index
