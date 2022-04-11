@@ -81,7 +81,7 @@
 
         <v-toolbar flat>
           <v-card-title>
-            ② 申請内容 / Application content {{selected_form ? selected_form.properties.label : null}}
+            ② 申請内容 / Application content: {{selected_form ? selected_form.properties.label : null}}
           </v-card-title>
         </v-toolbar>
 
@@ -92,7 +92,6 @@
         </v-card-text>
 
         <template v-if="selected_form">
-          <v-card-subtitle>{{selected_form.properties.label}}</v-card-subtitle>
 
           <v-card-text>
             <v-row
