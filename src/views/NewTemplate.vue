@@ -66,7 +66,7 @@ export default {
       valid: false,
       nameRules: [
         v => !!v || 'Name is required',
-        v => v.length <= 20 || 'Name must be less than 20 characters',
+        v => v.length <= 100 || 'Name must be less than 100 characters',
       ],
     }
   },

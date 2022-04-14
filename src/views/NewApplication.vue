@@ -18,14 +18,25 @@
 
         <v-card-text>
 
-          <v-row>
-            <v-col>
-              <span
-                v-if="this.$route.query.copy_of && selected_form">
-                申請種類 / Application type: {{selected_form.properties.label}}
-              </span>
+          <v-row
+            v-if="this.$route.query.copy_of"
+            align="center">
+            <v-col cols="auto">
+              申請種類 / Application type: 再申請 / Copy of application
+            </v-col>
+            <v-col cols="auto" >
+              <v-btn
+                outlined
+                small
+                exact
+                :to="{name: 'new_application'}">
+                やり直し / Start from scratch
+              </v-btn>
+            </v-col>
+          </v-row>
+          <v-row v-else>
+            <v-col >
               <v-select
-                v-else
                 :items="application_form_templates"
                 item-text="properties.label"
                 return-object
@@ -324,6 +335,17 @@ export default {
     AddGroupDialog,
     DatePicker,
   },
+  watch: {
+    copy_of(){
+      if (!this.$route.query.copy_of) {
+        // Reset form
+        this.selected_form = null
+        this.groups = []
+        this.recipients = []
+        this.title = ''
+      }
+    }
+  },
   mounted () {
     this.get_templates()
     if (this.$route.query.copy_of) this.recreate_application_content()
@@ -396,10 +418,6 @@ export default {
     recreate_application_content () {
       // This function is called when the application is a dubplicate of an existing one
 
-      // NOTE: NO CONFIDENTIALITY FOR NOW!
-
-      // alert(`再申請機能はまだできてません`)
-
       const application_id = this.$route.query.copy_of
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v1/applications/${application_id}`
       this.axios.get(url)
@@ -450,6 +468,9 @@ export default {
       return this.title !== ''
         && this.recipients.length > 0
         && !!this.selected_form.properties
+    },
+    copy_of(){
+      return this.$route.query.copy_of
     }
   }
 }
