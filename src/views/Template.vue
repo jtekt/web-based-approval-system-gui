@@ -18,12 +18,14 @@
           color="#c00000"
           dark
           text
+          :loading="deleting"
           @click="delete_template()">
           <v-icon>mdi-delete</v-icon>
           <span>Delete</span>
         </v-btn>
         <v-btn
           text
+          :loading="saving"
           @click="update_template()">
           <v-icon>mdi-content-save</v-icon>
           <span>Save</span>
@@ -180,6 +182,8 @@ export default {
     return {
       template: null,
       loading: false,
+      saving: false,
+      deleting: false,
       field_types: [
         { type: 'text', label: 'テキスト / Text' },
         { type: 'file', label: 'ファイル / File' },
@@ -211,6 +215,7 @@ export default {
 
     update_template () {
 
+      this.saving = true
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
       const group_ids = this.template.groups.map( group => this.get_id_of_item(group))
       const {fields, label, description} = this.template.properties
@@ -228,6 +233,8 @@ export default {
         alert('Error while updating the template')
         console.log(error)
       })
+      .finally(() => { this.saving = false })
+
     },
 
     add_group(group){
@@ -241,6 +248,7 @@ export default {
 
     delete_template(){
       if(!confirm(`Delete template ${this.template_id}?`)) return
+      this.deleting = true
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
       this.axios.delete(url)
       .then( () => {
@@ -250,6 +258,7 @@ export default {
         console.error(error)
         if(error.response) this.error_message = error.response.data
       })
+      .finally(() => { this.deleting = false })
     },
     add_field () {
       this.template.properties.fields.push({ type: 'text', label: '' })
