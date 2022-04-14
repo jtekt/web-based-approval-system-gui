@@ -7,7 +7,7 @@ In this GUI, this digital equivalent proof of approval takes the form of the fol
 
 
 <p align="center">
-  <img width="200" height="300" src="./docs/hanko.png">
+  <img width="100" height="150" src="./docs/web_hanko.png">
 </p>
 
 The Web hanko embeds a QR code which contains the database ID of the given approval from the given approver, meaning that the web hanko for every approval of every user is unique.
