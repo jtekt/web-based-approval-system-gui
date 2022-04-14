@@ -20,7 +20,12 @@
 
           <v-row>
             <v-col>
+              <span
+                v-if="this.$route.query.copy_of && selected_form">
+                申請種類 / Application type: {{selected_form.properties.label}}
+              </span>
               <v-select
+                v-else
                 :items="application_form_templates"
                 item-text="properties.label"
                 return-object
@@ -94,6 +99,7 @@
         <template v-if="selected_form">
 
           <v-expansion-panels
+            v-if="selected_form && !this.$route.query.copy_of"
             flat
             accordion>
             <v-expansion-panel>

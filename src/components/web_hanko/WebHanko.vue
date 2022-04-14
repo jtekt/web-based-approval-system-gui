@@ -1,6 +1,4 @@
 <template>
-
-  <div class="web_hanko">
     <!-- ID used for PDF stamping -->
     <!-- This is far from ideal -->
     <svg
@@ -58,11 +56,11 @@
 
     </svg>
 
-  </div>
 </template>
 
 <script>
 import QRCode from 'qrcode'
+import canvg from 'canvg' // used to turn Hankos into PNG
 
 export default {
   name: 'WebHanko',
@@ -84,6 +82,8 @@ export default {
     return {
       qr_code_svg: '',
       qr_size: 21,
+      // name: '山田',
+      // approvalId: 'example',
     }
   },
   mounted () {
@@ -132,14 +132,34 @@ export default {
       }
 
       QRCode.toString(content, options)
-      .then( (qr_string) => {
-        const parser = new DOMParser()
-        const doc = parser.parseFromString(qr_string, 'image/svg+xml')
-        this.qr_code_svg = doc.getElementsByTagName('path')[0].getAttribute('d')
-        this.qr_size = doc.getElementsByTagName('svg')[0].getAttribute('viewBox').split(' ')[2]
-      })
-      .catch(err => console.error(err))
+        .then( (qr_string) => {
+          const parser = new DOMParser()
+          const doc = parser.parseFromString(qr_string, 'image/svg+xml')
+          this.qr_code_svg = doc.getElementsByTagName('path')[0].getAttribute('d')
+          this.qr_size = doc.getElementsByTagName('svg')[0].getAttribute('viewBox').split(' ')[2]
+        })
+        .catch(err => console.error(err))
     },
+    download(){
+      const hanko_svg = this.$refs.svg
+      const serializer = new XMLSerializer()
+      const SVG_sata = serializer.serializeToString(hanko_svg)
+
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
+
+      canvas.width = 1000
+      canvas.height = 1500
+
+      canvg.fromString(context, SVG_sata).start()
+      const elem = window.document.createElement('a')
+
+      elem.href = canvas.toDataURL("image/png")
+      elem.download = `hanko.png`
+      document.body.appendChild(elem)
+      elem.click()
+      document.body.removeChild(elem)
+    }
   }
 }
 </script>
@@ -147,15 +167,13 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 
-.web_hanko{
+/* .web_hanko{
 
   position: relative;
-
-  /* the SVG will keep aspect ratio and generate margins accordingly */
   height: 100%;
   width: 100%;
 
-}
+} */
 
 svg {
   height: 100%;
