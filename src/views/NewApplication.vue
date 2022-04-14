@@ -80,10 +80,10 @@
       <v-card outlined>
 
         <v-toolbar flat>
-          <v-card-title>
-            ② 申請内容 / Application content: {{selected_form ? selected_form.properties.label : null}}
-          </v-card-title>
+          <v-card-title>② 申請内容 / Application content</v-card-title>
         </v-toolbar>
+
+
 
 
 
@@ -92,6 +92,31 @@
         </v-card-text>
 
         <template v-if="selected_form">
+
+          <v-expansion-panels
+            flat
+            accordion>
+            <v-expansion-panel>
+              <v-expansion-panel-header>申請種類 / Application type: {{selected_form.properties.label}} (詳しくクリック / Click for more info)</v-expansion-panel-header>
+              <v-expansion-panel-content>
+                <v-row>
+                  <v-col>
+                    フォーム作成者 / Form author: {{selected_form.author.display_name || selected_form.author.properties.display_name}}
+                  </v-col>
+                  <v-spacer />
+                  <v-col cols="auto">
+                    <router-link :to="{ name: 'template', params: { template_id: selected_form._id || selected_form.properties._id} }">フォームページ / Form page</router-link>
+                  </v-col>
+                </v-row>
+                <v-row>
+                  <v-col cols="12" class="form_description">
+                    {{selected_form.properties.description}}
+                  </v-col>
+                </v-row>
+              </v-expansion-panel-content>
+
+            </v-expansion-panel>
+          </v-expansion-panels>
 
           <v-card-text>
             <v-row
@@ -427,5 +452,9 @@ export default {
 <style>
 .user_picker {
   max-height: 300px;
+}
+
+.form_description{
+  white-space: pre-line;
 }
 </style>

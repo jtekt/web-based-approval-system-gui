@@ -10,6 +10,7 @@ Vue.use(VueAxios, axios)
 Vue.config.productionTip = false
 
 router.afterEach( () => {
+  if(!store.state.curren_user) return
   const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v1/applications`
   const params = {
     relationship: 'SUBMITTED_TO',
