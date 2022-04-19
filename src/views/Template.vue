@@ -70,7 +70,7 @@
             <v-chip
               :close="user_is_author"
               @click:close="remove_group(index)">
-              {{group.properties.name}}
+              {{group.name || group.properties.name}}
             </v-chip>
           </v-col>
 
