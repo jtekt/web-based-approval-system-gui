@@ -13,7 +13,7 @@
       <!-- TODO: provide alternatives for the name! -->
       <WebHanko
         v-if="recipient.approval"
-        :name="recipient.properties.last_name"
+        :name="recipient_name"
         :approvalId="get_id_of_item(recipient.approval)"
         :date="recipient.approval.properties.date"/>
 
