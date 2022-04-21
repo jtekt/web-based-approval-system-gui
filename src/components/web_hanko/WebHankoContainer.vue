@@ -7,7 +7,7 @@
       class="hanko_container_header">
       {{ recipient.properties.last_name
         || recipient.properties.family_name_kanji
-        || recipient.family_name}}
+        || recipient.family_name }}
     </a>
 
     <div class="hanko_area">
@@ -99,6 +99,23 @@ export default {
     },
     user_as_recipient(){
       return this.application.recipients.find(recipient => this.get_id_of_item(recipient) === this.current_user_id)
+    },
+    recipient_name(){
+      if(this.recipient.properties){
+        const {properties} = this.recipient
+        return properties.last_name
+          || properties.family_name_kanji
+          || properties.name_kanji
+          || properties.display_name
+      }
+      else {
+        return this.recipient
+          || this.recipient.last_name
+          || this.recipient.family_name_kanji
+          || this.recipient.name_kanji
+          || this.recipient.display_name
+
+      }
     },
   }
 }
