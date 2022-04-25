@@ -153,26 +153,30 @@
                     class="align-end"
                     v-if="field.type === 'pdf'">
 
-                    <template v-if="user_as_recipient">
-                      <div
-                        class="green--text text-center ma-2"
-                        v-if="user_has_stamped_attachment(field.value)">
-                        ハンコを押しました
-                      </div>
+                    <template v-if="field.value">
+                      <template v-if="user_as_recipient">
+                        <div
+                          class="green--text text-center ma-2"
+                          v-if="user_has_stamped_attachment(field.value)">
+                          ハンコを押しました
+                        </div>
 
-                      <div
-                        class="red--text text-center ma-2"
-                        v-else>
-                        まだハンコを押してません
-                      </div>
+                        <div
+                          class="red--text text-center ma-2"
+                          v-else>
+                          まだハンコを押してません
+                        </div>
+                      </template>
+                      
+                      <v-btn
+                        @click="view_pdf(field.value)">
+                        <v-icon>mdi-eye</v-icon>
+                      </v-btn>
                     </template>
 
 
-                    <v-btn
-                      v-if="field.value"
-                      @click="view_pdf(field.value)">
-                      <v-icon>mdi-eye</v-icon>
-                    </v-btn>
+
+
 
                   </v-list-item-content>
 
