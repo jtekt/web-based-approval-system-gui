@@ -69,12 +69,12 @@ export default {
   computed: {
     nav(){
       return [
-        {title: '新規作成 / New', to: {name: 'new_application'}, icon: 'mdi-plus'},
-        {title: '送信トレイ / Outbox', to: {name: 'submitted_applications'}, icon: 'mdi-inbox-arrow-up'},
-        {title: '受信トレイ / Inbox', to: {name: 'received_applications'}, icon: 'mdi-inbox-arrow-down', count: this.$store.state.received_pending_application_count},
-        {title: '検索 / Search', to: {name: 'search'}, icon: 'mdi-magnify'},
-        {title: 'テンプレート / Templates', to: {name: 'templates'}, icon: 'mdi-file-document-multiple-outline'},
-        {title: 'アプリについて / About', to: {name: 'about'}, icon: 'mdi-information-outline'},
+        {title: this.$t('nav.new'), to: {name: 'new_application'}, icon: 'mdi-plus'},
+        {title: this.$t('nav.outbox'), to: {name: 'submitted_applications'}, icon: 'mdi-inbox-arrow-up'},
+        {title: this.$t('nav.inbox'), to: {name: 'received_applications'}, icon: 'mdi-inbox-arrow-down', count: this.$store.state.received_pending_application_count},
+        {title: this.$t('nav.search'), to: {name: 'search'}, icon: 'mdi-magnify'},
+        {title: this.$t('nav.templates'), to: {name: 'templates'}, icon: 'mdi-file-document-multiple-outline'},
+        {title: this.$t('nav.about'), to: {name: 'about'}, icon: 'mdi-information-outline'},
       ]
     }
   }
@@ -82,3 +82,28 @@ export default {
 }
 </script>
 
+<i18n>
+{
+  "en": {
+    "nav": {
+      "new": "New application",
+      "outbox": "Outbox",
+      "inbox": "Inbox",
+      "search": "Search",
+      "templates": "Templates",
+      "about": "About"
+    }
+  },
+  "ja": {
+    "nav": {
+      "new": "新規作成",
+      "outbox": "送信トレイ",
+      "inbox": "受信トレイ",
+      "search": "検索",
+      "templates": "テンプレート",
+      "about": "アプリについて"
+    }
+  }
+
+}
+</i18n>
