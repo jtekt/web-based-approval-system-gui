@@ -8,7 +8,7 @@
 
         <v-row align="center">
           <v-col cols="auto">
-            <v-toolbar-title>申請 / Application</v-toolbar-title>
+            <v-toolbar-title>{{ $t('Application') }}</v-toolbar-title>
           </v-col>
           <v-spacer />
           <v-col cols="auto">
@@ -653,3 +653,4 @@
 
 
 </style>
+

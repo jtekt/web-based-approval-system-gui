@@ -1,3 +1,15 @@
 {
-  "message": "hello i18n !!"
+  "message": "hello i18n !!",
+  "Application": "Application",
+  "New application": "New application",
+  "Outbox": "Outbox",
+  "Inbox": "Inbox",
+  "Pending": "Pending",
+  "Approved": "Approved",
+  "Rejected": "Rejected",
+  "Date": "Date",
+  "Type": "Type",
+  "Title": "Title",
+  "Applicant": "Applicant",
+  "Current recipient": "Current recipient"
 }

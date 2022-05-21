@@ -1,3 +1,14 @@
 {
-  "message": "こんにちは !!"
+  "message": "こんにちは !!",
+  "New application": "新規作成",
+  "Outbox": "送信トレイ",
+  "Inbox": "受信トレイ",
+  "Pending": "承認中",
+  "Rejected": "却下",
+  "Approved": "承認完了",
+  "Date": "日付",
+  "Type": "タイプ",
+  "Title": "件名",
+  "Applicant": "申請者",
+  "Current recipient": "承認者"
 }

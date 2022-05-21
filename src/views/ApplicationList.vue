@@ -13,7 +13,7 @@
         dark
         :to="{name:'new_application'}">
         <v-icon>mdi-plus</v-icon>
-        <span>{{ $t('new_application') }}</span>
+        <span>{{ $t('New application') }}</span>
       </v-btn>
 
       <template v-slot:extension>
@@ -69,105 +69,88 @@
       return {
         tab: null,
         
-        items: ['承認待ち / Pending', '却下 / Rejected', '承認完了 / Approved'],
-
-        tables: {
-          submitted: [
-            {
-              title: '承認中 / Pending',
-              state: 'pending',
-              headers: [
-                {text: '日付 / Date', value: "properties.creation_date"},
-                {text: 'タイプ / Type', value: 'properties.type'},
-                {text: '件名 / Title', value: 'properties.title'},
-                {text: '%', value: 'progress'},
-                {text: '承認者 / Current recipient', value: 'current_recipient.properties.display_name'},
-              ],
-            },
-            {
-              title: '却下 / Rejected',
-              state: 'rejected',
-              headers: [
-                {text: '日付 / Date', value: "properties.creation_date"},
-                {text: 'タイプ / Type', value: 'properties.type'},
-                {text: '件名 / Title', value: 'properties.title'},
-                {text: '%', value: 'progress'},
-                {text: '承認者 / Current recipient', value: 'current_recipient.properties.display_name'},
-              ],
-            },
-            {
-              title: '承認完了 / Approved',
-              state: 'approved',
-              headers: [
-                {text: '日付 / Date', value: "properties.creation_date"},
-                {text: 'タイプ / Type', value: 'properties.type'},
-                {text: '件名 / Title', value: 'properties.title'},
-              ],
-            },
-          ],
-          received: [
-            {
-              title: '承認中 / Pending',
-              state: 'pending',
-              headers: [
-                {text: '日付 / Date', value: "properties.creation_date"},
-                {text: 'タイプ / Type', value: 'properties.type'},
-                {text: '件名 / Title', value: 'properties.title'},
-                {text: '申請者 / Applicant', value: 'applicant.properties.display_name'},
-              ],
-            },
-            {
-              title: '却下 / Rejected',
-              state: 'rejected',
-              headers: [
-                {text: '日付 / Date', value: "properties.creation_date"},
-                {text: 'タイプ / Type', value: 'properties.type'},
-                {text: '件名 / Title', value: 'properties.title'},
-                {text: '申請者 / Applicant', value: 'applicant.properties.display_name'},
-              ],
-            },
-            {
-              title: '承認完了 / Approved',
-              state: 'approved',
-              headers: [
-                {text: '日付 / Date', value: "properties.creation_date"},
-                {text: 'タイプ / Type', value: 'properties.type'},
-                {text: '件名 / Title', value: 'properties.title'},
-                {text: '申請者 / Applicant', value: 'applicant.properties.display_name'},
-              ],
-            },
-          ]
-        }
+        
 
       }
     },
     computed: {
       card_title_lookup(){
         return {
-          submitted : this.$t('title.outbox'),
-          received: this.$t('title.inbox')
+          submitted : this.$t('Outbox'),
+          received: this.$t('Inbox')
+        }
+      },
+      tables() {
+        return {
+          submitted: [
+            {
+              title: this.$t('Pending'),
+              state: 'pending',
+              headers: [
+                {text: this.$t('Date'), value: "properties.creation_date"},
+                {text: this.$t('Type'), value: 'properties.type'},
+                {text: this.$t('Title'), value: 'properties.title'},
+                {text: '%', value: 'progress'},
+                {text: this.$t('Current recipient'), value: 'current_recipient.properties.display_name'},
+              ],
+            },
+            {
+              title: this.$t('Rejected'),
+              state: 'rejected',
+              headers: [
+                {text: this.$t('Date'), value: "properties.creation_date"},
+                {text: this.$t('Type'), value: 'properties.type'},
+                {text: this.$t('Title'), value: 'properties.title'},
+                {text: '%', value: 'progress'},
+                {text: this.$t('Current recipient'), value: 'current_recipient.properties.display_name'},
+              ],
+            },
+            {
+              title: this.$t('Approved'),
+              state: 'approved',
+              headers: [
+                {text: this.$t('Date'), value: "properties.creation_date"},
+                {text: this.$t('Type'), value: 'properties.type'},
+                {text: this.$t('Title'), value: 'properties.title'},
+              ],
+            },
+          ],
+          received: [
+            {
+              title: this.$t('Pending'),
+              state: 'pending',
+              headers: [
+                {text: this.$t('Date'), value: "properties.creation_date"},
+                {text: this.$t('Type'), value: 'properties.type'},
+                {text: this.$t('Title'), value: 'properties.title'},
+                {text: this.$t('Applicant'), value: 'applicant.properties.display_name'},
+              ],
+            },
+            {
+              title: this.$t('Rejected'),
+              state: 'rejected',
+              headers: [
+                {text: this.$t('Date'), value: "properties.creation_date"},
+                {text: this.$t('Type'), value: 'properties.type'},
+                {text: this.$t('Title'), value: 'properties.title'},
+                {text: this.$t('Applicant'), value: 'applicant.properties.display_name'},
+              ],
+            },
+            {
+              title: this.$t('Approved'),
+              state: 'approved',
+              headers: [
+                {text: this.$t('Date'), value: "properties.creation_date"},
+                {text:this.$t('Type'), value: 'properties.type'},
+                {text: this.$t('Title'), value: 'properties.title'},
+                {text: this.$t('Applicant'), value: 'applicant.properties.display_name'},
+              ],
+            },
+          ]
         }
       }
+      
     }
   }
 </script>
 
-<i18n>
-{
-  "en": {
-    "new_application": "New submission",
-    "title": {
-      "inbox": "Inbox",
-      "outbox": "Outbox"
-    }
-  },
-  "ja": {
-    "new_application": "新規作成",
-    "title": {
-      "inbox": "受信トレイ",
-      "outbox": "送信トレイ"
-    }
-  }
-
-}
-</i18n>
