@@ -11,5 +11,12 @@
   "Type": "Type",
   "Title": "Title",
   "Applicant": "Applicant",
-  "Current recipient": "Current recipient"
+  "Current recipient": "Current recipient",
+  "Application content": "Application content",
+  "Application info": "Application Info",
+  "Delete": "Delete",
+  "Re-submit": "Re-submit",
+  "Confidential": "Confidential",
+  "Approve": "Approve",
+  "Reject": "Reject"
 }

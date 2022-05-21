@@ -3,7 +3,6 @@
     prepend-icon="mdi-translate"
     :items="locales"
     v-model="$i18n.locale"
-    label="Language"
     @change="save_locale()"/>
 </template>
 

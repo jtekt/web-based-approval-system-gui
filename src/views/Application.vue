@@ -4,11 +4,12 @@
 
     <template v-if="application && !error">
 
-      <v-toolbar flat>
+      <v-container fluid>
 
         <v-row align="center">
           <v-col cols="auto">
-            <v-toolbar-title>{{ $t('Application') }}</v-toolbar-title>
+            <v-toolbar-title v-if="application">{{ application.properties.title }}</v-toolbar-title>
+            <v-toolbar-title v-else>{{ $t('Application') }}</v-toolbar-title>
           </v-col>
           <v-spacer />
           <v-col cols="auto">
@@ -20,7 +21,7 @@
                 text
                 @click="$router.push({ name: 'new_application', query: { copy_of: get_id_of_item(application) } })">
                 <v-icon>mdi-restore</v-icon>
-                <span>再申請 / Re-submit</span>
+                <span>{{ $t('Re-submit') }}</span>
               </v-btn>
             </v-col>
             <v-col cols="auto">
@@ -30,13 +31,13 @@
                 color="#c00000"
                 @click="delete_application()">
                 <v-icon>mdi-delete</v-icon>
-                <span>申請削除 / Delete</span>
+                <span>{{ $t('Delete') }}</span>
               </v-btn>
             </v-col>
           </template>
         </v-row>
 
-      </v-toolbar>
+      </v-container>
       <v-divider />
 
       <v-banner
@@ -52,7 +53,7 @@
 
           <!-- Left column: Properties -->
           <v-col cols="6">
-            <v-subheader>申請について / Application Info</v-subheader>
+            <v-subheader>{{ $t('Application info') }}</v-subheader>
 
             <v-list dense>
               <v-divider/>
@@ -62,31 +63,31 @@
               </v-list-item>
               <v-divider/>
               <v-list-item>
-                <v-list-item-content>件名 / Title</v-list-item-content>
+                <v-list-item-content>{{ $t('Title') }}</v-list-item-content>
                 <v-list-item-content class="align-end">{{application.properties.title}}</v-list-item-content>
               </v-list-item>
 
               <v-divider/>
               <v-list-item>
-                <v-list-item-content>Type</v-list-item-content>
+                <v-list-item-content>{{ $t('Type') }}</v-list-item-content>
                 <v-list-item-content class="align-end">{{application.properties.type}}</v-list-item-content>
               </v-list-item>
 
               <v-divider/>
               <v-list-item>
-                <v-list-item-content>日付 / Date</v-list-item-content>
+                <v-list-item-content>{{ $t('Date') }}</v-list-item-content>
                 <v-list-item-content class="align-end">{{format_date_neo4j(application.properties.creation_date)}}</v-list-item-content>
               </v-list-item>
 
               <v-divider/>
               <v-list-item>
-                <v-list-item-content>申請者 / Applicant</v-list-item-content>
+                <v-list-item-content>{{ $t('Applicant') }}</v-list-item-content>
                 <v-list-item-content class="align-end">{{application.applicant.properties.display_name}}</v-list-item-content>
               </v-list-item>
 
               <v-divider/>
               <v-list-item>
-                <v-list-item-content>機密 / Confidential</v-list-item-content>
+                <v-list-item-content>{{ $t('Confidential') }}</v-list-item-content>
                 <v-list-item-content class="align-end">
                   <v-switch
                     :disabled="!user_is_applicant"
@@ -129,7 +130,7 @@
 
 
             <!-- application form data  -->
-            <v-subheader>申請内容 / Application content</v-subheader>
+            <v-subheader>{{ $t('Application content') }}</v-subheader>
 
             <v-list dense v-if="application.forbidden">
               <v-list-item>
@@ -145,7 +146,7 @@
 
                 <v-divider :key="`field_${index}_divider`"/>
 
-                <v-list-item :key="`field_${index}`">
+                <v-list-item :key="`field_${index}_item`">
 
                   <v-list-item-content>{{field.label}}</v-list-item-content>
 
@@ -246,7 +247,7 @@
                   dark
                   @click="approve_application()">
                   <v-icon>mdi-check</v-icon>
-                  <span>承認 / Approve</span>
+                  <span>{{ $t('Approve') }}</span>
                 </v-btn>
               </v-col>
 
@@ -257,7 +258,7 @@
                   dark
                   @click="reject_application()">
                   <v-icon>mdi-close</v-icon>
-                  <span>却下 / Reject</span>
+                  <span>{{ $t('Reject') }}</span>
                 </v-btn>
               </v-col>
             </v-row>
