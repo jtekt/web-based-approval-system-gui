@@ -6,14 +6,14 @@
         class="text-h4">
         {{card_title_lookup[direction]}}
       </v-toolbar-title>
-      <v-spacer></v-spacer>
+      <v-spacer />
+
       <v-btn
         color="#c00000"
         dark
         :to="{name:'new_application'}">
         <v-icon>mdi-plus</v-icon>
-        <span>新規作成 / New submission</span>
-
+        <span>{{ $t('new_application') }}</span>
       </v-btn>
 
       <template v-slot:extension>
@@ -68,10 +68,7 @@
     data(){
       return {
         tab: null,
-        card_title_lookup: {
-          'submitted' : '送信トレイ / Outbox',
-          'received': '受信トレイ / Inbox'
-        },
+        
         items: ['承認待ち / Pending', '却下 / Rejected', '承認完了 / Approved'],
 
         tables: {
@@ -144,5 +141,33 @@
 
       }
     },
+    computed: {
+      card_title_lookup(){
+        return {
+          submitted : this.$t('title.outbox'),
+          received: this.$t('title.inbox')
+        }
+      }
+    }
   }
 </script>
+
+<i18n>
+{
+  "en": {
+    "new_application": "New submission",
+    "title": {
+      "inbox": "Inbox",
+      "outbox": "Outbox"
+    }
+  },
+  "ja": {
+    "new_application": "新規作成",
+    "title": {
+      "inbox": "受信トレイ",
+      "outbox": "送信トレイ"
+    }
+  }
+
+}
+</i18n>

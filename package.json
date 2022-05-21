@@ -2,13 +2,13 @@
   "name": "shinsei_manager_vuetify",
   "version": "1.1.0",
   "private": true,
+  "author": "Maxime Moreillon",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "i18n:report": "vue-cli-service i18n:report --src \"./src/**/*.?(js|vue)\" --locales \"./src/locales/**/*.json\""
   },
-  "author": "Maxime Moreillon",
-  "license": "MIT",
   "dependencies": {
     "@moreillon/vue_application_template_vuetify": "^1.1.7",
     "@moreillon/vue_user_picker": "^5.0.3",
@@ -19,6 +19,7 @@
     "qrcode": "^1.5.0",
     "vue": "^2.6.11",
     "vue-axios": "^3.4.1",
+    "vue-i18n": "^8.26.3",
     "vue-pdf": "^4.3.0",
     "vue-router": "^3.2.0",
     "vuedraggable": "^2.24.3",
@@ -27,6 +28,7 @@
     "xlsx": "^0.17.5"
   },
   "devDependencies": {
+    "@intlify/vue-i18n-loader": "^1.1.0",
     "@vue/cli-plugin-babel": "^4.5.17",
     "@vue/cli-plugin-eslint": "^4.5.17",
     "@vue/cli-plugin-router": "^4.5.17",
@@ -37,8 +39,10 @@
     "eslint-plugin-vue": "^6.2.2",
     "sass": "~1.32.0",
     "sass-loader": "^10.2.1",
+    "vue-cli-plugin-i18n": "~2.3.1",
     "vue-cli-plugin-vuetify": "^2.4.8",
     "vue-template-compiler": "^2.6.11",
     "vuetify-loader": "^1.7.0"
-  }
+  },
+  "license": "MIT"
 }
