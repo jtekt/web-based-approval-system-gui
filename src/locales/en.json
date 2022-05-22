@@ -37,5 +37,17 @@
   "Submit application": "Submit application",
   "Resubmission": "Resubmission",
   "Visibility": "Visibility",
-  "Please select an application type": "Please select an application type"
+  "Please select an application type": "Please select an application type",
+  "Create template": "Create template",
+  "My templates": "My templates",
+  "Templates shared with me": "Templates shared with me",
+  "Name": "Name",
+  "Author": "Author",
+  "Filters": "Filters",
+  "Application type": "Application type",
+  "Group": "Group",
+  "Relationship": "Relationship",
+  "Approval state": "Approval state",
+  "Application ID": "Application ID",
+  "Stamp ID": "Stamp ID"
 }

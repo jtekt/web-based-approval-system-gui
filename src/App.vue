@@ -55,7 +55,6 @@ export default {
 
   data(){
     return {
-      
       options: {
         title: "申請マネージャー",
         skip_greetings: process.env.NODE_ENV === 'development',

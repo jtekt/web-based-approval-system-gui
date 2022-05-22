@@ -68,9 +68,6 @@
     data(){
       return {
         tab: null,
-        
-        
-
       }
     },
     computed: {

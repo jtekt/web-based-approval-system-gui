@@ -3,7 +3,7 @@
 
     <v-toolbar flat>
       <v-toolbar-title>
-        Templates
+        {{ $t('Templates') }}
       </v-toolbar-title>
       <v-spacer/>
       <v-btn
@@ -11,7 +11,7 @@
         dark
         :to="{name:'new_template'}">
         <v-icon>mdi-plus</v-icon>
-        <span>New template</span>
+        <span>{{ $t('Create template') }}</span>
       </v-btn>
 
       <template v-slot:extension>
@@ -23,10 +23,10 @@
           <v-tabs-slider color="#c00000"></v-tabs-slider>
 
           <v-tab>
-            Mine
+            {{ $t('My templates') }}
           </v-tab>
           <v-tab>
-            Shared with me
+            {{ $t('Templates shared with me') }}
           </v-tab>
         </v-tabs>
       </template>
@@ -75,9 +75,6 @@ export default {
   data(){
     return {
       tab: null,
-      base_headers: [
-        {text: 'Name', value: "properties.label"},
-      ],
 
       application_templates: [],
       loading: false,
@@ -113,10 +110,15 @@ export default {
 
   },
   computed: {
+    base_headers(){
+      return [
+        { text: this.$t('Name'), value: "properties.label" }
+      ]
+    },
     shared_templates_headers(){
       return [
         ...this.base_headers,
-        {text: 'Author', value: "author.properties.display_name"},
+        { text: this.$t('Author'), value: "author.properties.display_name" },
       ]
     },
     templates_of_user(){

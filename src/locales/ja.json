@@ -37,5 +37,17 @@
   "Submit application": "申請書を提出する",
   "Resubmission": "再申請",
   "Visibility": "共有",
-  "Please select an application type": "申請種類を選択してください"
+  "Please select an application type": "申請種類を選択してください",
+  "Create template": "テンプレート作成",
+  "My templates": "自分のテンプレート",
+  "Templates shared with me": "自分に共有されているテンプレート",
+  "Name": "件名",
+  "Author": "作成者",
+  "Filters": "フィルター",
+  "Application type": "申請タイプ",
+  "Group": "グループ",
+  "Relationship": "関係",
+  "Approval state": "承認状態",
+  "Application ID": "申請 ID",
+  "Stamp ID": "ハンコ ID"
 }
