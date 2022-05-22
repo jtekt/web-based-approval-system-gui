@@ -58,36 +58,58 @@
             <v-list dense>
               <v-divider/>
               <v-list-item>
-                <v-list-item-content>ID</v-list-item-content>
-                <v-list-item-content class="align-end">{{get_id_of_item(application)}}</v-list-item-content>
+                <v-list-item-content>
+                  ID
+                </v-list-item-content>
+                <v-list-item-content class="align-end">
+                  {{get_id_of_item(application)}}
+                </v-list-item-content>
               </v-list-item>
               <v-divider/>
               <v-list-item>
-                <v-list-item-content>{{ $t('Title') }}</v-list-item-content>
-                <v-list-item-content class="align-end">{{application.properties.title}}</v-list-item-content>
-              </v-list-item>
-
-              <v-divider/>
-              <v-list-item>
-                <v-list-item-content>{{ $t('Type') }}</v-list-item-content>
-                <v-list-item-content class="align-end">{{application.properties.type}}</v-list-item-content>
-              </v-list-item>
-
-              <v-divider/>
-              <v-list-item>
-                <v-list-item-content>{{ $t('Date') }}</v-list-item-content>
-                <v-list-item-content class="align-end">{{format_date_neo4j(application.properties.creation_date)}}</v-list-item-content>
+                <v-list-item-content>
+                  {{ $t('Title') }}
+                </v-list-item-content>
+                <v-list-item-content class="align-end">
+                  {{application.properties.title}}
+                </v-list-item-content>
               </v-list-item>
 
               <v-divider/>
               <v-list-item>
-                <v-list-item-content>{{ $t('Applicant') }}</v-list-item-content>
-                <v-list-item-content class="align-end">{{application.applicant.properties.display_name}}</v-list-item-content>
+                <v-list-item-content>
+                  {{ $t('Type') }}
+                </v-list-item-content>
+                <v-list-item-content class="align-end">
+                  {{application.properties.type}}
+                </v-list-item-content>
               </v-list-item>
 
               <v-divider/>
               <v-list-item>
-                <v-list-item-content>{{ $t('Confidential') }}</v-list-item-content>
+                <v-list-item-content>
+                  {{ $t('Date') }}
+                </v-list-item-content>
+                <v-list-item-content class="align-end">
+                  {{format_date_neo4j(application.properties.creation_date)}}
+                </v-list-item-content>
+              </v-list-item>
+
+              <v-divider/>
+              <v-list-item>
+                <v-list-item-content>
+                  {{ $t('Applicant') }}
+                </v-list-item-content>
+                <v-list-item-content class="align-end">
+                  {{application.applicant.properties.display_name}}
+                </v-list-item-content>
+              </v-list-item>
+
+              <v-divider/>
+              <v-list-item>
+                <v-list-item-content>
+                  {{ $t('Confidential') }}
+                </v-list-item-content>
                 <v-list-item-content class="align-end">
                   <v-switch
                     :disabled="!user_is_applicant"

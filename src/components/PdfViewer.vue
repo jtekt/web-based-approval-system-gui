@@ -69,7 +69,7 @@
             v-bind="attrs"
             v-on="on">
             <v-icon>mdi-resize</v-icon>
-            <span>ハンコサイズ / Stamp size</span>
+            <span>{{ $t('Stamp size') }}</span>
 
           </v-btn>
         </template>
@@ -95,7 +95,7 @@
         text
         @click="download_pdf()">
         <v-icon>mdi-download</v-icon>
-        <span>ダウンロード / Download</span>
+        <span>{{ $t('Download') }}</span>
       </v-btn>
 
 
