@@ -49,5 +49,18 @@
   "Relationship": "関係",
   "Approval state": "承認状態",
   "Application ID": "申請 ID",
-  "Stamp ID": "ハンコ ID"
+  "Stamp ID": "ハンコ ID",
+  "Template": "テンプレート",
+  "You": "自分",
+  "Fields": "フィールド",
+  "Add field": "フィールド追加",
+  "Text": "テキスト",
+  "File": "ファイル",
+  "PDF File": "PDF (承認)",
+  "Link": "リンク",
+  "Checkbox": "チェックボックス",
+  "Field name": "フィールド名",
+  "Template name": "テンプレート名",
+  "Description": "説明",
+  "Save": "保存"
 }

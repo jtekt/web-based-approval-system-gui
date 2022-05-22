@@ -49,5 +49,18 @@
   "Relationship": "Relationship",
   "Approval state": "Approval state",
   "Application ID": "Application ID",
-  "Stamp ID": "Stamp ID"
+  "Stamp ID": "Stamp ID",
+  "Template": "Template",
+  "You": "You",
+  "Fields": "Fields",
+  "Add field": "Add field",
+  "Text": "Text",
+  "File": "File",
+  "PDF File": "PDF File",
+  "Link": "Link",
+  "Checkbox": "Checkbox",
+  "Field name": "Field name",
+  "Template name": "Template name",
+  "Description": "Description",
+  "Save": "Save"
 }
