@@ -10,7 +10,7 @@
         <v-icon>mdi-arrow-left</v-icon>
       </v-btn>
       <v-toolbar-title v-if="template">{{template.properties.label}}</v-toolbar-title>
-      <v-toolbar-title v-else>Template</v-toolbar-title>
+      <v-toolbar-title v-else>{{ $t('Template') }}</v-toolbar-title>
       <v-spacer/>
 
       <template v-if="user_is_author">
@@ -21,14 +21,14 @@
           :loading="deleting"
           @click="delete_template()">
           <v-icon>mdi-delete</v-icon>
-          <span>Delete</span>
+          <span>{{ $t('Delete') }}</span>
         </v-btn>
         <v-btn
           text
           :loading="saving"
           @click="update_template()">
           <v-icon>mdi-content-save</v-icon>
-          <span>Save</span>
+          <span>{{ $t('Save') }}</span>
         </v-btn>
       </template>
 
@@ -42,14 +42,14 @@
           <v-col>
             <v-text-field
               :readonly="!user_is_author"
-              label="template name"
+              :label="$t('Template name')"
               v-model="template.properties.label" />
           </v-col>
         </v-row>
         <v-row>
           <v-col>
             <v-textarea
-              label="Description"
+              :label="$t('Description')"
               auto-grow
               rows="1"
               v-model="template.properties.description"
@@ -57,10 +57,10 @@
           </v-col>
         </v-row>
         <v-row align="center">
-          <v-col cols="auto"> Visibility</v-col>
+          <v-col cols="auto">{{ $t('Visibility') }}</v-col>
 
           <v-col cols="auto">
-            <v-chip>Current User</v-chip>
+            <v-chip>{{ $t('You') }}</v-chip>
           </v-col>
 
           <v-col
@@ -91,7 +91,7 @@
 
           <v-toolbar flat>
             <v-toolbar-title>
-              Fields
+              {{ $t('Fields') }}
             </v-toolbar-title>
             <v-spacer/>
             <v-btn
@@ -99,7 +99,7 @@
               dark
               @click="add_field()">
               <v-icon>mdi-plus</v-icon>
-              <span>Add field</span>
+              <span>{{ $t('Add field') }}</span>
             </v-btn>
           </v-toolbar>
           <v-divider/>
@@ -112,7 +112,7 @@
               <v-col>
                 <v-text-field
                   :readonly="!user_is_author"
-                  label="Field name"
+                  :label="$t('Field name')"
                   v-model="field.label" />
               </v-col>
               <v-col>
@@ -185,13 +185,13 @@ export default {
       saving: false,
       deleting: false,
       field_types: [
-        { type: 'text', label: 'テキスト / Text' },
-        { type: 'file', label: 'ファイル / File' },
-        { type: 'pdf', label: 'PDF (承認)' },
-        { type: 'checkbox', label: 'チェックボックス / Checkbox' },
-        { type: 'date', label: '日付 / Date' },
-        { type: 'link', label: 'リンク / Link' },
-        { type: 'application', label: '申請番号 / Application no' },
+        { type: 'text', label: this.$t('Text') },
+        { type: 'file', label: this.$t('File') },
+        { type: 'pdf', label: this.$t('PDF File') },
+        { type: 'checkbox', label: this.$t('Checkbox')},
+        { type: 'date', label: this.$t('Date')},
+        { type: 'link', label: this.$t('Link') },
+        { type: 'application', label: this.$t('Application ID') },
         //{ type: 'file_path', label: 'ファイルパス / File path' },
       ],
 

@@ -1,30 +1,30 @@
 <template>
   <v-card>
-    <v-card-title>検索 / Search</v-card-title>
+    <v-card-title>{{ $t('Search') }}</v-card-title>
     <v-card-text>
       <v-card outlined>
-        <v-card-title>フィルター / Filters</v-card-title>
+        <v-card-title> {{ $t('Filters') }} </v-card-title>
 
         <v-form @submit.prevent="search()">
           <v-card-text>
             <v-row>
               <v-col>
                 <v-text-field
-                  label="ハンコ ID / Hanko ID"
+                  :label="$t('Stamp ID')"
                   v-model="hanko_id"/>
               </v-col>
             </v-row>
             <v-row>
               <v-col>
                 <v-text-field
-                  label="申請 ID / Application ID"
+                  :label="$t('Application ID')"
                   v-model="application_id"/>
               </v-col>
             </v-row>
             <v-row>
               <v-col>
                 <v-combobox
-                  label="申請タイプ / Application type"
+                  :label="$t('Application type')"
                   :items="application_types"
                   v-model="application_type"/>
               </v-col>
@@ -43,7 +43,7 @@
             </v-row>
             <v-row align="center">
               <v-col cols="auto">
-                申請者のグループ / Applicant group
+                {{ $t('Applicant') }}{{ $t('Group') }}
               </v-col>
               <v-col cols="auto">
 
@@ -63,7 +63,7 @@
             <v-row>
               <v-col>
                 <v-select
-                  label="関係 / Relationship"
+                  :label="$t('Relationship')"
                   :items="relationship_types"
                   v-model="relationship_type"/>
               </v-col>
@@ -71,7 +71,7 @@
             <v-row>
               <v-col>
                 <v-select
-                  label="承認状態 / Approval state"
+                  :label="$t('Approval state')"
                   :items="approval_states"
                   v-model="approval_state"/>
               </v-col>
@@ -81,7 +81,7 @@
                 <v-btn
                   type="submit">
                   <v-icon>mdi-magnify</v-icon>
-                  <span>検索 / Search</span>
+                  <span>{{ $t('Search') }}</span>
                 </v-btn>
               </v-col>
             </v-row>
@@ -138,11 +138,11 @@ export default {
       options: {},
 
       headers: [
-        {text: 'ID', value: 'properties._id'},
-        {text: 'Date', value: 'properties.creation_date'},
-        {text: 'Title', value: 'properties.title'},
-        {text: 'Type', value: 'properties.type'},
-        {text: 'Applicant', value: 'applicant.properties.display_name'},
+        // {text: this.$t('Application ID'), value: 'properties._id'},
+        {text: this.$t('Date'), value: 'properties.creation_date'},
+        {text: this.$t('Title'), value: 'properties.title'},
+        {text: this.$t('Type'), value: 'properties.type'},
+        {text: this.$t('Applicant'), value: 'applicant.properties.display_name'},
       ],
 
       application_types: [],

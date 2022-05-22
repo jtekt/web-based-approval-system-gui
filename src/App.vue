@@ -7,6 +7,10 @@
       <v-list
         dense
         nav >
+        <v-list-item>
+          <LocaleSelector />
+        </v-list-item>
+        <v-divider />
         <v-list-item
           v-for="(item, index) in nav"
           :key="`nav_item_${index}`"
@@ -39,11 +43,13 @@
 
 <script>
 import AppTemplate from '@moreillon/vue_application_template_vuetify'
+import LocaleSelector from './components/LocaleSelector.vue'
 export default {
   name: 'App',
 
   components: {
-    AppTemplate
+    AppTemplate,
+    LocaleSelector
   },
 
 
@@ -62,12 +68,12 @@ export default {
   computed: {
     nav(){
       return [
-        {title: '新規作成 / New', to: {name: 'new_application'}, icon: 'mdi-plus'},
-        {title: '送信トレイ / Outbox', to: {name: 'submitted_applications'}, icon: 'mdi-inbox-arrow-up'},
-        {title: '受信トレイ / Inbox', to: {name: 'received_applications'}, icon: 'mdi-inbox-arrow-down', count: this.$store.state.received_pending_application_count},
-        {title: '検索 / Search', to: {name: 'search'}, icon: 'mdi-magnify'},
-        {title: 'テンプレート / Templates', to: {name: 'templates'}, icon: 'mdi-file-document-multiple-outline'},
-        {title: 'アプリについて / About', to: {name: 'about'}, icon: 'mdi-information-outline'},
+        {title: this.$t('New application'), to: {name: 'new_application'}, icon: 'mdi-plus'},
+        {title: this.$t('Outbox'), to: {name: 'submitted_applications'}, icon: 'mdi-inbox-arrow-up'},
+        {title: this.$t('Inbox'), to: {name: 'received_applications'}, icon: 'mdi-inbox-arrow-down', count: this.$store.state.received_pending_application_count},
+        {title: this.$t('Search'), to: {name: 'search'}, icon: 'mdi-magnify'},
+        {title: this.$t('Templates'), to: {name: 'templates'}, icon: 'mdi-file-document-multiple-outline'},
+        {title: this.$t('About'), to: {name: 'about'}, icon: 'mdi-information-outline'},
       ]
     }
   }

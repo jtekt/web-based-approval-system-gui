@@ -1,7 +1,7 @@
 <template>
   <v-card>
     <v-card-title class="text-h4">
-      新規作成 / New submission
+      {{ $t('New submission') }}
     </v-card-title>
 
     <!-- Application form metadata -->
@@ -10,7 +10,7 @@
 
         <v-toolbar flat>
           <v-card-title class="mt-2 text-h6">
-            ① 申請情報 / Application info
+              {{ $t('Application info') }}
           </v-card-title>
         </v-toolbar>
 
@@ -22,7 +22,7 @@
             v-if="this.$route.query.copy_of"
             align="center">
             <v-col cols="auto">
-              申請種類 / Application type: 再申請 / Copy of application
+              {{ $t('Type') }}: {{ $t('Resubmission') }}
             </v-col>
             <v-col cols="auto" >
               <v-btn
@@ -41,7 +41,7 @@
                 item-text="properties.label"
                 return-object
                 v-model="selected_form"
-                label="申請種類 / Application type"/>
+                :label="$t('Type')"/>
             </v-col>
           </v-row>
 
@@ -50,13 +50,13 @@
             <v-col>
               <v-text-field
                 v-model="title"
-                label="件名 / Application title"/>
+                :label="$t('Title')"/>
             </v-col>
           </v-row>
 
           <v-row align="center">
             <v-col cols="auto">
-              機密 / Confidential
+              {{ $t('Confidential') }}
             </v-col>
             <v-col cols="auto">
               <v-switch v-model="confidential"/>
@@ -67,7 +67,7 @@
             align="baseline"
             v-if="confidential">
             <v-col cols="auto">
-              共有 / Visibility
+              {{ $t('Visibility') }}
             </v-col>
             <v-col cols="auto">
               <v-chip>Approval flow</v-chip>
@@ -96,7 +96,9 @@
       <v-card outlined>
 
         <v-toolbar flat>
-          <v-card-title>② 申請内容 / Application content</v-card-title>
+          <v-card-title>
+            {{ $t('Application content') }}
+          </v-card-title>
         </v-toolbar>
 
 
@@ -104,7 +106,7 @@
 
 
         <v-card-text v-if="!selected_form">
-          申請種類を選択してください / Please select an application type
+          {{ $t('Please select an application type') }}
         </v-card-text>
 
         <template v-if="selected_form">
@@ -114,7 +116,9 @@
             flat
             accordion>
             <v-expansion-panel>
-              <v-expansion-panel-header>申請種類 / Application type: {{selected_form.properties.label}} (詳しくクリック / Click for more info)</v-expansion-panel-header>
+              <v-expansion-panel-header>
+                {{ $t('Type') }}: {{selected_form.properties.label}} (詳しくクリック / Click for more info)
+              </v-expansion-panel-header>
               <v-expansion-panel-content>
                 <v-row>
                   <v-col>
@@ -199,7 +203,7 @@
             align="center">
             <v-col cols="auto">
               <v-card-subtitle class="mt-2 text-h6">
-                ③ 承認フロー / Approval flow
+                {{ $t('Approval flow') }}
               </v-card-subtitle>
             </v-col>
             <v-spacer />
@@ -216,7 +220,7 @@
                     v-bind="attrs"
                     v-on="on">
                     <v-icon>mdi-account-plus</v-icon>
-                    <span>承認者追加 / Add recipient</span>
+                    <span>{{ $t('Add recipient') }}</span>
 
                   </v-btn>
                 </template>
@@ -224,7 +228,7 @@
 
                 <v-card>
                   <v-card-title class="text-h5">
-                    承認者追加 / Add recipient
+                    {{ $t('Add recipient') }}
                   </v-card-title>
 
                   <v-card-text>
@@ -233,13 +237,13 @@
                       v-on:selection="add_to_recipients($event)"/>
                   </v-card-text>
 
-                  <v-card-text v-if="recipients.length > 0">
+                  <v-card-text v-if="recipients.length">
                     <NewApplicationApprovalFlow
                       :recipients="recipients"/>
                   </v-card-text>
 
                   <v-card-text v-else>
-                    承認者が選ばれていません / No recipient selected
+                    {{ $t('No recipient selected') }}
                   </v-card-text>
 
                   <v-card-actions>
@@ -263,7 +267,9 @@
 
             :recipients="recipients" />
         </v-card-text>
-        <v-card-text v-else>承認者を追加してください / Please select the recipients of this application</v-card-text>
+        <v-card-text v-else>
+          {{ $t('Please select the recipients of this application') }}
+        </v-card-text>
       </v-card>
     </v-card-text>
 
@@ -273,7 +279,7 @@
 
         <v-toolbar flat>
           <v-card-subtitle class="mt-2 text-h6">
-            ④ 承認手続き / Submission
+            {{ $t('Submission') }}
           </v-card-subtitle>
         </v-toolbar>
 
@@ -286,7 +292,7 @@
             @click="submit()"
             :disabled="!application_valid">
             <v-icon>mdi-send</v-icon>
-            <span>申請書を提出する / Submit application</span>
+            <span>{{ $t('Submit application') }}</span>
 
           </v-btn>
         </v-card-text>
@@ -390,8 +396,9 @@ export default {
       .catch(error => {
         console.error(error)
         alert(error)
-        this.submitting = false
       })
+      .finally( () => {this.submitting = false})
+
     },
     file_upload(file, field){
       this.file_uploading = true
