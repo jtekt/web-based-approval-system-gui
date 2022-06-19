@@ -15,7 +15,6 @@
   "Application content": "Application content",
   "Application info": "Application Info",
   "Delete": "Delete",
-  "Re-submit": "Re-submit",
   "Confidential": "Confidential",
   "Approve": "Approve",
   "Reject": "Reject",
@@ -62,5 +61,6 @@
   "Field name": "Field name",
   "Template name": "Template name",
   "Description": "Description",
-  "Save": "Save"
+  "Save": "Save",
+  "Re-submit": "Re-submit"
 }

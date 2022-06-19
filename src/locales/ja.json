@@ -14,7 +14,6 @@
   "Application content": "申請内容",
   "Application info": "申請について",
   "Delete": "削除",
-  "Re-submit": "再申請",
   "Application": "申請",
   "Confidential": "機密",
   "Approve": "承認",
@@ -62,5 +61,6 @@
   "Field name": "フィールド名",
   "Template name": "テンプレート名",
   "Description": "説明",
-  "Save": "保存"
+  "Save": "保存",
+  "Re-submit": "再申請"
 }
