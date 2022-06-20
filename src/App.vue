@@ -1,42 +1,34 @@
 <template>
-  <AppTemplate
-    :options="options"
-    @user="$store.commit('set_current_user', $event)">
-
+  <AppTemplate :options="options" @user="user_changed($event)">
+  
     <template v-slot:nav>
-      <v-list
-        dense
-        nav >
-        <v-list-item>
-          <LocaleSelector />
-        </v-list-item>
-        <v-divider />
-        <v-list-item
-          v-for="(item, index) in nav"
-          :key="`nav_item_${index}`"
-          :to="item.to"
-          exact>
+        <v-list
+          dense
+          nav >
+          <v-list-item>
+  <LocaleSelector />
+          </v-list-item>
+          <v-divider />
+          <v-list-item
+  v-for=" (item, index) in nav" :key="`nav_item_${index}`" :to="item.to" exact>
 
-          <v-list-item-icon>
-            <v-icon>{{item.icon}}</v-icon>
-          </v-list-item-icon>
+    <v-list-item-icon>
+      <v-icon>{{item.icon}}</v-icon>
+    </v-list-item-icon>
 
-          <v-list-item-content>
-            <v-list-item-title>
-              <v-badge
-                v-if="item.count"
-                :content="item.count"
-                color="#c00000">
-                {{item.title}}
-              </v-badge>
-              <span v-else>{{item.title}}</span>
+    <v-list-item-content>
+      <v-list-item-title>
+        <v-badge v-if="item.count" :content="item.count" color="#c00000">
+          {{item.title}}
+        </v-badge>
+        <span v-else>{{item.title}}</span>
 
-            </v-list-item-title>
+      </v-list-item-title>
 
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </template>
+    </v-list-item-content>
+    </v-list-item>
+    </v-list>
+</template>
 
   </AppTemplate>
 </template>
@@ -63,6 +55,12 @@ export default {
         password_reset_url: `${process.env.VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/password_reset`,
       },
 
+    }
+  },
+  methods: {
+    user_changed(user) {
+      this.$store.commit('set_current_user', user)
+      this.$store.commit('check_pending_applications')
     }
   },
   computed: {

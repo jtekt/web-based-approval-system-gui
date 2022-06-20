@@ -16,8 +16,16 @@ export default new Vuex.Store({
     require_email(state, email_required){
       state.email_required = email_required
     },
-    set_received_pending_application_count(state, count){
-      state.received_pending_application_count = count
+    check_pending_applications(state) {
+      if (!state.current_user) return
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v1/applications`
+      const params = {
+        relationship: 'SUBMITTED_TO',
+        state: 'pending',
+      }
+      Vue.axios.get(url, { params })
+        .then(({ data }) => { state.received_pending_application_count = data.count })
+        .catch(error => { console.error(error) })
     }
   },
   actions: {
