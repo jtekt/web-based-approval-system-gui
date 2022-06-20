@@ -62,5 +62,21 @@
   "Template name": "テンプレート名",
   "Description": "説明",
   "Save": "保存",
-  "Re-submit": "再申請"
+  "Re-submit": "再申請",
+  "Hanko ID": "ハンコ ID",
+  "Stamp": "ハンコ",
+  "From": "から",
+  "To": "まで",
+  "Applicant group": "申請者のグループ",
+  "Add Group": "グループ追加",
+  "Any": "何でも",
+  "Submitted by you": "出した申請",
+  "Approved by you": "承認した申請",
+  "Rejected by you": "却下した申請",
+  "Submitted to you": "受け取った申請",
+  "Create": "作成",
+  "New template": "テンプレート作成",
+  "Click for more info": "詳しくクリック",
+  "Template author": "テンプレート作成者",
+  "Template page": "テンプレートページ"
 }

@@ -1,42 +1,27 @@
 <template>
-  <v-card
-    max-width="500"
-    class="mx-auto">
+  <v-card max-width="500" class="mx-auto">
     <v-toolbar flat>
-      <v-btn
-        exact
-        icon
-        :to="{name: 'templates'}" >
+      <v-btn exact icon :to="{name: 'templates'}">
         <v-icon>mdi-arrow-left</v-icon>
       </v-btn>
-      <v-toolbar-title>New template</v-toolbar-title>
+      <v-toolbar-title>{{ $t('New template')}}</v-toolbar-title>
 
 
 
     </v-toolbar>
-    <v-divider/>
+    <v-divider />
 
     <v-card-text>
-      <v-form
-        @submit.prevent="create_template()"
-        ref="form"
-        v-model="valid"
-        lazy-validation>
+      <v-form @submit.prevent="create_template()" ref="form" v-model="valid" lazy-validation>
 
         <v-row align="center">
           <v-col>
-            <v-text-field
-            v-model="template.label"
-            label="Name"
-            :rules="nameRules"
-            required/>
+            <v-text-field v-model="template.label" label="Name" :rules="nameRules" required />
           </v-col>
           <v-col cols="auto">
-            <v-btn
-              type="submit"
-              :disabled="!valid" >
+            <v-btn type="submit" :disabled="!valid">
               <v-icon>mdi--plus</v-icon>
-              <span>Create</span>
+              <span>{{ $t('Create')}}</span>
             </v-btn>
           </v-col>
         </v-row>

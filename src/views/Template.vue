@@ -184,16 +184,6 @@ export default {
       loading: false,
       saving: false,
       deleting: false,
-      field_types: [
-        { type: 'text', label: this.$t('Text') },
-        { type: 'file', label: this.$t('File') },
-        { type: 'pdf', label: this.$t('PDF File') },
-        { type: 'checkbox', label: this.$t('Checkbox')},
-        { type: 'date', label: this.$t('Date')},
-        { type: 'link', label: this.$t('Link') },
-        { type: 'application', label: this.$t('Application ID') },
-        //{ type: 'file_path', label: 'ファイルパス / File path' },
-      ],
 
     }
   },
@@ -282,6 +272,18 @@ export default {
       if(!this.template) return false
       const author_id = this.get_id_of_item(this.template.author)
       return author_id === this.current_user_id
+    },
+    field_types(){
+      return [
+        { type: 'text', label: this.$t('Text') },
+        { type: 'file', label: this.$t('File') },
+        { type: 'pdf', label: this.$t('PDF File') },
+        { type: 'checkbox', label: this.$t('Checkbox') },
+        { type: 'date', label: this.$t('Date') },
+        { type: 'link', label: this.$t('Link') },
+        { type: 'application', label: this.$t('Application ID') },
+        //{ type: 'file_path', label: 'ファイルパス / File path' },
+      ]
     }
   }
 }

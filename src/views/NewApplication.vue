@@ -10,7 +10,7 @@
 
         <v-toolbar flat>
           <v-card-title class="mt-2 text-h6">
-              {{ $t('Application info') }}
+            {{ $t('Application info') }}
           </v-card-title>
         </v-toolbar>
 
@@ -18,39 +18,27 @@
 
         <v-card-text>
 
-          <v-row
-            v-if="this.$route.query.copy_of"
-            align="center">
+          <v-row v-if="this.$route.query.copy_of" align="center">
             <v-col cols="auto">
               {{ $t('Type') }}: {{ $t('Resubmission') }}
             </v-col>
-            <v-col cols="auto" >
-              <v-btn
-                outlined
-                small
-                exact
-                :to="{name: 'new_application'}">
+            <v-col cols="auto">
+              <v-btn outlined small exact :to="{name: 'new_application'}">
                 やり直し / Start from scratch
               </v-btn>
             </v-col>
           </v-row>
           <v-row v-else>
-            <v-col >
-              <v-select
-                :items="application_form_templates"
-                item-text="properties.label"
-                return-object
-                v-model="selected_form"
-                :label="$t('Type')"/>
+            <v-col>
+              <v-select :items="application_form_templates" item-text="properties.label" return-object
+                v-model="selected_form" :label="$t('Type')" />
             </v-col>
           </v-row>
 
 
           <v-row>
             <v-col>
-              <v-text-field
-                v-model="title"
-                :label="$t('Title')"/>
+              <v-text-field v-model="title" :label="$t('Title')" />
             </v-col>
           </v-row>
 
@@ -59,31 +47,24 @@
               {{ $t('Confidential') }}
             </v-col>
             <v-col cols="auto">
-              <v-switch v-model="confidential"/>
+              <v-switch v-model="confidential" />
             </v-col>
           </v-row>
 
-          <v-row
-            align="baseline"
-            v-if="confidential">
+          <v-row align="baseline" v-if="confidential">
             <v-col cols="auto">
               {{ $t('Visibility') }}
             </v-col>
             <v-col cols="auto">
-              <v-chip>Approval flow</v-chip>
+              <v-chip>{{ $t('Approval flow')}}</v-chip>
             </v-col>
             <v-col cols="auto">
-              <v-chip
-                close
-                v-for="(group, index) in groups"
-                :key="`group_${index}`"
-                @click:close="remove_group(index)">
+              <v-chip close v-for="(group, index) in groups" :key="`group_${index}`" @click:close="remove_group(index)">
                 {{group.properties.name}}
               </v-chip>
             </v-col>
             <v-col cols="auto">
-              <AddGroupDialog
-                @selection="add_group($event)"/>
+              <AddGroupDialog @selection="add_group($event)" />
             </v-col>
           </v-row>
         </v-card-text>
@@ -111,22 +92,23 @@
 
         <template v-if="selected_form">
 
-          <v-expansion-panels
-            v-if="selected_form && !this.$route.query.copy_of"
-            flat
-            accordion>
+          <v-expansion-panels v-if="selected_form && !this.$route.query.copy_of" flat accordion>
             <v-expansion-panel>
               <v-expansion-panel-header>
-                {{ $t('Type') }}: {{selected_form.properties.label}} (詳しくクリック / Click for more info)
+                {{ $t('Type') }}: {{selected_form.properties.label}} ({{ $t('Click for more info') }})
               </v-expansion-panel-header>
               <v-expansion-panel-content>
                 <v-row>
                   <v-col>
-                    フォーム作成者 / Form author: {{selected_form.author.display_name || selected_form.author.properties.display_name}}
+                    {{ $t('Template author') }}: {{selected_form.author.display_name ||
+                    selected_form.author.properties.display_name}}
                   </v-col>
                   <v-spacer />
                   <v-col cols="auto">
-                    <router-link :to="{ name: 'template', params: { template_id: selected_form._id || selected_form.properties._id} }">フォームページ / Form page</router-link>
+                    <router-link
+                      :to="{ name: 'template', params: { template_id: selected_form._id || selected_form.properties._id} }">
+                      {{ $t('Template page') }}
+                    </router-link>
                   </v-col>
                 </v-row>
                 <v-row>
@@ -140,51 +122,29 @@
           </v-expansion-panels>
 
           <v-card-text>
-            <v-row
-              v-for="(field, index) in selected_form.properties.fields"
-              :key="`field_${index}`">
+            <v-row v-for="(field, index) in selected_form.properties.fields" :key="`field_${index}`">
 
               <v-col>
 
                 <template v-if="['file','pdf'].includes(field.type)">
 
-                  <v-chip
-                    v-if="field.value"
-                    close
-                    label
-                    @click:close="field.value = null">
-                    アップロード完了 / Upload OK
+                  <v-chip v-if="field.value" close label @click:close="field.value = null">
+                    {{ $t('Upload OK') }}
                   </v-chip>
 
-                <v-file-input
-                  v-else
-                  :accept="field.type === 'pdf' ? 'application/pdf' : ''"
-                  @change="file_upload($event, field)"
-                  :label="field.label"/>
+                  <v-file-input v-else :accept="field.type === 'pdf' ? 'application/pdf' : ''"
+                    @change="file_upload($event, field)" :label="field.label" />
 
                 </template>
 
-                <v-checkbox
-                  v-else-if="field.type === 'checkbox'"
-                  v-model="field.value"
-                  :label="field.label"/>
+                <v-checkbox v-else-if="field.type === 'checkbox'" v-model="field.value" :label="field.label" />
 
-                <DatePicker
-                  v-else-if="field.type === 'date'"
-                  :label="field.label"
-                  v-model="field.value"/>
+                <DatePicker v-else-if="field.type === 'date'" :label="field.label" v-model="field.value" />
 
-                <v-textarea
-                  v-else-if="field.type === 'text'"
-                  rows="1"
-                  auto-grow
-                  :label="field.label"
-                  v-model="field.value"/>
+                <v-textarea v-else-if="field.type === 'text'" rows="1" auto-grow :label="field.label"
+                  v-model="field.value" />
 
-                <v-text-field
-                  v-else
-                  v-model="field.value"
-                  :label="field.label"/>
+                <v-text-field v-else v-model="field.value" :label="field.label" />
 
               </v-col>
             </v-row>
@@ -199,8 +159,7 @@
     <v-card-text>
       <v-card outlined>
         <v-toolbar flat>
-          <v-row
-            align="center">
+          <v-row align="center">
             <v-col cols="auto">
               <v-card-subtitle class="mt-2 text-h6">
                 {{ $t('Approval flow') }}
@@ -209,16 +168,10 @@
             <v-spacer />
             <v-col cols="auto">
               <!-- Add recipient dialog, ideally make it a component -->
-              <v-dialog
-                v-model="add_recipient_dialog"
-                width="900">
+              <v-dialog v-model="add_recipient_dialog" width="900">
 
                 <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                    color="#c00000"
-                    dark
-                    v-bind="attrs"
-                    v-on="on">
+                  <v-btn color="#c00000" dark v-bind="attrs" v-on="on">
                     <v-icon>mdi-account-plus</v-icon>
                     <span>{{ $t('Add recipient') }}</span>
 
@@ -232,14 +185,11 @@
                   </v-card-title>
 
                   <v-card-text>
-                    <UserPicker
-                      class="user_picker"
-                      v-on:selection="add_to_recipients($event)"/>
+                    <UserPicker class="user_picker" v-on:selection="add_to_recipients($event)" />
                   </v-card-text>
 
                   <v-card-text v-if="recipients.length">
-                    <NewApplicationApprovalFlow
-                      :recipients="recipients"/>
+                    <NewApplicationApprovalFlow :recipients="recipients" />
                   </v-card-text>
 
                   <v-card-text v-else>
@@ -248,10 +198,7 @@
 
                   <v-card-actions>
                     <v-spacer />
-                    <v-btn
-                      color="#c00000"
-                      text
-                      @click="add_recipient_dialog = false">
+                    <v-btn color="#c00000" text @click="add_recipient_dialog = false">
                       Close
                     </v-btn>
                   </v-card-actions>
@@ -263,9 +210,7 @@
 
 
         <v-card-text v-if="this.recipients.length > 0">
-          <NewApplicationApprovalFlow
-
-            :recipients="recipients" />
+          <NewApplicationApprovalFlow :recipients="recipients" />
         </v-card-text>
         <v-card-text v-else>
           {{ $t('Please select the recipients of this application') }}
@@ -285,11 +230,7 @@
 
 
         <v-card-text class="text-center">
-          <v-btn
-            :loading="submitting"
-            color="#c00000"
-            :dark="application_valid"
-            @click="submit()"
+          <v-btn :loading="submitting" color="#c00000" :dark="application_valid" @click="submit()"
             :disabled="!application_valid">
             <v-icon>mdi-send</v-icon>
             <span>{{ $t('Submit application') }}</span>

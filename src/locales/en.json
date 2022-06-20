@@ -62,5 +62,21 @@
   "Template name": "Template name",
   "Description": "Description",
   "Save": "Save",
-  "Re-submit": "Re-submit"
+  "Re-submit": "Re-submit",
+  "Hanko ID": "Hanko ID",
+  "Stamp": "Stamp",
+  "From": "From",
+  "To": "To",
+  "Applicant group": "Applicant group",
+  "Add Group": "Add Group",
+  "Any": "Any",
+  "Submitted by you": "Submitted by you",
+  "Submitted to you": "Submitted to you",
+  "Rejected by you": "Rejected by you",
+  "Approved by you": "Approved by you",
+  "Create": "Create",
+  "New template": "New template",
+  "Click for more info": "Click for more info",
+  "Template author": "Template author",
+  "Template page": "Template page"
 }
