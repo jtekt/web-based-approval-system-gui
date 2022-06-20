@@ -8,11 +8,15 @@ variables:
   CONTAINER_IMAGE_TAGGED: ${DOCKER_HUB_USERNAME}/${APPLICATION_NAME}:${CI_COMMIT_SHORT_SHA}
   NODEPORT: 32725
 
+image: moreillon/ci-dind:4bca50d7
+services:
+  - name: docker:19.03.12-dind
+
 
 build:
   stage: build
   tags:
-    - moreillon
+    - dind
   before_script:
     # Docker hub login
     - echo "${DOCKER_HUB_PASSWORD}" | docker login --username ${DOCKER_HUB_USERNAME} --password-stdin
@@ -24,15 +28,12 @@ build:
     # Pushing
     - docker push ${CONTAINER_IMAGE}
     - docker push ${CONTAINER_IMAGE_TAGGED}
-    # cleanup
-    - docker image rm ${CONTAINER_IMAGE}
-    - docker image rm ${CONTAINER_IMAGE_TAGGED}
 
 
 deploy:
   stage: deploy
   tags:
-    - moreillon
+    - dind
   script:
     # create/update the deployment
     - envsubst < kubernetes_manifest.yml | kubectl apply -f -
