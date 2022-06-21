@@ -397,14 +397,12 @@ export default {
 
     load_pdf_hankos () {
 
-      const promises = []
-
-      this.application.recipients
+      const promises = this.application.recipients
       .filter(recipient => !!recipient.approval)
       .map(recipient => recipient.approval)
-      .forEach(approval => {
+      .map(approval => {
 
-        const promise = new Promise( (resolve, reject) => {
+        return new Promise( (resolve, reject) => {
 
           // Do nothing if there no hanko to draw for the current approval
           let hankos = approval.properties.attachment_hankos
@@ -453,7 +451,6 @@ export default {
           .catch(reject)
         })
 
-        promises.push(promise)
       })
 
       // render .pdf once all hankos of all approvals have been drawn
