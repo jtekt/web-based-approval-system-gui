@@ -1,66 +1,41 @@
 <template>
+
+  <div class="web_hanko">
     <!-- ID used for PDF stamping -->
     <!-- This is far from ideal -->
-    <svg
-      :id="`hanko_${approvalId}`"
-      ref="svg"
-      viewBox="0 0 100 150">
+    <svg :id="`hanko_${approvalId}`" ref="svg" viewBox="0 0 100 150">
 
       <!-- frame -->
-      <rect
-        stroke="#c00000"
-        stroke-width="2"
-        fill-opacity="0.0"
-        x="2%" y="2%" rx="10" ry="10"
-        width="96%" height="96%"/>
+      <rect stroke="#c00000" stroke-width="2" fill-opacity="0.0" x="2%" y="2%" rx="10" ry="10" width="96%"
+        height="96%" />
 
-        <!-- Approver name -->
-      <text
-        fill="#c00000"
-        text-anchor="middle"
-        font-family="monospace, monospace"
-        font-weight="600"
-        :font-size="name_font_size"
-        x="50%"
-        :y="name_y">
-        {{name}}
+      <!-- Approver name -->
+      <text fill="#c00000" text-anchor="middle" font-family="monospace, monospace" font-weight="600"
+        :font-size="name_font_size" x="50%" :y="name_y">
+        {{formatted_name}}
       </text>
 
       <!-- original qr is 21 x 21, resizing to 80 x 80 -->
       <!-- warning: translation is in the original reference frame (before scaling) -->
       <!-- 100/21*0.8 = 3.80952380952 -->
-      <path
-        v-bind:d="qr_code_svg"
-        stroke="#c00000"
-        :transform="transform"/>
+      <path v-bind:d="qr_code_svg" stroke="#c00000" :transform="transform" />
 
-        <!-- Lines above and below the QR code -->
-      <line
-        stroke="#c00000"
-        stroke-width="1"
-        x1="5%" y1="36" x2="95%" y2="36"/>
-      <line
-        stroke="#c00000"
-        stroke-width="1"
-        x1="5%" y1="125" x2="95%" y2="125"/>
+      <!-- Lines above and below the QR code -->
+      <line stroke="#c00000" stroke-width="1" x1="5%" y1="36" x2="95%" y2="36" />
+      <line stroke="#c00000" stroke-width="1" x1="5%" y1="125" x2="95%" y2="125" />
 
       <!-- date of approval -->
-      <text
-        fill="#c00000"
-        text-anchor="middle"
-        font-family="monospace, monospace"
-        font-size="14"
-        x="50%" y="94%">
+      <text fill="#c00000" text-anchor="middle" font-family="monospace, monospace" font-size="14" x="50%" y="94%">
         {{date_formatted}}
       </text>
 
     </svg>
 
+  </div>
 </template>
 
 <script>
 import QRCode from 'qrcode'
-import canvg from 'canvg' // used to turn Hankos into PNG
 
 export default {
   name: 'WebHanko',
@@ -69,7 +44,7 @@ export default {
     approvalId: { type: String, default: '1' },
     date: {
       type: Object,
-      default () {
+      default() {
         return {
           year: 0,
           month: 0,
@@ -78,28 +53,28 @@ export default {
       }
     }
   },
-  data () {
+  data() {
     return {
       qr_code_svg: '',
       qr_size: 21,
-      // name: '山田',
-      // approvalId: 'example',
+      name_font_size: 16
     }
   },
-  mounted () {
+  mounted() {
     this.generate_qr()
   },
   computed: {
-    name_font_size () {
-      return Math.min(55 / this.name.length, 55 / 2)
+    formatted_name() {
+      if (this.name.length <= 6) return this.name
+      else return `${this.name.substring(0, 6)}...`
     },
-    name_y () {
+    name_y() {
       return 17.5 + 0.5 * this.name_font_size
     },
-    date_formatted(){
-      return `${this.date.year.toString().slice(2,4)}.${this.date.month}.${this.date.day}`
+    date_formatted() {
+      return `${this.date.year.toString().slice(2, 4)}.${this.date.month}.${this.date.day}`
     },
-    transform(){
+    transform() {
 
       // Target size: 80 x 80
       // Current size: this.qr_size
@@ -107,10 +82,10 @@ export default {
       // Margin: 1-px on each side
       // Margin will depend on size
 
-      const scale = 0.8 * 100/this.qr_size
+      const scale = 0.8 * 100 / this.qr_size
       const margin = {
-        x: 10/scale,
-        y: 40/scale,
+        x: 10 / scale,
+        y: 40 / scale,
 
       }
 
@@ -121,7 +96,7 @@ export default {
     },
   },
   methods: {
-    generate_qr () {
+    generate_qr() {
       const content = this.approvalId.toString()
       const options = {
         margin: 0,
@@ -132,7 +107,7 @@ export default {
       }
 
       QRCode.toString(content, options)
-        .then( (qr_string) => {
+        .then((qr_string) => {
           const parser = new DOMParser()
           const doc = parser.parseFromString(qr_string, 'image/svg+xml')
           this.qr_code_svg = doc.getElementsByTagName('path')[0].getAttribute('d')
@@ -140,47 +115,28 @@ export default {
         })
         .catch(err => console.error(err))
     },
-    download(){
-      const hanko_svg = this.$refs.svg
-      const serializer = new XMLSerializer()
-      const SVG_sata = serializer.serializeToString(hanko_svg)
-
-      const canvas = document.createElement("canvas");
-      const context = canvas.getContext("2d");
-
-      canvas.width = 1000
-      canvas.height = 1500
-
-      canvg.fromString(context, SVG_sata).start()
-      const elem = window.document.createElement('a')
-
-      elem.href = canvas.toDataURL("image/png")
-      elem.download = `hanko.png`
-      document.body.appendChild(elem)
-      elem.click()
-      document.body.removeChild(elem)
-    }
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
-/* .web_hanko{
+.web_hanko {
 
   position: relative;
+
+  /* the SVG will keep aspect ratio and generate margins accordingly */
   height: 100%;
   width: 100%;
 
-} */
+}
 
 svg {
   height: 100%;
   width: 100%;
 }
 
-.download_button_container{
+.download_button_container {
   opacity: 0;
   transition: opacity 0.25s;
 
@@ -204,5 +160,4 @@ svg {
 .download_button_container:hover {
   opacity: 1;
 }
-
 </style>

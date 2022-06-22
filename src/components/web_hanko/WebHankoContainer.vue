@@ -2,32 +2,22 @@
   <div class="web_hanko_container">
 
     <!-- recipient name -->
-    <a
-      :href="user_profile_url"
-      class="hanko_container_header">
-      {{ recipient_name }}
+    <a target="_blank" :href="user_profile_url" class="hanko_container_header">
+      {{ recipient_displayed_name }}
     </a>
 
     <div class="hanko_area">
 
       <!-- TODO: provide alternatives for the name! -->
-      <WebHanko
-        v-if="recipient.approval"
-        :name="recipient_name"
-        :approvalId="get_id_of_item(recipient.approval)"
-        :date="recipient.approval.properties.date"/>
+      <WebHanko v-if="recipient.approval" :name="recipient_displayed_name"
+        :approvalId="get_id_of_item(recipient.approval)" :date="recipient.approval.properties.date" />
 
 
 
-      <v-icon
-        color="#c00000"
-        x-large
-        v-else-if="recipient.refusal">mdi-close-circle</v-icon>
+      <v-icon color="#c00000" x-large v-else-if="recipient.refusal">mdi-close-circle</v-icon>
 
-      <EmailButton
-        v-else-if="recipient_is_current_recipient && (user_is_applicant || user_as_recipient)"
-        :user="recipient"
-        @send_email="$emit('send_email')" />
+      <EmailButton v-else-if="recipient_is_current_recipient && (user_is_applicant || user_as_recipient)"
+        :user="recipient" @send_email="$emit('send_email')" />
 
 
 
@@ -57,7 +47,7 @@ export default {
     recipient: { type: Object, required: true },
     application: Object,
   },
-  data () {
+  data() {
     return {
       approval_status: undefined
     }
@@ -66,62 +56,54 @@ export default {
 
   },
   computed: {
-    current_recipient(){
+    current_recipient() {
       // recipients sorted by flow index apparently
-      if(this.application.recipients.find(recipient => recipient.refusal)) return null
+      if (this.application.recipients.find(recipient => recipient.refusal)) return null
       return this.application.recipients
-      .slice()
-      .sort((a, b) => a.submission.properties.flow_index - b.submission.properties.flow_index)
-      .find(recipient => !recipient.approval && !recipient.refusal)
+        .slice()
+        .sort((a, b) => a.submission.properties.flow_index - b.submission.properties.flow_index)
+        .find(recipient => !recipient.approval && !recipient.refusal)
     },
-    recipient_id(){
+    recipient_id() {
       return this.get_id_of_item(this.recipient)
     },
-    show_toolbox () {
+    show_toolbox() {
       // If the user is a recipient that has not approved or rejected the application and also is next recipient
       return this.user_is_recipient &&
         !this.approval &&
         !this.rejection &&
         this.is_current_recipient
     },
-    recipient_is_current_recipient(){
+    recipient_is_current_recipient() {
       // Is the recipient the next in the flow?
-      if(!this.current_recipient) return false
+      if (!this.current_recipient) return false
       return this.recipient_id === this.get_id_of_item(this.current_recipient)
     },
-    user_profile_url () {
+    user_profile_url() {
       return `${process.env.VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/users/${this.recipient_id}`
     },
-    user_is_applicant () {
+    user_is_applicant() {
       return this.current_user_id === this.get_id_of_item(this.application.applicant)
     },
-    user_as_recipient(){
+    user_as_recipient() {
       return this.application.recipients.find(recipient => this.get_id_of_item(recipient) === this.current_user_id)
     },
-    recipient_name(){
-      if(this.recipient.properties){
-        const {properties} = this.recipient
-        return properties.last_name
-          || properties.family_name_kanji
-          || properties.name_kanji
-          || properties.display_name
-      }
-      else {
-        return this.recipient
-          || this.recipient.last_name
-          || this.recipient.family_name_kanji
-          || this.recipient.name_kanji
-          || this.recipient.display_name
+    recipient_displayed_name() {
 
-      }
-    },
+      const {
+        last_name,
+        display_name
+      } = this.recipient.properties
+
+      if (display_name && display_name.length <= 6) return display_name
+      else return last_name || display_name
+    }
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
 .web_hanko_container {
 
   background-color: white;
@@ -138,7 +120,7 @@ export default {
 
 }
 
-.web_hanko_container > * {
+.web_hanko_container>* {
   padding: 5px;
 
 }
@@ -150,7 +132,8 @@ export default {
   text-align: center;
   font-size: 80%;
 
-  margin: 0 5px; /* to prevent border from going all the way accross */
+  margin: 0 5px;
+  /* to prevent border from going all the way accross */
   border-bottom: 1px solid #666666;
 
   white-space: nowrap;
@@ -165,7 +148,7 @@ export default {
   color: #c00000;
 }
 
-.hanko_area{
+.hanko_area {
   /* Actually used! */
   height: 100px;
   display: flex;
@@ -173,8 +156,9 @@ export default {
   align-items: center;
 }
 
-.toolbox{
-  margin: 0 5px; /* to prevent border from going all the way accross */
+.toolbox {
+  margin: 0 5px;
+  /* to prevent border from going all the way accross */
   border-top: 1px solid #666666;
   display: flex;
   flex-direction: row;
@@ -183,11 +167,10 @@ export default {
 }
 
 
-.email_button_content{
+.email_button_content {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 }
-
 </style>

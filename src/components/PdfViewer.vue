@@ -300,7 +300,8 @@ export default {
           x: position_x,
           y: position_y
         },
-        scale: this.hanko_scale
+        scale: this.hanko_scale,
+        date: new Date(),
       }
 
       const current_user_as_recipient = this.current_user_as_recipient
