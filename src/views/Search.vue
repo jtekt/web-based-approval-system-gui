@@ -38,7 +38,7 @@
               <v-col cols="auto">
 
                 <v-chip v-if="selected_group" close @click:close="selected_group = null">
-                  {{selected_group.properties.name}}
+                  {{selected_group.name}}
                 </v-chip>
 
                 <AddGroupDialog v-else @selection="select_group($event)" />
