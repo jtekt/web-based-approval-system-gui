@@ -8,7 +8,7 @@
         text
         v-bind="attrs"
         v-on="on">
-        <v-icon>mdi-information</v-icon>
+        <v-icon left>mdi-information</v-icon>
         <span>Help</span>
       </v-btn>
     </template>

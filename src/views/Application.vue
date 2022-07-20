@@ -1,6 +1,5 @@
 <template>
-  <v-card
-    :loading="loading">
+  <v-card :loading="loading">
 
     <template v-if="application && !error">
 
@@ -17,20 +16,15 @@
           </v-col>
           <template v-if="user_is_applicant">
             <v-col cols="auto">
-              <v-btn
-                text
+              <v-btn text
                 @click="$router.push({ name: 'new_application', query: { copy_of: get_id_of_item(application) } })">
-                <v-icon>mdi-restore</v-icon>
+                <v-icon left>mdi-restore</v-icon>
                 <span>{{ $t('Re-submit') }}</span>
               </v-btn>
             </v-col>
             <v-col cols="auto">
-              <v-btn
-                text
-                :disabled="application_is_fully_approved"
-                color="#c00000"
-                @click="delete_application()">
-                <v-icon>mdi-delete</v-icon>
+              <v-btn text :disabled="application_is_fully_approved" color="#c00000" @click="delete_application()">
+                <v-icon left>mdi-delete</v-icon>
                 <span>{{ $t('Delete') }}</span>
               </v-btn>
             </v-col>
@@ -40,11 +34,8 @@
       </v-container>
       <v-divider />
 
-      <v-banner
-        v-if="this.$store.state.email_required"
-        single-line
-        class="text-center red--text">
-        回覧はメールマークをクリックして作成されたメールを送信してください
+      <v-banner v-if="this.$store.state.email_required" single-line class="text-center red--text">
+        {{ $t('Click the email icon of the next recipient to send a notification email') }}
       </v-banner>
 
       <!-- Application info -->
@@ -56,7 +47,7 @@
             <v-subheader>{{ $t('Application info') }}</v-subheader>
 
             <v-list dense>
-              <v-divider/>
+              <v-divider />
               <v-list-item>
                 <v-list-item-content>
                   ID
@@ -65,7 +56,7 @@
                   {{get_id_of_item(application)}}
                 </v-list-item-content>
               </v-list-item>
-              <v-divider/>
+              <v-divider />
               <v-list-item>
                 <v-list-item-content>
                   {{ $t('Title') }}
@@ -75,7 +66,7 @@
                 </v-list-item-content>
               </v-list-item>
 
-              <v-divider/>
+              <v-divider />
               <v-list-item>
                 <v-list-item-content>
                   {{ $t('Type') }}
@@ -85,7 +76,7 @@
                 </v-list-item-content>
               </v-list-item>
 
-              <v-divider/>
+              <v-divider />
               <v-list-item>
                 <v-list-item-content>
                   {{ $t('Date') }}
@@ -95,7 +86,7 @@
                 </v-list-item-content>
               </v-list-item>
 
-              <v-divider/>
+              <v-divider />
               <v-list-item>
                 <v-list-item-content>
                   {{ $t('Applicant') }}
@@ -105,42 +96,36 @@
                 </v-list-item-content>
               </v-list-item>
 
-              <v-divider/>
+              <v-divider />
               <v-list-item>
                 <v-list-item-content>
                   {{ $t('Confidential') }}
                 </v-list-item-content>
                 <v-list-item-content class="align-end">
-                  <v-switch
-                    :disabled="!user_is_applicant"
-                    v-model="application.properties.private"
-                    @change="update_privacy_of_application()"/>
+                  <v-switch :disabled="!user_is_applicant" v-model="application.properties.private"
+                    @change="update_privacy_of_application()" />
                 </v-list-item-content>
               </v-list-item>
 
               <template v-if="application.properties.private">
-                <v-divider/>
-                <v-list-item >
+                <v-divider />
+                <v-list-item>
                   <v-list-item-content>Visibility</v-list-item-content>
                   <v-list-item-content class="align-end">
                     <v-row>
                       <v-col cols="auto">
                         <v-chip>Approval flow</v-chip>
                       </v-col>
-                      <v-col
-                        cols="auto"
-                        v-for="(group, index) in application.visibility"
-                        :key="`group_${index}`">
+                      <v-col cols="auto" v-for="(group, index) in application.visibility" :key="`group_${index}`">
                         <v-chip>
-                          <v-chip
-                          :close="user_is_applicant"
-                          @click:close="remove_application_visibility_to_group(group)">
-                          {{group.properties.name}}
+                          <v-chip :close="user_is_applicant"
+                            @click:close="remove_application_visibility_to_group(group)">
+                            {{group.properties.name}}
+                          </v-chip>
                         </v-chip>
-                      </v-chip>
                       </v-col>
                       <v-col cols="auto">
-                        <AddGroupDialog @selection="share_with_group($event)"/>
+                        <AddGroupDialog @selection="share_with_group($event)" />
                       </v-col>
                     </v-row>
                   </v-list-item-content>
@@ -156,43 +141,35 @@
 
             <v-list dense v-if="application.forbidden">
               <v-list-item>
-                <v-list-item-content
-                  class="red--text">
-                  機密 / confidential
+                <v-list-item-content class="red--text">
+                  {{ $t('Confidential') }}
                 </v-list-item-content>
               </v-list-item>
             </v-list>
 
             <v-list dense v-else>
-              <template v-for="(field, index) in application.properties.form_data" >
+              <template v-for="(field, index) in application.properties.form_data">
 
-                <v-divider :key="`field_${index}_divider`"/>
+                <v-divider :key="`field_${index}_divider`" />
 
                 <v-list-item :key="`field_${index}_item`">
 
                   <v-list-item-content>{{field.label}}</v-list-item-content>
 
-                  <v-list-item-content
-                    class="align-end"
-                    v-if="field.type === 'pdf'">
+                  <v-list-item-content class="align-end" v-if="field.type === 'pdf'">
 
                     <template v-if="field.value">
                       <template v-if="user_as_recipient">
-                        <div
-                          class="green--text text-center ma-2"
-                          v-if="user_has_stamped_attachment(field.value)">
-                          ハンコを押しました
+                        <div class="green--text text-center ma-2" v-if="user_has_stamped_attachment(field.value)">
+                          {{ $t('Stamped') }}
                         </div>
 
-                        <div
-                          class="red--text text-center ma-2"
-                          v-else>
-                          まだハンコを押してません
+                        <div class="red--text text-center ma-2" v-else>
+                          {{ $t('Not stamped yet') }}
                         </div>
                       </template>
-                      
-                      <v-btn
-                        @click="view_pdf(field.value)">
+
+                      <v-btn @click="view_pdf(field.value)">
                         <v-icon>mdi-eye</v-icon>
                       </v-btn>
                     </template>
@@ -203,47 +180,30 @@
 
                   </v-list-item-content>
 
-                  <v-list-item-content
-                    class="align-end"
-                    v-else-if="field.type === 'file'">
+                  <v-list-item-content class="align-end" v-else-if="field.type === 'file'">
 
-                    <v-btn
-                      v-if="field.value"
-                      @click="download_attachment(field.value)">
+                    <v-btn v-if="field.value" @click="download_attachment(field.value)">
                       <v-icon>mdi-download</v-icon>
                     </v-btn>
                   </v-list-item-content>
 
-                  <v-list-item-content
-                    class="align-end"
-                    v-else-if="field.type === 'checkbox'">
+                  <v-list-item-content class="align-end" v-else-if="field.type === 'checkbox'">
                     {{field.value ? '✓' : '✕'}}
                   </v-list-item-content>
 
-                  <v-list-item-content
-                    class="align-end"
-                    v-else-if="field.type === 'link'">
-                    <a
-                      :href="field.value"
-                      target="_blank">
+                  <v-list-item-content class="align-end" v-else-if="field.type === 'link'">
+                    <a :href="field.value" target="_blank">
                       {{field.value}}
                     </a>
                   </v-list-item-content>
 
-                  <v-list-item-content
-                    class="align-end"
-                    v-else-if="field.type === 'application'">
-                    <a
-                      class="field_link"
-                      :href="`/applications/${field.value}`"
-                      target="_blank">
+                  <v-list-item-content class="align-end" v-else-if="field.type === 'application'">
+                    <a class="field_link" :href="`/applications/${field.value}`" target="_blank">
                       {{field.value}}
                     </a>
                   </v-list-item-content>
 
-                  <v-list-item-content
-                    class="align-end application_field_value"
-                    v-else>
+                  <v-list-item-content class="align-end application_field_value" v-else>
                     {{field.value || "-"}}
                   </v-list-item-content>
 
@@ -258,49 +218,36 @@
           <!-- Approval flow -->
           <v-col>
 
-            <v-row
-              v-if="current_recipient_is_current_user"
-              class="mb-3">
-              <v-spacer/>
+            <v-row v-if="current_recipient_is_current_user" class="mb-3">
+              <v-spacer />
 
               <v-col cols="auto">
-                <v-btn
-                  color="#00c000"
-                  dark
-                  @click="approve_application()">
-                  <v-icon>mdi-check</v-icon>
+                <v-btn color="#00c000" dark @click="approve_application()">
+                  <v-icon left>mdi-check</v-icon>
                   <span>{{ $t('Approve') }}</span>
                 </v-btn>
               </v-col>
 
 
               <v-col cols="auto">
-                <v-btn
-                  color="#c00000"
-                  dark
-                  @click="reject_application()">
-                  <v-icon>mdi-close</v-icon>
+                <v-btn color="#c00000" dark @click="reject_application()">
+                  <v-icon left>mdi-close</v-icon>
                   <span>{{ $t('Reject') }}</span>
                 </v-btn>
               </v-col>
             </v-row>
 
-            <div
-              v-if="current_recipient_is_current_user"
-              class="approval_controls">
+            <div v-if="current_recipient_is_current_user" class="approval_controls">
 
             </div>
 
 
-            <div class="approval_flow" >
+            <div class="approval_flow">
 
-              <template
-                v-if="!!user_as_recipient && !current_recipient" >
+              <template v-if="!!user_as_recipient && !current_recipient">
 
                 <div class="flow_applicant">
-                  <EmailButton
-                    :user="application.applicant"
-                    @send_email="send_email_to_applicant()" />
+                  <EmailButton :user="application.applicant" @send_email="send_email_to_applicant()" />
                 </div>
 
                 <div>
@@ -309,21 +256,14 @@
 
               </template>
 
-              <template
-                v-for="(recipient, index) in ordered_recipients" >
+              <template v-for="(recipient, index) in ordered_recipients">
 
-                <div
-                  v-if="index>0"
-                  :key="`flow_arrow_${index}`">
+                <div v-if="index>0" :key="`flow_arrow_${index}`">
                   <v-icon class="mt-16">mdi-arrow-left</v-icon>
                 </div>
 
-                <WebHankoContainer
-                  :key="`recipient_${index}`"
-                  :recipient="recipient"
-                  :application="application"
-                  @send_email="send_email_to_recipient(recipient)"
-                  @reject="reject_application()"/>
+                <WebHankoContainer :key="`recipient_${index}`" :recipient="recipient" :application="application"
+                  @send_email="send_email_to_recipient(recipient)" @reject="reject_application()" />
               </template>
 
 
@@ -331,9 +271,7 @@
 
             </div>
 
-            <RecipientComments
-              :application="application"
-              @comment_updated="get_application()"/>
+            <RecipientComments :application="application" @comment_updated="get_application()" />
 
 
 
@@ -343,21 +281,14 @@
       </v-card-text>
 
       <v-card-text>
-        <PdfViewer
-          v-if="selected_file_id"
-          :selected_file_id="selected_file_id"
-          :application="application"
-          @pdf_stamped="get_application()"
-          @reject="reject_application()"/>
+        <PdfViewer v-if="selected_file_id" :selected_file_id="selected_file_id" :application="application"
+          @pdf_stamped="get_application()" @reject="reject_application()" />
       </v-card-text>
 
 
     </template>
 
-    <v-card-text
-      v-if="error"
-      style="white-space: pre-line; color: #c00000;"
-      class='text-center text-h6'>
+    <v-card-text v-if="error" style="white-space: pre-line; color: #c00000;" class='text-center text-h6'>
       {{error}}
     </v-card-text>
 

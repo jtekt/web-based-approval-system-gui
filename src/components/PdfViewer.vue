@@ -258,7 +258,7 @@ export default {
         this.load_pdf_hankos()
       }
       catch (e) {
-        this.load_error = `この機能は.pdfのファイルしかつかえません<br>This feature only supports .pdf files`
+        this.load_error = this.$t('This file cannot be opened')
       }
     },
 

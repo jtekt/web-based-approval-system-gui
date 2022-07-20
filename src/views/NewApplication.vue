@@ -232,7 +232,7 @@
         <v-card-text class="text-center">
           <v-btn :loading="submitting" color="#c00000" :dark="application_valid" @click="submit()"
             :disabled="!application_valid">
-            <v-icon>mdi-send</v-icon>
+            <v-icon left>mdi-send</v-icon>
             <span>{{ $t('Submit application') }}</span>
 
           </v-btn>

@@ -1,12 +1,9 @@
 <template>
   <div class="comments">
-    <v-subheader>捺印者のコメント / Recipient comments</v-subheader>
+    <v-subheader>{{ $t('Recipient comments')}}</v-subheader>
 
-    <RecipientComment
-      v-for="(recipient, index) in ordered_recipients"
-      :key="`comment_${index}`"
-      :recipient="recipient"
-      @comment_updated="$emit('comment_updated')"/>
+    <RecipientComment v-for="(recipient, index) in ordered_recipients" :key="`comment_${index}`" :recipient="recipient"
+      @comment_updated="$emit('comment_updated')" />
 
 
 

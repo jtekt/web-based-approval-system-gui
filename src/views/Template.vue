@@ -1,59 +1,41 @@
 <template>
-  <v-card
-    :loading="loading">
+  <v-card :loading="loading">
 
     <v-toolbar flat>
-      <v-btn
-        exact
-        icon
-        :to="{name: 'templates'}" >
+      <v-btn exact icon :to="{name: 'templates'}">
         <v-icon>mdi-arrow-left</v-icon>
       </v-btn>
       <v-toolbar-title v-if="template">{{template.properties.label}}</v-toolbar-title>
       <v-toolbar-title v-else>{{ $t('Template') }}</v-toolbar-title>
-      <v-spacer/>
+      <v-spacer />
 
       <template v-if="user_is_author">
-        <v-btn
-          color="#c00000"
-          dark
-          text
-          :loading="deleting"
-          @click="delete_template()">
-          <v-icon>mdi-delete</v-icon>
+        <v-btn color="#c00000" dark text :loading="deleting" @click="delete_template()">
+          <v-icon left>mdi-delete</v-icon>
           <span>{{ $t('Delete') }}</span>
         </v-btn>
-        <v-btn
-          text
-          :loading="saving"
-          @click="update_template()">
-          <v-icon>mdi-content-save</v-icon>
+        <v-btn text :loading="saving" @click="update_template()">
+          <v-icon left>mdi-content-save</v-icon>
           <span>{{ $t('Save') }}</span>
         </v-btn>
       </template>
 
     </v-toolbar>
-    <v-divider/>
+    <v-divider />
 
     <template v-if="template">
-      <v-card-text >
+      <v-card-text>
 
         <v-row>
           <v-col>
-            <v-text-field
-              :readonly="!user_is_author"
-              :label="$t('Template name')"
+            <v-text-field :readonly="!user_is_author" :label="$t('Template name')"
               v-model="template.properties.label" />
           </v-col>
         </v-row>
         <v-row>
           <v-col>
-            <v-textarea
-              :label="$t('Description')"
-              auto-grow
-              rows="1"
-              v-model="template.properties.description"
-              hint="Hint text"/>
+            <v-textarea :label="$t('Description')" auto-grow rows="1" v-model="template.properties.description"
+              hint="Hint text" />
           </v-col>
         </v-row>
         <v-row align="center">
@@ -63,21 +45,14 @@
             <v-chip>{{ $t('You') }}</v-chip>
           </v-col>
 
-          <v-col
-            cols="auto"
-            v-for="(group, index) in template.groups"
-            :key="`group_${index}`">
-            <v-chip
-              :close="user_is_author"
-              @click:close="remove_group(index)">
+          <v-col cols="auto" v-for="(group, index) in template.groups" :key="`group_${index}`">
+            <v-chip :close="user_is_author" @click:close="remove_group(index)">
               {{group.name || group.properties.name}}
             </v-chip>
           </v-col>
 
           <v-col cols="auto">
-            <AddGroupDialog
-              v-if="user_is_author"
-              @selection="add_group($event)"/>
+            <AddGroupDialog v-if="user_is_author" @selection="add_group($event)" />
           </v-col>
 
         </v-row>
@@ -93,60 +68,33 @@
             <v-toolbar-title>
               {{ $t('Fields') }}
             </v-toolbar-title>
-            <v-spacer/>
-            <v-btn
-              v-if="user_is_author"
-              dark
-              @click="add_field()">
-              <v-icon>mdi-plus</v-icon>
+            <v-spacer />
+            <v-btn v-if="user_is_author" dark @click="add_field()">
+              <v-icon left>mdi-plus</v-icon>
               <span>{{ $t('Add field') }}</span>
             </v-btn>
           </v-toolbar>
-          <v-divider/>
+          <v-divider />
           <v-card-text>
 
-            <v-row
-              align="baseline"
-              v-for="(field, index) in template.properties.fields"
-              :key="`field_${index}`">
+            <v-row align="baseline" v-for="(field, index) in template.properties.fields" :key="`field_${index}`">
               <v-col>
-                <v-text-field
-                  :readonly="!user_is_author"
-                  :label="$t('Field name')"
-                  v-model="field.label" />
+                <v-text-field :readonly="!user_is_author" :label="$t('Field name')" v-model="field.label" />
               </v-col>
               <v-col>
-                <v-select
-                  :readonly="!user_is_author"
-                  :items="field_types"
-                  item-text="label"
-                  item-value="type"
-                  v-model="field.type"
-                  label="Type"/>
+                <v-select :readonly="!user_is_author" :items="field_types" item-text="label" item-value="type"
+                  v-model="field.type" label="Type" />
               </v-col>
-              <v-col
-                v-if="user_is_author"
-                cols="auto">
-                <v-btn
-                  icon
-                  :disabled="index === 0"
-                  @click="move_field(index, -1)">
+              <v-col v-if="user_is_author" cols="auto">
+                <v-btn icon :disabled="index === 0" @click="move_field(index, -1)">
                   <v-icon>mdi-arrow-up</v-icon>
                 </v-btn>
-                <v-btn
-                  icon
-                  :disabled="index === template.properties.fields.length - 1"
-                  @click="move_field(index, 1)">
+                <v-btn icon :disabled="index === template.properties.fields.length - 1" @click="move_field(index, 1)">
                   <v-icon>mdi-arrow-down</v-icon>
                 </v-btn>
               </v-col>
-              <v-col
-                v-if="user_is_author"
-                cols="auto">
-                <v-btn
-                  icon
-                  color="#c00000"
-                  @click="delete_field(index)">
+              <v-col v-if="user_is_author" cols="auto">
+                <v-btn icon color="#c00000" @click="delete_field(index)">
                   <v-icon>mdi-delete</v-icon>
                 </v-btn>
               </v-col>

@@ -12,7 +12,7 @@
         color="#c00000"
         dark
         :to="{name:'new_application'}">
-        <v-icon>mdi-plus</v-icon>
+        <v-icon left>mdi-plus</v-icon>
         <span>{{ $t('New application') }}</span>
       </v-btn>
 

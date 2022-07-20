@@ -78,5 +78,10 @@
   "New template": "New template",
   "Click for more info": "Click for more info",
   "Template author": "Template author",
-  "Template page": "Template page"
+  "Template page": "Template page",
+  "Recipient comments": "Recipient comments",
+  "This file cannot be opened": "This file cannot be opened",
+  "Click the email icon of the next recipient to send a notification email": "Click the email icon of the next recipient to send a notification email",
+  "Stamped": "Stamped",
+  "Not stamped yet": "Not stamped yet"
 }

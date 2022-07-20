@@ -20,7 +20,7 @@
           </v-col>
           <v-col cols="auto">
             <v-btn type="submit" :disabled="!valid">
-              <v-icon>mdi--plus</v-icon>
+              <v-icon left>mdi--plus</v-icon>
               <span>{{ $t('Create')}}</span>
             </v-btn>
           </v-col>
