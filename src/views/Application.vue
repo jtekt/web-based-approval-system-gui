@@ -7,7 +7,7 @@
 
         <v-row align="center">
           <v-col cols="auto">
-            <v-toolbar-title v-if="application">{{ application.properties.title }}</v-toolbar-title>
+            <v-toolbar-title v-if="application">{{ application.title }}</v-toolbar-title>
             <v-toolbar-title v-else>{{ $t('Application') }}</v-toolbar-title>
           </v-col>
           <v-spacer />
@@ -62,7 +62,7 @@
                   {{ $t('Title') }}
                 </v-list-item-content>
                 <v-list-item-content class="align-end">
-                  {{application.properties.title}}
+                  {{application.title}}
                 </v-list-item-content>
               </v-list-item>
 
@@ -72,7 +72,7 @@
                   {{ $t('Type') }}
                 </v-list-item-content>
                 <v-list-item-content class="align-end">
-                  {{application.properties.type}}
+                  {{application.type}}
                 </v-list-item-content>
               </v-list-item>
 
@@ -82,7 +82,7 @@
                   {{ $t('Date') }}
                 </v-list-item-content>
                 <v-list-item-content class="align-end">
-                  {{format_date_neo4j(application.properties.creation_date)}}
+                  {{format_date_neo4j(application.creation_date)}}
                 </v-list-item-content>
               </v-list-item>
 
@@ -92,7 +92,7 @@
                   {{ $t('Applicant') }}
                 </v-list-item-content>
                 <v-list-item-content class="align-end">
-                  {{application.applicant.properties.display_name}}
+                  {{application.applicant.display_name}}
                 </v-list-item-content>
               </v-list-item>
 
@@ -102,12 +102,12 @@
                   {{ $t('Confidential') }}
                 </v-list-item-content>
                 <v-list-item-content class="align-end">
-                  <v-switch :disabled="!user_is_applicant" v-model="application.properties.private"
+                  <v-switch :disabled="!user_is_applicant" v-model="application.private"
                     @change="update_privacy_of_application()" />
                 </v-list-item-content>
               </v-list-item>
 
-              <template v-if="application.properties.private">
+              <template v-if="application.private">
                 <v-divider />
                 <v-list-item>
                   <v-list-item-content>Visibility</v-list-item-content>
@@ -148,7 +148,7 @@
             </v-list>
 
             <v-list dense v-else>
-              <template v-for="(field, index) in application.properties.form_data">
+              <template v-for="(field, index) in application.form_data">
 
                 <v-divider :key="`field_${index}_divider`" />
 
@@ -349,12 +349,15 @@
         this.loading = true
         this.application = null
         this.error = null
-        const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v1/applications/${this.application_id}`
+        const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v2/applications/${this.application_id}`
         this.axios.get(url)
         .then(({data}) => {
           this.application = data
-          if(!this.application.properties.form_data) return
-          this.application.properties.form_data = JSON.parse(this.application.properties.form_data)
+
+          // parsing form_data back into JSON because Neo4J cannot store JSON directly
+          if(!this.application.form_data) return
+          this.application.form_data = JSON.parse(this.application.form_data)
+
         })
         .catch((error) => {
           if(error.response) {
@@ -423,15 +426,15 @@
 
         // Weird formatting because preserves indentation
 
-        const email_body = `${recipient.properties.display_name} 様
+        const email_body = `${recipient.display_name} 様
 
 申請マネージャーの通知メールです。
 
 申請を提出しました。
 
-申請者: ${this.application.applicant.properties.display_name}
-タイプ: ${this.application.properties.type}
-タイトル: ${this.application.properties.title}
+申請者: ${this.application.applicant.display_name}
+タイプ: ${this.application.type}
+タイトル: ${this.application.title}
 提出先URL: ${window.location.origin}/applications/${this.get_id_of_item(this.application)}
 
 ※IEでは動作しません。Edge (Chromium)/Firefox/GoogleChromeをご使用ください。　
@@ -439,8 +442,8 @@
 
 確認お願いします。`
 
-      const email_string = `mailto:${recipient.properties.email_address}
-?subject=[申請マネージャ] ${this.application.properties.type}
+      const email_string = `mailto:${recipient.email_address}
+?subject=[申請マネージャ] ${this.application.type}
 &body=${encodeURIComponent(email_body)}`
 
         window.location.href = email_string
@@ -451,15 +454,15 @@
         this.$store.commit('require_email', false)
         // Weird formatting because preserves indentation
 
-        const email_body = `${this.application.applicant.properties.display_name} 様
+        const email_body = `${this.application.applicant.display_name} 様
 
 申請マネージャーの通知メールです。
 
 申請の承認が${this.application_is_rejected ? '却下' : '完了'}されました。
 
-申請者: ${this.application.applicant.properties.display_name}
-タイプ: ${this.application.properties.type}
-タイトル: ${this.application.properties.title}
+申請者: ${this.application.applicant.display_name}
+タイプ: ${this.application.type}
+タイトル: ${this.application.title}
 提出先URL: ${window.location.origin}/applications/${this.get_id_of_item(this.application)}
 
 ※IEでは動作しません。Edge (Chromium)/Firefox/GoogleChromeをご使用ください。
@@ -467,15 +470,15 @@
 
 確認お願いします。`
 
-        const email_string = `mailto:${this.application.applicant.properties.email_address}
-  ?subject=[申請マネージャ] ${this.application.properties.type}
+        const email_string = `mailto:${this.application.applicant.email_address}
+  ?subject=[申請マネージャ] ${this.application.type}
   &body=${encodeURIComponent(email_body)}`
 
         window.location.href = email_string
       },
       update_privacy_of_application () {
         const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/privacy`
-        const body = { private: this.application.properties.private }
+        const body = { private: this.application.private }
         this.axios.put(url, body)
           .then(() => { })
           .catch(() => alert('Error updating privacy of application'))
@@ -516,7 +519,7 @@
 
         if (!found_approval) return
 
-        let attachment_hankos = found_approval.properties.attachment_hankos
+        let attachment_hankos = found_approval.attachment_hankos
 
         if(typeof attachment_hankos === 'string'){
           try {  attachment_hankos = JSON.parse(attachment_hankos)  }
@@ -537,7 +540,7 @@
       ordered_recipients(){
         return this.application.recipients
           .slice()
-          .sort((a, b) => b.submission.properties.flow_index - a.submission.properties.flow_index)
+          .sort((a, b) => b.submission.flow_index - a.submission.flow_index)
       },
       current_recipient(){
         // recipients sorted by flow index apparently
@@ -545,7 +548,7 @@
 
         return this.application.recipients
         .slice()
-        .sort((a, b) => a.submission.properties.flow_index - b.submission.properties.flow_index)
+        .sort((a, b) => a.submission.flow_index - b.submission.flow_index)
         .find(recipient => !recipient.approval && !recipient.refusal)
       },
       user_as_recipient(){

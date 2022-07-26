@@ -33,7 +33,7 @@ export default {
     ordered_recipients(){
       return this.application.recipients
         .slice()
-        .sort((a, b) => b.submission.properties.flow_index - a.submission.properties.flow_index)
+        .sort((a, b) => b.submission.flow_index - a.submission.flow_index)
     },
 
 

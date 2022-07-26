@@ -4,7 +4,7 @@
 
     <template v-if="decision">
       <v-list-item-content>
-        <v-list-item-subtitle>{{recipient.properties.display_name}}</v-list-item-subtitle>
+        <v-list-item-subtitle>{{recipient.display_name}}</v-list-item-subtitle>
         <v-list-item-title>
           <v-textarea
             ref="commentTextArea"
@@ -117,7 +117,7 @@ export default {
 
     recipient_comment(){
       if(!this.decision) return null
-      return this.decision.properties.comment || 'コメント無し / No comment'
+      return this.decision.comment || 'コメント無し / No comment'
 
     },
   }
