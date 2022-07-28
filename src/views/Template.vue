@@ -5,7 +5,7 @@
       <v-btn exact icon :to="{name: 'templates'}">
         <v-icon>mdi-arrow-left</v-icon>
       </v-btn>
-      <v-toolbar-title v-if="template">{{template.properties.label}}</v-toolbar-title>
+      <v-toolbar-title v-if="template">{{template.label}}</v-toolbar-title>
       <v-toolbar-title v-else>{{ $t('Template') }}</v-toolbar-title>
       <v-spacer />
 
@@ -29,12 +29,12 @@
         <v-row>
           <v-col>
             <v-text-field :readonly="!user_is_author" :label="$t('Template name')"
-              v-model="template.properties.label" />
+              v-model="template.label" />
           </v-col>
         </v-row>
         <v-row>
           <v-col>
-            <v-textarea :label="$t('Description')" auto-grow rows="1" v-model="template.properties.description"
+            <v-textarea :label="$t('Description')" auto-grow rows="1" v-model="template.description"
               hint="Hint text" />
           </v-col>
         </v-row>
@@ -47,7 +47,7 @@
 
           <v-col cols="auto" v-for="(group, index) in template.groups" :key="`group_${index}`">
             <v-chip :close="user_is_author" @click:close="remove_group(index)">
-              {{group.name || group.properties.name}}
+              {{group.name || group.name}}
             </v-chip>
           </v-col>
 
@@ -77,7 +77,7 @@
           <v-divider />
           <v-card-text>
 
-            <v-row align="baseline" v-for="(field, index) in template.properties.fields" :key="`field_${index}`">
+            <v-row align="baseline" v-for="(field, index) in template.fields" :key="`field_${index}`">
               <v-col>
                 <v-text-field :readonly="!user_is_author" :label="$t('Field name')" v-model="field.label" />
               </v-col>
@@ -89,7 +89,7 @@
                 <v-btn icon :disabled="index === 0" @click="move_field(index, -1)">
                   <v-icon>mdi-arrow-up</v-icon>
                 </v-btn>
-                <v-btn icon :disabled="index === template.properties.fields.length - 1" @click="move_field(index, 1)">
+                <v-btn icon :disabled="index === template.fields.length - 1" @click="move_field(index, 1)">
                   <v-icon>mdi-arrow-down</v-icon>
                 </v-btn>
               </v-col>
@@ -144,7 +144,7 @@ export default {
 
     get_template () {
       this.loading = true
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v2/templates/${this.template_id}`
       this.axios.get(url)
       .then(({ data }) => { this.template = data })
       .catch(error => console.log(error))
@@ -156,7 +156,7 @@ export default {
       this.saving = true
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
       const group_ids = this.template.groups.map( group => this.get_id_of_item(group))
-      const {fields, label, description} = this.template.properties
+      const {fields, label, description} = this.template
 
       const body = {
         fields,
@@ -199,17 +199,17 @@ export default {
       .finally(() => { this.deleting = false })
     },
     add_field () {
-      this.template.properties.fields.push({ type: 'text', label: '' })
+      this.template.fields.push({ type: 'text', label: '' })
     },
     move_field(index, step){
-      const item = this.template.properties.fields[index]
-      const next_item = this.template.properties.fields[index + step]
-      this.$set(this.template.properties.fields,index + step,item)
-      this.$set(this.template.properties.fields,index,next_item)
+      const item = this.template.fields[index]
+      const next_item = this.template.fields[index + step]
+      this.$set(this.template.fields,index + step,item)
+      this.$set(this.template.fields,index,next_item)
     },
     delete_field (index) {
       if (!confirm('ホンマ？')) return
-      this.template.properties.fields.splice(index, 1)
+      this.template.fields.splice(index, 1)
     },
   },
   computed: {

@@ -84,14 +84,12 @@ export default {
     }
   },
   mounted () {
-    //this.get_my_templates()
-    //this.get_shared_templates()
     this.get_templates()
   },
   methods: {
     get_templates(){
       this.loading = true
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates`
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v2/templates`
       this.axios.get(url)
       .then( ({data}) => { this.application_templates = data })
       .catch( (error) => {
@@ -112,26 +110,20 @@ export default {
   computed: {
     base_headers(){
       return [
-        { text: this.$t('Name'), value: "properties.label" }
+        { text: this.$t('Name'), value: "label" }
       ]
     },
     shared_templates_headers(){
       return [
         ...this.base_headers,
-        { text: this.$t('Author'), value: "author.properties.display_name" },
+        { text: this.$t('Author'), value: "author.display_name" },
       ]
     },
     templates_of_user(){
-      return this.application_templates.filter(template => {
-        const author_id = this.get_id_of_item(template.author)
-        return author_id === this.current_user_id
-      })
+      return this.application_templates.filter(({ author }) => this.get_id_of_item(author) === this.current_user_id )
     },
     shared_templates(){
-      return this.application_templates.filter(template => {
-        const author_id = this.get_id_of_item(template.author)
-        return author_id !== this.current_user_id
-      })
+      return this.application_templates.filter(({ author }) => this.get_id_of_item(author) !== this.current_user_id )
     }
 
   }
