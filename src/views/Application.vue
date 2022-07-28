@@ -97,6 +97,9 @@
               </v-list-item>
 
               <v-divider />
+
+              <!-- Privacy -->
+              <!-- TODO: Make its own component -->
               <v-list-item>
                 <v-list-item-content>
                   {{ $t('Confidential') }}
