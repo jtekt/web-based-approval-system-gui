@@ -144,7 +144,7 @@ export default {
 
     get_template () {
       this.loading = true
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v2/templates/${this.template_id}`
+      const url = `/v2/templates/${this.template_id}`
       this.axios.get(url)
       .then(({ data }) => { this.template = data })
       .catch(error => console.log(error))
@@ -154,7 +154,7 @@ export default {
     update_template () {
 
       this.saving = true
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
+      const url = `/v2/templates/${this.template_id}`
       const group_ids = this.template.groups.map( group => this.get_id_of_item(group))
       const {fields, label, description} = this.template
 
@@ -187,7 +187,7 @@ export default {
     delete_template(){
       if(!confirm(`Delete template ${this.template_id}?`)) return
       this.deleting = true
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates/${this.template_id}`
+      const url = `/v2/templates/${this.template_id}`
       this.axios.delete(url)
       .then( () => {
         this.$router.push({name: 'templates'})

@@ -30,7 +30,7 @@
           </v-row>
           <v-row v-else>
             <v-col>
-              <v-select :items="application_form_templates" item-text="properties.label" return-object
+              <v-select :items="application_form_templates" item-text="label" return-object
                 v-model="selected_form" :label="$t('Type')" />
             </v-col>
           </v-row>
@@ -95,25 +95,25 @@
           <v-expansion-panels v-if="selected_form && !this.$route.query.copy_of" flat accordion>
             <v-expansion-panel>
               <v-expansion-panel-header>
-                {{ $t('Type') }}: {{selected_form.properties.label}} ({{ $t('Click for more info') }})
+                {{ $t('Type') }}: {{selected_form.label}} ({{ $t('Click for more info') }})
               </v-expansion-panel-header>
               <v-expansion-panel-content>
                 <v-row>
                   <v-col>
                     {{ $t('Template author') }}: {{selected_form.author.display_name ||
-                    selected_form.author.properties.display_name}}
+                    selected_form.author.display_name}}
                   </v-col>
                   <v-spacer />
                   <v-col cols="auto">
                     <router-link
-                      :to="{ name: 'template', params: { template_id: selected_form._id || selected_form.properties._id} }">
+                      :to="{ name: 'template', params: { template_id: selected_form._id } }">
                       {{ $t('Template page') }}
                     </router-link>
                   </v-col>
                 </v-row>
                 <v-row>
                   <v-col cols="12" class="form_description">
-                    {{selected_form.properties.description}}
+                    {{selected_form.description}}
                   </v-col>
                 </v-row>
               </v-expansion-panel-content>
@@ -122,7 +122,7 @@
           </v-expansion-panels>
 
           <v-card-text>
-            <v-row v-for="(field, index) in selected_form.properties.fields" :key="`field_${index}`">
+            <v-row v-for="(field, index) in selected_form.fields" :key="`field_${index}`">
 
               <v-col>
 
@@ -300,7 +300,7 @@ export default {
   methods: {
     get_templates () {
       this.templates_loading = true
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates`
+      const url = `/v2/templates`
       this.axios.get(url)
       .then( ({data}) => { this.application_form_templates = data })
       .catch(error => {
@@ -312,23 +312,21 @@ export default {
 
       this.submitting = true
 
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications`
-
       const recipients_ids = this.recipients.map( (recipient) => recipient._id || recipient.properties._id)
       const group_ids = this.groups.map( (group) => group._id || group.properties._id)
 
 
       const body = {
         title: this.title,
-        type: this.selected_form.properties.label,
-        form_data: this.selected_form.properties.fields,
+        type: this.selected_form.label,
+        form_data: this.selected_form.fields,
         private: this.confidential,
         recipients_ids,
         group_ids,
       }
 
 
-      this.axios.post(url, body)
+      this.axios.post(`/applications`, body)
       .then(({ data }) => {
         this.$store.commit('require_email', true)
         const application_id = this.get_id_of_item(data)
@@ -346,7 +344,7 @@ export default {
       let formData = new FormData()
       formData.append('file_to_upload', file)
       // there is a better way to set headers!
-      this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/files`, formData, {
+      this.axios.post(`/files`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
       .then(({data}) => {
@@ -367,7 +365,7 @@ export default {
       // This function is called when the application is a dubplicate of an existing one
 
       const application_id = this.$route.query.copy_of
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v1/applications/${application_id}`
+      const url = `/v2/applications/${application_id}`
       this.axios.get(url)
       .then(({data}) => {
 
@@ -376,25 +374,23 @@ export default {
 
 
         // Set application details back
-        this.title = original_application.properties.title
-        this.confidential = original_application.properties.private
+        this.title = original_application.title
+        this.confidential = original_application.private
 
 
-        original_application.properties.form_data = JSON.parse(original_application.properties.form_data)
-        this.form_data = original_application.properties.form_data
+        original_application.form_data = JSON.parse(original_application.form_data)
+        this.form_data = original_application.form_data
 
         this.selected_form = {}
         this.$set(this.selected_form, 'properties', {
-          label: original_application.properties.type, // The application form label (type)
-          fields: original_application.properties.form_data // The fields of the application
+          label: original_application.type, // The application form label (type)
+          fields: original_application.form_data // The fields of the application
         })
 
         this.groups = original_application.visibility
 
         // Recreate flow
-        this.recipients = original_application.recipients.sort((a, b) => {
-          return a.submission.properties.flow_index - b.submission.properties.flow_index
-        })
+        this.recipients = original_application.recipients.sort((a, b) => a.submission.flow_index - b.submission.flow_index )
 
       })
       .catch((error) => {
@@ -415,7 +411,7 @@ export default {
     application_valid(){
       return this.title !== ''
         && this.recipients.length > 0
-        && !!this.selected_form.properties
+        && !!this.selected_form
     },
     copy_of(){
       return this.$route.query.copy_of

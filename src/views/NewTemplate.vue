@@ -61,7 +61,7 @@ export default {
       if(!this.$refs.form.validate()) return
       this.error_message = null
 
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates`
+      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v2/templates`
       this.axios.post(url, this.template)
       .then( ({data}) => {
         const template_id = this.get_id_of_item(data)

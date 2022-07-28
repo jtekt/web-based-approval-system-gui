@@ -349,7 +349,7 @@
         this.loading = true
         this.application = null
         this.error = null
-        const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v2/applications/${this.application_id}`
+        const url = `/v2/applications/${this.application_id}`
         this.axios.get(url)
         .then(({data}) => {
           this.application = data
@@ -380,7 +380,7 @@
       },
       approve_application(){
         if(!confirm(`承認しますか? / Approve application?`)) return
-        const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/approve`
+        const url = `/v2/applications/${this.application_id}/approve`
         this.axios.post(url)
         .then(() => { this.get_application() })
         .catch((error) => {
@@ -390,7 +390,7 @@
       },
       reject_application(){
         if(!confirm(`却下しますか? / Reject application?`)) return
-        const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/reject`
+        const url = `/v2/applications/${this.application_id}/reject`
 
         this.axios.post(url)
         .then(() => { this.get_application() })
@@ -401,7 +401,7 @@
       },
       delete_application(){
         if(!confirm("本申請を削除致しますか？")) return
-        const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v1/applications/${this.application_id}`
+        const url = `/v2/applications/${this.application_id}`
         this.axios.delete(url)
         .then( () => {
           this.$router.push({name: 'submitted_applications'})
@@ -477,14 +477,14 @@
         window.location.href = email_string
       },
       update_privacy_of_application () {
-        const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/privacy`
+        const url = `/applications/${this.application_id}/privacy`
         const body = { private: this.application.private }
         this.axios.put(url, body)
           .then(() => { })
           .catch(() => alert('Error updating privacy of application'))
       },
       share_with_group (group) {
-        const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/visibility_to_group`
+        const url = `/applications/${this.application_id}/visibility_to_group`
         const body = { group_id: this.get_id_of_item(group) }
         this.axios.post(url, body)
           .then(() => {
@@ -496,7 +496,7 @@
           })
       },
       remove_application_visibility_to_group (group) {
-        const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/visibility_to_group`
+        const url = `/applications/${this.application_id}/visibility_to_group`
         const params = { group_id: this.get_id_of_item(group) }
         this.axios.delete(url, { params })
           .then(() => {
@@ -508,7 +508,7 @@
           })
       },
       download_attachment (id) {
-        const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/files/${id}`
+        const url = `/applications/${this.application_id}/files/${id}`
         window.open(url,'_blank')
       },
       user_has_stamped_attachment (file_id) {

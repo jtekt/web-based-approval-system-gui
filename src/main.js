@@ -7,6 +7,8 @@ import axios from 'axios'
 import VueAxios from 'vue-axios'
 import i18n from './i18n'
 
+axios.defaults.baseURL = process.env.VUE_APP_SHINSEI_MANAGER_URL
+
 Vue.use(VueAxios, axios)
 Vue.config.productionTip = false
 

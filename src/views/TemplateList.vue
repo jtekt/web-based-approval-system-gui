@@ -32,7 +32,7 @@
       <v-tab-item>
         <v-card-text>
           <v-data-table :items-per-page="-1" :headers="base_headers" :items="templates_of_user"
-            @click:row="view_template($event)">
+            @click:row="view_template($event)" :loading="loading">
             <template v-slot:item.groups="{ item }">
               <v-chip v-for="(group, index) in item.groups" :key="`${item._id}_group_${index}`" class="mr-2">
                 {{ group.name }}
@@ -44,7 +44,7 @@
       <v-tab-item>
         <v-card-text>
           <v-data-table :items-per-page="-1" :headers="shared_templates_headers" :items="shared_templates"
-            @click:row="view_template($event)">
+            @click:row="view_template($event)" :loading="loading">
             <template v-slot:item.groups="{ item }">
               <v-chip v-for="(group, index) in item.groups" :key="`${item._id}_group_${index}`" class="mr-2">
                 {{ group.name }}
@@ -89,7 +89,7 @@ export default {
   methods: {
     get_templates(){
       this.loading = true
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v2/templates`
+      const url = `/v2/templates`
       this.axios.get(url)
       .then( ({data}) => { this.application_templates = data })
       .catch( (error) => {
