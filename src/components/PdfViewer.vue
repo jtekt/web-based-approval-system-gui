@@ -231,7 +231,7 @@ export default {
 
       // Load the file as an arrayBuffer
       // Note: could be done using axios
-      const file_url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v1/applications/${this.application_id}/files/${file_id}`
+      const file_url = `/v2/applications/${this.application_id}/files/${file_id}`
       const axios_options = { responseType: 'arraybuffer' }
 
       this.axios.get(file_url, axios_options)
