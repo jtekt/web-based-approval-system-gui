@@ -440,7 +440,7 @@
 タイトル: ${this.application.title}
 提出先URL: ${window.location.origin}/applications/${this.get_id_of_item(this.application)}
 
-※IEでは動作しません。Edge (Chromium)/Firefox/GoogleChromeをご使用ください。　
+※IEでは動作しません。Edge (Chromium)/Firefox/GoogleChromeをご使用ください。
 ※詳しくは ${window.location.origin}/info
 
 確認お願いします。`
@@ -480,14 +480,14 @@
         window.location.href = email_string
       },
       update_privacy_of_application () {
-        const url = `/applications/${this.application_id}/privacy`
+        const url = `/v1/applications/${this.application_id}/privacy`
         const body = { private: this.application.private }
         this.axios.put(url, body)
           .then(() => { })
           .catch(() => alert('Error updating privacy of application'))
       },
       share_with_group (group) {
-        const url = `/applications/${this.application_id}/visibility_to_group`
+        const url = `/v1/applications/${this.application_id}/visibility_to_group`
         const body = { group_id: this.get_id_of_item(group) }
         this.axios.post(url, body)
           .then(() => {
@@ -499,7 +499,7 @@
           })
       },
       remove_application_visibility_to_group (group) {
-        const url = `/applications/${this.application_id}/visibility_to_group`
+        const url = `/v1/applications/${this.application_id}/visibility_to_group`
         const params = { group_id: this.get_id_of_item(group) }
         this.axios.delete(url, { params })
           .then(() => {
@@ -511,7 +511,7 @@
           })
       },
       download_attachment (id) {
-        const url = `/applications/${this.application_id}/files/${id}`
+        const url = `/v1/applications/${this.application_id}/files/${id}`
         window.open(url,'_blank')
       },
       user_has_stamped_attachment (file_id) {

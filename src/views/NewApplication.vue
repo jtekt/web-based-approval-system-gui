@@ -326,7 +326,7 @@ export default {
       }
 
 
-      this.axios.post(`/applications`, body)
+      this.axios.post(`/v2/applications`, body)
       .then(({ data }) => {
         this.$store.commit('require_email', true)
         const application_id = this.get_id_of_item(data)
@@ -344,7 +344,7 @@ export default {
       let formData = new FormData()
       formData.append('file_to_upload', file)
       // there is a better way to set headers!
-      this.axios.post(`/files`, formData, {
+      this.axios.post(`/v2/files`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
       .then(({data}) => {

@@ -107,9 +107,8 @@ export default {
         state: this.state,
       }
 
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v2/applications`
 
-      this.axios.get(url, {params})
+      this.axios.get(`/v2/applications`, {params})
       .then( ({data}) => {
 
         this.applications = data.applications
