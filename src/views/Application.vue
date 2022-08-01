@@ -123,7 +123,7 @@
                         <v-chip>
                           <v-chip :close="user_is_applicant"
                             @click:close="remove_application_visibility_to_group(group)">
-                            {{group.properties.name}}
+                            {{group.name}}
                           </v-chip>
                         </v-chip>
                       </v-col>
@@ -480,14 +480,14 @@
         window.location.href = email_string
       },
       update_privacy_of_application () {
-        const url = `/v1/applications/${this.application_id}/privacy`
+        const url = `/v2/applications/${this.application_id}/privacy`
         const body = { private: this.application.private }
         this.axios.put(url, body)
           .then(() => { })
           .catch(() => alert('Error updating privacy of application'))
       },
       share_with_group (group) {
-        const url = `/v1/applications/${this.application_id}/visibility_to_group`
+        const url = `/v2/applications/${this.application_id}/privacy/groups`
         const body = { group_id: this.get_id_of_item(group) }
         this.axios.post(url, body)
           .then(() => {
@@ -499,9 +499,8 @@
           })
       },
       remove_application_visibility_to_group (group) {
-        const url = `/v1/applications/${this.application_id}/visibility_to_group`
-        const params = { group_id: this.get_id_of_item(group) }
-        this.axios.delete(url, { params })
+        const url = `/v2/applications/${this.application_id}/privacy/groups/${this.get_id_of_item(group) }`
+        this.axios.delete(url)
           .then(() => {
             this.get_application()
           })
