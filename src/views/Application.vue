@@ -509,8 +509,9 @@
             alert('Error updating visibility of application')
           })
       },
-      download_attachment (id) {
-        const url = `/v1/applications/${this.application_id}/files/${id}`
+      download_attachment(file_id) {
+
+        const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v2/applications/${this.application_id}/files/${file_id}`
         window.open(url,'_blank')
       },
       user_has_stamped_attachment (file_id) {

@@ -83,5 +83,6 @@
   "This file cannot be opened": "ファイル開けませんでした",
   "Click the email icon of the next recipient to send a notification email": "回覧はメールマークをクリックして作成されたメールを送信してください",
   "Stamped": "ハンコを押しました",
-  "Not stamped yet": "まだハンコを押してません"
+  "Not stamped yet": "まだハンコを押してません",
+  "Start from scratch": "やり直し "
 }

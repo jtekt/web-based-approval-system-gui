@@ -24,14 +24,14 @@
             </v-col>
             <v-col cols="auto">
               <v-btn outlined small exact :to="{name: 'new_application'}">
-                やり直し / Start from scratch
+                {{ $t('Start from scratch')}}
               </v-btn>
             </v-col>
           </v-row>
           <v-row v-else>
             <v-col>
-              <v-select :items="application_form_templates" item-text="label" return-object
-                v-model="selected_form" :label="$t('Type')" />
+              <v-select :items="application_form_templates" item-text="label" return-object v-model="selected_form"
+                :label="$t('Type')" />
             </v-col>
           </v-row>
 
@@ -105,8 +105,7 @@
                   </v-col>
                   <v-spacer />
                   <v-col cols="auto">
-                    <router-link
-                      :to="{ name: 'template', params: { template_id: selected_form._id } }">
+                    <router-link :to="{ name: 'template', params: { template_id: selected_form._id } }">
                       {{ $t('Template page') }}
                     </router-link>
                   </v-col>
@@ -347,8 +346,8 @@ export default {
       this.axios.post(`/v2/files`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
-      .then(({data}) => {
-        this.$set(field, 'value', data)
+      .then(({data: {file_id}}) => {
+        this.$set(field, 'value', file_id)
        })
       .catch(error => alert(error.response.data))
       .finally(() => { this.file_uploading = false })
@@ -369,28 +368,33 @@ export default {
       this.axios.get(url)
       .then(({data}) => {
 
-
-        const original_application = data
+        const {
+          type,
+          title,
+          private: confidential, // renaming becuase private is reserved
+          form_data,
+          recipients,
+          visibility,
+        } = data
 
 
         // Set application details back
-        this.title = original_application.title
-        this.confidential = original_application.private
+        this.title = title
+        this.confidential = confidential
 
+        const parsed_form_data = JSON.parse(form_data)
 
-        original_application.form_data = JSON.parse(original_application.form_data)
-        this.form_data = original_application.form_data
+        this.form_data = parsed_form_data
 
         this.selected_form = {}
-        this.$set(this.selected_form, 'properties', {
-          label: original_application.type, // The application form label (type)
-          fields: original_application.form_data // The fields of the application
-        })
 
-        this.groups = original_application.visibility
+        this.$set(this.selected_form, 'label', type)
+        this.$set(this.selected_form, 'fields', parsed_form_data)
+
+        this.groups = visibility
 
         // Recreate flow
-        this.recipients = original_application.recipients.sort((a, b) => a.submission.flow_index - b.submission.flow_index )
+        this.recipients = recipients.sort((a, b) => a.submission.flow_index - b.submission.flow_index )
 
       })
       .catch((error) => {

@@ -143,7 +143,7 @@ export default {
   },
   methods: {
     get_application_types () {
-      const url = `/v1/applications/types`
+      const url = `/v2/applications/types`
       this.axios.get(url)
         .then(({ data }) => { this.application_types = data })
         .catch(error => { console.error(error) })
