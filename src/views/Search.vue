@@ -76,8 +76,8 @@
       <v-data-table :loading="loading" :items="applications" :headers="headers" :options.sync="options"
         :server-items-length="count" @click:row="row_clicked($event)">
 
-        <template v-slot:item.properties.creation_date="{ item }">
-          {{format_date(item.properties.creation_date)}}
+        <template v-slot:item.creation_date="{ item }">
+          {{format_date(item.creation_date)}}
         </template>
 
       </v-data-table>
@@ -204,7 +204,7 @@ export default {
       this.modal_open = false
       this.selected_group = group
     },
-    row_clicked({properties: {_id}}){
+    row_clicked({_id}){
       this.$router.push({name: 'application', params: {application_id: _id}})
     },
     export_table () {
@@ -240,7 +240,6 @@ export default {
     },
     headers() {
       return [
-        // {text: this.$t('Application ID'), value: 'properties._id'},
         { text: this.$t('Date'), value: 'creation_date' },
         { text: this.$t('Title'), value: 'title' },
         { text: this.$t('Type'), value: 'type' },
