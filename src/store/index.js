@@ -18,12 +18,11 @@ export default new Vuex.Store({
     },
     check_pending_applications(state) {
       if (!state.current_user) return
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v1/applications`
       const params = {
         relationship: 'SUBMITTED_TO',
         state: 'pending',
       }
-      Vue.axios.get(url, { params })
+      Vue.axios.get(`/v2/applications`, { params })
         .then(({ data }) => { state.received_pending_application_count = data.count })
         .catch(error => { console.error(error) })
     }
