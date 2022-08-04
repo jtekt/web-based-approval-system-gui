@@ -12,7 +12,7 @@
 
 <script>
 
-import RecipientComment from '@/components/RecipientComment.vue'
+import RecipientComment from './RecipientComment.vue'
 import IdUtils from '@/mixins/IdUtils.js'
 
 export default {

@@ -298,13 +298,13 @@
 </template>
 
 <script>
-import HelpDialog from '@/components/HelpDialog.vue'
 import IdUtils from '@/mixins/IdUtils.js'
 
-import WebHankoContainer from '@/components/web_hanko/WebHankoContainer.vue'
-import EmailButton from '@/components/EmailButton.vue'
-import PdfViewer from '@/components/PdfViewer.vue'
-import RecipientComments from '@/components/RecipientComments.vue'
+import HelpDialog from '@/components/application/HelpDialog.vue'
+import WebHankoContainer from '@/components/application/web_hanko/WebHankoContainer.vue'
+import EmailButton from '@/components/application/EmailButton.vue'
+import PdfViewer from '@/components/application/PdfViewer.vue'
+import RecipientComments from '@/components/application/RecipientComments.vue'
 import AddGroupDialog from '@/components/AddGroupDialog.vue'
 
 import {

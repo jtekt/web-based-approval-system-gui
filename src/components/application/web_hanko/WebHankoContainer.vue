@@ -31,7 +31,7 @@
 
 <script>
 import WebHanko from './WebHanko.vue'
-import EmailButton from '@/components/EmailButton.vue'
+import EmailButton from '@/components/application/EmailButton.vue'
 import IdUtils from '@/mixins/IdUtils.js'
 
 export default {

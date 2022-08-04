@@ -56,7 +56,7 @@
 </template>
 
 <script>
-  import ApplicationListTable from '@/components/ApplicationListTable.vue'
+  import ApplicationListTable from '@/components/application_list/ApplicationListTable.vue'
   export default {
     name: 'ApplicationList',
     components: {
