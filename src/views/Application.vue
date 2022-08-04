@@ -140,6 +140,7 @@
 
 
             <!-- application form data  -->
+            <!-- TODO: Make its own component -->
             <v-subheader>{{ $t('Application content') }}</v-subheader>
 
             <v-list dense v-if="application.forbidden">

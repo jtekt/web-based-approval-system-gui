@@ -7,9 +7,7 @@
             <v-expansion-panel-content>
                 <v-row>
                     <v-col>
-                        {{ $t('Template author') }}: {{ selected_form.author.display_name ||
-                                selected_form.author.display_name
-                        }}
+                        {{ $t('Template author') }}: {{ selected_form.author.display_name }}
                     </v-col>
                     <v-spacer />
                     <v-col cols="auto">
