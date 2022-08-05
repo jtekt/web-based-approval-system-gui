@@ -47,7 +47,6 @@ export default {
   },
 
   data: () => ({
-    //date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
     date: null,
     menu: false,
   }),

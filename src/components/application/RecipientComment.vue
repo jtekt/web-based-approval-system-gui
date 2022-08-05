@@ -119,7 +119,7 @@ export default {
 
     recipient_comment(){
       if(!this.decision) return null
-      return this.decision.comment || 'コメント無し / No comment'
+      return this.decision.comment || this.$t('No comment')
 
     },
   }

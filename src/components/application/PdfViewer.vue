@@ -184,8 +184,6 @@ export default {
       },
 
       hanko_scale_slider_value: 35
-      //hanko_scale: 0.035
-
     }
   },
   mounted () {

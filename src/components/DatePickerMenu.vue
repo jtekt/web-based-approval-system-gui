@@ -46,12 +46,6 @@ export default {
   props: {
     label: String,
   },
-  components: {
-
-  },
-  mixins: [
-
-  ],
   watch: {
     date(){
       this.$emit('selection', this.date)
@@ -63,9 +57,7 @@ export default {
       menu: false,
     }
   },
-  methods: {
 
-  }
 
 }
 </script>
