@@ -20,7 +20,7 @@
           </v-col>
           <v-col cols="auto">
             <v-btn type="submit" :disabled="!valid">
-              <v-icon left>mdi--plus</v-icon>
+              <v-icon left>mdi-plus</v-icon>
               <span>{{ $t('Create')}}</span>
             </v-btn>
           </v-col>
@@ -61,7 +61,7 @@ export default {
       if(!this.$refs.form.validate()) return
       this.error_message = null
 
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates`
+      const url = `/v2/templates`
       this.axios.post(url, this.template)
       .then( ({data}) => {
         const template_id = this.get_id_of_item(data)

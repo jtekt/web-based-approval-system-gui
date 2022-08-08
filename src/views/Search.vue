@@ -76,8 +76,8 @@
       <v-data-table :loading="loading" :items="applications" :headers="headers" :options.sync="options"
         :server-items-length="count" @click:row="row_clicked($event)">
 
-        <template v-slot:item.properties.creation_date="{ item }">
-          {{format_date(item.properties.creation_date)}}
+        <template v-slot:item.creation_date="{ item }">
+          {{format_date(item.creation_date)}}
         </template>
 
       </v-data-table>
@@ -143,7 +143,7 @@ export default {
   },
   methods: {
     get_application_types () {
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/types`
+      const url = `/v2/applications/types`
       this.axios.get(url)
         .then(({ data }) => { this.application_types = data })
         .catch(error => { console.error(error) })
@@ -152,7 +152,7 @@ export default {
 
       this.loading = true
       this.error = false
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications`
+      const url = `/v2/applications`
 
       const { page, itemsPerPage } = this.options
 
@@ -177,8 +177,8 @@ export default {
 
           // Unpack form-data
           this.applications.forEach( application => {
-            if (!application.properties.form_data) return
-            let form_data = JSON.parse(application.properties.form_data)
+            if (!application.form_data) return
+            let form_data = JSON.parse(application.form_data)
             if (!Array.isArray(form_data)) return
             form_data.forEach((field) => {
               if (!this.field_labels.includes(field.label) && field.type !== 'file') {
@@ -204,7 +204,7 @@ export default {
       this.modal_open = false
       this.selected_group = group
     },
-    row_clicked({properties: {_id}}){
+    row_clicked({_id}){
       this.$router.push({name: 'application', params: {application_id: _id}})
     },
     export_table () {
@@ -240,11 +240,10 @@ export default {
     },
     headers() {
       return [
-        // {text: this.$t('Application ID'), value: 'properties._id'},
-        { text: this.$t('Date'), value: 'properties.creation_date' },
-        { text: this.$t('Title'), value: 'properties.title' },
-        { text: this.$t('Type'), value: 'properties.type' },
-        { text: this.$t('Applicant'), value: 'applicant.properties.display_name' },
+        { text: this.$t('Date'), value: 'creation_date' },
+        { text: this.$t('Title'), value: 'title' },
+        { text: this.$t('Type'), value: 'type' },
+        { text: this.$t('Applicant'), value: 'applicant.display_name' },
       ]
     }
   }

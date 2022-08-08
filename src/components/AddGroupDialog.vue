@@ -1,3 +1,4 @@
+<!-- Used in Application.vue -->
 <template>
   <v-dialog
       v-model="dialog"
@@ -16,7 +17,7 @@
 
       <v-card>
         <v-card-title>
-          Add a user
+          Add a group
         </v-card-title>
 
         <v-card-text>

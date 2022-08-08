@@ -14,8 +14,6 @@
           </v-card-title>
         </v-toolbar>
 
-
-
         <v-card-text>
 
           <v-row v-if="this.$route.query.copy_of" align="center">
@@ -24,14 +22,14 @@
             </v-col>
             <v-col cols="auto">
               <v-btn outlined small exact :to="{name: 'new_application'}">
-                やり直し / Start from scratch
+                {{ $t('Start from scratch')}}
               </v-btn>
             </v-col>
           </v-row>
           <v-row v-else>
             <v-col>
-              <v-select :items="application_form_templates" item-text="properties.label" return-object
-                v-model="selected_form" :label="$t('Type')" />
+              <v-select :items="application_form_templates" item-text="label" return-object v-model="selected_form"
+                :label="$t('Type')" />
             </v-col>
           </v-row>
 
@@ -60,7 +58,7 @@
             </v-col>
             <v-col cols="auto">
               <v-chip close v-for="(group, index) in groups" :key="`group_${index}`" @click:close="remove_group(index)">
-                {{group.properties.name}}
+                {{group.name}}
               </v-chip>
             </v-col>
             <v-col cols="auto">
@@ -83,72 +81,15 @@
         </v-toolbar>
 
 
-
-
-
         <v-card-text v-if="!selected_form">
           {{ $t('Please select an application type') }}
         </v-card-text>
 
         <template v-if="selected_form">
 
-          <v-expansion-panels v-if="selected_form && !this.$route.query.copy_of" flat accordion>
-            <v-expansion-panel>
-              <v-expansion-panel-header>
-                {{ $t('Type') }}: {{selected_form.properties.label}} ({{ $t('Click for more info') }})
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
-                <v-row>
-                  <v-col>
-                    {{ $t('Template author') }}: {{selected_form.author.display_name ||
-                    selected_form.author.properties.display_name}}
-                  </v-col>
-                  <v-spacer />
-                  <v-col cols="auto">
-                    <router-link
-                      :to="{ name: 'template', params: { template_id: selected_form._id || selected_form.properties._id} }">
-                      {{ $t('Template page') }}
-                    </router-link>
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col cols="12" class="form_description">
-                    {{selected_form.properties.description}}
-                  </v-col>
-                </v-row>
-              </v-expansion-panel-content>
+          <NewApplicationTemplateDetails :selected_form="selected_form"/>
 
-            </v-expansion-panel>
-          </v-expansion-panels>
-
-          <v-card-text>
-            <v-row v-for="(field, index) in selected_form.properties.fields" :key="`field_${index}`">
-
-              <v-col>
-
-                <template v-if="['file','pdf'].includes(field.type)">
-
-                  <v-chip v-if="field.value" close label @click:close="field.value = null">
-                    {{ $t('Upload OK') }}
-                  </v-chip>
-
-                  <v-file-input v-else :accept="field.type === 'pdf' ? 'application/pdf' : ''"
-                    @change="file_upload($event, field)" :label="field.label" />
-
-                </template>
-
-                <v-checkbox v-else-if="field.type === 'checkbox'" v-model="field.value" :label="field.label" />
-
-                <DatePicker v-else-if="field.type === 'date'" :label="field.label" v-model="field.value" />
-
-                <v-textarea v-else-if="field.type === 'text'" rows="1" auto-grow :label="field.label"
-                  v-model="field.value" />
-
-                <v-text-field v-else v-model="field.value" :label="field.label" />
-
-              </v-col>
-            </v-row>
-          </v-card-text>
+          <NewApplicationFormData v-model="selected_form.fields" />
         </template>
 
 
@@ -245,16 +186,23 @@
 
 <script>
 import UserPicker from '@moreillon/vue_user_picker'
-import NewApplicationApprovalFlow from '@/components/NewApplicationApprovalFlow.vue'
+import NewApplicationApprovalFlow from '@/components/new_application/NewApplicationApprovalFlow.vue'
 import IdUtils from '@/mixins/IdUtils.js'
 import AddGroupDialog from '@/components/AddGroupDialog.vue'
-import DatePicker from '@/components/DatePicker.vue'
-
+import NewApplicationFormData from '../components/new_application/NewApplicationFormData.vue'
+import NewApplicationTemplateDetails from '../components/new_application/NewApplicationTemplateDetails.vue'
 export default {
   name: 'NewApplication',
   mixins: [
     IdUtils
   ],
+  components: {
+    UserPicker,
+    NewApplicationApprovalFlow,
+    AddGroupDialog,
+    NewApplicationFormData,
+    NewApplicationTemplateDetails
+  },
   data(){
     return {
       application_form_templates: [],
@@ -266,7 +214,6 @@ export default {
       confidential: false,
       recipients: [],
       add_recipient_dialog: false,
-      file_uploading: false,
 
       groups: [], // Groups for visibility
 
@@ -276,12 +223,7 @@ export default {
     }
   },
 
-  components: {
-    UserPicker,
-    NewApplicationApprovalFlow,
-    AddGroupDialog,
-    DatePicker,
-  },
+  
   watch: {
     copy_of(){
       if (!this.$route.query.copy_of) {
@@ -300,7 +242,7 @@ export default {
   methods: {
     get_templates () {
       this.templates_loading = true
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates`
+      const url = `/v2/templates`
       this.axios.get(url)
       .then( ({data}) => { this.application_form_templates = data })
       .catch(error => {
@@ -312,23 +254,21 @@ export default {
 
       this.submitting = true
 
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications`
-
       const recipients_ids = this.recipients.map( (recipient) => recipient._id || recipient.properties._id)
       const group_ids = this.groups.map( (group) => group._id || group.properties._id)
 
 
       const body = {
         title: this.title,
-        type: this.selected_form.properties.label,
-        form_data: this.selected_form.properties.fields,
+        type: this.selected_form.label,
+        form_data: this.selected_form.fields,
         private: this.confidential,
         recipients_ids,
         group_ids,
       }
 
 
-      this.axios.post(url, body)
+      this.axios.post(`/v2/applications`, body)
       .then(({ data }) => {
         this.$store.commit('require_email', true)
         const application_id = this.get_id_of_item(data)
@@ -341,20 +281,7 @@ export default {
       .finally( () => {this.submitting = false})
 
     },
-    file_upload(file, field){
-      this.file_uploading = true
-      let formData = new FormData()
-      formData.append('file_to_upload', file)
-      // there is a better way to set headers!
-      this.axios.post(`${process.env.VUE_APP_SHINSEI_MANAGER_URL}/files`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      })
-      .then(({data}) => {
-        this.$set(field, 'value', data)
-       })
-      .catch(error => alert(error.response.data))
-      .finally(() => { this.file_uploading = false })
-    },
+    
     add_to_recipients(new_recipient) {
       const existing_recipient = this.recipients.find(recipient => this.get_id_of_item(recipient) === this.get_id_of_item(new_recipient))
       if (existing_recipient) return alert('Duplicates not allowed')
@@ -367,34 +294,37 @@ export default {
       // This function is called when the application is a dubplicate of an existing one
 
       const application_id = this.$route.query.copy_of
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v1/applications/${application_id}`
+      const url = `/v2/applications/${application_id}`
       this.axios.get(url)
       .then(({data}) => {
 
-
-        const original_application = data
+        const {
+          type,
+          title,
+          private: confidential, // renaming becuase private is reserved
+          form_data,
+          recipients,
+          visibility,
+        } = data
 
 
         // Set application details back
-        this.title = original_application.properties.title
-        this.confidential = original_application.properties.private
+        this.title = title
+        this.confidential = confidential
 
+        const parsed_form_data = JSON.parse(form_data)
 
-        original_application.properties.form_data = JSON.parse(original_application.properties.form_data)
-        this.form_data = original_application.properties.form_data
+        this.form_data = parsed_form_data
 
         this.selected_form = {}
-        this.$set(this.selected_form, 'properties', {
-          label: original_application.properties.type, // The application form label (type)
-          fields: original_application.properties.form_data // The fields of the application
-        })
 
-        this.groups = original_application.visibility
+        this.$set(this.selected_form, 'label', type)
+        this.$set(this.selected_form, 'fields', parsed_form_data)
+
+        this.groups = visibility
 
         // Recreate flow
-        this.recipients = original_application.recipients.sort((a, b) => {
-          return a.submission.properties.flow_index - b.submission.properties.flow_index
-        })
+        this.recipients = recipients.sort((a, b) => a.submission.flow_index - b.submission.flow_index )
 
       })
       .catch((error) => {
@@ -402,10 +332,9 @@ export default {
       })
     },
     add_group (group_to_add) {
-      if (!this.groups.includes(group_to_add)) {
-        this.groups.push(group_to_add)
-      }
-      else alert('Duplicates are not allowed')
+      const group_exists = this.groups.some(({ _id }) => _id === group_to_add._id)
+      if (group_exists) return
+      this.groups.push(group_to_add)
     },
     remove_group(index){
       this.groups.splice(index, 1)
@@ -415,7 +344,7 @@ export default {
     application_valid(){
       return this.title !== ''
         && this.recipients.length > 0
-        && !!this.selected_form.properties
+        && !!this.selected_form
     },
     copy_of(){
       return this.$route.query.copy_of

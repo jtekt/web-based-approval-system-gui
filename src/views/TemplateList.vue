@@ -5,20 +5,14 @@
       <v-toolbar-title>
         {{ $t('Templates') }}
       </v-toolbar-title>
-      <v-spacer/>
-      <v-btn
-        color="#c00000"
-        dark
-        :to="{name:'new_template'}">
+      <v-spacer />
+      <v-btn color="#c00000" dark :to="{name:'new_template'}">
         <v-icon>mdi-plus</v-icon>
         <span>{{ $t('Create template') }}</span>
       </v-btn>
 
       <template v-slot:extension>
-        <v-tabs
-          color="#444444"
-          v-model="tab"
-          align-with-title>
+        <v-tabs color="#444444" v-model="tab" align-with-title>
 
           <v-tabs-slider color="#c00000"></v-tabs-slider>
 
@@ -32,25 +26,31 @@
       </template>
     </v-toolbar>
 
-    <v-divider/>
+    <v-divider />
 
     <v-tabs-items v-model="tab">
       <v-tab-item>
         <v-card-text>
-          <v-data-table
-            :items-per-page="-1"
-            :headers="base_headers"
-            :items="templates_of_user"
-            @click:row="view_template($event)"/>
+          <v-data-table :items-per-page="-1" :headers="base_headers" :items="templates_of_user"
+            @click:row="view_template($event)" :loading="loading">
+            <template v-slot:item.groups="{ item }">
+              <v-chip v-for="(group, index) in item.groups" :key="`${item._id}_group_${index}`" class="mr-2">
+                {{ group.name }}
+              </v-chip>
+            </template>
+          </v-data-table>
         </v-card-text>
       </v-tab-item>
       <v-tab-item>
         <v-card-text>
-          <v-data-table
-            :items-per-page="-1"
-            :headers="shared_templates_headers"
-            :items="shared_templates"
-            @click:row="view_template($event)"/>
+          <v-data-table :items-per-page="-1" :headers="shared_templates_headers" :items="shared_templates"
+            @click:row="view_template($event)" :loading="loading">
+            <template v-slot:item.groups="{ item }">
+              <v-chip v-for="(group, index) in item.groups" :key="`${item._id}_group_${index}`" class="mr-2">
+                {{ group.name }}
+              </v-chip>
+            </template>
+          </v-data-table>
         </v-card-text>
       </v-tab-item>
     </v-tabs-items>
@@ -84,14 +84,12 @@ export default {
     }
   },
   mounted () {
-    //this.get_my_templates()
-    //this.get_shared_templates()
     this.get_templates()
   },
   methods: {
     get_templates(){
       this.loading = true
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/application_form_templates`
+      const url = `/v2/templates`
       this.axios.get(url)
       .then( ({data}) => { this.application_templates = data })
       .catch( (error) => {
@@ -112,26 +110,21 @@ export default {
   computed: {
     base_headers(){
       return [
-        { text: this.$t('Name'), value: "properties.label" }
+        { text: this.$t('Name'), value: "label" },
+        { text: this.$t('Groups'), value: "groups" }
       ]
     },
     shared_templates_headers(){
       return [
         ...this.base_headers,
-        { text: this.$t('Author'), value: "author.properties.display_name" },
+        { text: this.$t('Author'), value: "author.display_name" },
       ]
     },
     templates_of_user(){
-      return this.application_templates.filter(template => {
-        const author_id = this.get_id_of_item(template.author)
-        return author_id === this.current_user_id
-      })
+      return this.application_templates.filter(({ author }) => this.get_id_of_item(author) === this.current_user_id )
     },
     shared_templates(){
-      return this.application_templates.filter(template => {
-        const author_id = this.get_id_of_item(template.author)
-        return author_id !== this.current_user_id
-      })
+      return this.application_templates.filter(({ author }) => this.get_id_of_item(author) !== this.current_user_id )
     }
 
   }

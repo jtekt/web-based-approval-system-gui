@@ -56,7 +56,7 @@
 </template>
 
 <script>
-  import ApplicationListTable from '@/components/ApplicationListTable.vue'
+  import ApplicationListTable from '@/components/application_list/ApplicationListTable.vue'
   export default {
     name: 'ApplicationList',
     components: {
@@ -84,31 +84,31 @@
               title: this.$t('Pending'),
               state: 'pending',
               headers: [
-                {text: this.$t('Date'), value: "properties.creation_date"},
-                {text: this.$t('Type'), value: 'properties.type'},
-                {text: this.$t('Title'), value: 'properties.title'},
+                {text: this.$t('Date'), value: "creation_date"},
+                {text: this.$t('Type'), value: 'type'},
+                {text: this.$t('Title'), value: 'title'},
                 {text: '%', value: 'progress'},
-                {text: this.$t('Current recipient'), value: 'current_recipient.properties.display_name'},
+                {text: this.$t('Current recipient'), value: 'current_recipient.display_name'},
               ],
             },
             {
               title: this.$t('Rejected'),
               state: 'rejected',
               headers: [
-                {text: this.$t('Date'), value: "properties.creation_date"},
-                {text: this.$t('Type'), value: 'properties.type'},
-                {text: this.$t('Title'), value: 'properties.title'},
+                {text: this.$t('Date'), value: "creation_date"},
+                {text: this.$t('Type'), value: 'type'},
+                {text: this.$t('Title'), value: 'title'},
                 {text: '%', value: 'progress'},
-                {text: this.$t('Current recipient'), value: 'current_recipient.properties.display_name'},
+                {text: this.$t('Current recipient'), value: 'current_recipient.display_name'},
               ],
             },
             {
               title: this.$t('Approved'),
               state: 'approved',
               headers: [
-                {text: this.$t('Date'), value: "properties.creation_date"},
-                {text: this.$t('Type'), value: 'properties.type'},
-                {text: this.$t('Title'), value: 'properties.title'},
+                {text: this.$t('Date'), value: "creation_date"},
+                {text: this.$t('Type'), value: 'type'},
+                {text: this.$t('Title'), value: 'title'},
               ],
             },
           ],
@@ -117,30 +117,30 @@
               title: this.$t('Pending'),
               state: 'pending',
               headers: [
-                {text: this.$t('Date'), value: "properties.creation_date"},
-                {text: this.$t('Type'), value: 'properties.type'},
-                {text: this.$t('Title'), value: 'properties.title'},
-                {text: this.$t('Applicant'), value: 'applicant.properties.display_name'},
+                {text: this.$t('Date'), value: "creation_date"},
+                {text: this.$t('Type'), value: 'type'},
+                {text: this.$t('Title'), value: 'title'},
+                {text: this.$t('Applicant'), value: 'applicant.display_name'},
               ],
             },
             {
               title: this.$t('Rejected'),
               state: 'rejected',
               headers: [
-                {text: this.$t('Date'), value: "properties.creation_date"},
-                {text: this.$t('Type'), value: 'properties.type'},
-                {text: this.$t('Title'), value: 'properties.title'},
-                {text: this.$t('Applicant'), value: 'applicant.properties.display_name'},
+                {text: this.$t('Date'), value: "creation_date"},
+                {text: this.$t('Type'), value: 'type'},
+                {text: this.$t('Title'), value: 'title'},
+                {text: this.$t('Applicant'), value: 'applicant.display_name'},
               ],
             },
             {
               title: this.$t('Approved'),
               state: 'approved',
               headers: [
-                {text: this.$t('Date'), value: "properties.creation_date"},
-                {text:this.$t('Type'), value: 'properties.type'},
-                {text: this.$t('Title'), value: 'properties.title'},
-                {text: this.$t('Applicant'), value: 'applicant.properties.display_name'},
+                {text: this.$t('Date'), value: "creation_date"},
+                {text:this.$t('Type'), value: 'type'},
+                {text: this.$t('Title'), value: 'title'},
+                {text: this.$t('Applicant'), value: 'applicant.display_name'},
               ],
             },
           ]

@@ -184,8 +184,6 @@ export default {
       },
 
       hanko_scale_slider_value: 35
-      //hanko_scale: 0.035
-
     }
   },
   mounted () {
@@ -231,7 +229,7 @@ export default {
 
       // Load the file as an arrayBuffer
       // Note: could be done using axios
-      const file_url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/files/${file_id}`
+      const file_url = `/v2/applications/${this.application_id}/files/${file_id}`
       const axios_options = { responseType: 'arraybuffer' }
 
       this.axios.get(file_url, axios_options)
@@ -308,20 +306,19 @@ export default {
       const approval = current_user_as_recipient.approval
       if(!approval) return this.approve_application({attachment_hankos: [new_hanko]})
 
-      let attachment_hankos = approval.properties.attachment_hankos
+      let attachment_hankos = approval.attachment_hankos
       if(!attachment_hankos) attachment_hankos = []
       if (typeof attachment_hankos === 'string') {
         attachment_hankos = JSON.parse(attachment_hankos)
       }
       attachment_hankos.push(new_hanko)
 
-      const approval_id = this.get_id_of_item(approval)
-      this.update_hankos(approval_id, {attachment_hankos})
+      this.update_hankos({attachment_hankos})
 
     },
 
     approve_application(body){
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/approve`
+      const url = `/v2/applications/${this.application_id}/approve`
       this.axios.post(url, body)
       .then(() => {
         this.$emit('pdf_stamped')
@@ -333,8 +330,8 @@ export default {
       })
     },
 
-    update_hankos(approval_id, body){
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/approvals/${approval_id}/attachment_hankos`
+    update_hankos(body){
+      const url = `/v2/applications/${this.application_id}/hankos`
 
       this.axios.put(url, body)
       .then(() => {
@@ -406,15 +403,16 @@ export default {
         return new Promise( (resolve, reject) => {
 
           // Do nothing if there no hanko to draw for the current approval
-          let hankos = approval.properties.attachment_hankos
+          let hankos = approval.attachment_hankos
           if (!hankos) return resolve()
 
           if (typeof hankos === 'string') hankos = JSON.parse(hankos)
 
           const approval_id = this.get_id_of_item(approval)
-          const png_url = this.get_hanko_blob_url_from_id(`hanko_${approval_id}`)
+          const hanko_id = `hanko_${approval_id}`
+          const png_url = this.get_hanko_blob_url_from_id(hanko_id)
 
-          const axios_options = { responseType: 'arraybuffer' }
+          const axios_options = { responseType: 'arraybuffer', baseURL: null }
 
           this.axios.get(png_url, axios_options)
           .then( ({data}) => this.pdfDoc.embedPng(data) )
@@ -497,7 +495,7 @@ export default {
     },
     // file_id(){
     //   // Maybe not ideal
-    //   const found_field = this.application.properties.form_data
+    //   const found_field = this.application.form_data
     //     .find(field => field.type === "pdf" || field.type === "file")
     //   return found_field.value
     // },
@@ -512,7 +510,7 @@ export default {
 
       return this.application.recipients
         .slice()
-        .sort((a, b) => a.submission.properties.flow_index - b.submission.properties.flow_index)
+        .sort((a, b) => a.submission.flow_index - b.submission.flow_index)
         .find(recipient => !recipient.approval && !recipient.refusal)
     },
     current_recipient_is_current_user(){
@@ -537,10 +535,10 @@ export default {
       if(this.application_has_refusal) return false
 
       const current_flow_index = this.current_recipient
-        ? this.current_recipient.submission.properties.flow_index
+        ? this.current_recipient.submission.flow_index
         : this.application.recipients.length
 
-      const current_user_flow_index = this.current_user_as_recipient.submission.properties.flow_index
+      const current_user_flow_index = this.current_user_as_recipient.submission.flow_index
       return current_user_flow_index <= current_flow_index
     },
     hanko_scale(){

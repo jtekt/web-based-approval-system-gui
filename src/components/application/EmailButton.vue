@@ -9,7 +9,7 @@
           <v-icon>mdi-email</v-icon>
         </div>
         <div class="user_name">
-          {{user.properties.family_name}}
+          {{user.family_name}}
         </div>
       </div>
 
