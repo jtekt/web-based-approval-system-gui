@@ -1,3 +1,4 @@
+<!-- Used in Application.vue -->
 <template>
   <v-dialog
       v-model="dialog"

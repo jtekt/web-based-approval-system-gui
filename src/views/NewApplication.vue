@@ -58,7 +58,7 @@
             </v-col>
             <v-col cols="auto">
               <v-chip close v-for="(group, index) in groups" :key="`group_${index}`" @click:close="remove_group(index)">
-                {{group.properties.name}}
+                {{group.name}}
               </v-chip>
             </v-col>
             <v-col cols="auto">
@@ -332,10 +332,9 @@ export default {
       })
     },
     add_group (group_to_add) {
-      if (!this.groups.includes(group_to_add)) {
-        this.groups.push(group_to_add)
-      }
-      else alert('Duplicates are not allowed')
+      const group_exists = this.groups.some(({ _id }) => _id === group_to_add._id)
+      if (group_exists) return
+      this.groups.push(group_to_add)
     },
     remove_group(index){
       this.groups.splice(index, 1)

@@ -11,7 +11,7 @@ const generate_email_to_recipient_body = (application, recipient) =>
 
 申請者: ${application.applicant.display_name}
 タイプ: ${application.type}
-タイトル: ${application.title}
+件名: ${application.title}
 提出先URL: ${window.location.origin}/applications/${application._id}
 
 確認お願いします。`
@@ -30,7 +30,7 @@ const generate_email_to_applicant_body = (application) =>
 
 申請者: ${application.applicant.display_name}
 タイプ: ${application.type}
-タイトル: ${application.title}
+件名: ${application.title}
 提出先URL: ${window.location.origin}/applications/${application._id}
 
 確認お願いします。`
