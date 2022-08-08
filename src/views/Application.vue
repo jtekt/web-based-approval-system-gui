@@ -164,11 +164,11 @@
 
                     <template v-if="field.value">
                       <template v-if="user_as_recipient">
-                        <div class="green--text text-center ma-2" v-if="user_has_stamped_attachment(field.value)">
+                        <div class="green--text text-center mb-2" v-if="user_has_stamped_attachment(field.value)">
                           {{ $t('Stamped') }}
                         </div>
 
-                        <div class="red--text text-center ma-2" v-else>
+                        <div class="red--text text-center mb-2" v-else>
                           {{ $t('Not stamped yet') }}
                         </div>
                       </template>
@@ -384,7 +384,8 @@ export default {
       this.selected_file_id = file_id
     },
     approve_application(){
-      if(!confirm(`承認しますか? / Approve application?`)) return
+      
+      if (!confirm(this.$t('Approve application'))) return
       const url = `/v2/applications/${this.application_id}/approve`
       this.axios.post(url)
       .then(() => { this.get_application() })
@@ -394,7 +395,7 @@ export default {
       })
     },
     reject_application(){
-      if(!confirm(`却下しますか? / Reject application?`)) return
+      if (!confirm(this.$t('Reject application'))) return
       const url = `/v2/applications/${this.application_id}/reject`
 
       this.axios.post(url)
@@ -405,7 +406,8 @@ export default {
       })
     },
     delete_application(){
-      if(!confirm("本申請を削除致しますか？")) return
+      
+      if (!confirm(this.$t('Delete this application form'))) return
       const url = `/v2/applications/${this.application_id}`
       this.axios.delete(url)
       .then( () => {

@@ -85,5 +85,8 @@
   "Stamped": "ハンコを押しました",
   "Not stamped yet": "まだハンコを押してません",
   "Start from scratch": "やり直し ",
-  "No comment": "コメント無し"
+  "No comment": "コメント無し",
+  "Delete this application form": "本申請を削除致しますか？",
+  "Approve application": "承認しますか?",
+  "Reject application": "却下しますか?"
 }
