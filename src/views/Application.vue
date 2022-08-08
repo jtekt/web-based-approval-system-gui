@@ -113,11 +113,11 @@
               <template v-if="application.private">
                 <v-divider />
                 <v-list-item>
-                  <v-list-item-content>Visibility</v-list-item-content>
+                  <v-list-item-content>{{ $t('Visibility') }}</v-list-item-content>
                   <v-list-item-content class="align-end">
                     <v-row>
                       <v-col cols="auto">
-                        <v-chip>Approval flow</v-chip>
+                        <v-chip>{{ $t('Approval flow') }}</v-chip>
                       </v-col>
                       <v-col cols="auto" v-for="(group, index) in application.visibility" :key="`group_${index}`">
                         <v-chip>
