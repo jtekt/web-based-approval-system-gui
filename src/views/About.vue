@@ -1,6 +1,6 @@
 <template>
   <v-card>
-    <v-card-title class="text-h4">申請マネージャ (PDF専用GUI)</v-card-title>
+    <v-card-title class="text-h4">申請マネージャ</v-card-title>
     <v-card-text>
       An alternative GUI for 申請マネージャー dedicated to handling .pdf files. Developped and maintained by Maxime MOREILLON.
     </v-card-text>
