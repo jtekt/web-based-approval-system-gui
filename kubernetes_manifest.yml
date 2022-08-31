@@ -31,4 +31,17 @@ spec:
     app: ${APPLICATION_NAME}
   ports:
   - port: 80
-    nodePort: ${NODEPORT}
+    nodePort: ${K8S_NODEPORT}
+---
+# Secondary service to account for legacy version
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${APPLICATION_NAME}-legacy
+spec:
+  type: NodePort
+  selector:
+    app: ${APPLICATION_NAME}
+  ports:
+  - port: 80
+    nodePort: ${K8S_NODEPORT_LEGACY}
