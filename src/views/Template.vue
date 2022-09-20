@@ -34,7 +34,11 @@
         </v-row>
         <v-row>
           <v-col>
-            <v-textarea :label="$t('Description')" auto-grow rows="1" v-model="template.description"
+            <v-textarea 
+              :label="$t('Description')" 
+              auto-grow rows="1" 
+              :readonly="!user_is_author"
+              v-model="template.description"
               hint="Hint text" />
           </v-col>
         </v-row>

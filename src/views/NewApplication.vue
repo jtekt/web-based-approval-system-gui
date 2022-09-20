@@ -160,25 +160,20 @@
     </v-card-text>
 
 
-    <v-card-text>
-      <v-card outlined>
+    <v-card-text class="text-center py-10">
 
-        <v-toolbar flat>
-          <v-card-subtitle class="mt-2 text-h6">
-            {{ $t('Submission') }}
-          </v-card-subtitle>
-        </v-toolbar>
-
-
-        <v-card-text class="text-center">
-          <v-btn :loading="submitting" color="#c00000" :dark="application_valid" @click="submit()"
+          <v-btn 
+            x-large
+            :loading="submitting" 
+            color="#c00000" 
+            :dark="application_valid" 
+            @click="submit()"
             :disabled="!application_valid">
             <v-icon left>mdi-send</v-icon>
             <span>{{ $t('Submit application') }}</span>
 
           </v-btn>
-        </v-card-text>
-      </v-card>
+
     </v-card-text>
 
   </v-card>
