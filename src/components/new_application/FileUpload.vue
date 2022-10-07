@@ -14,8 +14,7 @@
             prepend-icon="mdi-paperclip-check"
             :value="$t('Upload OK')"
             clearable
-            @click:clear="file_id = null">        
-        </v-text-field>
+            @click:clear="file_id = null" />        
 
     </div>
 </template>
