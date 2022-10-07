@@ -10,17 +10,6 @@
                     v-model="field.value" 
                     :accept="field.type === 'pdf' ? 'application/pdf' : ''" />
 
-                <!-- <template v-if="['file', 'pdf'].includes(field.type)">
-
-                    <v-chip v-if="field.value" close label @click:close="field.value = null">
-                        {{ $t('Upload OK') }}
-                    </v-chip>
-
-                    <v-file-input v-else :accept="field.type === 'pdf' ? 'application/pdf' : ''"
-                        @change="file_upload($event, field)" :label="field.label" />
-
-                </template> -->
-
                 <v-checkbox v-else-if="field.type === 'checkbox'" v-model="field.value" :label="field.label" />
 
                 <DatePicker v-else-if="field.type === 'date'" :label="field.label" v-model="field.value" />
