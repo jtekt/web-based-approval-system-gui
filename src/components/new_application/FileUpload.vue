@@ -6,13 +6,20 @@
             :accept="accept" 
             @change="file_upload($event)"
             :label="label" />
-        <v-chip 
+        
+        <v-text-field
             v-else 
-            close 
-            label 
-            @click:close="file_id = null">
-            {{ $t('Upload OK') }}
-        </v-chip>
+            :label="label"
+            readonly
+            prepend-icon="mdi-paperclip-check"
+            :value="$t('Upload OK')"
+            clearable
+            @click:clear="file_id = null">        
+        </v-text-field>
+        <!-- <v-chip close label @click:close="file_id = null">
+        {{ $t('Upload OK') }}
+        </v-chip> -->
+        
     </div>
 </template>
 

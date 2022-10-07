@@ -39,6 +39,7 @@
       </v-banner>
 
       <!-- Application info -->
+      <!-- TODO: Make it its own component -->
       <v-card-text>
         <v-row>
 
@@ -139,7 +140,7 @@
             </v-list>
 
 
-            <!-- application form data  -->
+            <!-- application form data, i.e. content  -->
             <!-- TODO: Make its own component -->
             <v-subheader>{{ $t('Application content') }}</v-subheader>
 
@@ -216,6 +217,7 @@
           </v-col>
 
           <!-- Approval flow -->
+          <!-- TODO: make a component -->
           <v-col>
 
             <v-row v-if="current_recipient_is_current_user" class="mb-3">
