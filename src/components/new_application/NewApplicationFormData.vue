@@ -4,7 +4,13 @@
 
             <v-col>
 
-                <template v-if="['file', 'pdf'].includes(field.type)">
+                <FileUpload 
+                    v-if="['file', 'pdf'].includes(field.type)" 
+                    :label="field.label" 
+                    v-model="field.value" 
+                    :accept="field.type === 'pdf' ? 'application/pdf' : ''" />
+
+                <!-- <template v-if="['file', 'pdf'].includes(field.type)">
 
                     <v-chip v-if="field.value" close label @click:close="field.value = null">
                         {{ $t('Upload OK') }}
@@ -13,7 +19,7 @@
                     <v-file-input v-else :accept="field.type === 'pdf' ? 'application/pdf' : ''"
                         @change="file_upload($event, field)" :label="field.label" />
 
-                </template>
+                </template> -->
 
                 <v-checkbox v-else-if="field.type === 'checkbox'" v-model="field.value" :label="field.label" />
 
@@ -31,6 +37,7 @@
 
 <script>
 import DatePicker from '../DatePicker.vue'
+import FileUpload from './FileUpload.vue'
 
 export default {
     name: 'NewApplicationFormData',
@@ -39,6 +46,7 @@ export default {
     },
     components: {
         DatePicker,
+        FileUpload,
     },
     data(){
         return {
@@ -46,17 +54,25 @@ export default {
         }
     },
     methods: {
-        file_upload(file, field) {
+        async file_upload(file, field) {
+
             this.file_uploading = true
             const formData = new FormData()
             formData.append('file_to_upload', file)
             const headers = { 'Content-Type': 'multipart/form-data' }
-            this.axios.post(`/v2/files`, formData, { headers })
-                .then(({ data: { file_id } }) => {
-                    this.$set(field, 'value', file_id)
-                })
-                .catch(error => alert(error.response.data))
-                .finally(() => { this.file_uploading = false })
+
+            try {
+                const { data } = await this.axios.post(`/v2/files`, formData, { headers })
+                this.$set(field, 'value', data.file_id)
+            }
+            catch (error) {
+                alert(`Upload failed`)
+                console.error(error)
+
+            }
+            finally {
+                this.file_uploading = false
+            }
         },
     },
     computed: {
