@@ -16,10 +16,7 @@
             clearable
             @click:clear="file_id = null">        
         </v-text-field>
-        <!-- <v-chip close label @click:close="file_id = null">
-        {{ $t('Upload OK') }}
-        </v-chip> -->
-        
+
     </div>
 </template>
 
