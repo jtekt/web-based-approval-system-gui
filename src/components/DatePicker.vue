@@ -17,15 +17,14 @@
         readonly
         v-bind="attrs"
         v-on="on"
-        />
-
+        clearable/>
     </template>
 
     <v-date-picker
       v-model="date"
       no-title
       scrollable
-      v-on:input="date_selected()">
+      v-on:input="date_selected($event)">
       <v-spacer />
       <v-btn
         text
@@ -43,23 +42,30 @@
 export default {
   name: 'DatePicker',
   props: {
-    label: String
+    label: String,
+    value: String,
   },
 
   data: () => ({
-    date: null,
     menu: false,
   }),
 
 
   methods: {
-    save (date) {
-      this.$refs.menu.save(date)
-    },
-    date_selected(){
-      this.$refs.menu.save(this.date)
-      this.$emit('input', this.date)
+    date_selected(event) {
+      this.$refs.menu.save(event)
     }
+
+  },
+  computed: {
+    date: {
+      get() {
+        return this.value
+      },
+      set(newVal) {
+        this.$emit('input', newVal)
+      }
+    },
   }
 
 

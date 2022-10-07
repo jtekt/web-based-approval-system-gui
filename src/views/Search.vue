@@ -24,11 +24,10 @@
             </v-row>
             <v-row>
               <v-col>
-                <DatePickerMenu :label="$t('From')" @selection="start_date = $event" />
-
+                <DatePicker :label="$t('From')" v-model="start_date" />
               </v-col>
               <v-col>
-                <DatePickerMenu :label="$t('To')" @selection="end_date = $event" />
+                <DatePicker :label="$t('To')" v-model="end_date" />
               </v-col>
             </v-row>
             <v-row align="center">
@@ -91,13 +90,13 @@
 import XLSX from 'xlsx'
 import IdUtils from '@/mixins/IdUtils.js'
 import AddGroupDialog from '@/components/AddGroupDialog.vue'
-import DatePickerMenu from '@/components/DatePickerMenu.vue'
+import DatePicker from '@/components/DatePicker.vue'
 
 export default {
   name: 'Search',
   components: {
     AddGroupDialog,
-    DatePickerMenu,
+    DatePicker,
   },
   mixins: [
     IdUtils

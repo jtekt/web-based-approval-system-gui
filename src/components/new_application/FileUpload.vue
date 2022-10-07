@@ -42,13 +42,11 @@ export default {
 
             try {
                 const { data } = await this.axios.post(`/v2/files`, formData, { headers })
-                //this.$set(field, 'value', data.file_id)
                 this.file_id = data.file_id
             }
             catch (error) {
                 alert(`Upload failed`)
                 console.error(error)
-
             }
             finally {
                 this.loading = false
