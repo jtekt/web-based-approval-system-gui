@@ -17,6 +17,7 @@ Thus, the validity of those seals can be verified even if those are included in 
 
 | Variable  | Description |
 | ---  | --- |
-| VUE_APP_SHINSEI_MANAGER_URL  | The URL of the 申請マネージャ API |
-| VUE_APP_EMPLOYEE_MANAGER_API_URL | The URL of the employee management service API |
-| VUE_APP_GROUP_MANAGER_API_URL | The URL of the group management service API |
+| VUE_APP_SHINSEI_MANAGER_URL  | URL of the Shinsei-manager API |
+| VUE_APP_LOGIN_URL | URL used for user login |
+| VUE_APP_IDENTIFICATION_URL | URL used to identify users |
+| VUE_APP_GROUP_MANAGER_API_URL | URL of the group management service API |
