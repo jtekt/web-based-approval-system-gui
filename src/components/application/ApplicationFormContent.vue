@@ -52,51 +52,7 @@
 
       <v-divider />
 
-      <!-- Privacy -->
-      <!-- TODO: Make its own component -->
-      <v-list-item>
-        <v-list-item-content>
-          {{ $t("Confidential") }}
-        </v-list-item-content>
-        <v-list-item-content class="align-end">
-          <v-switch
-            :disabled="!user_is_applicant"
-            v-model="application.private"
-            @change="update_privacy_of_application()"
-          />
-        </v-list-item-content>
-      </v-list-item>
-
-      <template v-if="application.private">
-        <v-divider />
-        <v-list-item>
-          <v-list-item-content>{{ $t("Visibility") }}</v-list-item-content>
-          <v-list-item-content class="align-end">
-            <v-row>
-              <v-col cols="auto">
-                <v-chip>{{ $t("Approval flow") }}</v-chip>
-              </v-col>
-              <v-col
-                cols="auto"
-                v-for="(group, index) in application.visibility"
-                :key="`group_${index}`"
-              >
-                <v-chip>
-                  <v-chip
-                    :close="user_is_applicant"
-                    @click:close="remove_application_visibility_to_group(group)"
-                  >
-                    {{ group.name }}
-                  </v-chip>
-                </v-chip>
-              </v-col>
-              <v-col cols="auto">
-                <AddGroupDialog @selection="share_with_group($event)" />
-              </v-col>
-            </v-row>
-          </v-list-item-content>
-        </v-list-item>
-      </template>
+      <PrivacySettings v-model="application" />
     </v-list>
 
     <!-- application form data, i.e. content  -->
@@ -191,11 +147,11 @@
 
 <script>
 import IdUtils from "@/mixins/IdUtils.js"
-import AddGroupDialog from "@/components/AddGroupDialog.vue"
+import PrivacySettings from "@/components/application/PrivacySettings.vue"
 
 export default {
   components: {
-    AddGroupDialog,
+    PrivacySettings,
   },
   props: {
     value: Object,
@@ -220,41 +176,7 @@ export default {
       // TODO: Would be better to use a mixin
       return `${date.year}/${date.month}/${date.day}`
     },
-    update_privacy_of_application() {
-      const url = `/v2/applications/${this.application_id}/privacy`
-      const body = { private: this.application.private }
-      this.axios
-        .put(url, body)
-        .then(() => {})
-        .catch(() => alert("Error updating privacy of application"))
-    },
-    share_with_group(group) {
-      const url = `/v2/applications/${this.application_id}/privacy/groups`
-      const body = { group_id: this.get_id_of_item(group) }
-      this.axios
-        .post(url, body)
-        .then(() => {
-          this.get_application()
-        })
-        .catch((error) => {
-          alert("Error updating visibility of application")
-          console.error(error)
-        })
-    },
-    remove_application_visibility_to_group(group) {
-      const url = `/v2/applications/${
-        this.application_id
-      }/privacy/groups/${this.get_id_of_item(group)}`
-      this.axios
-        .delete(url)
-        .then(() => {
-          this.get_application()
-        })
-        .catch((error) => {
-          console.error(error)
-          alert("Error updating visibility of application")
-        })
-    },
+
     download_attachment(file_id) {
       const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v2/applications/${this.application_id}/files/${file_id}`
       window.open(url, "_blank")
