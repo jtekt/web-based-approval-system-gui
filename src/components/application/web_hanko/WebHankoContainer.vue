@@ -21,10 +21,8 @@
       <!-- Email can only be sent if user is recipient or applicant -->
       <!-- TODO: Stop emitting and send email from whithin the component -->
       <EmailButton
-        v-else-if="
-          recipient_is_current_recipient &&
-          (user_is_applicant || user_as_recipient)
-        "
+        v-else-if="show_email_button"
+        :application="application"
         :user="recipient"
         @send_email="$emit('send_email')"
       />
@@ -46,14 +44,14 @@ export default {
   mixins: [IdUtils],
   props: {
     recipient: { type: Object, required: true },
-    application: Object,
+    application: { type: Object, required: true },
   },
   data() {
     return {
       approval_status: undefined,
     }
   },
-  methods: {},
+
   computed: {
     current_recipient() {
       // recipients sorted by flow index apparently
@@ -67,14 +65,11 @@ export default {
     recipient_id() {
       return this.get_id_of_item(this.recipient)
     },
-    show_toolbox() {
-      // TODO: Remove if unused
-      // If the user is a recipient that has not approved or rejected the application and also is next recipient
+
+    show_email_button() {
       return (
-        this.user_is_recipient &&
-        !this.approval &&
-        !this.rejection &&
-        this.is_current_recipient
+        this.recipient_is_current_recipient &&
+        (this.user_is_applicant || this.user_as_recipient)
       )
     },
     recipient_is_current_recipient() {

@@ -93,8 +93,8 @@
               <template v-if="!!user_as_recipient && !current_recipient">
                 <div class="flow_applicant">
                   <EmailButton
+                    :application="application"
                     :user="application.applicant"
-                    @send_email="send_email_to_applicant()"
                   />
                 </div>
 
@@ -112,7 +112,6 @@
                   :key="`recipient_${index}`"
                   :recipient="recipient"
                   :application="application"
-                  @send_email="send_email_to_recipient(recipient)"
                   @reject="reject_application()"
                 />
               </template>
@@ -156,10 +155,6 @@ import EmailButton from "@/components/application/EmailButton.vue"
 import PdfViewer from "@/components/application/PdfViewer.vue"
 import RecipientComments from "@/components/application/RecipientComments.vue"
 import ApplicationFormContent from "../components/application/ApplicationFormContent.vue"
-import {
-  generate_email_to_recipient,
-  generate_email_to_applicant,
-} from "@/emails"
 
 export default {
   name: "Application",
@@ -266,38 +261,6 @@ export default {
           if (error.response) console.error(error.response.data)
           else console.error(error)
         })
-    },
-
-    // Email functions
-    // TODO: have those in the email button
-    email_button_clicked() {
-      if (this.current_recipient)
-        this.send_email_to_recipient(this.current_recipient)
-      else this.send_email_to_applicant()
-    },
-    send_email_to_recipient(recipient) {
-      this.$store.commit("require_email", false)
-      window.location.href = generate_email_to_recipient(
-        this.application,
-        recipient
-      )
-
-      this.mark_recipient_as_notified(recipient)
-    },
-    send_email_to_applicant() {
-      this.$store.commit("require_email", false)
-      window.location.href = generate_email_to_applicant(this.application)
-    },
-    async mark_recipient_as_notified(recipient) {
-      try {
-        const recipient_id = recipient._id
-        const url = `/v2/applications/${this.application_id}/recipients/${recipient_id}/notifications`
-        await this.axios.post(url)
-        // Optimistic update, using $set for reactivity
-        this.$set(recipient.submission, "notified", true)
-      } catch (error) {
-        console.error(error)
-      }
     },
   },
   computed: {

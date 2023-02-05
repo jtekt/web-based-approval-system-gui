@@ -1,5 +1,5 @@
 <template>
-  <v-card outlined class="comments">
+  <v-card flat>
     <v-card-title>
       {{ $t("Recipient comments") }}
     </v-card-title>

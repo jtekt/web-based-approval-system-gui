@@ -172,9 +172,9 @@ export default {
     },
   },
   methods: {
-    format_date_neo4j(date) {
+    format_date_neo4j({ year, month, day }) {
       // TODO: Would be better to use a mixin
-      return `${date.year}/${date.month}/${date.day}`
+      return `${year}/${month}/${day}`
     },
 
     download_attachment(file_id) {
