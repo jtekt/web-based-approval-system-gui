@@ -33,6 +33,15 @@
 <script>
 import AppTemplate from "@moreillon/vue_application_template_vuetify"
 import LocaleSelector from "./components/LocaleSelector.vue"
+
+const {
+  NODE_ENV,
+  VUE_APP_LOGIN_URL,
+  VUE_APP_IDENTIFICATION_URL,
+  VUE_APP_PASSWORD_RESET_URL,
+  VUE_APP_LOGIN_HINT,
+} = process.env
+
 export default {
   name: "App",
 
@@ -45,15 +54,16 @@ export default {
     return {
       options: {
         title: "申請マネージャー",
-        skip_greetings: process.env.NODE_ENV === "development",
-        login_url: process.env.VUE_APP_LOGIN_URL,
-        identification_url: process.env.VUE_APP_IDENTIFICATION_URL,
-        password_reset_url: process.env.VUE_APP_PASSWORD_RESET_URL,
+        skip_greetings: NODE_ENV === "development",
+        login_url: VUE_APP_LOGIN_URL,
+        identification_url: VUE_APP_IDENTIFICATION_URL,
+        password_reset_url: VUE_APP_PASSWORD_RESET_URL,
 
         header_logo: require("@/assets/jtekt_logo_negative.jpg"),
         authentication_logo: require("@/assets/jtekt_logo.jpg"),
         colors: { app_bar: "#000" },
         author: "Maxime Moreillon - JTEKT Corporation",
+        login_hint: VUE_APP_LOGIN_HINT,
       },
     }
   },

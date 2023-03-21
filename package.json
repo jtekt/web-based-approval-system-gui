@@ -10,7 +10,7 @@
     "i18n:report": "vue-cli-service i18n:report --src \"./src/**/*.?(js|vue)\" --locales \"./src/locales/**/*.json\""
   },
   "dependencies": {
-    "@moreillon/vue_application_template_vuetify": "^1.2.2",
+    "@moreillon/vue_application_template_vuetify": "^1.2.9",
     "@moreillon/vue_user_picker": "^5.0.3",
     "axios": "^0.24.0",
     "canvg": "^3.0.10",
