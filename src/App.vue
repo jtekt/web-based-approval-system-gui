@@ -58,12 +58,12 @@ export default {
         login_url: VUE_APP_LOGIN_URL,
         identification_url: VUE_APP_IDENTIFICATION_URL,
         password_reset_url: VUE_APP_PASSWORD_RESET_URL,
+        login_hint: VUE_APP_LOGIN_HINT,
 
         header_logo: require("@/assets/jtekt_logo_negative.jpg"),
         authentication_logo: require("@/assets/jtekt_logo.jpg"),
         colors: { app_bar: "#000" },
         author: "Maxime Moreillon - JTEKT Corporation",
-        login_hint: VUE_APP_LOGIN_HINT,
       },
     }
   },
