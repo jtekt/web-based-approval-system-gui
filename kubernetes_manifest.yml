@@ -13,13 +13,16 @@ spec:
         app: ${APPLICATION_NAME}
     spec:
       containers:
-      - name: ${APPLICATION_NAME}
-        image: ${CONTAINER_IMAGE_TAGGED}
-        ports:
-        - containerPort: 80
-        envFrom:
-        - secretRef:
-           name: environment-variables
+        - name: ${APPLICATION_NAME}
+          image: ${CONTAINER_IMAGE_TAGGED}
+          ports:
+            - containerPort: 80
+          env:
+            - name: VUE_APP_LOGIN_URL
+              value: http://10.115.1.100:30097/v3/auth/login
+          envFrom:
+            - secretRef:
+                name: environment-variables
 ---
 apiVersion: v1
 kind: Service
@@ -30,8 +33,8 @@ spec:
   selector:
     app: ${APPLICATION_NAME}
   ports:
-  - port: 80
-    nodePort: ${K8S_NODEPORT}
+    - port: 80
+      nodePort: ${K8S_NODEPORT}
 ---
 # Secondary service to account for legacy version
 apiVersion: v1
@@ -43,5 +46,5 @@ spec:
   selector:
     app: ${APPLICATION_NAME}
   ports:
-  - port: 80
-    nodePort: ${K8S_NODEPORT_LEGACY}
+    - port: 80
+      nodePort: ${K8S_NODEPORT_LEGACY}
