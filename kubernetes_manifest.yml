@@ -17,9 +17,6 @@ spec:
           image: ${CONTAINER_IMAGE_TAGGED}
           ports:
             - containerPort: 80
-          env:
-            - name: VUE_APP_LOGIN_URL
-              value: http://10.115.1.100:30097/v3/auth/login
           envFrom:
             - secretRef:
                 name: environment-variables
