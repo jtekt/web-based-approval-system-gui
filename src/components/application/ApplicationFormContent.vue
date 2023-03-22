@@ -46,7 +46,12 @@
           {{ $t("Applicant") }}
         </v-list-item-content>
         <v-list-item-content class="align-end">
-          {{ application.applicant.display_name }}
+          <a
+            :href="user_profile_url"
+            target="_blank"
+            rel="noopener noreferrer"
+            >{{ application.applicant.display_name }}</a
+          >
         </v-list-item-content>
       </v-list-item>
 
@@ -149,6 +154,9 @@
 import IdUtils from "@/mixins/IdUtils.js"
 import PrivacySettings from "@/components/application/PrivacySettings.vue"
 
+const { VUE_APP_EMPLOYEE_MANAGER_FRONT_URL, VUE_APP_SHINSEI_MANAGER_URL } =
+  process.env
+
 export default {
   components: {
     PrivacySettings,
@@ -178,7 +186,7 @@ export default {
     },
 
     download_attachment(file_id) {
-      const url = `${process.env.VUE_APP_SHINSEI_MANAGER_URL}/v2/applications/${this.application_id}/files/${file_id}`
+      const url = `${VUE_APP_SHINSEI_MANAGER_URL}/v2/applications/${this.application_id}/files/${file_id}`
       window.open(url, "_blank")
     },
     user_has_stamped_attachment(file_id) {
@@ -212,7 +220,10 @@ export default {
         (recipient) => this.get_id_of_item(recipient) === this.current_user_id
       )
     },
-
+    user_profile_url() {
+      if (!VUE_APP_EMPLOYEE_MANAGER_FRONT_URL) return
+      return `${VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/users/${this.application.applicant._id}`
+    },
     user_is_applicant() {
       return (
         this.get_id_of_item(this.application.applicant) === this.current_user_id
