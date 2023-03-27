@@ -91,7 +91,7 @@ export default {
   },
   methods: {
     async update_privacy_of_application() {
-      const url = `/v2/applications/${this.application_id}/privacy`
+      const url = `/applications/${this.application_id}/privacy`
       const body = { private: this.application.private }
 
       try {
@@ -102,7 +102,7 @@ export default {
       }
     },
     share_with_group(group) {
-      const url = `/v2/applications/${this.application_id}/privacy/groups`
+      const url = `/applications/${this.application_id}/privacy/groups`
       const body = { group_id: this.get_id_of_item(group) }
       this.axios
         .post(url, body)
@@ -119,7 +119,7 @@ export default {
         })
     },
     remove_application_visibility_to_group(group) {
-      const url = `/v2/applications/${
+      const url = `/applications/${
         this.application_id
       }/privacy/groups/${this.get_id_of_item(group)}`
       this.axios

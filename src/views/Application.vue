@@ -194,7 +194,7 @@ export default {
       this.loading = true
       this.application = null
       this.error = null
-      const url = `/v2/applications/${this.application_id}`
+      const url = `/applications/${this.application_id}`
       this.axios
         .get(url)
         .then(({ data }) => {
@@ -224,7 +224,7 @@ export default {
     },
     approve_application() {
       if (!confirm(this.$t("Approve application"))) return
-      const url = `/v2/applications/${this.application_id}/approve`
+      const url = `/applications/${this.application_id}/approve`
       this.axios
         .post(url)
         .then(() => {
@@ -237,7 +237,7 @@ export default {
     },
     reject_application() {
       if (!confirm(this.$t("Reject application"))) return
-      const url = `/v2/applications/${this.application_id}/reject`
+      const url = `/applications/${this.application_id}/reject`
 
       this.axios
         .post(url)
@@ -251,7 +251,7 @@ export default {
     },
     delete_application() {
       if (!confirm(this.$t("Delete this application form"))) return
-      const url = `/v2/applications/${this.application_id}`
+      const url = `/applications/${this.application_id}`
       this.axios
         .delete(url)
         .then(() => {

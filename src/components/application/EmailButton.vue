@@ -59,7 +59,7 @@ export default {
       // But recipient is part of application which is also a prop...
       try {
         const recipient_id = recipient._id
-        const url = `/v2/applications/${this.application_id}/recipients/${recipient_id}/notifications`
+        const url = `/applications/${this.application_id}/recipients/${recipient_id}/notifications`
         await this.axios.post(url)
         // Optimistic update, using $set for reactivity
         // WARNING: This updates both the application and the user

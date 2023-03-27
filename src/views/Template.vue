@@ -50,6 +50,7 @@
             />
           </v-col>
         </v-row>
+        <!-- Visibility -->
         <v-row align="center">
           <v-col cols="auto">{{ $t("Visibility") }}</v-col>
           <v-col cols="auto">
@@ -71,7 +72,7 @@
             />
           </v-col>
         </v-row>
-        <!-- Visibility -->
+        <!-- Managers -->
         <v-row align="center">
           <v-col cols="auto">{{ $t("Managers") }}</v-col>
 
@@ -80,9 +81,7 @@
             v-for="(manager, index) in template.managers"
             :key="`manager_${index}`"
           >
-            <v-chip>
-              {{ manager.display_name }}
-            </v-chip>
+            <UserChip :user="manager" />
           </v-col>
 
           <v-col cols="auto">
@@ -163,12 +162,14 @@ import IdUtils from "@/mixins/IdUtils.js"
 
 import AddGroupDialog from "@/components/AddGroupDialog.vue"
 import AddTemplateManagerDialog from "../components/templates/AddTemplateManagerDialog.vue"
+import UserChip from "../components/UserChip.vue"
 
 export default {
   name: "Template",
   components: {
     AddGroupDialog,
     AddTemplateManagerDialog,
+    UserChip,
   },
   mixins: [IdUtils],
   data() {

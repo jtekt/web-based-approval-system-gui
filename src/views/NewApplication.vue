@@ -230,7 +230,7 @@ export default {
   methods: {
     get_templates() {
       this.templates_loading = true
-      const url = `/v2/templates`
+      const url = `/templates`
       this.axios
         .get(url)
         .then(({ data }) => {
@@ -263,7 +263,7 @@ export default {
       }
 
       this.axios
-        .post(`/v2/applications`, body)
+        .post(`/applications`, body)
         .then(({ data }) => {
           this.$store.commit("require_email", true)
           const application_id = this.get_id_of_item(data)
@@ -293,7 +293,7 @@ export default {
       // This function is called when the application is a dubplicate of an existing one
 
       const application_id = this.$route.query.copy_of
-      const url = `/v2/applications/${application_id}`
+      const url = `/applications/${application_id}`
       this.axios
         .get(url)
         .then(({ data }) => {
