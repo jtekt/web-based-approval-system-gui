@@ -4,7 +4,7 @@
     <template v-slot:activator="{ on, attrs }">
       <v-btn color="black" dark v-bind="attrs" v-on="on">
         <v-icon left>mdi-account-plus</v-icon>
-        <span>Add Manager</span>
+        <span>{{ $t("Add") }}</span>
       </v-btn>
     </template>
 

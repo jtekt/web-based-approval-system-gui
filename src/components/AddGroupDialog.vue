@@ -3,8 +3,8 @@
   <v-dialog v-model="dialog" width="500">
     <template v-slot:activator="{ on, attrs }">
       <v-btn color="black" dark v-bind="attrs" v-on="on">
-        <v-icon left>mdi-account-plus</v-icon>
-        <span>Add Group</span>
+        <v-icon left>mdi-account-multiple-plus</v-icon>
+        <span>{{ $t("Add") }}</span>
       </v-btn>
     </template>
 
