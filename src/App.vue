@@ -40,6 +40,7 @@ const {
   VUE_APP_IDENTIFICATION_URL,
   VUE_APP_PASSWORD_RESET_URL,
   VUE_APP_LOGIN_HINT,
+  VUE_APP_HOMEPAGE_URL,
 } = process.env
 
 export default {
@@ -59,6 +60,7 @@ export default {
         identification_url: VUE_APP_IDENTIFICATION_URL,
         password_reset_url: VUE_APP_PASSWORD_RESET_URL,
         login_hint: VUE_APP_LOGIN_HINT,
+        homepage_url: VUE_APP_HOMEPAGE_URL,
 
         header_logo: require("@/assets/jtekt_logo_negative.jpg"),
         authentication_logo: require("@/assets/jtekt_logo.jpg"),

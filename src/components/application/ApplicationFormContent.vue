@@ -46,7 +46,9 @@
           {{ $t("Applicant") }}
         </v-list-item-content>
         <v-list-item-content class="align-end">
-          <UserChip :user="application.applicant" />
+          <div>
+            <UserChip :user="application.applicant" />
+          </div>
         </v-list-item-content>
       </v-list-item>
 
