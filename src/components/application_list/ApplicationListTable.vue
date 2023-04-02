@@ -17,16 +17,29 @@
     </template>
 
     <template v-slot:item.progress="{ item }">
-      <v-progress-linear :value="item.progress" />
+      <v-progress-linear :value="item.progress" height="0.5em" rounded />
+    </template>
+
+    <template v-slot:item.current_recipient="{ item }">
+      <UserChip :user="item.current_recipient" :link="false" />
+    </template>
+
+    <template v-slot:item.applicant="{ item }">
+      <UserChip :user="item.applicant" :link="false" />
     </template>
   </v-data-table>
 </template>
 
 <script>
 import IdUtils from "@/mixins/IdUtils.js"
+import dateUtils from "@/mixins/dateUtils.js"
+import UserChip from "../UserChip.vue"
 
 export default {
   name: "ApplicationListTable",
+  components: {
+    UserChip,
+  },
   props: {
     direction: String,
     state: String,
@@ -38,7 +51,7 @@ export default {
       },
     },
   },
-  mixins: [IdUtils],
+  mixins: [IdUtils, dateUtils],
   data() {
     return {
       loading: false,
@@ -53,7 +66,6 @@ export default {
     }
   },
 
-  components: {},
   mounted() {
     this.get_applications()
   },
@@ -69,9 +81,6 @@ export default {
     },
   },
   methods: {
-    format_date_neo4j(date) {
-      return `${date.year}/${date.month}/${date.day}`
-    },
     get_applications() {
       this.loading = true
 

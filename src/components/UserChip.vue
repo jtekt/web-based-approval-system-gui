@@ -1,5 +1,5 @@
 <template>
-  <v-chip :to="user_profile_url" target="_blank">
+  <v-chip :href="user_profile_url" target="_blank">
     <v-avatar start class="mr-2">
       <v-img :src="user.avatar_src" v-if="user.avatar_src" />
       <v-icon v-else>mdi-account</v-icon>
@@ -15,6 +15,10 @@ export default {
   name: "UserChip",
   props: {
     user: Object,
+    link: {
+      type: Boolean,
+      default: true,
+    },
   },
   computed: {
     name() {

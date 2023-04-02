@@ -149,6 +149,7 @@
 
 <script>
 import IdUtils from "@/mixins/IdUtils.js"
+import dateUtils from "@/mixins/dateUtils.js"
 import PrivacySettings from "@/components/application/PrivacySettings.vue"
 import UserChip from "../UserChip.vue"
 
@@ -162,7 +163,7 @@ export default {
   props: {
     value: Object,
   },
-  mixins: [IdUtils],
+  mixins: [IdUtils, dateUtils],
 
   data() {
     return {
@@ -178,11 +179,6 @@ export default {
     },
   },
   methods: {
-    format_date_neo4j({ year, month, day }) {
-      // TODO: Would be better to use a mixin
-      return `${year}/${month}/${day}`
-    },
-
     download_attachment(file_id) {
       const url = `${VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/files/${file_id}`
       window.open(url, "_blank")

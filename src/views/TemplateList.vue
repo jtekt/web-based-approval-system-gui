@@ -47,13 +47,14 @@
             </template>
 
             <template v-slot:item.managers="{ item }">
-              <v-chip
-                v-for="(manager, index) in item.managers"
-                :key="`${item._id}_manager_${index}`"
-                class="mr-2"
-              >
-                {{ manager.display_name }}
-              </v-chip>
+              <div class="managers_wrapper">
+                <UserChip
+                  v-for="(manager, index) in item.managers"
+                  :key="`${item._id}_manager_${index}`"
+                  :user="manager"
+                  :link="false"
+                />
+              </div>
             </template>
           </v-data-table>
         </v-card-text>
@@ -68,13 +69,14 @@
             :loading="loading"
           >
             <template v-slot:item.managers="{ item }">
-              <v-chip
-                v-for="(manager, index) in item.managers"
-                :key="`${item._id}_manager_${index}`"
-                class="mr-2"
-              >
-                {{ manager.display_name }}
-              </v-chip>
+              <div class="managers_wrapper">
+                <UserChip
+                  v-for="(manager, index) in item.managers"
+                  :key="`${item._id}_manager_${index}`"
+                  :user="manager"
+                  :link="false"
+                />
+              </div>
             </template>
 
             <template v-slot:item.groups="{ item }">
@@ -95,10 +97,11 @@
 
 <script>
 import IdUtils from "@/mixins/IdUtils.js"
+import UserChip from "../components/UserChip.vue"
 
 export default {
   name: "Templates",
-  components: {},
+  components: { UserChip },
   mixins: [IdUtils],
   data() {
     return {
@@ -160,3 +163,10 @@ export default {
   },
 }
 </script>
+
+<style>
+.managers_wrapper {
+  display: flex;
+  gap: 0.5em;
+}
+</style>
