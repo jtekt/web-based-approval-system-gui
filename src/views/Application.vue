@@ -4,9 +4,9 @@
       <v-container fluid>
         <v-row align="center">
           <v-col cols="auto">
-            <v-toolbar-title v-if="application">{{
-              application.title
-            }}</v-toolbar-title>
+            <v-toolbar-title v-if="application">
+              {{ application.title }}
+            </v-toolbar-title>
             <v-toolbar-title v-else>{{ $t("Application") }}</v-toolbar-title>
           </v-col>
           <v-spacer />
@@ -31,7 +31,9 @@
             <v-col cols="auto">
               <v-btn
                 text
-                :disabled="application_is_fully_approved"
+                :disabled="
+                  application_is_fully_approved && !current_user_is_admin
+                "
                 color="#c00000"
                 @click="delete_application()"
               >
@@ -314,6 +316,12 @@ export default {
       return this.application.recipients
         .filter((a) => !!a.approval)
         .map((r) => r.approval)
+    },
+    current_user_is_admin() {
+      return (
+        this.$store.state.current_user.isAdmin ||
+        this.$store.state.properties?.isAdmin
+      )
     },
   },
 }
