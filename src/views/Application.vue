@@ -320,7 +320,7 @@ export default {
     current_user_is_admin() {
       return (
         this.$store.state.current_user.isAdmin ||
-        this.$store.state.properties?.isAdmin
+        this.$store.state.current_user.properties?.isAdmin
       )
     },
   },
