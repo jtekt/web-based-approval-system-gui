@@ -54,16 +54,18 @@
         <v-row align="center">
           <v-col cols="auto">{{ $t("Visibility") }}</v-col>
           <v-col cols="auto">
-            <v-chip>{{ $t("You") }}</v-chip>
+            <v-chip label outlined>{{ $t("You") }}</v-chip>
           </v-col>
           <v-col
             cols="auto"
             v-for="(group, index) in template.groups"
             :key="`group_${index}`"
           >
-            <v-chip :close="user_is_manager" @click:close="remove_group(index)">
-              {{ group.name || group.name }}
-            </v-chip>
+            <GroupChip
+              :group="group"
+              :close="user_is_manager"
+              @click:close="remove_group(index)"
+            />
           </v-col>
           <v-col cols="auto">
             <AddGroupDialog
@@ -163,6 +165,7 @@ import IdUtils from "@/mixins/IdUtils.js"
 import AddGroupDialog from "@/components/AddGroupDialog.vue"
 import AddTemplateManagerDialog from "../components/templates/AddTemplateManagerDialog.vue"
 import UserChip from "../components/UserChip.vue"
+import GroupChip from "@/components/GroupChip.vue"
 
 export default {
   name: "Template",
@@ -170,6 +173,7 @@ export default {
     AddGroupDialog,
     AddTemplateManagerDialog,
     UserChip,
+    GroupChip,
   },
   mixins: [IdUtils],
   data() {
