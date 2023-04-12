@@ -56,17 +56,16 @@
               {{ $t("Visibility") }}
             </v-col>
             <v-col cols="auto">
-              <v-chip>{{ $t("Approval flow") }}</v-chip>
+              <v-chip label outlined>{{ $t("Approval flow") }}</v-chip>
             </v-col>
             <v-col cols="auto">
-              <v-chip
+              <GroupChip
+                :group="group"
                 close
                 v-for="(group, index) in groups"
                 :key="`group_${index}`"
                 @click:close="remove_group(index)"
-              >
-                {{ group.name }}
-              </v-chip>
+              />
             </v-col>
             <v-col cols="auto">
               <AddGroupDialog @selection="add_group($event)" />
@@ -185,6 +184,8 @@ import IdUtils from "@/mixins/IdUtils.js"
 import AddGroupDialog from "@/components/AddGroupDialog.vue"
 import NewApplicationFormData from "../components/new_application/NewApplicationFormData.vue"
 import NewApplicationTemplateDetails from "../components/new_application/NewApplicationTemplateDetails.vue"
+import GroupChip from "@/components/GroupChip.vue"
+
 export default {
   name: "NewApplication",
   mixins: [IdUtils],
@@ -194,6 +195,7 @@ export default {
     AddGroupDialog,
     NewApplicationFormData,
     NewApplicationTemplateDetails,
+    GroupChip,
   },
   data() {
     return {

@@ -37,13 +37,12 @@
             :loading="loading"
           >
             <template v-slot:item.groups="{ item }">
-              <v-chip
+              <GroupChip
                 v-for="(group, index) in item.groups"
                 :key="`${item._id}_group_${index}`"
+                :group="group"
                 class="mr-2"
-              >
-                {{ group.name }}
-              </v-chip>
+              />
             </template>
 
             <template v-slot:item.managers="{ item }">
@@ -80,13 +79,12 @@
             </template>
 
             <template v-slot:item.groups="{ item }">
-              <v-chip
+              <GroupChip
                 v-for="(group, index) in item.groups"
                 :key="`${item._id}_group_${index}`"
+                :group="group"
                 class="mr-2"
-              >
-                {{ group.name }}
-              </v-chip>
+              />
             </template>
           </v-data-table>
         </v-card-text>
@@ -98,10 +96,11 @@
 <script>
 import IdUtils from "@/mixins/IdUtils.js"
 import UserChip from "../components/UserChip.vue"
+import GroupChip from "../components/GroupChip.vue"
 
 export default {
   name: "Templates",
-  components: { UserChip },
+  components: { UserChip, GroupChip },
   mixins: [IdUtils],
   data() {
     return {

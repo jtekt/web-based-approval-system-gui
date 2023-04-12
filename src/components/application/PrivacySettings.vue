@@ -20,21 +20,18 @@
         <v-list-item-content class="align-end">
           <v-row>
             <v-col cols="auto">
-              <v-chip>{{ $t("Approval flow") }}</v-chip>
+              <v-chip outlined label>{{ $t("Approval flow") }}</v-chip>
             </v-col>
             <v-col
               cols="auto"
               v-for="(group, index) in application.visibility"
               :key="`group_${index}`"
             >
-              <v-chip>
-                <v-chip
-                  :close="user_is_applicant"
-                  @click:close="remove_application_visibility_to_group(group)"
-                >
-                  {{ group.name }}
-                </v-chip>
-              </v-chip>
+              <GroupChip
+                :group="group"
+                :close="user_is_applicant"
+                @click:close="remove_application_visibility_to_group(group)"
+              />
             </v-col>
             <v-col cols="auto">
               <AddGroupDialog @selection="share_with_group($event)" />
@@ -49,11 +46,13 @@
 <script>
 import IdUtils from "@/mixins/IdUtils.js"
 import AddGroupDialog from "@/components/AddGroupDialog.vue"
+import GroupChip from "@/components/GroupChip.vue"
 
 export default {
   name: "ApplicationPrivacy",
   components: {
     AddGroupDialog,
+    GroupChip,
   },
   props: {
     value: Object,
