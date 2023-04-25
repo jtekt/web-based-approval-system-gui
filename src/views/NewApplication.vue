@@ -238,8 +238,8 @@ export default {
         .get(url)
         .then(({ data }) => {
           this.application_form_templates = data
-          const {type} = this.$route.query
-          if(type) this.selected_form = this.application_form_templates.find(({label}) => label === type)
+          const {template} = this.$route.query
+          if(template) this.selected_form = this.application_form_templates.find(({label}) => label === template)
         })
         .catch((error) => {
           console.error(error)
