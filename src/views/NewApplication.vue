@@ -201,7 +201,7 @@ export default {
     return {
       application_form_templates: [],
       templates_loading: false,
-      selected_form: null, // when null, recreation throws errors
+      selected_form: null,
 
       title: "",
       confidential: false,
@@ -228,6 +228,7 @@ export default {
   mounted() {
     this.get_templates()
     if (this.$route.query.copy_of) this.recreate_application_content()
+    
   },
   methods: {
     get_templates() {
@@ -237,6 +238,8 @@ export default {
         .get(url)
         .then(({ data }) => {
           this.application_form_templates = data
+          const {type} = this.$route.query
+          if(type) this.selected_form = this.application_form_templates.find(({label}) => label === type)
         })
         .catch((error) => {
           console.error(error)
