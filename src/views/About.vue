@@ -1,9 +1,11 @@
 <template>
   <v-card>
     <v-card-title class="text-h4">申請マネージャ</v-card-title>
+    <v-card-subtitle>
+      v{{version}} 
+    </v-card-subtitle>
     <v-card-text>
-      An alternative GUI for 申請マネージャー dedicated to handling .pdf files.
-      Developped and maintained by Maxime MOREILLON.
+      A GUI for 申請マネージャー developped and maintained by Maxime MOREILLON.
     </v-card-text>
 
     <v-card-text>
@@ -13,7 +15,7 @@
 </template>
 
 <script>
-import pjson from "@/../package.json"
+import {version} from "@/../package.json"
 
 const {
   VUE_APP_SHINSEI_MANAGER_URL,
@@ -28,7 +30,7 @@ export default {
   name: "About",
   data() {
     return {
-      version: pjson.version,
+      version,
       headers: [
         { text: "Setting", value: "name" },
         { text: "Value", value: "value" },
