@@ -113,7 +113,8 @@
             class="align-end"
             v-else-if="field.type === 'checkbox'"
           >
-            {{ field.value ? "✓" : "✕" }}
+            <v-icon v-if="field.value">mdi-check</v-icon>
+            <v-icon v-else>mdi-close</v-icon>
           </v-list-item-content>
 
           <v-list-item-content
