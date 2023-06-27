@@ -32,7 +32,6 @@
         <v-card-text>
           <ApplicationListTable
             :title="table.title"
-            :state="table.state"
             :headers="table.headers"
             :direction="direction"
           />
@@ -53,9 +52,16 @@ export default {
     direction: String,
   },
   data() {
-    return {
-      tab: null,
-    }
+    return {}
+  },
+  methods: {
+    setQueryParam(key, value) {
+      if (this.$route.query[key] === value) return
+      const query = { ...this.$route.query }
+      if (value) query[key] = value
+      else delete query[key]
+      this.$router.replace({ query })
+    },
   },
   computed: {
     card_title_lookup() {
@@ -63,6 +69,19 @@ export default {
         submitted: this.$t("Outbox"),
         received: this.$t("Inbox"),
       }
+    },
+    states() {
+      return this.tables[this.direction].map(({ state }) => state)
+    },
+    tab: {
+      get() {
+        const { state = "pending" } = this.$route.query
+        return this.states.indexOf(state)
+      },
+      set(tabIndex) {
+        const state = this.states[tabIndex]
+        this.setQueryParam("state", state)
+      },
     },
     tables() {
       return {
