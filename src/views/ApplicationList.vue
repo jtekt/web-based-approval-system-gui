@@ -16,7 +16,8 @@
           <v-tabs-slider color="#c00000"></v-tabs-slider>
 
           <v-tab v-for="table in tables[direction]" :key="`tab_${table.state}`">
-            {{ table.title }}
+            <v-icon left>{{ table.icon }}</v-icon>
+            <span>{{ table.title }} </span>
           </v-tab>
         </v-tabs>
       </template>
@@ -89,6 +90,7 @@ export default {
           {
             title: this.$t("Pending"),
             state: "pending",
+            icon: "mdi-progress-clock",
             headers: [
               { text: this.$t("Date"), value: "creation_date" },
               { text: this.$t("Type"), value: "type" },
@@ -103,6 +105,7 @@ export default {
           {
             title: this.$t("Rejected"),
             state: "rejected",
+            icon: "mdi-close-circle-outline",
             headers: [
               { text: this.$t("Date"), value: "creation_date" },
               { text: this.$t("Type"), value: "type" },
@@ -117,6 +120,7 @@ export default {
           {
             title: this.$t("Approved"),
             state: "approved",
+            icon: "mdi-check-circle-outline",
             headers: [
               { text: this.$t("Date"), value: "creation_date" },
               { text: this.$t("Type"), value: "type" },
@@ -128,6 +132,7 @@ export default {
           {
             title: this.$t("Pending"),
             state: "pending",
+            icon: "mdi-progress-clock",
             headers: [
               { text: this.$t("Date"), value: "creation_date" },
               { text: this.$t("Type"), value: "type" },
@@ -138,6 +143,7 @@ export default {
           {
             title: this.$t("Rejected"),
             state: "rejected",
+            icon: "mdi-close-circle-outline",
             headers: [
               { text: this.$t("Date"), value: "creation_date" },
               { text: this.$t("Type"), value: "type" },
@@ -148,6 +154,7 @@ export default {
           {
             title: this.$t("Approved"),
             state: "approved",
+            icon: "mdi-check-circle-outline",
             headers: [
               { text: this.$t("Date"), value: "creation_date" },
               { text: this.$t("Type"), value: "type" },
