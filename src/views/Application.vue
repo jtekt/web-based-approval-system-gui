@@ -1,49 +1,38 @@
 <template>
   <v-card :loading="loading">
     <template v-if="application && !error">
-      <v-container fluid>
-        <v-row align="center">
-          <v-col cols="auto">
-            <v-toolbar-title v-if="application">
-              {{ application.title }}
-            </v-toolbar-title>
-            <v-toolbar-title v-else>{{ $t("Application") }}</v-toolbar-title>
-          </v-col>
-          <v-spacer />
-          <v-col cols="auto">
-            <HelpDialog />
-          </v-col>
-          <template v-if="user_is_applicant">
-            <v-col cols="auto">
-              <v-btn
-                text
-                @click="
-                  $router.push({
-                    name: 'new_application',
-                    query: { copy_of: get_id_of_item(application) },
-                  })
-                "
-              >
-                <v-icon left>mdi-restore</v-icon>
-                <span>{{ $t("Re-submit") }}</span>
-              </v-btn>
-            </v-col>
-            <v-col cols="auto">
-              <v-btn
-                text
-                :disabled="
-                  application_is_fully_approved && !current_user_is_admin
-                "
-                color="#c00000"
-                @click="delete_application()"
-              >
-                <v-icon left>mdi-delete</v-icon>
-                <span>{{ $t("Delete") }}</span>
-              </v-btn>
-            </v-col>
-          </template>
-        </v-row>
-      </v-container>
+      <v-toolbar flat>
+        <v-toolbar-title v-if="application">
+          {{ application.title }}
+        </v-toolbar-title>
+        <v-toolbar-title v-else>{{ $t("Application") }}</v-toolbar-title>
+        <v-spacer />
+        <HelpDialog />
+        <template v-if="user_is_applicant">
+          <v-btn
+            text
+            @click="
+              $router.push({
+                name: 'new_application',
+                query: { copy_of: get_id_of_item(application) },
+              })
+            "
+          >
+            <v-icon left>mdi-restore</v-icon>
+            <span>{{ $t("Re-submit") }}</span>
+          </v-btn>
+          <v-btn
+            text
+            :disabled="application_is_fully_approved && !current_user_is_admin"
+            color="#c00000"
+            @click="delete_application()"
+          >
+            <v-icon left>mdi-delete</v-icon>
+            <span>{{ $t("Delete") }}</span>
+          </v-btn>
+        </template>
+      </v-toolbar>
+
       <v-divider />
 
       <v-banner
