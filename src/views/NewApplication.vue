@@ -14,16 +14,34 @@
         </v-toolbar>
 
         <v-card-text>
-          <v-row v-if="this.$route.query.copy_of" align="center">
-            <v-col cols="auto">
-              {{ $t("Type") }}: {{ $t("Resubmission") }}
-            </v-col>
-            <v-col cols="auto">
-              <v-btn outlined small exact :to="{ name: 'new_application' }">
-                {{ $t("Start from scratch") }}
-              </v-btn>
-            </v-col>
-          </v-row>
+          <template v-if="$route.query.copy_of">
+            <v-row>
+              <v-col>
+                <v-text-field
+                  :value="selected_form?.label"
+                  :label="$t('Type')"
+                  :suffix="`
+                    (${$t('Resubmission of', {
+                      id: $route.query.copy_of,
+                    })})
+                    `"
+                  readonly
+                  filled
+                />
+              </v-col>
+              <v-col cols="auto">
+                <v-btn
+                  outlined
+                  exact
+                  :to="{ name: 'new_application' }"
+                  class="mt-4"
+                >
+                  <v-icon left>mdi-restore</v-icon>
+                  {{ $t("Start from scratch") }}
+                </v-btn>
+              </v-col>
+            </v-row>
+          </template>
           <v-row v-else>
             <v-col>
               <v-autocomplete
@@ -108,7 +126,7 @@
             <v-spacer />
             <v-col cols="auto">
               <!-- Add recipient dialog, ideally make it a component -->
-              <v-dialog v-model="add_recipient_dialog" width="900">
+              <v-dialog v-model="add_recipient_dialog">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn color="#c00000" dark v-bind="attrs" v-on="on">
                     <v-icon>mdi-account-plus</v-icon>
@@ -143,7 +161,7 @@
                       text
                       @click="add_recipient_dialog = false"
                     >
-                      Close
+                      {{ $t("Close") }}
                     </v-btn>
                   </v-card-actions>
                 </v-card>
@@ -228,7 +246,6 @@ export default {
   mounted() {
     this.get_templates()
     if (this.$route.query.copy_of) this.recreate_application_content()
-    
   },
   methods: {
     get_templates() {
@@ -238,8 +255,11 @@ export default {
         .get(url)
         .then(({ data }) => {
           this.application_form_templates = data
-          const {template} = this.$route.query
-          if(template) this.selected_form = this.application_form_templates.find(({label}) => label === template)
+          const { template } = this.$route.query
+          if (template)
+            this.selected_form = this.application_form_templates.find(
+              ({ label }) => label === template
+            )
         })
         .catch((error) => {
           console.error(error)

@@ -90,5 +90,7 @@
   "Approve application": "承認しますか?",
   "Reject application": "却下しますか?",
   "Managers": "担当者",
-  "Add": "追加"
+  "Add": "追加",
+  "Close": "閉じる",
+  "Resubmission of": "{id} の再申請"
 }

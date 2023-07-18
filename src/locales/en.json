@@ -91,5 +91,7 @@
   "Approve application": "Approve application?",
   "Reject application": "Reject application?",
   "Managers": "Managers",
-  "Add": "Add"
+  "Add": "Add",
+  "Close": "Close",
+  "Resubmission of": "Resubmission of {id}"
 }
