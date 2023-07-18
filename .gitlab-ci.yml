@@ -6,20 +6,17 @@ image: moreillon/ci-dind:4bca50d7
 services:
   - name: docker:19.03.12-dind
 
-
 variables:
   APPLICATION_NAME: shinsei-manager-front
   CONTAINER_IMAGE: ${AWS_ECR_PUBLIC_URL}/${APPLICATION_NAME}
-  CONTAINER_IMAGE_TAGGED: ${CONTAINER_IMAGE}:${CI_COMMIT_SHORT_SHA}
+  CONTAINER_IMAGE_TAGGED: ${CONTAINER_IMAGE}:${CI_COMMIT_TAG}
   K8S_NODEPORT: 32725
   K8S_NODEPORT_LEGACY: 32723
-
-
 
 build:
   stage: build
   only:
-    - master
+    - tags
   tags:
     - dind
   before_script:
@@ -38,11 +35,10 @@ build:
     - docker push ${CONTAINER_IMAGE}
     - docker push ${CONTAINER_IMAGE_TAGGED}
 
-
 deploy:
   stage: deploy
   only:
-    - master
+    - tags
   tags:
     - dind
   script:
