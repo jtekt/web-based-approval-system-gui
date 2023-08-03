@@ -102,11 +102,9 @@ export default {
 
 <style scoped>
 .web_hanko_container {
-  background-color: white;
-
   /* width must be set otherwise empy container shrinks */
 
-  width: 80px;
+  width: 6rem;
   /* height cannot be set here */
 
   border: 1px solid #666666;
