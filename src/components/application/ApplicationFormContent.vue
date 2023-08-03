@@ -6,7 +6,7 @@
       <v-divider />
       <v-list-item>
         <v-list-item-content> ID </v-list-item-content>
-        <v-list-item-content class="align-end">
+        <v-list-item-content class="align-end text-caption">
           {{ get_id_of_item(application) }}
         </v-list-item-content>
       </v-list-item>
