@@ -70,7 +70,7 @@ export default {
     },
 
     mounted() {
-        this.get_applications()
+        // this.get_applications()
     },
     watch: {
         options: {
