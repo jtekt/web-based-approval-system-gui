@@ -13,7 +13,7 @@
     "dependencies": {
         "@moreillon/vue_application_template_vuetify": "^2.1.0",
         "@moreillon/vue_group_picker": "^5.0.11",
-        "@moreillon/vue_user_picker": "^5.0.8",
+        "@moreillon/vue_user_picker": "^5.0.9",
         "axios": "^0.24.0",
         "canvg": "^3.0.10",
         "core-js": "^3.22.2",
