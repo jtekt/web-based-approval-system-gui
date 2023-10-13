@@ -41,7 +41,7 @@
                                 "
                             />
                         </v-col>
-                        <v-col cols="auto" v-if="user_is_applicant()">
+                        <v-col cols="auto" v-if="user_is_applicant">
                             <AddGroupDialog
                                 @selection="share_with_group($event)"
                             />
