@@ -343,13 +343,7 @@ export default {
         },
 
         get_hanko_blob_url(recipient) {
-            // TODO: find way to not use ID
-            // const hanko_svg = document.getElementById(hanko_dom_id)
-
-            // const serializer = new XMLSerializer()
-            // const SVG_data = serializer.serializeToString(hanko_svg)
             const SVG_data = generateWebHankoSvg(recipient)
-            // SVG string from here, which could be generated directly
 
             const canvas = document.createElement('canvas')
             const context = canvas.getContext('2d')
@@ -365,65 +359,70 @@ export default {
         load_pdf_hankos() {
             const promises = this.application.recipients
                 .filter((recipient) => !!recipient.approval)
-                .map((recipient) => {
-                    const { approval } = recipient
-                    return new Promise((resolve, reject) => {
-                        // Do nothing if there no hanko to draw for the current approval
-                        let hankos = approval.attachment_hankos
-                        if (!hankos) return resolve()
+                .map(
+                    (recipient) =>
+                        new Promise((resolve, reject) => {
+                            const { approval } = recipient
+                            // Do nothing if there no hanko to draw for the current approval
+                            let hankos = approval.attachment_hankos
+                            if (!hankos) return resolve()
 
-                        if (typeof hankos === 'string')
-                            hankos = JSON.parse(hankos)
+                            if (typeof hankos === 'string')
+                                hankos = JSON.parse(hankos)
 
-                        // const approval_id = this.get_id_of_item(approval)
-                        // const hanko_id = `hanko_${approval_id}`
-                        const png_url = this.get_hanko_blob_url(recipient)
+                            const png_url = this.get_hanko_blob_url(recipient)
 
-                        const axios_options = {
-                            responseType: 'arraybuffer',
-                            baseURL: null,
-                        }
+                            const axios_options = {
+                                responseType: 'arraybuffer',
+                                baseURL: null,
+                            }
 
-                        this.axios
-                            .get(png_url, axios_options)
-                            .then(({ data }) => this.pdfDoc.embedPng(data))
-                            .then((pngImage) => {
-                                // The PNG is now awvailable to display at every hanko location
+                            this.axios
+                                .get(png_url, axios_options)
+                                .then(({ data }) => this.pdfDoc.embedPng(data))
+                                .then((pngImage) => {
+                                    // The PNG is now awvailable to display at every hanko location
 
-                                const pages = this.pdfDoc.getPages()
+                                    const pages = this.pdfDoc.getPages()
 
-                                hankos.forEach((hanko) => {
-                                    // Skip if hanko is not part of the current file
-                                    if (hanko.file_id !== this.selected_file_id)
-                                        return resolve()
+                                    hankos.forEach((hanko) => {
+                                        // Skip if hanko is not part of the current file
+                                        if (
+                                            hanko.file_id !==
+                                            this.selected_file_id
+                                        )
+                                            return resolve()
 
-                                    const page = pages[hanko.page_number]
+                                        const page = pages[hanko.page_number]
 
-                                    // Currently, some hankos have no scale set so allow the scale to be modified using the slider in that case
-                                    const pngDims = pngImage.scale(
-                                        hanko.scale || this.hanko_scale
-                                    )
+                                        // Currently, some hankos have no scale set so allow the scale to be modified using the slider in that case
+                                        const pngDims = pngImage.scale(
+                                            hanko.scale || this.hanko_scale
+                                        )
 
-                                    const drawing_parameters = {
-                                        x:
-                                            hanko.position.x -
-                                            0.5 * pngDims.width,
-                                        y:
-                                            hanko.position.y -
-                                            0.5 * pngDims.height,
-                                        width: pngDims.width,
-                                        height: pngDims.height,
-                                    }
+                                        const drawing_parameters = {
+                                            x:
+                                                hanko.position.x -
+                                                0.5 * pngDims.width,
+                                            y:
+                                                hanko.position.y -
+                                                0.5 * pngDims.height,
+                                            width: pngDims.width,
+                                            height: pngDims.height,
+                                        }
 
-                                    // This seems to be a synchronous function
-                                    page.drawImage(pngImage, drawing_parameters)
+                                        // This seems to be a synchronous function
+                                        page.drawImage(
+                                            pngImage,
+                                            drawing_parameters
+                                        )
+                                    })
+
+                                    resolve()
                                 })
-
-                                resolve()
-                            })
-                            .catch(reject)
-                    })
-                })
+                                .catch(reject)
+                        })
+                )
 
             // render .pdf once all hankos of all approvals have been drawn
             Promise.all(promises)
