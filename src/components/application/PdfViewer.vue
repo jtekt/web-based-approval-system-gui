@@ -227,6 +227,7 @@ export default {
             }
         },
 
+        // TODO: dedicated component
         restore_hanko_size() {
             const { hanko_size } = localStorage
             if (hanko_size) this.hanko_scale_slider_value = hanko_size
@@ -332,7 +333,7 @@ export default {
                 left: `calc(${event.offsetX}px - 0.5 * ${this.new_hanko.style.width})`,
                 top: `calc(${event.offsetY}px - 0.5 * ${this.new_hanko.style.height})`,
                 height: `${hanko_height}px`,
-                width: `${0.75 * hanko_height}px`,
+                width: `${0.75 * hanko_height * 0.94}px`,
                 'border-radius': `${0.1 * hanko_height}px`,
                 'border-width': `${0.03 * hanko_height}px`,
             }
