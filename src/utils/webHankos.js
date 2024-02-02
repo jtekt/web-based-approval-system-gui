@@ -15,7 +15,7 @@ export const generateWebHankoSvg = (recipient) => {
         background: '#00000000',
         width: 100,
         height: 100,
-        padding: 2,
+        padding: 3,
         join: true,
         color: '#c00000',
         ecl: 'M',
