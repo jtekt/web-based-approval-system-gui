@@ -66,6 +66,7 @@
                 </v-card>
             </v-menu>
 
+            <!-- TODO: make a component -->
             <v-btn text @click="download_pdf()">
                 <v-icon>mdi-download</v-icon>
                 <span>{{ $t('Download') }}</span>
@@ -139,6 +140,7 @@ export default {
 
             pdfDoc: null,
             shown_pdf: null,
+            filename: null,
 
             // Related to hankos
             new_hanko: {
@@ -176,31 +178,21 @@ export default {
             if (this.page_number > 0) this.page_number--
         },
         view_pdf(file_id) {
-            // Check if IE
-            if (!!window.MSInputMethodContext && !!document.documentMode) {
-                this.load_error = 'Internet Explorer is to old for this feature'
-                alert(
-                    'Internet Explorerのユーザーはこの機能に値しません、今の時代のブラウザを使ってください。'
-                )
-                return
-            }
-
             this.loading = true
-
-            // reset the file
             this.shown_pdf = null
-
-            // Reset page number
+            this.filename = null
             this.page_number = 0
 
             // Load the file as an arrayBuffer
-            // Note: could be done using axios
             const file_url = `/applications/${this.application_id}/files/${file_id}`
             const axios_options = { responseType: 'arraybuffer' }
 
             this.axios
                 .get(file_url, axios_options)
-                .then(({ data }) => {
+                .then(({ data, headers }) => {
+                    const contentDisposition = headers['content-disposition']
+                    if (contentDisposition)
+                        this.filename = contentDisposition.split('=')[1]
                     this.load_pdf(data)
                 })
                 .catch((error) => {
@@ -464,14 +456,12 @@ export default {
                 type: 'application/pdf',
             })
 
-            const src = pdf.createLoadingTask({
+            return pdf.createLoadingTask({
                 url: window.URL.createObjectURL(pdf_blob),
                 cMapUrl:
                     'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.5.207/cmaps/',
                 cMapPacked: true,
             })
-
-            return src
         },
         // file_id(){
         //   // Maybe not ideal
@@ -513,11 +503,11 @@ export default {
 
         current_user_can_stamp() {
             /*
-      Application can be stamped if:
-      - User is recipient
-      - The application has not been rejectred by anyone
-      - it's user's flow index or above
-      */
+            Application can be stamped if:
+            - User is recipient
+            - The application has not been rejectred by anyone
+            - it's user's flow index or above
+            */
 
             if (!this.current_user_as_recipient) return false
             if (this.application_has_refusal) return false
