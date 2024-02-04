@@ -191,10 +191,13 @@ export default {
                 .get(file_url, axios_options)
                 .then(({ data, headers }) => {
                     const contentDisposition = headers['content-disposition']
-                    if (contentDisposition)
-                        this.filename = contentDisposition
+                    if (contentDisposition) {
+                        const rawFilename = contentDisposition
                             .split('=')[1]
                             .split(';')[0]
+                        if (rawFilename) this.filename = decodeURI(rawFilename)
+                    }
+
                     this.load_pdf(data)
                 })
                 .catch((error) => {
