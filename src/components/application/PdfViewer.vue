@@ -192,7 +192,9 @@ export default {
                 .then(({ data, headers }) => {
                     const contentDisposition = headers['content-disposition']
                     if (contentDisposition)
-                        this.filename = contentDisposition.split('=')[1]
+                        this.filename = contentDisposition
+                            .split('=')[1]
+                            .split(';')[0]
                     this.load_pdf(data)
                 })
                 .catch((error) => {
