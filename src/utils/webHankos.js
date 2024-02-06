@@ -1,13 +1,20 @@
 import QRCode from 'qrcode-svg'
 
 export const generateWebHankoSvg = (recipient) => {
-    const { first_name, last_name, approval } = recipient
+    const {
+        first_name,
+        first_name_kanji,
+        last_name,
+        last_name_kanji,
+        approval,
+    } = recipient
+
     const { _id, date } = approval
 
-    const approverDisplayedName =
-        `${last_name} ${first_name}`.length <= 6
-            ? `${last_name} ${first_name}`
-            : last_name
+    const lastName = last_name || first_name_kanji
+    const firstName = first_name || last_name_kanji
+    const fullName = `${lastName} ${firstName}`
+    const approverDisplayedName = fullName.length <= 6 ? fullName : lastName
 
     const qr = new QRCode({
         content: _id,
