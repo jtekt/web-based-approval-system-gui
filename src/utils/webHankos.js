@@ -11,8 +11,8 @@ export const generateWebHankoSvg = (recipient) => {
 
     const { _id, date } = approval
 
-    const lastName = last_name || first_name_kanji
-    const firstName = first_name || last_name_kanji
+    const lastName = last_name || last_name_kanji
+    const firstName = first_name || first_name_kanji
     const fullName = `${lastName} ${firstName}`
     const approverDisplayedName = fullName.length <= 6 ? fullName : lastName
 
