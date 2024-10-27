@@ -1,6 +1,6 @@
 {
     "name": "shinsei_manager_gui",
-    "version": "1.5.5",
+    "version": "1.5.6",
     "private": true,
     "author": "Maxime Moreillon",
     "scripts": {
