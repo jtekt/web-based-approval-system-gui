@@ -160,7 +160,7 @@ export default {
         this.restore_hanko_size()
     },
     watch: {
-        file_id() {
+        selected_file_id() {
             this.view_pdf(this.selected_file_id)
         },
         page_number() {
