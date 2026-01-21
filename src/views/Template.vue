@@ -283,14 +283,18 @@ export default {
     user_is_author() {
       // UNUSED for the moment
       if (!this.template) return false
-      const author_id = this.template.author._id
-      return author_id === this.current_user_id
+
+      return this.users_match(
+        this.template.author,
+        this.$store.state.current_user
+      )
     },
     user_is_manager() {
       if (!this.template) return false
-      return this.template.managers
-        .map(({ _id }) => _id)
-        .includes(this.current_user_id)
+
+      return this.template.managers.some(manager =>
+        this.users_match(manager, this.$store.state.current_user)
+      )
     },
 
     field_types() {
