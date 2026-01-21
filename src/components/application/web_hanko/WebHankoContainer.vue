@@ -89,15 +89,14 @@ export default {
             return `${process.env.VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/users/${this.recipient_id}`
         },
         user_is_applicant() {
-            return (
-                this.current_user_id ===
-                this.get_id_of_item(this.application.applicant)
+            return this.users_match(
+                this.application.applicant,
+                this.$store.state.current_user
             )
         },
         user_as_recipient() {
-            return this.application.recipients.find(
-                (recipient) =>
-                    this.get_id_of_item(recipient) === this.current_user_id
+            return this.application.recipients.find(recipient =>
+                this.users_match(recipient, this.$store.state.current_user)
             )
         },
         recipient_displayed_name() {

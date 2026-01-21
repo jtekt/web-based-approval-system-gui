@@ -211,14 +211,15 @@ export default {
       return this.$route.params.application_id
     },
     user_as_recipient() {
-      return this.application.recipients.find(
-        (recipient) => this.get_id_of_item(recipient) === this.current_user_id
+      return this.application.recipients.find(recipient =>
+        this.users_match(recipient, this.$store.state.current_user)
       )
     },
 
     user_is_applicant() {
-      return (
-        this.get_id_of_item(this.application.applicant) === this.current_user_id
+      return this.users_match(
+        this.application.applicant,
+        this.$store.state.current_user
       )
     },
   },

@@ -41,6 +41,9 @@ const {
   VUE_APP_PASSWORD_RESET_URL,
   VUE_APP_LOGIN_HINT,
   VUE_APP_HOMEPAGE_URL,
+  VUE_APP_OIDC_AUTHORITY,
+  VUE_APP_OIDC_CLIENT_ID,
+  VUE_APP_OIDC_AUDIENCE,
 } = process.env
 
 export default {
@@ -66,12 +69,31 @@ export default {
         authentication_logo: require("@/assets/jtekt_logo.jpg"),
         colors: { app_bar: "#000" },
         author: "Maxime Moreillon - JTEKT Corporation",
+        oidc: {
+          authority: VUE_APP_OIDC_AUTHORITY,
+          client_id: VUE_APP_OIDC_CLIENT_ID,
+          extraQueryParams: {
+            audience: VUE_APP_OIDC_AUDIENCE,
+          },
+        },
       },
     }
   },
   methods: {
     user_changed(user) {
-      this.$store.commit("set_current_user", user)
+      if (!user) return
+      this.axios
+        .get(VUE_APP_IDENTIFICATION_URL)
+        .then(({ data }) => {
+          const enrichedUser = {
+            ...user,
+            isAdmin: data.isAdmin,
+          }
+          this.$store.commit("set_current_user", enrichedUser)
+        })
+        .catch((error) => {
+          console.error(error)
+        })
       this.$store.commit("check_pending_applications")
     },
   },
