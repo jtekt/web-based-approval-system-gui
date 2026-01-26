@@ -12,7 +12,7 @@
       <v-card-title> Add a manager </v-card-title>
 
       <v-card-text>
-        <UserPicker @selection="userSelected($event)" />
+        <UserPicker class="user_picker" @selection="userSelected($event)" :accessToken="access_token" />
       </v-card-text>
 
       <v-card-actions>
@@ -25,19 +25,25 @@
 
 <script>
 import UserPicker from "@moreillon/vue_user_picker"
+import authUtils from "@/mixins/authUtils";
 
 export default {
   name: "AddGroupDialog",
   components: {
     UserPicker,
   },
+  mixins: [authUtils],
   data() {
     return {
       dialog: false,
       loading: false,
     }
   },
-
+  computed: {
+    access_token() {
+      return this.$store.state.tokens.access_token
+    },
+  },
   methods: {
     async userSelected(user) {
       if (!confirm(`Make user ${user.display_name} manager of this template?`))
@@ -60,3 +66,8 @@ export default {
   },
 }
 </script>
+<style>
+.user_picker {
+  max-height: 500px;
+}
+</style>
