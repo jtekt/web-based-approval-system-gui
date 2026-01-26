@@ -1,5 +1,5 @@
 <template>
-  <AppTemplate :options="options" @user="user_changed($event)">
+  <AppTemplate :options="options" @user="user_changed($event)" @tokens="handle_tokens_event($event)">
     <template v-slot:nav>
       <v-list dense nav>
         <v-list-item>
@@ -95,6 +95,9 @@ export default {
           console.error(error)
         })
       this.$store.commit("check_pending_applications")
+    },
+    handle_tokens_event(tokens) {
+      this.$store.commit("set_tokens", tokens)
     },
   },
   computed: {
