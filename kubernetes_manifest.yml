@@ -1,47 +1,52 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ${APPLICATION_NAME}
+    name: ${APPLICATION_NAME}
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: ${APPLICATION_NAME}
-  template:
-    metadata:
-      labels:
-        app: ${APPLICATION_NAME}
-    spec:
-      containers:
-        - name: ${APPLICATION_NAME}
-          image: ${CONTAINER_IMAGE_TAGGED}
-          ports:
-            - containerPort: 80
-          envFrom:
-            - secretRef:
-                name: environment-variables
+    replicas: 1
+    selector:
+        matchLabels:
+            app: ${APPLICATION_NAME}
+    template:
+        metadata:
+            labels:
+                app: ${APPLICATION_NAME}
+        spec:
+            containers:
+                - name: ${APPLICATION_NAME}
+                  image: ${CONTAINER_IMAGE_TAGGED}
+                  ports:
+                      - containerPort: 80
+                  envFrom:
+                      - secretRef:
+                            name: environment-variables
+                  env:
+                      - name: VUE_APP_OIDC_AUTHORITY
+                        value: http://10.115.1.100:30416/realms/jtekt
+                      - name: VUE_APP_OIDC_CLIENT_ID
+                        value: public
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: ${APPLICATION_NAME}
+    name: ${APPLICATION_NAME}
 spec:
-  type: NodePort
-  selector:
-    app: ${APPLICATION_NAME}
-  ports:
-    - port: 80
-      nodePort: ${K8S_NODEPORT}
+    type: NodePort
+    selector:
+        app: ${APPLICATION_NAME}
+    ports:
+        - port: 80
+          nodePort: ${K8S_NODEPORT}
 ---
 # Secondary service to account for legacy version
 apiVersion: v1
 kind: Service
 metadata:
-  name: ${APPLICATION_NAME}-legacy
+    name: ${APPLICATION_NAME}-legacy
 spec:
-  type: NodePort
-  selector:
-    app: ${APPLICATION_NAME}
-  ports:
-    - port: 80
-      nodePort: ${K8S_NODEPORT_LEGACY}
+    type: NodePort
+    selector:
+        app: ${APPLICATION_NAME}
+    ports:
+        - port: 80
+          nodePort: ${K8S_NODEPORT_LEGACY}
