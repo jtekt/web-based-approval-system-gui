@@ -420,7 +420,7 @@ export default {
             return this.$route.query.copy_of
         },
         access_token() {
-            return this.$store.state.tokens.access_token
+            return this.$store.state.tokens?.access_token
         },
     },
 }
