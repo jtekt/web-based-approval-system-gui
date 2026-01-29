@@ -12,11 +12,7 @@ export default new Vuex.Store({
     },
     mutations: {
         set_current_user(state, user) {
-            if (!user) {
-                state.current_user = null
-                return
-            }
-            state.current_user = user.profile || user
+            state.current_user = user?.profile || user
         },
         require_email(state, email_required) {
             state.email_required = email_required
