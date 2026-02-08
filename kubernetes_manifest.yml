@@ -20,11 +20,6 @@ spec:
                   envFrom:
                       - secretRef:
                             name: environment-variables
-                  env:
-                      - name: VUE_APP_OIDC_AUTHORITY
-                        value: http://10.115.1.100:30416/realms/jtekt
-                      - name: VUE_APP_OIDC_CLIENT_ID
-                        value: public
 ---
 apiVersion: v1
 kind: Service
