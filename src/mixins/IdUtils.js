@@ -37,6 +37,14 @@ export default {
       const {current_user} = this.$store.state
       if(!current_user) return undefined
       return this.get_id_of_item(current_user)
-    }
-  }
+    },
+    user_picker_token() {
+      const { tokens } = this.$store.state
+      if (tokens?.access_token) return tokens.access_token
+
+      let jwt = this.$cookies.get('jwt')
+      if (jwt) return jwt
+      return undefined
+    },
+  },
 }

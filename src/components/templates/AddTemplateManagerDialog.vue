@@ -12,7 +12,7 @@
       <v-card-title> Add a manager </v-card-title>
 
       <v-card-text>
-        <UserPicker @selection="userSelected($event)" />
+        <UserPicker @selection="userSelected($event)" :accessToken="user_picker_token" />
       </v-card-text>
 
       <v-card-actions>
@@ -24,6 +24,7 @@
 </template>
 
 <script>
+import IdUtils from '@/mixins/IdUtils.js'
 import UserPicker from "@moreillon/vue_user_picker"
 
 export default {
@@ -31,6 +32,7 @@ export default {
   components: {
     UserPicker,
   },
+  mixins: [IdUtils],
   data() {
     return {
       dialog: false,
