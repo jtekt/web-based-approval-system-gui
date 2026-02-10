@@ -1,3 +1,4 @@
+// NOTE: This mixin is not used in the current version of the application.
 export default {
   computed: {
     current_user_is_admin() {
