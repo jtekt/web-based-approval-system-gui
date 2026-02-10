@@ -8,6 +8,7 @@ export default new Vuex.Store({
     current_user: null,
     email_required: false,
     received_pending_application_count: 0,
+    tokens: null,
   },
   mutations: {
     set_current_user(state, user) {
@@ -30,6 +31,9 @@ export default new Vuex.Store({
         .catch((error) => {
           console.error(error)
         })
+    },
+    set_tokens(state, tokens) {
+      state.tokens = tokens
     },
   },
   actions: {},
