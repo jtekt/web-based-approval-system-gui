@@ -6,10 +6,13 @@ import vuetify from './plugins/vuetify'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 import i18n from './i18n'
+import VueCookies from 'vue-cookies'
 
 axios.defaults.baseURL = process.env.VUE_APP_SHINSEI_MANAGER_URL
 
 Vue.use(VueAxios, axios)
+Vue.use(VueCookies)
+
 Vue.config.productionTip = false
 
 router.afterEach( () => {

@@ -152,12 +152,9 @@
                                     </v-card-title>
 
                                     <v-card-text>
-                                        <UserPicker
-                                            class="user_picker"
-                                            v-on:selection="
-                                                add_to_recipients($event)
-                                            "
-                                        />
+                                        <UserPicker class="user_picker" v-on:selection="
+                                            add_to_recipients($event)
+                                            " :accessToken="user_picker_token" />
                                     </v-card-text>
 
                                     <v-card-text v-if="recipients.length">

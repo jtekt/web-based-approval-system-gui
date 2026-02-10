@@ -149,6 +149,7 @@
 </template>
 
 <script>
+import applicationUtils from "@/mixins/applicationUtils.js"
 import IdUtils from "@/mixins/IdUtils.js"
 import dateUtils from "@/mixins/dateUtils.js"
 import PrivacySettings from "@/components/application/PrivacySettings.vue"
@@ -164,7 +165,7 @@ export default {
   props: {
     value: Object,
   },
-  mixins: [IdUtils, dateUtils],
+  mixins: [IdUtils, dateUtils, applicationUtils],
 
   data() {
     return {
@@ -209,17 +210,6 @@ export default {
   computed: {
     application_id() {
       return this.$route.params.application_id
-    },
-    user_as_recipient() {
-      return this.application.recipients.find(
-        (recipient) => this.get_id_of_item(recipient) === this.current_user_id
-      )
-    },
-
-    user_is_applicant() {
-      return (
-        this.get_id_of_item(this.application.applicant) === this.current_user_id
-      )
     },
   },
 }

@@ -54,6 +54,7 @@
 </template>
 
 <script>
+import applicationUtils from "@/mixins/applicationUtils.js"
 import IdUtils from '@/mixins/IdUtils.js'
 import AddGroupDialog from '@/components/AddGroupDialog.vue'
 import GroupChip from '@/components/GroupChip.vue'
@@ -67,7 +68,7 @@ export default {
     props: {
         value: Object,
     },
-    mixins: [IdUtils],
+    mixins: [IdUtils, applicationUtils],
 
     data() {
         return {
@@ -85,19 +86,6 @@ export default {
     computed: {
         application_id() {
             return this.$route.params.application_id
-        },
-        user_as_recipient() {
-            return this.application.recipients.find(
-                (recipient) =>
-                    this.get_id_of_item(recipient) === this.current_user_id
-            )
-        },
-
-        user_is_applicant() {
-            return (
-                this.get_id_of_item(this.application.applicant) ===
-                this.current_user_id
-            )
         },
     },
     methods: {
