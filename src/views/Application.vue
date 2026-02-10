@@ -21,12 +21,7 @@
             <v-icon left>mdi-restore</v-icon>
             <span>{{ $t("Re-submit") }}</span>
           </v-btn>
-          <v-btn
-            text
-            :disabled="application_is_fully_approved && !current_user_is_admin"
-            color="#c00000"
-            @click="delete_application()"
-          >
+          <v-btn text :disabled="application_is_fully_approved" color="#c00000" @click="delete_application()">
             <v-icon left>mdi-delete</v-icon>
             <span>{{ $t("Delete") }}</span>
           </v-btn>
@@ -139,6 +134,7 @@
 
 <script>
 import IdUtils from "@/mixins/IdUtils.js"
+import applicationUtils from "@/mixins/applicationUtils.js"
 
 import HelpDialog from "@/components/application/HelpDialog.vue"
 import WebHankoContainer from "@/components/application/web_hanko/WebHankoContainer.vue"
@@ -158,7 +154,7 @@ export default {
     EmailButton,
     HelpDialog,
   },
-  mixins: [IdUtils],
+  mixins: [IdUtils, applicationUtils],
   data() {
     return {
       help_dialog: false,
@@ -273,11 +269,6 @@ export default {
         .sort((a, b) => a.submission.flow_index - b.submission.flow_index)
         .find((recipient) => !recipient.approval && !recipient.refusal)
     },
-    user_as_recipient() {
-      return this.application.recipients.find(
-        (recipient) => this.get_id_of_item(recipient) === this.current_user_id
-      )
-    },
     application_is_rejected() {
       return !!this.application.recipients.find(
         (recipient) => recipient.refusal
@@ -291,26 +282,10 @@ export default {
       )
       return approval_count === recipient_count
     },
-    user_is_applicant() {
-      return (
-        this.get_id_of_item(this.application.applicant) === this.current_user_id
-      )
-    },
-    current_recipient_is_current_user() {
-      if (!this.current_recipient) return false
-      const current_recipient_id = this.get_id_of_item(this.current_recipient)
-      return current_recipient_id === this.current_user_id
-    },
     approvals() {
       return this.application.recipients
         .filter((a) => !!a.approval)
         .map((r) => r.approval)
-    },
-    current_user_is_admin() {
-      return (
-        this.$store.state.current_user.isAdmin ||
-        this.$store.state.current_user.properties?.isAdmin
-      )
     },
   },
 }

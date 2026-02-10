@@ -150,13 +150,16 @@ export default {
 
     templates_of_user() {
       return this.application_templates.filter(({ managers }) =>
-        managers.map(({ _id }) => _id).includes(this.current_user_id)
+        managers.some(manager =>
+          this.users_match(manager, this.$store.state.current_user)
+        )
       )
     },
     shared_templates() {
-      return this.application_templates.filter(
-        ({ managers }) =>
-          !managers.map(({ _id }) => _id).includes(this.current_user_id)
+      return this.application_templates.filter(({ managers }) =>
+        !managers.some(manager =>
+          this.users_match(manager, this.$store.state.current_user)
+        )
       )
     },
   },

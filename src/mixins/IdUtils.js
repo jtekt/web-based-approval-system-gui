@@ -27,15 +27,15 @@ export default {
 
     users_match(a, b) {
       const aIds = this.get_user_identifiers(a)
-      const bIds = this.get_user_identifiers(b)
+      const bIds = new Set(this.get_user_identifiers(b))
 
-      return aIds.some((id) => bIds.includes(id))
+      return aIds.some((id) => bIds.has(id))
     },
   },
   computed: {
-    current_user_id () {
-      const {current_user} = this.$store.state
-      if(!current_user) return undefined
+    current_user_id() {
+      const { current_user } = this.$store.state
+      if (!current_user) return undefined
       return this.get_id_of_item(current_user)
     },
     user_picker_token() {
