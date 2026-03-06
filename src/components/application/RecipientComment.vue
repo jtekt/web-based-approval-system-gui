@@ -91,7 +91,9 @@ export default {
       return this.$route.params.application_id
     },
     recipient_is_user() {
-      return this.get_id_of_item(this.recipient) === this.current_user_id
+      if (!this.recipient) return false;
+
+      return this.users_match(this.recipient, this.$store.state.current_user);
     },
     decision() {
       return this.recipient.approval || this.recipient.refusal

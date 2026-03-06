@@ -125,11 +125,12 @@
 </template>
 
 <script>
-import { PDFDocument } from "pdf-lib"
-import pdf from "vue-pdf"
-import canvg from "canvg" // used to turn Hankos into PNG so as to include them in the pdf
-import IdUtils from "@/mixins/IdUtils.js"
-import { generateWebHankoSvg } from "@/utils/webHankos.js"
+import { PDFDocument } from "pdf-lib";
+import pdf from "vue-pdf";
+import canvg from "canvg"; // used to turn Hankos into PNG so as to include them in the pdf
+import IdUtils from "@/mixins/IdUtils.js";
+import applicationUtils from "@/mixins/applicationUtils.js";
+import { generateWebHankoSvg } from "@/utils/webHankos.js";
 
 export default {
   name: "PdfViewer",
@@ -139,7 +140,7 @@ export default {
   props: {
     application: Object,
   },
-  mixins: [IdUtils],
+  mixins: [IdUtils, applicationUtils],
   data() {
     return {
       load_error: null,
@@ -291,7 +292,7 @@ export default {
         date: new Date(),
       }
 
-      const approval = this.current_user_as_recipient.approval
+      const approval = this.user_as_recipient.approval;
       if (!approval)
         return this.approve_application({ attachment_hankos: [new_hanko] })
 
@@ -497,17 +498,7 @@ export default {
       return this.application.recipients
         .slice()
         .sort((a, b) => a.submission.flow_index - b.submission.flow_index)
-        .find((recipient) => !recipient.approval && !recipient.refusal)
-    },
-    current_recipient_is_current_user() {
-      if (!this.current_recipient) return false
-      const current_recipient_id = this.get_id_of_item(this.current_recipient)
-      return current_recipient_id === this.current_user_id
-    },
-    current_user_as_recipient() {
-      return this.application.recipients.find(
-        (recipient) => this.get_id_of_item(recipient) === this.current_user_id
-      )
+        .find((recipient) => !recipient.approval && !recipient.refusal);
     },
 
     current_user_can_stamp() {
@@ -518,16 +509,16 @@ export default {
       - it's user's flow index or above
       */
 
-      if (!this.current_user_as_recipient) return false
-      if (this.application_has_refusal) return false
+      if (!this.user_as_recipient) return false;
+      if (this.application_has_refusal) return false;
 
       const current_flow_index = this.current_recipient
         ? this.current_recipient.submission.flow_index
         : this.application.recipients.length
 
       const current_user_flow_index =
-        this.current_user_as_recipient.submission.flow_index
-      return current_user_flow_index <= current_flow_index
+        this.user_as_recipient.submission.flow_index;
+      return current_user_flow_index <= current_flow_index;
     },
     hanko_scale() {
       return this.hanko_scale_slider_value / 1000

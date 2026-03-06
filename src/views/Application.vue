@@ -179,6 +179,7 @@
 import HelpDialog from "@/components/application/HelpDialog.vue";
 import IdUtils from "@/mixins/IdUtils.js";
 import dateUtils from "@/mixins/dateUtils.js";
+import applicationUtils from "@/mixins/applicationUtils.js";
 import linkifyHtml from "linkify-html";
 //import * as linkify from "linkifyjs";
 import * as sanitizeHtml from "sanitize-html";
@@ -198,7 +199,7 @@ export default {
     EmailButton,
     HelpDialog,
   },
-  mixins: [IdUtils, dateUtils],
+  mixins: [IdUtils, dateUtils, applicationUtils],
   data() {
     return {
       help_dialog: false,
@@ -302,11 +303,6 @@ export default {
         .sort((a, b) => a.submission.flow_index - b.submission.flow_index)
         .find((recipient) => !recipient.approval && !recipient.refusal);
     },
-    user_as_recipient() {
-      return this.application.recipients.find(
-        (recipient) => this.get_id_of_item(recipient) === this.current_user_id
-      );
-    },
     application_is_rejected() {
       return !!this.application.recipients.find(
         (recipient) => recipient.refusal
@@ -319,11 +315,6 @@ export default {
         0
       );
       return approval_count === recipient_count;
-    },
-    user_is_applicant() {
-      return (
-        this.get_id_of_item(this.application.applicant) === this.current_user_id
-      );
     },
   },
 };
