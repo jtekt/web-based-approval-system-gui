@@ -1,6 +1,6 @@
 {
   "name": "pdf_approval_manager",
-  "version": "2.3.9",
+  "version": "2.3.10",
   "private": true,
   "scripts": {
     "serve": "NODE_OPTIONS=--openssl-legacy-provider vue-cli-service serve",
