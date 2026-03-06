@@ -2,6 +2,10 @@ stages:
   - build
   - deploy
 
+image: moreillon/ci-dind:4bca50d7
+services:
+  - name: docker:19.03.12-dind
+
 variables:
   APPLICATION_NAME: pdf-approval-manager
   CONTAINER_IMAGE: ${AWS_ECR_PUBLIC_URL}/${APPLICATION_NAME}
@@ -10,6 +14,8 @@ variables:
 
 build:
   stage: build
+  tags:
+    - dind
   only:
     - tags
   before_script:
@@ -30,6 +36,8 @@ build:
 
 deploy:
   stage: deploy
+  tags:
+    - dind
   only:
     - tags
   script:
