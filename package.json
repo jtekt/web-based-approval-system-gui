@@ -9,10 +9,10 @@
     "i18n:report": "vue-cli-service i18n:report --src \"./src/**/*.?(js|vue)\" --locales \"./src/locales/**/*.json\""
   },
   "dependencies": {
-    "@moreillon/vue_application_template_vuetify": "^2.1.1",
-    "@moreillon/vue_group_picker": "^5.0.11",
-    "@moreillon/vue_user_picker": "^5.0.9",
-    "axios": "^0.21.4",
+    "@moreillon/vue_application_template_vuetify": "^3.6.2",
+    "@moreillon/vue_group_picker": "^5.0.12",
+    "@moreillon/vue_user_picker": "^5.0.10",
+    "axios": "^0.24.0",
     "canvg": "^3.0.10",
     "core-js": "^3.22.5",
     "linkify-html": "^4.3.1",
@@ -23,6 +23,7 @@
     "sanitize-html": "~2.7.3",
     "vue": "^2.6.11",
     "vue-axios": "^3.4.1",
+    "vue-cookies": "^1.8.6",
     "vue-i18n": "^8.26.3",
     "vue-pdf": "^4.3.0",
     "vue-router": "^3.5.4",

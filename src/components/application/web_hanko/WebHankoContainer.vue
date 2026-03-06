@@ -26,9 +26,10 @@
 </template>
 
 <script>
-import WebHanko from "./WebHanko.vue"
-import EmailButton from "@/components/application/EmailButton.vue"
-import IdUtils from "@/mixins/IdUtils.js"
+import WebHanko from "./WebHanko.vue";
+import EmailButton from "@/components/application/EmailButton.vue";
+import applicationUtils from "@/mixins/applicationUtils.js";
+import IdUtils from "@/mixins/IdUtils.js";
 
 export default {
   name: "WebHankoContainer",
@@ -36,7 +37,7 @@ export default {
     WebHanko,
     EmailButton,
   },
-  mixins: [IdUtils],
+  mixins: [IdUtils, applicationUtils],
   props: {
     recipient: { type: Object, required: true },
     application: { type: Object, required: true },
@@ -69,21 +70,11 @@ export default {
     },
     recipient_is_current_recipient() {
       // Is the recipient the next in the flow?
-      if (!this.current_recipient) return false
-      return this.recipient_id === this.get_id_of_item(this.current_recipient)
+      if (!this.current_recipient) return false;
+      return this.recipient_id === this.get_id_of_item(this.current_recipient);
     },
     user_profile_url() {
-      return `${process.env.VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/users/${this.recipient_id}`
-    },
-    user_is_applicant() {
-      return (
-        this.current_user_id === this.get_id_of_item(this.application.applicant)
-      )
-    },
-    user_as_recipient() {
-      return this.application.recipients.find(
-        (recipient) => this.get_id_of_item(recipient) === this.current_user_id
-      )
+      return `${process.env.VUE_APP_EMPLOYEE_MANAGER_FRONT_URL}/users/${this.recipient_id}`;
     },
     recipient_displayed_name() {
       const { last_name, display_name } = this.recipient

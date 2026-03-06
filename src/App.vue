@@ -1,5 +1,9 @@
 <template>
-  <AppTemplate :options="template_options" @user="user_changed($event)">
+  <AppTemplate
+    :options="template_options"
+    @user="user_changed($event)"
+    @tokens="handle_tokens_event($event)"
+  >
     <template v-slot:header>
       <v-btn v-if="help_page_url" icon :href="help_page_url" target="_blank">
         <v-icon>mdi-help-circle-outline</v-icon>
@@ -59,7 +63,10 @@ const {
   VUE_APP_HOMEPAGE_URL,
   VUE_APP_HELP_PAGE_URL,
   VUE_APP_LOGIN_HINT,
-} = process.env
+  VUE_APP_OIDC_AUTHORITY,
+  VUE_APP_OIDC_CLIENT_ID,
+  VUE_APP_OIDC_AUDIENCE,
+} = process.env;
 
 export default {
   name: "App",
@@ -88,14 +95,24 @@ export default {
         authentication_logo: require("@/assets/jtekt_logo.jpg"),
         colors: { app_bar: "#000" },
         author: "Maxime Moreillon - JTEKT Corporation",
+        oidc: {
+          authority: VUE_APP_OIDC_AUTHORITY,
+          client_id: VUE_APP_OIDC_CLIENT_ID,
+          extraQueryParams: {
+            audience: VUE_APP_OIDC_AUDIENCE,
+          },
+        },
       },
       help_page_url: VUE_APP_HELP_PAGE_URL,
     }
   },
   methods: {
     user_changed(user) {
-      this.$store.commit("set_current_user", user)
-      this.$store.commit("check_pending_applications")
+      this.$store.commit("set_current_user", user);
+      this.$store.commit("check_pending_applications");
+    },
+    handle_tokens_event(tokens) {
+      this.$store.commit("set_tokens", tokens);
     },
   },
   computed: {
