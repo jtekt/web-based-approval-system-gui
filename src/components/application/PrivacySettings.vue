@@ -1,142 +1,83 @@
-<template>
-    <div>
-        <v-list-item>
-            <v-list-item-content>
-                {{ $t('Confidential') }}
-            </v-list-item-content>
-            <v-list-item-content class="align-end">
-                <v-switch
-                    :disabled="!user_is_applicant"
-                    v-model="application.private"
-                    @change="update_privacy_of_application()"
-                />
-            </v-list-item-content>
-        </v-list-item>
-
-        <template v-if="application.private">
-            <v-divider />
-            <v-list-item>
-                <v-list-item-content>{{
-                    $t('Visibility')
-                }}</v-list-item-content>
-                <v-list-item-content class="align-end">
-                    <v-row>
-                        <v-col cols="auto">
-                            <v-chip outlined label>{{
-                                $t('Approval flow')
-                            }}</v-chip>
-                        </v-col>
-                        <v-col
-                            cols="auto"
-                            v-for="(group, index) in application.visibility"
-                            :key="`group_${index}`"
-                        >
-                            <GroupChip
-                                :group="group"
-                                :close="user_is_applicant"
-                                @click:close="
-                                    remove_application_visibility_to_group(
-                                        group
-                                    )
-                                "
-                            />
-                        </v-col>
-                        <v-col cols="auto" v-if="user_is_applicant">
-                            <AddGroupDialog
-                                @selection="share_with_group($event)"
-                            />
-                        </v-col>
-                    </v-row>
-                </v-list-item-content>
-            </v-list-item>
-        </template>
-    </div>
-</template>
-
-<script>
-import applicationUtils from "@/mixins/applicationUtils.js"
-import IdUtils from '@/mixins/IdUtils.js'
-import AddGroupDialog from '@/components/AddGroupDialog.vue'
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+import axios from 'axios'
+import type { Application, Group } from '@/types'
 import GroupChip from '@/components/GroupChip.vue'
+import AddGroupDialog from '@/components/AddGroupDialog.vue'
+import api from '@/api'
+import { useAuth } from '@/composables/useAuth'
 
-export default {
-    name: 'ApplicationPrivacy',
-    components: {
-        AddGroupDialog,
-        GroupChip,
-    },
-    props: {
-        value: Object,
-    },
-    mixins: [IdUtils, applicationUtils],
+const props = defineProps<{ modelValue: Application }>()
+const emit = defineEmits<{ 'update:modelValue': [value: Application] }>()
 
-    data() {
-        return {
-            application: this.value,
-        }
-    },
-    watch: {
-        application: {
-            deep: true,
-            handler() {
-                this.$emit('update', this.application)
-            },
-        },
-    },
-    computed: {
-        application_id() {
-            return this.$route.params.application_id
-        },
-    },
-    methods: {
-        async update_privacy_of_application() {
-            const url = `/applications/${this.application_id}/privacy`
-            const body = { private: this.application.private }
+const route = useRoute()
+const { currentUser } = useAuth()
 
-            try {
-                await this.axios.put(url, body)
-            } catch (error) {
-                alert('Error updating privacy of application')
-                console.error(error)
-            }
-        },
-        share_with_group(group) {
-            const url = `/applications/${this.application_id}/privacy/groups`
-            const body = { group_id: this.get_id_of_item(group) }
-            this.axios
-                .post(url, body)
-                .then(() => {
-                    // create visibility array if needed, not sure if required
-                    if (!this.application.visibility) {
-                        this.$set(this.application, 'visibility', [])
-                    }
-                    this.application.visibility.push(group)
-                })
-                .catch((error) => {
-                    alert('Error updating visibility of application')
-                    console.error(error)
-                })
-        },
-        remove_application_visibility_to_group(group) {
-            const url = `/applications/${
-                this.application_id
-            }/privacy/groups/${this.get_id_of_item(group)}`
-            this.axios
-                .delete(url)
-                .then(() => {
-                    const groupIndex = this.application.visibility.findIndex(
-                        (g) =>
-                            this.get_id_of_item(g) ===
-                            this.get_id_of_item(group)
-                    )
-                    if (groupIndex >= 0)
-                        this.application.visibility.splice(groupIndex, 1)
-                })
-                .catch((error) => {
-                    console.error(error)
-                    alert('Error updating visibility of application')
-                })
-        },
-    },
+const application = computed({
+  get: () => props.modelValue,
+  set: (val) => emit('update:modelValue', val),
+})
+
+const applicationId = () => route.params.application_id as string
+
+async function updatePrivacy() {
+  try {
+    await api.put(`/applications/${applicationId()}/privacy`, {
+      private: application.value.private,
+    })
+    emit('update:modelValue', application.value)
+  } catch (error) {
+    alert('Error updating privacy of application')
+    console.error(error)
+  }
+}
+
+function shareWithGroup(group: Group) {
+  const url = `/applications/${applicationId()}/privacy/groups`
+  const body = { group_id: group._id }
+
+  api
+    .post(url, body)
+    .then(() => {
+      if (!application.value.visibility) {
+        application.value.visibility = []
+      }
+
+      // ✅ prevent duplicates by _id
+      const exists = application.value.visibility.some(
+        (g) => g._id === group._id
+      )
+      if (!exists) {
+        application.value.visibility.push(group)
+      }
+
+      emit('update:modelValue', application.value)
+    })
+    .catch((error) => {
+      alert('Error updating visibility of application')
+      console.error(error)
+    })
+}
+
+function removeVisibilityGroup(group: Group) {
+  const url = `/applications/${applicationId()}/privacy/groups/${group._id}`
+
+  axios
+    .delete(url)
+    .then(() => {
+      if (!application.value.visibility) return
+
+      // ✅ compare by _id only
+      application.value.visibility = application.value.visibility.filter(
+        (g) => g._id !== group._id
+      )
+
+      emit('update:modelValue', application.value)
+    })
+    .catch((error) => {
+      console.error(error)
+      alert('Error updating visibility of application')
+    })
 }
 </script>

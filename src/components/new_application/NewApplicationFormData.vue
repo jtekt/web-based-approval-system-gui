@@ -3,24 +3,23 @@
     <v-row v-for="(field, index) in formFields" :key="`field_${index}`">
       <v-col>
         <FileUpload
-          v-if="['file', 'pdf'].includes(field.type)"
+          v-if="field.type === 'file' || field.type === 'pdf'"
           :label="field.label"
-          v-model="field.value"
+          :model-value="field.value as string | null"
           :accept="field.type === 'pdf' ? 'application/pdf' : ''"
+          @update:model-value="field.value = $event"
         />
-
         <v-checkbox
           v-else-if="field.type === 'checkbox'"
           v-model="field.value"
           :label="field.label"
         />
-
         <DatePicker
           v-else-if="field.type === 'date'"
           :label="field.label"
-          v-model="field.value"
+          :model-value="field.value as string | null"
+          @update:model-value="field.value = $event"
         />
-
         <v-textarea
           v-else-if="field.type === 'text'"
           rows="1"
@@ -28,58 +27,23 @@
           :label="field.label"
           v-model="field.value"
         />
-
         <v-text-field v-else v-model="field.value" :label="field.label" />
       </v-col>
     </v-row>
   </v-card-text>
 </template>
 
-<script>
-import DatePicker from "../DatePicker.vue"
-import FileUpload from "./FileUpload.vue"
+<script setup lang="ts">
+import { computed } from 'vue'
+import type { Field } from '@/types'
+import DatePicker from '@/components/DatePicker.vue'
+import FileUpload from './FileUpload.vue'
 
-export default {
-  name: "NewApplicationFormData",
-  props: {
-    value: Array,
-  },
-  components: {
-    DatePicker,
-    FileUpload,
-  },
-  data() {
-    return {
-      file_uploading: false,
-    }
-  },
-  methods: {
-    async file_upload(file, field) {
-      this.file_uploading = true
-      const formData = new FormData()
-      formData.append("file_to_upload", file)
-      const headers = { "Content-Type": "multipart/form-data" }
+const props = defineProps<{ modelValue: Field[] }>()
+const emit = defineEmits<{ 'update:modelValue': [value: Field[]] }>()
 
-      try {
-        const { data } = await this.axios.post(`/files`, formData, { headers })
-        this.$set(field, "value", data.file_id)
-      } catch (error) {
-        alert(`Upload failed`)
-        console.error(error)
-      } finally {
-        this.file_uploading = false
-      }
-    },
-  },
-  computed: {
-    formFields: {
-      get() {
-        return this.value
-      },
-      set(newVal) {
-        this.$emit("input", newVal)
-      },
-    },
-  },
-}
+const formFields = computed({
+  get: () => props.modelValue,
+  set: (val) => emit('update:modelValue', val),
+})
 </script>

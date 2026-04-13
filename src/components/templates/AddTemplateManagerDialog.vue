@@ -1,64 +1,56 @@
-<!-- Used in Application.vue -->
 <template>
-  <v-dialog v-model="dialog" max-width="60rem" class="mx-auto">
-    <template v-slot:activator="{ on, attrs }">
-      <v-btn color="black" dark v-bind="attrs" v-on="on">
-        <v-icon left>mdi-account-plus</v-icon>
-        <span>{{ $t("Add") }}</span>
+  <v-dialog v-model="dialog" max-width="60rem">
+    <template #activator="{ props }">
+      <v-btn color="black" v-bind="props">
+        <v-icon start>mdi-account-plus</v-icon>
+        <span>{{ $t('Add') }}</span>
       </v-btn>
     </template>
 
     <v-card>
-      <v-card-title> Add a manager </v-card-title>
-
+      <v-card-title>{{ $t('Add a manager') }}</v-card-title>
       <v-card-text>
-        <UserPicker @selection="userSelected($event)" :accessToken="user_picker_token" />
+        <UserSearchPicker @selection="userSelected" />
       </v-card-text>
-
       <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn color="primary" text @click="dialog = false"> Close </v-btn>
+        <v-spacer />
+        <v-btn variant="text" color="primary" @click="dialog = false">{{
+          $t('Close')
+        }}</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
-<script>
-import IdUtils from '@/mixins/IdUtils.js'
-import UserPicker from "@moreillon/vue_user_picker"
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useRoute } from 'vue-router'
+import type { User } from '@/types'
+import UserSearchPicker from '@/components/UserSearchPicker.vue'
+import api from '@/api'
 
-export default {
-  name: "AddGroupDialog",
-  components: {
-    UserPicker,
-  },
-  mixins: [IdUtils],
-  data() {
-    return {
-      dialog: false,
-      loading: false,
-    }
-  },
+const emit = defineEmits<{ selection: [user: User] }>()
 
-  methods: {
-    async userSelected(user) {
-      if (!confirm(`Make user ${user.display_name} manager of this template?`))
-        return
-      this.loading = true
-      try {
-        const template_id = this.$route.params.template_id
-        const url = `/templates/${template_id}/managers`
-        const body = { user_id: user._id }
-        await this.axios.post(url, body)
-        this.$emit("selection", user)
-        this.dialog = false
-      } catch (error) {
-        alert(`Failed`)
-        console.error(error)
-      } finally {
-        this.loading = false
-      }
-    },
-  },
+const route = useRoute()
+const dialog = ref(false)
+const loading = ref(false)
+
+async function userSelected(user: User) {
+  const displayName = user.display_name ?? user.username ?? ''
+  if (!confirm(`Make user ${displayName} manager of this template?`)) return
+  loading.value = true
+  try {
+    const templateId = route.params.template_id
+    await api.post(`/templates/${templateId}/managers`, {
+      user_id: user._id,
+    })
+    emit('selection', user)
+    dialog.value = false
+  } catch (error) {
+    alert('Failed')
+    console.error(error)
+  } finally {
+    loading.value = false
+  }
 }
 </script>

@@ -1,217 +1,188 @@
 <template>
   <div>
-    <div class="text-h6">{{ $t("Application info") }}</div>
+    <div class="text-h6">{{ $t('Application info') }}</div>
 
-    <v-list dense>
+    <v-list density="compact">
       <v-divider />
       <v-list-item>
-        <v-list-item-content> ID </v-list-item-content>
-        <v-list-item-content class="align-end text-caption">
-          {{ get_id_of_item(application) }}
-        </v-list-item-content>
+        <div class="d-flex justify-space-between">
+          <span>ID</span>
+          <span class="text-caption">{{ application._id }}</span>
+        </div>
       </v-list-item>
       <v-divider />
       <v-list-item>
-        <v-list-item-content>
-          {{ $t("Title") }}
-        </v-list-item-content>
-        <v-list-item-content class="align-end">
-          {{ application.title }}
-        </v-list-item-content>
+        <div class="d-flex justify-space-between">
+          <span>{{ $t('Title') }}</span>
+          <span>{{ application.title }}</span>
+        </div>
       </v-list-item>
-
       <v-divider />
       <v-list-item>
-        <v-list-item-content>
-          {{ $t("Type") }}
-        </v-list-item-content>
-        <v-list-item-content class="align-end">
-          {{ application.type }}
-        </v-list-item-content>
+        <div class="d-flex justify-space-between">
+          <span>{{ $t('Type') }}</span>
+          <span>{{ application.type }}</span>
+        </div>
       </v-list-item>
-
       <v-divider />
       <v-list-item>
-        <v-list-item-content>
-          {{ $t("Date") }}
-        </v-list-item-content>
-        <v-list-item-content class="align-end">
-          {{ format_date_neo4j(application.creation_date) }}
-        </v-list-item-content>
+        <div class="d-flex justify-space-between">
+          <span>{{ $t('Date') }}</span>
+          <span>{{
+            application.creation_date
+              ? formatDateNeo4j(application.creation_date)
+              : ''
+          }}</span>
+        </div>
       </v-list-item>
-
       <v-divider />
       <v-list-item>
-        <v-list-item-content>
-          {{ $t("Applicant") }}
-        </v-list-item-content>
-        <v-list-item-content class="align-end">
-          <div>
-            <UserChip :user="application.applicant" />
-          </div>
-        </v-list-item-content>
+        <div class="d-flex justify-space-between align-center">
+          <span>{{ $t('Applicant') }}</span>
+          <UserChip :user="application.applicant" />
+        </div>
       </v-list-item>
-
       <v-divider />
-
       <PrivacySettings v-model="application" />
     </v-list>
 
-    <!-- application form data, i.e. content  -->
-    <div class="text-h6">{{ $t("Application content") }}</div>
+    <div class="text-h6 mt-4">{{ $t('Application content') }}</div>
 
-    <v-list dense v-if="application.forbidden">
-      <v-list-item>
-        <v-list-item-content class="red--text">
-          {{ $t("Confidential") }}
-        </v-list-item-content>
-      </v-list-item>
+    <v-list density="compact" v-if="application.forbidden">
+      <v-list-item class="text-error">{{ $t('Confidential') }}</v-list-item>
     </v-list>
 
-    <v-list dense v-else>
-      <template v-for="(field, index) in application.form_data">
-        <v-divider :key="`field_${index}_divider`" />
+    <v-list density="compact" v-else-if="formData.length">
+      <template v-for="(field, index) in formData" :key="`field_${index}`">
+        <v-divider />
+        <v-list-item>
+          <div class="d-flex justify-space-between align-center">
+            <span>{{ field.label }}</span>
 
-        <v-list-item :key="`field_${index}_item`">
-          <v-list-item-content>{{ field.label }}</v-list-item-content>
-
-          <v-list-item-content class="align-end" v-if="field.type === 'pdf'">
-            <template v-if="field.value">
-              <template v-if="user_as_recipient">
-                <div
-                  class="green--text text-center mb-2"
-                  v-if="user_has_stamped_attachment(field.value)"
-                >
-                  {{ $t("Stamped") }}
+            <span v-if="field.type === 'pdf'">
+              <template v-if="field.value">
+                <div v-if="userAsRecipient">
+                  <span
+                    v-if="userHasStampedAttachment(String(field.value))"
+                    class="text-success text-center d-block mb-1"
+                    >{{ $t('Stamped') }}</span
+                  >
+                  <span v-else class="text-error text-center d-block mb-1">{{
+                    $t('Not stamped yet')
+                  }}</span>
                 </div>
-
-                <div class="red--text text-center mb-2" v-else>
-                  {{ $t("Not stamped yet") }}
-                </div>
+                <v-btn @click="$emit('pdfSelected', String(field.value))" block>
+                  <v-icon>mdi-eye</v-icon>
+                </v-btn>
               </template>
+            </span>
 
-              <v-btn @click="$emit('pdfSelected', field.value)" block>
-                <v-icon>mdi-eye</v-icon>
+            <span v-else-if="field.type === 'file'">
+              <v-btn
+                v-if="field.value"
+                @click="downloadAttachment(String(field.value))"
+                block
+              >
+                <v-icon>mdi-download</v-icon>
               </v-btn>
-            </template>
-          </v-list-item-content>
+            </span>
 
-          <v-list-item-content
-            class="align-end"
-            v-else-if="field.type === 'file'"
-          >
-            <v-btn
-              v-if="field.value"
-              @click="download_attachment(field.value)"
-              block
-            >
-              <v-icon>mdi-download</v-icon>
-            </v-btn>
-          </v-list-item-content>
+            <span v-else-if="field.type === 'checkbox'">
+              <v-icon v-if="field.value">mdi-check</v-icon>
+              <v-icon v-else>mdi-close</v-icon>
+            </span>
 
-          <v-list-item-content
-            class="align-end"
-            v-else-if="field.type === 'checkbox'"
-          >
-            <v-icon v-if="field.value">mdi-check</v-icon>
-            <v-icon v-else>mdi-close</v-icon>
-          </v-list-item-content>
+            <span v-else-if="field.type === 'link'">
+              <a :href="String(field.value)" target="_blank">{{
+                field.value
+              }}</a>
+            </span>
 
-          <v-list-item-content
-            class="align-end"
-            v-else-if="field.type === 'link'"
-          >
-            <a :href="field.value" target="_blank">
-              {{ field.value }}
-            </a>
-          </v-list-item-content>
+            <span v-else-if="field.type === 'application'">
+              <a :href="`/applications/${field.value}`" target="_blank">{{
+                field.value
+              }}</a>
+            </span>
 
-          <v-list-item-content
-            class="align-end"
-            v-else-if="field.type === 'application'"
-          >
-            <a
-              class="field_link"
-              :href="`/applications/${field.value}`"
-              target="_blank"
-            >
-              {{ field.value }}
-            </a>
-          </v-list-item-content>
-
-          <v-list-item-content class="align-end application_field_value" v-else>
-            {{ field.value || "-" }}
-          </v-list-item-content>
+            <span v-else class="application_field_value">{{
+              field.value ?? '-'
+            }}</span>
+          </div>
         </v-list-item>
       </template>
     </v-list>
   </div>
 </template>
 
-<script>
-import applicationUtils from "@/mixins/applicationUtils.js"
-import IdUtils from "@/mixins/IdUtils.js"
-import dateUtils from "@/mixins/dateUtils.js"
-import PrivacySettings from "@/components/application/PrivacySettings.vue"
-import UserChip from "../UserChip.vue"
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+import type { Application, Field, Hanko } from '@/types'
+import { useDateUtils } from '@/composables/useDateUtils'
+import UserChip from '@/components/UserChip.vue'
+import PrivacySettings from './PrivacySettings.vue'
+import { env } from '@/utils/env'
+import { useAuth } from '@/composables/useAuth'
 
-const { VUE_APP_SHINSEI_MANAGER_URL } = process.env
+const props = defineProps<{ modelValue: Application }>()
+const emit = defineEmits<{
+  'update:modelValue': [value: Application]
+  pdfSelected: [fileId: string]
+}>()
 
-export default {
-  components: {
-    PrivacySettings,
-    UserChip,
-  },
-  props: {
-    value: Object,
-  },
-  mixins: [IdUtils, dateUtils, applicationUtils],
+const route = useRoute()
+const { formatDateNeo4j } = useDateUtils()
+const { currentUser } = useAuth()
 
-  data() {
-    return {
-      application: this.value,
+const application = computed({
+  get: () => props.modelValue,
+  set: (val: Application) => emit('update:modelValue', val),
+})
+
+const userAsRecipient = computed(() => {
+  if (!currentUser.value) return null
+
+  return (
+    application.value.recipients?.find(
+      (r) => r._id === currentUser.value?._id
+    ) ?? null
+  )
+})
+
+const formData = computed<Field[]>(() => {
+  const fd = application.value.form_data
+  if (!fd) return []
+  if (typeof fd === 'string') {
+    try {
+      return JSON.parse(fd) as Field[]
+    } catch {
+      return []
     }
-  },
-  watch: {
-    application: {
-      deep: true,
-      handler() {
-        this.$emit("update", this.application)
-      },
-    },
-  },
-  methods: {
-    download_attachment(file_id) {
-      const url = `${VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/files/${file_id}`
-      window.open(url, "_blank")
-    },
-    user_has_stamped_attachment(file_id) {
-      if (!this.user_as_recipient) return false
+  }
+  return fd
+})
 
-      const found_approval = this.user_as_recipient.approval
+function downloadAttachment(fileId: string) {
+  const base = env.VITE_SHINSEI_MANAGER_URL
+  const appId = route.params.application_id as string
+  window.open(`${base}/applications/${appId}/files/${fileId}`, '_blank')
+}
 
-      if (!found_approval) return
+function userHasStampedAttachment(fileId: string): boolean {
+  if (!userAsRecipient.value) return false
+  const approval = userAsRecipient.value.approval
+  if (!approval) return false
 
-      let attachment_hankos = found_approval.attachment_hankos
-
-      if (typeof attachment_hankos === "string") {
-        try {
-          attachment_hankos = JSON.parse(attachment_hankos)
-        } catch (e) {
-          console.error("Failed to parse attachment hankos")
-        }
-      }
-
-      if (!attachment_hankos) return
-
-      return !!attachment_hankos.find((a) => a.file_id === file_id)
-    },
-  },
-  computed: {
-    application_id() {
-      return this.$route.params.application_id
-    },
-  },
+  let hankos = approval.attachment_hankos
+  if (!hankos) return false
+  if (typeof hankos === 'string') {
+    try {
+      hankos = JSON.parse(hankos) as Hanko[]
+    } catch {
+      return false
+    }
+  }
+  return hankos.some((h) => h.file_id === fileId)
 }
 </script>
 

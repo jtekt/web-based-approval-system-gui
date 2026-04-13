@@ -1,543 +1,466 @@
 <template>
-    <v-card outlined :loading="loading">
-        <v-toolbar flat>
-            <v-tooltip bottom>
-                <template v-slot:activator="{ on, attrs }">
-                    <span v-bind="attrs" v-on="on"> PDF Reader </span>
-                </template>
-                <span>ハンコを押したい所をクリックしてください</span>
-            </v-tooltip>
-
-            <v-spacer />
-
-            <v-btn @click="previous_page()" :disabled="page_number <= 0" icon>
-                <v-icon>mdi-arrow-left</v-icon>
-            </v-btn>
-            <v-menu open-on-hover offset-y>
-                <template v-slot:activator="{ on, attrs }">
-                    <v-btn text v-bind="attrs" v-on="on">
-                        {{ page_number + 1 }}/{{ page_count }}
-                    </v-btn>
-                </template>
-                <v-list>
-                    <v-list-item
-                        v-for="page in Array.from(Array(page_count).keys())"
-                        :key="page"
-                        @click="page_number = page"
-                    >
-                        <v-list-item-title>{{ page + 1 }}</v-list-item-title>
-                    </v-list-item>
-                </v-list>
-            </v-menu>
-            <v-btn
-                @click="next_page()"
-                :disabled="page_number + 1 >= page_count"
-                icon
-            >
-                <v-icon>mdi-arrow-right</v-icon>
-            </v-btn>
-
-            <v-spacer />
-
-            <v-menu
-                v-if="current_user_can_stamp"
-                :close-on-content-click="false"
-                open-on-hover
-                offset-y
-                z-index="3"
-            >
-                <template v-slot:activator="{ on, attrs }">
-                    <v-btn text class="mr-2" v-bind="attrs" v-on="on">
-                        <v-icon>mdi-resize</v-icon>
-                        <span>{{ $t('Stamp size') }}</span>
-                    </v-btn>
-                </template>
-
-                <v-card>
-                    <v-sheet class="pt-16 px-5">
-                        <v-slider
-                            v-model.number="hanko_scale_slider_value"
-                            min="1"
-                            max="100"
-                            step="2"
-                            thumb-label="always"
-                        />
-                    </v-sheet>
-                </v-card>
-            </v-menu>
-
-            <!-- TODO: make a component -->
-            <v-btn text @click="download_pdf()">
-                <v-icon>mdi-download</v-icon>
-                <span>{{ $t('Download') }}</span>
-            </v-btn>
-        </v-toolbar>
-        <v-divider />
-
-        <template v-if="shown_pdf">
-            <div
-                class="pdf_container"
-                ref="pdf_container"
-                @click="pdf_clicked($event)"
-            >
-                <pdf
-                    :src="pdf_src"
-                    :page="page_number + 1"
-                    :rotate="rotation"
-                    @num-pages="page_count_event"
-                />
-
-                <!-- Used to react to mouse motion over the PDF -->
-                <!-- Not sure why it doesn't work when using events on pdf container -->
-                <div
-                    class="new_hanko_overlay"
-                    @mouseleave="hide_new_hanko()"
-                    @mousemove="update_new_hanko_position($event)"
-                />
-
-                <!-- Indicator of where the hanko will be set -->
-                <div
-                    v-if="current_user_can_stamp"
-                    :style="new_hanko.style"
-                    class="new_hanko"
-                />
-            </div>
+  <v-card variant="outlined" :loading="loading">
+    <v-toolbar flat>
+      <v-tooltip location="bottom">
+        <template #activator="{ props }">
+          <span v-bind="props">PDF Reader</span>
         </template>
+        <span>ハンコを押したい所をクリックしてください</span>
+      </v-tooltip>
 
-        <div
-            v-if="load_error"
-            class="red--text text-center pa-5 text-h6"
-            v-html="load_error"
-        ></div>
-    </v-card>
+      <v-spacer />
+
+      <v-btn icon :disabled="pageNumber <= 1" @click="previousPage">
+        <v-icon>mdi-arrow-left</v-icon>
+      </v-btn>
+      <v-menu open-on-hover>
+        <template #activator="{ props }">
+          <v-btn variant="text" v-bind="props"
+            >{{ pageNumber }}/{{ pageCount }}</v-btn
+          >
+        </template>
+        <v-list>
+          <v-list-item
+            v-for="p in pageCount"
+            :key="p"
+            :title="String(p)"
+            @click="pageNumber = p"
+          />
+        </v-list>
+      </v-menu>
+      <v-btn icon :disabled="pageNumber >= pageCount" @click="nextPage">
+        <v-icon>mdi-arrow-right</v-icon>
+      </v-btn>
+
+      <v-spacer />
+
+      <v-menu
+        v-if="currentUserCanStamp"
+        :close-on-content-click="false"
+        open-on-hover
+      >
+        <template #activator="{ props }">
+          <v-btn variant="text" class="mr-2" v-bind="props">
+            <v-icon>mdi-resize</v-icon>
+            <span>{{ $t('Stamp size') }}</span>
+          </v-btn>
+        </template>
+        <v-card>
+          <v-sheet class="pt-16 px-5">
+            <v-slider
+              v-model.number="hankoScaleSlider"
+              min="1"
+              max="100"
+              step="2"
+              thumb-label="always"
+            />
+          </v-sheet>
+        </v-card>
+      </v-menu>
+
+      <v-btn variant="text" @click="downloadPdf">
+        <v-icon>mdi-download</v-icon>
+        <span>{{ $t('Download') }}</span>
+      </v-btn>
+    </v-toolbar>
+    <v-divider />
+
+    <div
+      v-if="shownPdf"
+      class="pdf_container"
+      ref="pdfContainer"
+      @click="pdfClicked"
+    >
+      <vue-pdf-embed
+        :source="{ data: shownPdf }"
+        :page="pageNumber"
+        @loaded="onPdfLoaded"
+      />
+      <div
+        class="new_hanko_overlay"
+        @mouseleave="hideNewHanko"
+        @mousemove="updateNewHankoPosition"
+      />
+      <div
+        v-if="currentUserCanStamp"
+        :style="newHankoStyle"
+        class="new_hanko"
+      />
+    </div>
+
+    <div
+      v-if="loadError"
+      class="text-error text-center pa-5 text-h6"
+      v-html="loadError"
+    />
+  </v-card>
 </template>
 
-<script>
+<script setup lang="ts">
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { PDFDocument } from 'pdf-lib'
-import pdf from 'vue-pdf'
-import canvg from 'canvg' // used to turn Hankos into PNG so as to include them in the pdf
-import applicationUtils from "@/mixins/applicationUtils.js"
-import IdUtils from '@/mixins/IdUtils.js'
-import { generateWebHankoSvg } from '@/utils/webHankos.js'
-export default {
-    name: 'PdfViewer',
-    components: {
-        pdf,
-    },
-    props: {
-        // TODO: use value with a watcher instead
-        application: Object,
-        selected_file_id: String,
-    },
-    mixins: [IdUtils, applicationUtils],
-    data() {
-        return {
-            load_error: null,
-            loading: false,
+import VuePdfEmbed from 'vue-pdf-embed'
+import type { Application, Recipient, Hanko } from '@/types'
+import { generateWebHankoSvg } from '@/utils/webHankos'
+import api from '@/api'
+import { useAuth } from '@/composables/useAuth'
 
-            page_number: 0,
-            page_count: 1,
-            rotation: 0,
+const props = defineProps<{
+  application: Application
+  selectedFileId: string
+}>()
 
-            pdfDoc: null,
-            shown_pdf: null,
-            filename: null,
+const emit = defineEmits<{
+  pdf_stamped: []
+  reject: []
+}>()
 
-            // Related to hankos
-            new_hanko: {
-                style: {
-                    visibility: 'none',
-                },
-            },
+const { currentUser } = useAuth()
+const route = useRoute()
 
-            hanko_scale_slider_value: 35,
-        }
-    },
-    mounted() {
-        if (this.selected_file_id) {
-            this.view_pdf(this.selected_file_id)
-        }
+/* -----------------------------
+ * Core state
+ * ----------------------------- */
+const loading = ref(false)
+const loadError = ref<string | null>(null)
+const pageNumber = ref(1)
+const pageCount = ref(1)
+const pdfDoc = ref<PDFDocument | null>(null)
+const shownPdf = ref<Uint8Array | null>(null)
+const filename = ref<string | null>(null)
+const pdfContainer = ref<HTMLElement | null>(null)
+const hankoScaleSlider = ref(35)
+const newHankoStyle = ref<Record<string, string>>({
+  visibility: 'hidden',
+})
 
-        this.restore_hanko_size()
-    },
-    watch: {
-        selected_file_id() {
-            this.view_pdf(this.selected_file_id)
-        },
-        page_number() {
-            this.set_pdf_rotation()
-        },
-    },
-    methods: {
-        page_count_event(page_count) {
-            if (page_count) this.page_count = page_count
-        },
-        next_page() {
-            if (this.page_number + 1 < this.page_count) this.page_number++
-        },
-        previous_page() {
-            if (this.page_number > 0) this.page_number--
-        },
-        view_pdf(file_id) {
-            this.loading = true
-            this.shown_pdf = null
-            this.filename = null
-            this.page_number = 0
+/* -----------------------------
+ * Computed
+ * ----------------------------- */
+const applicationId = computed(() => route.params.application_id as string)
 
-            // Load the file as an arrayBuffer
-            const file_url = `/applications/${this.application_id}/files/${file_id}`
-            const axios_options = { responseType: 'arraybuffer' }
+const userAsRecipient = computed(() => {
+  if (!currentUser.value) return null
+  return (
+    props.application.recipients.find(
+      (r) => r?._id === currentUser.value?._id
+    ) ?? null
+  )
+})
 
-            this.axios
-                .get(file_url, axios_options)
-                .then(({ data, headers }) => {
-                    const contentDisposition = headers['content-disposition']
-                    if (contentDisposition) {
-                        const rawFilename = contentDisposition
-                            .split('=')[1]
-                            .split(';')[0]
-                        if (rawFilename) this.filename = decodeURI(rawFilename)
-                    }
+const currentRecipient = computed(() => {
+  return (
+    props.application.recipients.find((r) => !r.approval && !r.refusal) ?? null
+  )
+})
 
-                    this.load_pdf(data)
-                })
-                .catch((error) => {
-                    if (error.response) console.error(error.response.data)
-                    else console.error(error)
-                    this.load_error = `Failed to download file from server`
-                    this.loading = false
-                })
-        },
-        set_pdf_rotation() {
-            const pages = this.pdfDoc.getPages()
-            const current_page = pages[this.page_number]
-            const { angle } = current_page.getRotation()
-            this.rotation = -angle
-        },
-        async load_pdf(buffer) {
-            this.load_error = null
-            try {
-                this.pdfDoc = await PDFDocument.load(buffer)
-                this.set_pdf_rotation()
-                this.load_pdf_hankos()
-            } catch (e) {
-                this.load_error = this.$t('This file cannot be opened')
-            }
-        },
+const applicationHasRefusal = computed(() =>
+  props.application.recipients.some((r) => r.refusal)
+)
 
-        // TODO: dedicated component
-        restore_hanko_size() {
-            const { hanko_size } = localStorage
-            if (hanko_size) this.hanko_scale_slider_value = hanko_size
-        },
+const currentUserCanStamp = computed(() => {
+  if (!userAsRecipient.value) return false
+  if (applicationHasRefusal.value) return false
 
-        save_hanko_size() {
-            localStorage.hanko_size = this.hanko_scale_slider_value
-        },
+  const currentFlowIndex = currentRecipient.value
+    ? currentRecipient.value.submission.flow_index
+    : props.application.recipients.length
 
-        async pdf_clicked(event) {
-            if (!this.current_user_can_stamp) return
-            if (!confirm(`Apply Hanko here?`)) return
+  return userAsRecipient.value.submission.flow_index <= currentFlowIndex
+})
 
-            this.save_hanko_size()
+const hankoScale = computed(() => hankoScaleSlider.value / 1000)
 
-            const pages = this.pdfDoc.getPages()
-            const page = pages[this.page_number]
-            const { width, height } = page.getSize()
+/* -----------------------------
+ * Lifecycle
+ * ----------------------------- */
+onMounted(() => {
+  restoreHankoSize()
+  if (props.selectedFileId) viewPdf(props.selectedFileId)
+})
 
-            const wrapper_width = this.$refs.pdf_container.offsetWidth
-            const click_x = event.offsetX || event.layerX
-            const position_x = width * (click_x / wrapper_width)
+watch(
+  () => props.selectedFileId,
+  (id) => {
+    if (id) viewPdf(id)
+  }
+)
 
-            const wrapper_height = this.$refs.pdf_container.offsetHeight
-            const click_y = event.offsetY || event.layerY
-            const position_y = height - height * (click_y / wrapper_height)
+/* -----------------------------
+ * Hanko size persistence
+ * ----------------------------- */
+function restoreHankoSize() {
+  const saved = localStorage.getItem('hanko_size')
+  if (saved) hankoScaleSlider.value = Number(saved)
+}
 
-            const new_hanko = {
-                file_id: this.selected_file_id,
-                page_number: this.page_number,
-                position: {
-                    x: position_x,
-                    y: position_y,
-                },
-                scale: this.hanko_scale,
-                date: new Date(),
-            }
+function saveHankoSize() {
+  localStorage.setItem('hanko_size', String(hankoScaleSlider.value))
+}
 
-            const approval = this.user_as_recipient.approval
-            if (!approval)
-                return this.approve_application({
-                    attachment_hankos: [new_hanko],
-                })
+/* -----------------------------
+ * Pagination
+ * ----------------------------- */
+function nextPage() {
+  if (pageNumber.value < pageCount.value) pageNumber.value++
+}
 
-            let attachment_hankos = approval.attachment_hankos
-            if (!attachment_hankos) attachment_hankos = []
-            if (typeof attachment_hankos === 'string') {
-                attachment_hankos = JSON.parse(attachment_hankos)
-            }
-            attachment_hankos.push(new_hanko)
+function previousPage() {
+  if (pageNumber.value > 1) pageNumber.value--
+}
 
-            this.update_hankos({ attachment_hankos })
-        },
+function onPdfLoaded(pdf: { numPages: number }) {
+  pageCount.value = pdf.numPages
+}
 
-        approve_application(body) {
-            const url = `/applications/${this.application_id}/approve`
-            this.axios
-                .post(url, body)
-                .then(() => {
-                    this.$emit('pdf_stamped')
-                    this.$store.commit('require_email', true)
-                })
-                .catch((error) => {
-                    console.error(error)
-                    alert(`Error approving application`)
-                })
-        },
+/* -----------------------------
+ * PDF loading
+ * ----------------------------- */
+async function viewPdf(fileId: string) {
+  loading.value = true
+  shownPdf.value = null
+  filename.value = null
+  pageNumber.value = 1
 
-        update_hankos(body) {
-            const url = `/applications/${this.application_id}/hankos`
+  try {
+    const { data, headers } = await api.get<ArrayBuffer>(
+      `/applications/${applicationId.value}/files/${fileId}`,
+      { responseType: 'arraybuffer' }
+    )
 
-            this.axios
-                .put(url, body)
-                .then(() => {
-                    // TODO: stop requerying application and update application via emit('update')
-                    this.$emit('pdf_stamped')
-                })
-                .catch((error) => {
-                    console.log(error)
-                    alert(`Error approving application`)
-                })
-        },
+    const contentDisposition = headers['content-disposition']
+    if (contentDisposition) {
+      const raw = contentDisposition.split('=')[1]?.split(';')[0]
+      if (raw) filename.value = decodeURI(raw)
+    }
 
-        refresh_pdf() {
-            this.shown_pdf = null
-            this.view_pdf(this.selected_file_id)
-        },
+    await loadPdf(data)
+  } catch {
+    loadError.value = 'Failed to download file from server'
+  } finally {
+    loading.value = false
+  }
+}
 
-        update_new_hanko_position(event) {
-            // Getting the size of the page
-            //const wrapper_width = this.$refs.pdf_container.offsetWidth
-            const wrapper_height = this.$refs.pdf_container.offsetHeight
+async function loadPdf(buffer: ArrayBuffer) {
+  loadError.value = null
+  try {
+    pdfDoc.value = await PDFDocument.load(buffer)
+    await loadPdfHankos()
+  } catch {
+    loadError.value = 'This file cannot be opened'
+  }
+}
 
-            const pages = this.pdfDoc.getPages()
-            const page = pages[this.page_number]
-            const { height: page_height } = page.getSize()
+/* -----------------------------
+ * Hanko rendering
+ * ----------------------------- */
+function svgToPngDataUrl(svgString: string): Promise<string> {
+  return new Promise((resolve) => {
+    const blob = new Blob([svgString], { type: 'image/svg+xml' })
+    const url = URL.createObjectURL(blob)
+    const img = new Image()
 
-            const hanko_height =
-                (1500 * this.hanko_scale * wrapper_height) / page_height
+    img.onload = () => {
+      const canvas = document.createElement('canvas')
+      canvas.width = 1000
+      canvas.height = 1500
+      canvas.getContext('2d')!.drawImage(img, 0, 0)
+      URL.revokeObjectURL(url)
+      resolve(canvas.toDataURL('image/png'))
+    }
 
-            this.new_hanko.style = {
-                left: `calc(${event.offsetX}px - 0.5 * ${this.new_hanko.style.width})`,
-                top: `calc(${event.offsetY}px - 0.5 * ${this.new_hanko.style.height})`,
-                height: `${hanko_height}px`,
-                width: `${0.75 * hanko_height * 0.94}px`,
-                'border-radius': `${0.1 * hanko_height}px`,
-                'border-width': `${0.03 * hanko_height}px`,
-            }
-        },
+    img.src = url
+  })
+}
 
-        hide_new_hanko() {
-            this.new_hanko.style = { visibility: 'none' }
-        },
+async function loadPdfHankos() {
+  if (!pdfDoc.value) return
+  const pages = pdfDoc.value.getPages()
 
-        get_hanko_blob_url(recipient) {
-            const SVG_data = generateWebHankoSvg(recipient)
+  const recipientsWithApprovals = props.application.recipients.filter(
+    (r) => !!r.approval
+  )
 
-            const canvas = document.createElement('canvas')
-            const context = canvas.getContext('2d')
+  for (const recipient of recipientsWithApprovals) {
+    let hankos = recipient.approval?.attachment_hankos
+    if (!hankos) continue
 
-            canvas.width = 1000
-            canvas.height = 1500
+    if (typeof hankos === 'string') {
+      try {
+        hankos = JSON.parse(hankos)
+      } catch {
+        continue
+      }
+    }
 
-            canvg.fromString(context, SVG_data).start()
+    const filtered = hankos?.filter(
+      (h: Hanko) => h.file_id === props.selectedFileId
+    )
+    if (!filtered.length) continue
 
-            return canvas.toDataURL('image/png')
-        },
+    try {
+      const svg = generateWebHankoSvg(recipient as Recipient)
+      const pngUrl = await svgToPngDataUrl(svg)
+      const base64 = pngUrl.split(',')[1]
+      const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0))
 
-        load_pdf_hankos() {
-            const promises = this.application.recipients
-                .filter((recipient) => !!recipient.approval)
-                .map(
-                    (recipient) =>
-                        new Promise((resolve, reject) => {
-                            const { approval } = recipient
-                            // Do nothing if there no hanko to draw for the current approval
-                            let hankos = approval.attachment_hankos
-                            if (!hankos) return resolve()
+      const png = await pdfDoc.value.embedPng(bytes)
 
-                            if (typeof hankos === 'string')
-                                hankos = JSON.parse(hankos)
+      for (const h of filtered) {
+        const page = pages[h.page_number]
+        if (!page) continue
 
-                            const png_url = this.get_hanko_blob_url(recipient)
+        const scale = h.scale ?? hankoScale.value
+        const dims = png.scale(scale)
 
-                            const axios_options = {
-                                responseType: 'arraybuffer',
-                                baseURL: null,
-                            }
+        page.drawImage(png, {
+          x: h.position.x - dims.width / 2,
+          y: h.position.y - dims.height / 2,
+          width: dims.width,
+          height: dims.height,
+        })
+      }
+    } catch (e) {
+      console.error('Failed to draw hanko:', e)
+    }
+  }
 
-                            this.axios
-                                .get(png_url, axios_options)
-                                .then(({ data }) => this.pdfDoc.embedPng(data))
-                                .then((pngImage) => {
-                                    // The PNG is now awvailable to display at every hanko location
+  shownPdf.value = await pdfDoc.value.save()
+}
 
-                                    const pages = this.pdfDoc.getPages()
+/* -----------------------------
+ * Click → stamp
+ * ----------------------------- */
+async function pdfClicked(event: MouseEvent) {
+  if (!currentUserCanStamp.value) return
+  if (!pdfDoc.value || !pdfContainer.value) return
+  if (!confirm('Apply Hanko here?')) return
 
-                                    hankos.forEach((hanko) => {
-                                        // Skip if hanko is not part of the current file
-                                        if (
-                                            hanko.file_id !==
-                                            this.selected_file_id
-                                        )
-                                            return resolve()
+  saveHankoSize()
 
-                                        const page = pages[hanko.page_number]
+  const page = pdfDoc.value.getPages()[pageNumber.value - 1]
+  const { width, height } = page.getSize()
 
-                                        // Currently, some hankos have no scale set so allow the scale to be modified using the slider in that case
-                                        const pngDims = pngImage.scale(
-                                            hanko.scale || this.hanko_scale
-                                        )
+  const wrapperWidth = pdfContainer.value.offsetWidth
+  const wrapperHeight = pdfContainer.value.offsetHeight
 
-                                        const drawing_parameters = {
-                                            x:
-                                                hanko.position.x -
-                                                0.5 * pngDims.width,
-                                            y:
-                                                hanko.position.y -
-                                                0.5 * pngDims.height,
-                                            width: pngDims.width,
-                                            height: pngDims.height,
-                                        }
+  const posX = width * (event.offsetX / wrapperWidth)
+  const posY = height - height * (event.offsetY / wrapperHeight)
 
-                                        // This seems to be a synchronous function
-                                        page.drawImage(
-                                            pngImage,
-                                            drawing_parameters
-                                        )
-                                    })
+  const newHanko: Hanko = {
+    file_id: props.selectedFileId,
+    page_number: pageNumber.value - 1,
+    position: { x: posX, y: posY },
+    scale: hankoScale.value,
+    date: new Date().toISOString(),
+  }
 
-                                    resolve()
-                                })
-                                .catch(reject)
-                        })
-                )
+  const approval = userAsRecipient.value?.approval
 
-            // render .pdf once all hankos of all approvals have been drawn
-            Promise.all(promises)
-                .then(() => this.pdfDoc.save())
-                .then((saved_pdf) => {
-                    this.shown_pdf = saved_pdf
-                })
-                .catch((error) => {
-                    console.error(error)
-                })
-                .finally(() => {
-                    this.loading = false
-                })
-        },
+  if (!approval) {
+    approveApplication({ attachment_hankos: [newHanko] })
+    return
+  }
 
-        download_pdf() {
-            const pdf_blob = new Blob([this.shown_pdf], {
-                type: 'application/pdf',
-            })
+  let hankos = approval.attachment_hankos ?? []
+  if (typeof hankos === 'string') {
+    hankos = JSON.parse(hankos)
+  }
 
-            const filename = this.filename || `${this.selected_file_id}.pdf`
+  hankos.push(newHanko)
+  updateHankos({ attachment_hankos: hankos })
+}
 
-            if (window.navigator.msSaveOrOpenBlob) {
-                window.navigator.msSaveBlob(pdf_blob, filename)
-            } else {
-                const elem = window.document.createElement('a')
-                elem.href = window.URL.createObjectURL(pdf_blob)
-                elem.download = filename
-                document.body.appendChild(elem)
-                elem.click()
-                document.body.removeChild(elem)
-            }
-        },
-    },
-    computed: {
-        pdf_src() {
-            const pdf_blob = new Blob([this.shown_pdf], {
-                type: 'application/pdf',
-            })
+/* -----------------------------
+ * API actions
+ * ----------------------------- */
+function approveApplication(body: { attachment_hankos: Hanko[] }) {
+  api
+    .post(`/applications/${applicationId.value}/approve`, body)
+    .then(() => emit('pdf_stamped'))
+    .catch((err) => {
+      console.error(err)
+      alert('Error approving application')
+    })
+}
 
-            return pdf.createLoadingTask({
-                url: window.URL.createObjectURL(pdf_blob),
-                cMapUrl:
-                    'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.5.207/cmaps/',
-                cMapPacked: true,
-            })
-        },
-        // file_id(){
-        //   // Maybe not ideal
-        //   const found_field = this.application.form_data
-        //     .find(field => field.type === "pdf" || field.type === "file")
-        //   return found_field.value
-        // },
-        application_id() {
-            return this.get_id_of_item(this.application)
-        },
-        application_has_refusal() {
-            return this.application.recipients.find(
-                (recipient) => recipient.refusal
-            )
-        },
-        current_recipient() {
-            // recipients sorted by flow index apparently
+function updateHankos(body: { attachment_hankos: Hanko[] }) {
+  api
+    .put(`/applications/${applicationId.value}/hankos`, body)
+    .then(() => emit('pdf_stamped'))
+    .catch((err) => {
+      console.error(err)
+      alert('Error updating hankos')
+    })
+}
 
-            return this.application.recipients
-                .slice()
-                .sort(
-                    (a, b) => a.submission.flow_index - b.submission.flow_index
-                )
-                .find((recipient) => !recipient.approval && !recipient.refusal)
-        },
+/* -----------------------------
+ * Hover preview
+ * ----------------------------- */
+function updateNewHankoPosition(event: MouseEvent) {
+  if (!pdfDoc.value || !pdfContainer.value) return
 
-        current_user_can_stamp() {
-            /*
-            Application can be stamped if:
-            - User is recipient
-            - The application has not been rejectred by anyone
-            - it's user's flow index or above
-            */
+  const page = pdfDoc.value.getPages()[pageNumber.value - 1]
+  const { height } = page.getSize()
 
-            if (!this.user_as_recipient) return false
-            if (this.application_has_refusal) return false
+  const wrapperHeight = pdfContainer.value.offsetHeight
+  const hankoHeight = (1500 * hankoScale.value * wrapperHeight) / height
 
-            const current_flow_index = this.current_recipient
-                ? this.current_recipient.submission.flow_index
-                : this.application.recipients.length
+  const ex = event.offsetX
+  const ey = event.offsetY
 
-            const current_user_flow_index =
-                this.user_as_recipient.submission.flow_index
-            return current_user_flow_index <= current_flow_index
-        },
-        hanko_scale() {
-            return this.hanko_scale_slider_value / 1000
-        },
-    },
+  newHankoStyle.value = {
+    left: `calc(${ex}px - ${0.5 * 0.75 * hankoHeight * 0.94}px)`,
+    top: `calc(${ey}px - ${0.5 * hankoHeight}px)`,
+    height: `${hankoHeight}px`,
+    width: `${0.75 * hankoHeight * 0.94}px`,
+    borderRadius: `${0.1 * hankoHeight}px`,
+    borderWidth: `${0.03 * hankoHeight}px`,
+  }
+}
+
+function hideNewHanko() {
+  newHankoStyle.value = { visibility: 'hidden' }
+}
+
+/* -----------------------------
+ * Download
+ * ----------------------------- */
+function downloadPdf() {
+  if (!shownPdf.value) return
+
+  const blob = new Blob([shownPdf.value], {
+    type: 'application/pdf',
+  })
+
+  const name = filename.value ?? `${props.selectedFileId}.pdf`
+
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(blob)
+  a.download = name
+  a.click()
 }
 </script>
-
 <style scoped>
 .pdf_container {
-    position: relative;
+  position: relative;
 }
 
 .new_hanko {
-    position: absolute;
-
-    z-index: 2;
-    border: 3px solid #c00000;
+  position: absolute;
+  z-index: 2;
+  border: 3px solid #c00000;
 }
 
 .new_hanko_overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 3;
-    cursor: pointer;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+  cursor: pointer;
 }
 </style>
