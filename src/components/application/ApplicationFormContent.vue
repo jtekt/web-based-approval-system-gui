@@ -1,117 +1,113 @@
 <template>
-  <div>
-    <div class="text-h6">{{ $t('Application info') }}</div>
+  <div class="text-h6">{{ $t('Application info') }}</div>
 
-    <v-list density="compact">
-      <v-divider />
-      <v-list-item>
-        <div class="d-flex justify-space-between">
-          <span>ID</span>
-          <span class="text-caption">{{ application._id }}</span>
-        </div>
-      </v-list-item>
-      <v-divider />
-      <v-list-item>
-        <div class="d-flex justify-space-between">
-          <span>{{ $t('Title') }}</span>
-          <span>{{ application.title }}</span>
-        </div>
-      </v-list-item>
-      <v-divider />
-      <v-list-item>
-        <div class="d-flex justify-space-between">
-          <span>{{ $t('Type') }}</span>
-          <span>{{ application.type }}</span>
-        </div>
-      </v-list-item>
-      <v-divider />
-      <v-list-item>
-        <div class="d-flex justify-space-between">
-          <span>{{ $t('Date') }}</span>
-          <span>{{
-            application.creation_date
-              ? formatDateNeo4j(application.creation_date)
-              : ''
-          }}</span>
-        </div>
-      </v-list-item>
+  <v-list density="compact">
+    <v-divider />
+    <v-list-item>
+      <div class="d-flex justify-space-between">
+        <span>ID</span>
+        <span class="text-caption">{{ application._id }}</span>
+      </div>
+    </v-list-item>
+    <v-divider />
+    <v-list-item>
+      <div class="d-flex justify-space-between">
+        <span>{{ $t('Title') }}</span>
+        <span>{{ application.title }}</span>
+      </div>
+    </v-list-item>
+    <v-divider />
+    <v-list-item>
+      <div class="d-flex justify-space-between">
+        <span>{{ $t('Type') }}</span>
+        <span>{{ application.type }}</span>
+      </div>
+    </v-list-item>
+    <v-divider />
+    <v-list-item>
+      <div class="d-flex justify-space-between">
+        <span>{{ $t('Date') }}</span>
+        <span>{{
+          application.creation_date
+            ? formatDateNeo4j(application.creation_date)
+            : ''
+        }}</span>
+      </div>
+    </v-list-item>
+    <v-divider />
+    <v-list-item>
+      <div class="d-flex justify-space-between align-center">
+        <span>{{ $t('Applicant') }}</span>
+        <UserChip :user="application.applicant" />
+      </div>
+    </v-list-item>
+    <v-divider />
+    <PrivacySettings v-model="application" />
+  </v-list>
+
+  <div class="text-h6 mt-4">{{ $t('Application content') }}</div>
+
+  <v-list density="compact" v-if="application.forbidden">
+    <v-list-item class="text-error">{{ $t('Confidential') }}</v-list-item>
+  </v-list>
+
+  <v-list density="compact" v-else-if="formData.length">
+    <template v-for="(field, index) in formData" :key="`field_${index}`">
       <v-divider />
       <v-list-item>
         <div class="d-flex justify-space-between align-center">
-          <span>{{ $t('Applicant') }}</span>
-          <UserChip :user="application.applicant" />
+          <span>{{ field.label }}</span>
+
+          <span v-if="field.type === 'pdf'">
+            <template v-if="field.value">
+              <div v-if="userAsRecipient">
+                <span
+                  v-if="userHasStampedAttachment(String(field.value))"
+                  class="text-success text-center d-block mb-1"
+                  >{{ $t('Stamped') }}</span
+                >
+                <span v-else class="text-error text-center d-block mb-1">{{
+                  $t('Not stamped yet')
+                }}</span>
+              </div>
+              <v-btn @click="$emit('pdfSelected', String(field.value))" block>
+                <v-icon>mdi-eye</v-icon>
+              </v-btn>
+            </template>
+          </span>
+
+          <span v-else-if="field.type === 'file'">
+            <v-btn
+              v-if="field.value"
+              @click="downloadAttachment(String(field.value))"
+              block
+            >
+              <v-icon>mdi-download</v-icon>
+            </v-btn>
+          </span>
+
+          <span v-else-if="field.type === 'checkbox'">
+            <v-icon v-if="field.value">mdi-check</v-icon>
+            <v-icon v-else>mdi-close</v-icon>
+          </span>
+
+          <span v-else-if="field.type === 'link'">
+            <a :href="String(field.value)" target="_blank">{{ field.value }}</a>
+          </span>
+
+          <span v-else-if="field.type === 'application'">
+            <a :href="`/applications/${field.value}`" target="_blank">{{
+              field.value
+            }}</a>
+          </span>
+
+          <span v-else class="application_field_value">{{
+            field.value ?? '-'
+          }}</span>
         </div>
       </v-list-item>
-      <v-divider />
-      <PrivacySettings v-model="application" />
-    </v-list>
-
-    <div class="text-h6 mt-4">{{ $t('Application content') }}</div>
-
-    <v-list density="compact" v-if="application.forbidden">
-      <v-list-item class="text-error">{{ $t('Confidential') }}</v-list-item>
-    </v-list>
-
-    <v-list density="compact" v-else-if="formData.length">
-      <template v-for="(field, index) in formData" :key="`field_${index}`">
-        <v-divider />
-        <v-list-item>
-          <div class="d-flex justify-space-between align-center">
-            <span>{{ field.label }}</span>
-
-            <span v-if="field.type === 'pdf'">
-              <template v-if="field.value">
-                <div v-if="userAsRecipient">
-                  <span
-                    v-if="userHasStampedAttachment(String(field.value))"
-                    class="text-success text-center d-block mb-1"
-                    >{{ $t('Stamped') }}</span
-                  >
-                  <span v-else class="text-error text-center d-block mb-1">{{
-                    $t('Not stamped yet')
-                  }}</span>
-                </div>
-                <v-btn @click="$emit('pdfSelected', String(field.value))" block>
-                  <v-icon>mdi-eye</v-icon>
-                </v-btn>
-              </template>
-            </span>
-
-            <span v-else-if="field.type === 'file'">
-              <v-btn
-                v-if="field.value"
-                @click="downloadAttachment(String(field.value))"
-                block
-              >
-                <v-icon>mdi-download</v-icon>
-              </v-btn>
-            </span>
-
-            <span v-else-if="field.type === 'checkbox'">
-              <v-icon v-if="field.value">mdi-check</v-icon>
-              <v-icon v-else>mdi-close</v-icon>
-            </span>
-
-            <span v-else-if="field.type === 'link'">
-              <a :href="String(field.value)" target="_blank">{{
-                field.value
-              }}</a>
-            </span>
-
-            <span v-else-if="field.type === 'application'">
-              <a :href="`/applications/${field.value}`" target="_blank">{{
-                field.value
-              }}</a>
-            </span>
-
-            <span v-else class="application_field_value">{{
-              field.value ?? '-'
-            }}</span>
-          </div>
-        </v-list-item>
-      </template>
-    </v-list>
-  </div>
+    </template>
+  </v-list>
 </template>
 
 <script setup lang="ts">
@@ -151,15 +147,24 @@ const userAsRecipient = computed(() => {
 
 const formData = computed<Field[]>(() => {
   const fd = application.value.form_data
+
+  let parsed: Field[] = []
+
   if (!fd) return []
+
   if (typeof fd === 'string') {
     try {
-      return JSON.parse(fd) as Field[]
+      parsed = JSON.parse(fd) as Field[]
     } catch {
       return []
     }
+  } else {
+    parsed = fd
   }
-  return fd
+
+  if (!env.VITE_PDF_MODE) return parsed
+
+  return parsed.filter((field) => field.type !== 'pdf')
 })
 
 function downloadAttachment(fileId: string) {

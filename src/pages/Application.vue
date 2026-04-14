@@ -10,8 +10,8 @@
 
         <HelpDialog />
 
-        <template v-if="user_is_applicant">
-          <v-btn variant="text" @click="go_to_resubmit">
+        <template v-if="isUserApplicant">
+          <v-btn variant="text" @click="goToResubmit">
             <v-icon start>mdi-restore</v-icon>
             {{ $t('Re-submit') }}
           </v-btn>
@@ -20,7 +20,7 @@
             variant="text"
             :disabled="isApplicationFullyApproved"
             color="error"
-            @click="open_delete_dialog"
+            @click="openDeleteDialog"
           >
             <v-icon start>mdi-delete</v-icon>
             {{ $t('Delete') }}
@@ -32,7 +32,7 @@
 
       <v-container fluid>
         <v-row>
-          <v-col cols="6">
+          <v-col>
             <ApplicationFormContent
               v-model="application"
               @pdfSelected="viewPdf"
@@ -40,18 +40,21 @@
           </v-col>
 
           <v-col>
-            <v-row v-if="isCurrentRecipientCurrentUser" class="mb-3">
+            <v-row
+              v-if="!env.VITE_PDF_MODE && isCurrentRecipientCurrentUser"
+              class="mb-3"
+            >
               <v-spacer />
 
               <v-col cols="auto">
-                <v-btn color="success" @click="open_approve_dialog">
+                <v-btn color="success" @click="openApproveDialog">
                   <v-icon start>mdi-check</v-icon>
                   {{ $t('Approve') }}
                 </v-btn>
               </v-col>
 
               <v-col cols="auto">
-                <v-btn color="error" @click="open_reject_dialog">
+                <v-btn color="error" @click="openRejectDialog">
                   <v-icon start>mdi-close</v-icon>
                   {{ $t('Reject') }}
                 </v-btn>
@@ -59,7 +62,7 @@
             </v-row>
 
             <v-row justify="end" align="end" class="flex-wrap-reverse">
-              <template v-if="isUserRecipient && !current_recipient">
+              <template v-if="isUserRecipient && !currentRecipient">
                 <v-col cols="auto">
                   <EmailButton
                     :application="application"
@@ -73,7 +76,7 @@
               </template>
 
               <template
-                v-for="(recipient, index) in ordered_recipients"
+                v-for="(recipient, index) in orderedRecipients"
                 :key="`recipient_${index}`"
               >
                 <v-col cols="auto" v-if="index > 0">
@@ -84,7 +87,7 @@
                   <WebHankoContainer
                     :recipient="recipient"
                     :application="application"
-                    @reject="open_reject_dialog"
+                    @reject="openRejectDialog"
                   />
                 </v-col>
               </template>
@@ -101,6 +104,7 @@
       <v-card-text>
         <PdfViewer
           v-if="selected_file_id"
+          :key="selected_file_id"
           :selected-file-id="selected_file_id"
           :application="application"
           @pdf_stamped="getApplication"
@@ -136,8 +140,9 @@ import EmailButton from '@/components/application/EmailButton.vue'
 import PdfViewer from '@/components/application/PdfViewer.vue'
 import RecipientComments from '@/components/application/RecipientComments.vue'
 import ApplicationFormContent from '@/components/application/ApplicationFormContent.vue'
-import type { Application } from '@/types'
+import type { Application, Hanko } from '@/types'
 import api from '@/api'
+import { env } from '@/utils/env'
 import { useAuth } from '@/composables/useAuth'
 import { useToast } from '@/composables/useToast'
 import WebHankoContainer from '@/components/application/WebHankoContainer.vue'
@@ -159,16 +164,14 @@ const dialog = ref({
   action: null as null | (() => Promise<void>),
 })
 
-const application_id = computed(() => route.params.application_id as string)
-
-const ordered_recipients = computed(() => {
+const orderedRecipients = computed(() => {
   if (!application.value) return []
   return [...application.value.recipients].sort(
     (a, b) => b.submission.flow_index - a.submission.flow_index
   )
 })
 
-const current_recipient = computed(() => {
+const currentRecipient = computed(() => {
   if (!application.value) return null
   if (application.value.recipients.some((r) => r.refusal)) return null
 
@@ -179,22 +182,23 @@ const current_recipient = computed(() => {
   )
 })
 
-const user_is_applicant = computed(() => {
+const isUserApplicant = computed(() => {
   if (!application.value || !currentUser.value) return false
   return application.value.applicant?._id === currentUser.value._id
 })
 
 const isUserRecipient = computed(() => {
-  if (!application.value || !currentUser.value) return false
+  if (!isUserApplicant.value || !application.value || !currentUser.value)
+    return false
   return application.value.recipients.some(
     (r) => r._id === currentUser.value?._id
   )
 })
 
 const isCurrentRecipientCurrentUser = computed(() => {
-  if (!isUserRecipient || !current_recipient.value || !currentUser.value)
+  if (!isUserRecipient || !currentRecipient.value || !currentUser.value)
     return false
-  return current_recipient.value._id === currentUser.value._id
+  return currentRecipient.value._id === currentUser.value._id
 })
 
 const isApplicationFullyApproved = computed(() => {
@@ -214,13 +218,26 @@ async function getApplication() {
   error.value = null
 
   try {
-    const { data } = await api.get(`/applications/${application_id.value}`)
+    const { data } = await api.get<Application>(
+      `/applications/${route.params.application_id}`
+    )
 
-    if (data.form_data) {
+    if (data.form_data && typeof data.form_data === 'string') {
       data.form_data = JSON.parse(data.form_data)
     }
 
     application.value = data
+
+    if (env.VITE_PDF_MODE && Array.isArray(data.form_data)) {
+      const pdfField = data.form_data.find((f) => f.type === 'pdf' && f.value)
+      if (pdfField) {
+        const newId = String(pdfField.value)
+
+        if (selected_file_id.value !== newId) {
+          selected_file_id.value = newId
+        }
+      }
+    }
   } catch (err: any) {
     toast.error('Failed to load application')
     error.value = 'Application not found'
@@ -246,21 +263,21 @@ function dialogConfirm() {
   dialog.value.visible = false
 }
 
-function open_approve_dialog() {
-  openDialog('Approve', 'Approve this application?', approve_application)
+function openApproveDialog() {
+  openDialog('Approve', 'Approve this application?', approveApplication)
 }
 
-function open_reject_dialog() {
-  openDialog('Reject', 'Reject this application?', reject_application)
+function openRejectDialog() {
+  openDialog('Reject', 'Reject this application?', rejectApplication)
 }
 
-function open_delete_dialog() {
-  openDialog('Delete', 'Delete this application?', delete_application)
+function openDeleteDialog() {
+  openDialog('Delete', 'Delete this application?', deleteApplication)
 }
 
-async function approve_application() {
+async function approveApplication() {
   try {
-    await api.post(`/applications/${application_id.value}/approve`)
+    await api.post(`/applications/${route.params.application_id}/approve`)
     toast.success('Application approved')
     await getApplication()
   } catch {
@@ -268,9 +285,9 @@ async function approve_application() {
   }
 }
 
-async function reject_application() {
+async function rejectApplication() {
   try {
-    await api.post(`/applications/${application_id.value}/reject`)
+    await api.post(`/applications/${route.params.application_id}/reject`)
     toast.success('Application rejected')
     await getApplication()
   } catch {
@@ -278,9 +295,9 @@ async function reject_application() {
   }
 }
 
-async function delete_application() {
+async function deleteApplication() {
   try {
-    await api.delete(`/applications/${application_id.value}`)
+    await api.delete(`/applications/${route.params.application_id}`)
     toast.success('Application deleted')
     router.push({ name: 'submitted_applications' })
   } catch {
@@ -288,7 +305,7 @@ async function delete_application() {
   }
 }
 
-function go_to_resubmit() {
+function goToResubmit() {
   router.push({
     name: 'new_application',
     query: { copy_of: application.value?._id },

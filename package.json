@@ -19,6 +19,7 @@
     "@mdi/font": "7.4.47",
     "@moreillon/group-manager-vue-picker": "^0.0.2",
     "axios": "^1.15.0",
+    "canvg": "^4.0.3",
     "oidc-client-ts": "^3.1.0",
     "pdf-lib": "^1.17.1",
     "qrcode-svg": "^1.1.0",

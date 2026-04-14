@@ -13,12 +13,12 @@
     </v-toolbar>
 
     <v-card-text>
-      <!-- Copy mode -->
-      <template v-if="copy_of">
-        <v-row>
+      <template v-if="!env.VITE_PDF_MODE">
+        <!-- Copy mode -->
+        <v-row v-if="copy_of">
           <v-col>
             <v-text-field
-              :model-value="selected_form?.label"
+              :model-value="applicationForm?.label"
               :label="$t('Type')"
               :suffix="`(${$t('Resubmission of', {
                 id: copy_of,
@@ -35,20 +35,19 @@
             </v-btn>
           </v-col>
         </v-row>
+        <!-- Normal mode -->
+        <v-row v-else>
+          <v-col>
+            <v-autocomplete
+              :items="applicationFormTemplates"
+              item-title="label"
+              return-object
+              v-model="applicationForm"
+              :label="$t('Type')"
+            />
+          </v-col>
+        </v-row>
       </template>
-
-      <!-- Normal mode -->
-      <v-row v-else>
-        <v-col>
-          <v-autocomplete
-            :items="application_form_templates"
-            item-title="label"
-            return-object
-            v-model="selected_form"
-            :label="$t('Type')"
-          />
-        </v-col>
-      </v-row>
 
       <v-row>
         <v-col>
@@ -96,78 +95,77 @@
       </v-card-title>
     </v-toolbar>
 
-    <v-card-text v-if="!selected_form">
+    <v-card-text v-if="!applicationForm">
       {{ $t('Please select an application type') }}
     </v-card-text>
 
     <template v-else>
-      <NewApplicationTemplateDetails :selected-form="selected_form" />
-      <NewApplicationFormData v-model="selected_form.fields" />
+      <NewApplicationTemplateDetails
+        v-if="!env.VITE_PDF_MODE"
+        :selected-form="applicationForm"
+      />
+      <NewApplicationFormData v-model="applicationForm.fields" />
     </template>
   </v-card>
 
   <!-- Approval flow -->
   <v-card class="mb-4">
-    <v-toolbar flat>
-      <v-row align="center">
-        <v-col cols="auto">
-          <v-card-subtitle class="mt-2 text-h6">
-            {{ $t('Approval flow') }}
-          </v-card-subtitle>
-        </v-col>
+    <v-toolbar flat align="center">
+      <v-card-title>
+        {{ $t('Approval flow') }}
+      </v-card-title>
+      
+      <v-spacer />
 
-        <v-spacer />
+      <v-col cols="auto">
+        <!-- dialog unchanged -->
+        <v-dialog v-model="add_recipient_dialog">
+          <template #activator="{ props }">
+            <v-btn v-bind="props" color="error">
+              <v-icon start>mdi-account-plus</v-icon>
+              {{ $t('Add recipient') }}
+            </v-btn>
+          </template>
 
-        <v-col cols="auto">
-          <!-- dialog unchanged -->
-          <v-dialog v-model="add_recipient_dialog">
-            <template #activator="{ props }">
-              <v-btn v-bind="props" color="error">
-                <v-icon start>mdi-account-plus</v-icon>
-                {{ $t('Add recipient') }}
+          <v-card>
+            <v-card-title class="text-h5">
+              {{ $t('Add recipient') }}
+            </v-card-title>
+
+            <v-card-text>
+              <UserPicker
+                class="max-h-[300px] overflow-auto"
+                @selection="addToRecipients"
+                :groupManagerApiUrl="GROUP_MANAGER_API_URL"
+                :group-manager-front-url="VITE_EMPLOYEE_MANAGER_FRONT_URL"
+                :accessToken="accessToken"
+              />
+            </v-card-text>
+
+            <v-card-text v-if="recipients.length">
+              <NewApplicationApprovalFlow :recipients="recipients" />
+            </v-card-text>
+
+            <v-card-text v-else>
+              {{ $t('No recipient selected') }}
+            </v-card-text>
+
+            <v-card-actions>
+              <v-spacer />
+              <v-btn variant="text" @click="add_recipient_dialog = false">
+                {{ $t('Close') }}
               </v-btn>
-            </template>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-col>
 
-            <v-card>
-              <v-card-title class="text-h5">
-                {{ $t('Add recipient') }}
-              </v-card-title>
-
-              <v-card-text>
-                <UserPicker
-                  class="max-h-[300px] overflow-auto"
-                  @selection="addToRecipients"
-                  :groupManagerApiUrl="GROUP_MANAGER_API_URL"
-                  :group-manager-front-url="VITE_EMPLOYEE_MANAGER_FRONT_URL"
-                  :accessToken="accessToken"
-                />
-              </v-card-text>
-
-              <v-card-text v-if="recipients.length">
-                <NewApplicationApprovalFlow :recipients="recipients" />
-              </v-card-text>
-
-              <v-card-text v-else>
-                {{ $t('No recipient selected') }}
-              </v-card-text>
-
-              <v-card-actions>
-                <v-spacer />
-                <v-btn variant="text" @click="add_recipient_dialog = false">
-                  {{ $t('Close') }}
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-        </v-col>
-
-        <v-col cols="auto">
-          <v-btn @click="saveRecipients">
-            <v-icon start>mdi-content-save</v-icon>
-            Save
-          </v-btn>
-        </v-col>
-      </v-row>
+      <v-col cols="auto">
+        <v-btn @click="saveRecipients">
+          <v-icon start>mdi-content-save</v-icon>
+          Save
+        </v-btn>
+      </v-col>
     </v-toolbar>
 
     <v-card-text v-if="recipients.length">
@@ -217,10 +215,24 @@ import { useAuth } from '@/composables/useAuth'
 const route = useRoute()
 const router = useRouter()
 
-const {accessToken} = useAuth()
+const { accessToken } = useAuth()
 
-const application_form_templates = ref<Template[]>([])
-const selected_form = ref<Template | null>(null)
+const defaultPDFForm: Template = {
+  label: 'pdf',
+  fields: [
+    {
+      label: 'pdf',
+      type: 'pdf',
+    },
+  ],
+  groups: [],
+  managers: [],
+}
+
+const applicationFormTemplates = ref<Template[]>([])
+const applicationForm = ref<Template | null>(
+  env.VITE_PDF_MODE ? defaultPDFForm : null
+)
 
 const title = ref<string>('')
 const confidential = ref<boolean>(false)
@@ -240,22 +252,23 @@ const copy_of = computed<string | null>(() => {
 
 const application_valid = computed<boolean>(() => {
   return (
-    title.value !== '' && recipients.value.length > 0 && !!selected_form.value
+    title.value !== '' && recipients.value.length > 0 && !!applicationForm.value
   )
 })
 
 // ---- Methods ----
 
 async function getTemplates(): Promise<void> {
+  if (env.VITE_PDF_MODE) return
+
   try {
     const { data } = await api.get<Template[]>('/templates')
-    application_form_templates.value = data
+    applicationFormTemplates.value = data
 
     const template = route.query.template as string
     if (template) {
-      selected_form.value =
-        application_form_templates.value.find((t) => t.label === template) ||
-        null
+      applicationForm.value =
+        applicationFormTemplates.value.find((t) => t.label === template) || null
     }
   } catch (err) {
     console.error(err)
@@ -271,11 +284,14 @@ async function submit(): Promise<void> {
     )
 
     const group_ids = groups.value.map((g) => g._id || g.properties?._id)
+    const form_data = applicationForm.value?.fields
+
+    const type = env.VITE_PDF_MODE ? 'PDF' : applicationForm.value?.label
 
     const body = {
       title: title.value,
-      type: selected_form.value?.label,
-      form_data: selected_form.value?.fields,
+      type,
+      form_data,
       private: confidential.value,
       recipients_ids,
       group_ids,
@@ -283,8 +299,7 @@ async function submit(): Promise<void> {
 
     const { data } = await api.post<Application>('/applications', body)
 
-    const application_id = data._id
-    router.push({ name: 'application', params: { application_id } })
+    router.push({ name: 'application', params: { application_id: data._id } })
   } catch (err) {
     console.error(err)
     alert(err)
@@ -348,20 +363,18 @@ async function recreateApplicationContent(): Promise<void> {
       }
     }
 
-    const parsed: Field[] = parseFormData(data.form_data)
-
-    selected_form.value = {
-      label: data.type,
-      fields: parsed,
-      managers: [],
-      groups: data.visibility || [],
-    }
-
     groups.value = data.visibility || []
 
     recipients.value = data.recipients
-      .slice() // avoid mutating original response
+      .slice()
       .sort((a, b) => a.submission.flow_index - b.submission.flow_index)
+
+    applicationForm.value = {
+      label: env.VITE_PDF_MODE ? 'pdf' : data.type,
+      fields: env.VITE_PDF_MODE ? [] : parseFormData(data.form_data),
+      managers: [],
+      groups: data.visibility || [],
+    }
   } catch (err) {
     console.error(err)
   }
@@ -376,7 +389,7 @@ onMounted(async () => {
 
 watch(copy_of, (val) => {
   if (!val) {
-    selected_form.value = null
+    applicationForm.value = null
     groups.value = []
     recipients.value = getRecipientsFromLocalStorage()
     title.value = ''

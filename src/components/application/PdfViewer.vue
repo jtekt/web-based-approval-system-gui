@@ -3,19 +3,24 @@
     <v-toolbar flat>
       <v-tooltip location="bottom">
         <template #activator="{ props }">
-          <span v-bind="props">PDF Reader</span>
+          <v-toolbar-title v-bind="props">PDF Reader</v-toolbar-title>
         </template>
         <span>ハンコを押したい所をクリックしてください</span>
       </v-tooltip>
 
       <v-spacer />
 
-      <v-btn icon :disabled="pageNumber <= 1" @click="previousPage">
+      <v-btn
+        type="button"
+        icon
+        :disabled="pageNumber <= 1"
+        @click="previousPage"
+      >
         <v-icon>mdi-arrow-left</v-icon>
       </v-btn>
       <v-menu open-on-hover>
         <template #activator="{ props }">
-          <v-btn variant="text" v-bind="props"
+          <v-btn type="button" variant="text" v-bind="props"
             >{{ pageNumber }}/{{ pageCount }}</v-btn
           >
         </template>
@@ -28,7 +33,12 @@
           />
         </v-list>
       </v-menu>
-      <v-btn icon :disabled="pageNumber >= pageCount" @click="nextPage">
+      <v-btn
+        type="button"
+        icon
+        :disabled="pageNumber >= pageCount"
+        @click="nextPage"
+      >
         <v-icon>mdi-arrow-right</v-icon>
       </v-btn>
 
@@ -65,14 +75,10 @@
     </v-toolbar>
     <v-divider />
 
-    <div
-      v-if="shownPdf"
-      class="pdf_container"
-      ref="pdfContainer"
-      @click="pdfClicked"
-    >
+    <div class="pdf_container" ref="pdfContainer">
       <vue-pdf-embed
-        :source="{ data: shownPdf }"
+        v-if="pdfSource"
+        :source="pdfSource"
         :page="pageNumber"
         @loaded="onPdfLoaded"
       />
@@ -80,6 +86,7 @@
         class="new_hanko_overlay"
         @mouseleave="hideNewHanko"
         @mousemove="updateNewHankoPosition"
+        @click="pdfClicked"
       />
       <div
         v-if="currentUserCanStamp"
@@ -97,14 +104,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { PDFDocument } from 'pdf-lib'
 import VuePdfEmbed from 'vue-pdf-embed'
-import type { Application, Recipient, Hanko } from '@/types'
+import type { Application, Hanko } from '@/types'
 import { generateWebHankoSvg } from '@/utils/webHankos'
 import api from '@/api'
 import { useAuth } from '@/composables/useAuth'
+import { Canvg } from 'canvg'
 
 const props = defineProps<{
   application: Application
@@ -127,19 +135,31 @@ const loadError = ref<string | null>(null)
 const pageNumber = ref(1)
 const pageCount = ref(1)
 const pdfDoc = ref<PDFDocument | null>(null)
-const shownPdf = ref<Uint8Array | null>(null)
+const shownPdf = ref<Uint8Array | undefined>(undefined)
 const filename = ref<string | null>(null)
 const pdfContainer = ref<HTMLElement | null>(null)
 const hankoScaleSlider = ref(35)
-const newHankoStyle = ref<Record<string, string>>({
+const newHankoStyle = ref<{
+  left: string
+  top: string
+  height: string
+  width: string
+  borderRadius: string
+  borderWidth: string
+  visibility: 'hidden' | 'visible'
+}>({
+  left: '0px',
+  top: '0px',
+  height: '0px',
+  width: '0px',
+  borderRadius: '0px',
+  borderWidth: '0px',
   visibility: 'hidden',
 })
 
 /* -----------------------------
  * Computed
  * ----------------------------- */
-const applicationId = computed(() => route.params.application_id as string)
-
 const userAsRecipient = computed(() => {
   if (!currentUser.value) return null
   return (
@@ -172,18 +192,26 @@ const currentUserCanStamp = computed(() => {
 
 const hankoScale = computed(() => hankoScaleSlider.value / 1000)
 
+const pdfSource = computed(() => {
+  return shownPdf.value ? { data: shownPdf.value } : null
+})
+
 /* -----------------------------
  * Lifecycle
  * ----------------------------- */
-onMounted(() => {
-  restoreHankoSize()
-  if (props.selectedFileId) viewPdf(props.selectedFileId)
-})
 
 watch(
-  () => props.selectedFileId,
-  (id) => {
-    if (id) viewPdf(id)
+  [() => props.selectedFileId, () => props.application],
+  async ([fileId]) => {
+    restoreHankoSize()
+
+    if (fileId) {
+      await viewPdf(fileId)
+    }
+  },
+  {
+    immediate: true,
+    deep: true,
   }
 )
 
@@ -219,13 +247,10 @@ function onPdfLoaded(pdf: { numPages: number }) {
  * ----------------------------- */
 async function viewPdf(fileId: string) {
   loading.value = true
-  shownPdf.value = null
-  filename.value = null
-  pageNumber.value = 1
 
   try {
     const { data, headers } = await api.get<ArrayBuffer>(
-      `/applications/${applicationId.value}/files/${fileId}`,
+      `/applications/${route.params.application_id}/files/${fileId}`,
       { responseType: 'arraybuffer' }
     )
 
@@ -236,7 +261,11 @@ async function viewPdf(fileId: string) {
     }
 
     await loadPdf(data)
-  } catch {
+  } catch (e) {
+    console.error('Load PDF', e)
+    shownPdf.value = undefined
+    filename.value = null
+    pageNumber.value = 1
     loadError.value = 'Failed to download file from server'
   } finally {
     loading.value = false
@@ -256,23 +285,16 @@ async function loadPdf(buffer: ArrayBuffer) {
 /* -----------------------------
  * Hanko rendering
  * ----------------------------- */
-function svgToPngDataUrl(svgString: string): Promise<string> {
-  return new Promise((resolve) => {
-    const blob = new Blob([svgString], { type: 'image/svg+xml' })
-    const url = URL.createObjectURL(blob)
-    const img = new Image()
+function svgToPngDataUrl(svgString: string): string {
+  const canvas = document.createElement('canvas')
+  const context = canvas.getContext('2d')
 
-    img.onload = () => {
-      const canvas = document.createElement('canvas')
-      canvas.width = 1000
-      canvas.height = 1500
-      canvas.getContext('2d')!.drawImage(img, 0, 0)
-      URL.revokeObjectURL(url)
-      resolve(canvas.toDataURL('image/png'))
-    }
+  canvas.width = 1000
+  canvas.height = 1500
 
-    img.src = url
-  })
+  Canvg.fromString(context!, svgString).start()
+
+  return canvas.toDataURL('image/png')
 }
 
 async function loadPdfHankos() {
@@ -289,20 +311,19 @@ async function loadPdfHankos() {
 
     if (typeof hankos === 'string') {
       try {
-        hankos = JSON.parse(hankos)
-      } catch {
+        hankos = JSON.parse(hankos) as Hanko[]
+      } catch (e) {
+        console.error(e)
         continue
       }
     }
 
-    const filtered = hankos?.filter(
-      (h: Hanko) => h.file_id === props.selectedFileId
-    )
+    const filtered = hankos?.filter((h) => h.file_id === props.selectedFileId)
     if (!filtered.length) continue
 
     try {
-      const svg = generateWebHankoSvg(recipient as Recipient)
-      const pngUrl = await svgToPngDataUrl(svg)
+      const svg = generateWebHankoSvg(recipient)
+      const pngUrl = svgToPngDataUrl(svg)
       const base64 = pngUrl.split(',')[1]
       const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0))
 
@@ -333,7 +354,7 @@ async function loadPdfHankos() {
 /* -----------------------------
  * Click → stamp
  * ----------------------------- */
-async function pdfClicked(event: MouseEvent) {
+async function pdfClicked(event: PointerEvent) {
   if (!currentUserCanStamp.value) return
   if (!pdfDoc.value || !pdfContainer.value) return
   if (!confirm('Apply Hanko here?')) return
@@ -366,7 +387,7 @@ async function pdfClicked(event: MouseEvent) {
 
   let hankos = approval.attachment_hankos ?? []
   if (typeof hankos === 'string') {
-    hankos = JSON.parse(hankos)
+    hankos = JSON.parse(hankos) as Hanko[]
   }
 
   hankos.push(newHanko)
@@ -376,24 +397,26 @@ async function pdfClicked(event: MouseEvent) {
 /* -----------------------------
  * API actions
  * ----------------------------- */
-function approveApplication(body: { attachment_hankos: Hanko[] }) {
-  api
-    .post(`/applications/${applicationId.value}/approve`, body)
-    .then(() => emit('pdf_stamped'))
-    .catch((err) => {
-      console.error(err)
-      alert('Error approving application')
-    })
+async function approveApplication(body: { attachment_hankos: Hanko[] }) {
+  try {
+    await api.post(`/applications/${route.params.application_id}/approve`, body)
+
+    emit('pdf_stamped')
+  } catch (err) {
+    console.error(err)
+    alert('Error approving application')
+  }
 }
 
-function updateHankos(body: { attachment_hankos: Hanko[] }) {
-  api
-    .put(`/applications/${applicationId.value}/hankos`, body)
-    .then(() => emit('pdf_stamped'))
-    .catch((err) => {
-      console.error(err)
-      alert('Error updating hankos')
-    })
+async function updateHankos(body: { attachment_hankos: Hanko[] }) {
+  try {
+    await api.put(`/applications/${route.params.application_id}/hankos`, body)
+
+    emit('pdf_stamped')
+  } catch (err) {
+    console.error(err)
+    alert('Error updating hankos')
+  }
 }
 
 /* -----------------------------
@@ -411,18 +434,17 @@ function updateNewHankoPosition(event: MouseEvent) {
   const ex = event.offsetX
   const ey = event.offsetY
 
-  newHankoStyle.value = {
-    left: `calc(${ex}px - ${0.5 * 0.75 * hankoHeight * 0.94}px)`,
-    top: `calc(${ey}px - ${0.5 * hankoHeight}px)`,
-    height: `${hankoHeight}px`,
-    width: `${0.75 * hankoHeight * 0.94}px`,
-    borderRadius: `${0.1 * hankoHeight}px`,
-    borderWidth: `${0.03 * hankoHeight}px`,
-  }
+  newHankoStyle.value.left = `calc(${ex}px - ${0.5 * 0.75 * hankoHeight * 0.94}px)`
+  newHankoStyle.value.top = `calc(${ey}px - ${0.5 * hankoHeight}px)`
+  newHankoStyle.value.height = `${hankoHeight}px`
+  newHankoStyle.value.width = `${0.75 * hankoHeight * 0.94}px`
+  newHankoStyle.value.borderRadius = `${0.1 * hankoHeight}px`
+  newHankoStyle.value.borderWidth = `${0.03 * hankoHeight}px`
+  newHankoStyle.value.visibility = 'visible'
 }
 
 function hideNewHanko() {
-  newHankoStyle.value = { visibility: 'hidden' }
+  newHankoStyle.value.visibility = 'hidden'
 }
 
 /* -----------------------------
@@ -446,6 +468,7 @@ function downloadPdf() {
 <style scoped>
 .pdf_container {
   position: relative;
+  background: #f5f5f5;
 }
 
 .new_hanko {
@@ -462,5 +485,12 @@ function downloadPdf() {
   height: 100%;
   z-index: 3;
   cursor: pointer;
+}
+
+:deep(.vue-pdf-embed__page) {
+  margin: 8px;
+  box-shadow: 0 0px 4px 0px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
+  background: white;
 }
 </style>

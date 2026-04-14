@@ -21,7 +21,6 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import axios from 'axios'
 import api from '@/api'
 
 const props = defineProps<{

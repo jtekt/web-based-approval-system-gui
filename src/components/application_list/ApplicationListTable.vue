@@ -48,6 +48,7 @@ import { ApplicationSchema } from '@/schemas/application'
 import { PagedApplicationsSchema } from '@/schemas/common'
 import UserChip from '@/components/UserChip.vue'
 import api from '@/api'
+import { env } from '@/utils/env'
 
 const props = defineProps<{
   direction: string
@@ -73,8 +74,6 @@ const relationship_lookup: Record<string, string> = {
   received: 'SUBMITTED_TO',
 }
 
-const state = () => (route.query.state as string) || 'pending'
-
 /**
  * SINGLE SOURCE OF TRUTH
  * This is the ONLY place that triggers API calls
@@ -95,7 +94,8 @@ function get_applications() {
     start_index: (options.value.page - 1) * options.value.itemsPerPage,
     batch_size: options.value.itemsPerPage,
     relationship: relationship_lookup[props.direction],
-    state: state(),
+    state: route.query.state,
+    type: env.VITE_PDF_MODE && "PDF"
   }
 
   api
