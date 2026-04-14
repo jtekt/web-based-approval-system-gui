@@ -8,7 +8,7 @@ export const FieldSchema = z.object({
   value: z.unknown().optional(),
 })
 
-export const HankoPositionSchema = z.object({
+const HankoPositionSchema = z.object({
   x: z.number(),
   y: z.number(),
 })
@@ -21,7 +21,7 @@ export const HankoSchema = z.object({
   date: z.union([z.string(), z.date()]).optional(),
 })
 
-export const ApprovalSchema = z.object({
+const ApprovalSchema = z.object({
   _id: z.string().optional(),
   date: Neo4jDateSchema.optional(),
   comment: z.string().optional(),
@@ -52,10 +52,7 @@ export const ApplicationSchema = z.object({
   current_recipient: RecipientSchema.optional(),
 })
 
-export const ApplicationListItemSchema = ApplicationSchema
-
 export type Field = z.infer<typeof FieldSchema>
 export type Hanko = z.infer<typeof HankoSchema>
-export type Approval = z.infer<typeof ApprovalSchema>
 export type Recipient = z.infer<typeof RecipientSchema>
 export type Application = z.infer<typeof ApplicationSchema>

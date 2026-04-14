@@ -18,7 +18,7 @@
 
           <v-btn
             variant="text"
-            :disabled="application_is_fully_approved"
+            :disabled="isApplicationFullyApproved"
             color="error"
             @click="open_delete_dialog"
           >
@@ -35,12 +35,12 @@
           <v-col cols="6">
             <ApplicationFormContent
               v-model="application"
-              @pdfSelected="view_pdf"
+              @pdfSelected="viewPdf"
             />
           </v-col>
 
           <v-col>
-            <v-row v-if="current_recipient_is_current_user" class="mb-3">
+            <v-row v-if="isCurrentRecipientCurrentUser" class="mb-3">
               <v-spacer />
 
               <v-col cols="auto">
@@ -59,7 +59,7 @@
             </v-row>
 
             <v-row justify="end" align="end" class="flex-wrap-reverse">
-              <template v-if="user_as_recipient && !current_recipient">
+              <template v-if="isUserRecipient && !current_recipient">
                 <v-col cols="auto">
                   <EmailButton
                     :application="application"
@@ -92,7 +92,7 @@
 
             <RecipientComments
               :application="application"
-              @comment_updated="get_application"
+              @comment_updated="getApplication"
             />
           </v-col>
         </v-row>
@@ -103,7 +103,7 @@
           v-if="selected_file_id"
           :selected-file-id="selected_file_id"
           :application="application"
-          @pdf_stamped="get_application"
+          @pdf_stamped="getApplication"
         />
       </v-card-text>
     </template>
@@ -120,7 +120,7 @@
         <v-card-actions>
           <v-spacer />
           <v-btn text @click="dialog.visible = false">Cancel</v-btn>
-          <v-btn color="primary" @click="dialog_confirm">OK</v-btn>
+          <v-btn color="primary" @click="dialogConfirm">OK</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -139,7 +139,7 @@ import ApplicationFormContent from '@/components/application/ApplicationFormCont
 import type { Application } from '@/types'
 import api from '@/api'
 import { useAuth } from '@/composables/useAuth'
-import { useToast } from '@/stores/toast'
+import { useToast } from '@/composables/useToast'
 import WebHankoContainer from '@/components/application/WebHankoContainer.vue'
 
 const router = useRouter()
@@ -184,19 +184,20 @@ const user_is_applicant = computed(() => {
   return application.value.applicant?._id === currentUser.value._id
 })
 
-const current_recipient_is_current_user = computed(() => {
-  if (!current_recipient.value || !currentUser.value) return false
-  return current_recipient.value._id === currentUser.value._id
-})
-
-const user_as_recipient = computed(() => {
+const isUserRecipient = computed(() => {
   if (!application.value || !currentUser.value) return false
   return application.value.recipients.some(
     (r) => r._id === currentUser.value?._id
   )
 })
 
-const application_is_fully_approved = computed(() => {
+const isCurrentRecipientCurrentUser = computed(() => {
+  if (!isUserRecipient || !current_recipient.value || !currentUser.value)
+    return false
+  return current_recipient.value._id === currentUser.value._id
+})
+
+const isApplicationFullyApproved = computed(() => {
   if (!application.value) return false
 
   const total = application.value.recipients.length
@@ -208,7 +209,7 @@ const application_is_fully_approved = computed(() => {
   return total === approved
 })
 
-async function get_application() {
+async function getApplication() {
   loading.value = true
   error.value = null
 
@@ -228,11 +229,11 @@ async function get_application() {
   }
 }
 
-function view_pdf(file_id: string) {
+function viewPdf(file_id: string) {
   selected_file_id.value = file_id
 }
 
-function open_dialog(
+function openDialog(
   title: string,
   message: string,
   action: () => Promise<void>
@@ -240,28 +241,28 @@ function open_dialog(
   dialog.value = { visible: true, title, message, action }
 }
 
-function dialog_confirm() {
+function dialogConfirm() {
   if (dialog.value.action) dialog.value.action()
   dialog.value.visible = false
 }
 
 function open_approve_dialog() {
-  open_dialog('Approve', 'Approve this application?', approve_application)
+  openDialog('Approve', 'Approve this application?', approve_application)
 }
 
 function open_reject_dialog() {
-  open_dialog('Reject', 'Reject this application?', reject_application)
+  openDialog('Reject', 'Reject this application?', reject_application)
 }
 
 function open_delete_dialog() {
-  open_dialog('Delete', 'Delete this application?', delete_application)
+  openDialog('Delete', 'Delete this application?', delete_application)
 }
 
 async function approve_application() {
   try {
     await api.post(`/applications/${application_id.value}/approve`)
     toast.success('Application approved')
-    await get_application()
+    await getApplication()
   } catch {
     toast.error('Error approving application')
   }
@@ -271,7 +272,7 @@ async function reject_application() {
   try {
     await api.post(`/applications/${application_id.value}/reject`)
     toast.success('Application rejected')
-    await get_application()
+    await getApplication()
   } catch {
     toast.error('Error rejecting application')
   }
@@ -294,5 +295,5 @@ function go_to_resubmit() {
   })
 }
 
-onMounted(get_application)
+onMounted(getApplication)
 </script>

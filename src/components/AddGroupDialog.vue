@@ -14,7 +14,7 @@
           class="group-picker"
           :groupManagerApiUrl="GROUP_MANAGER_API_URL"
           :group-manager-front-url="VITE_EMPLOYEE_MANAGER_FRONT_URL"
-          :accessToken="get_token()"
+          :accessToken="accessToken"
           @selection="onSelection"
         />
       </v-card-text>
@@ -29,26 +29,22 @@
 </template>
 
 <script setup lang="ts">
-import Cookies from 'js-cookie'
 import { ref } from 'vue'
 import {
   GroupPicker,
   type GroupItem,
 } from '@moreillon/group-manager-vue-picker'
 import { env } from '@/utils/env'
+import { useAuth } from '@/composables/useAuth'
 
 const GROUP_MANAGER_API_URL = env.VITE_GROUP_MANAGER_API_URL
 const VITE_EMPLOYEE_MANAGER_FRONT_URL = env.VITE_EMPLOYEE_MANAGER_FRONT_URL
 
+const {accessToken} = useAuth()
+
 const emit = defineEmits<{ selection: [group: GroupItem] }>()
 
 const dialog = ref(false)
-
-function get_token() {
-  return (
-    Cookies.get('jwt') || Cookies.get('token') || localStorage.getItem('jwt')
-  )
-}
 
 function onSelection(group: GroupItem) {
   emit('selection', group)

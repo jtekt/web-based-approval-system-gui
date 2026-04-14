@@ -189,7 +189,7 @@ import AddGroupDialog from '@/components/AddGroupDialog.vue'
 import AddTemplateManagerDialog from '@/components/templates/AddTemplateManagerDialog.vue'
 import api from '@/api'
 import { useAuth } from '@/composables/useAuth'
-import { useToast } from '@/stores/toast'
+import { useToast } from '@/composables/useToast'
 
 const { t } = useI18n()
 const route = useRoute()

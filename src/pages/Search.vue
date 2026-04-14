@@ -106,18 +106,16 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import axios from 'axios'
-import type { Application, Group } from '@/types'
-import { useIdUtils } from '@/composables/useIdUtils'
 import { PagedApplicationsSchema } from '@/schemas/common'
 import { ApplicationSchema } from '@/schemas/application'
-import type { Neo4jDate } from '@/types'
 import AddGroupDialog from '@/components/AddGroupDialog.vue'
 import DatePicker from '@/components/DatePicker.vue'
+import api from '@/api'
+import type { Application, Group } from '@/types'
+import type { Neo4jDate } from '@/types'
 
 const { t } = useI18n()
 const router = useRouter()
-const { getIdOfItem } = useIdUtils()
 
 const loading = ref(false)
 const applications = ref<Application[]>([])
@@ -134,10 +132,6 @@ const approvalState = ref<string | null>(null)
 const startDate = ref<string | null>(null)
 const endDate = ref<string | null>(null)
 const selectedGroup = ref<Group | null>(null)
-
-const selectedGroupId = computed(() =>
-  selectedGroup.value ? getIdOfItem(selectedGroup.value) : null
-)
 
 const headers = computed(() => [
   { title: t('Date'), key: 'creation_date' },
@@ -162,7 +156,7 @@ const relationshipTypes = computed(() => [
 onMounted(() => getApplicationTypes())
 
 function getApplicationTypes() {
-  axios
+  api
     .get<string[]>('/applications/types')
     .then(({ data }) => {
       applicationTypes.value = data
@@ -190,13 +184,13 @@ function getApplications() {
     type: applicationType.value || undefined,
     start_date: startDate.value || undefined,
     end_date: endDate.value || undefined,
-    group_id: selectedGroupId.value || undefined,
+    group_id: selectedGroup.value?._id || undefined,
     state: approvalState.value || undefined,
     start_index: (page.value - 1) * itemsPerPage.value,
     batch_size: itemsPerPage.value,
   }
 
-  axios
+  api
     .get<{ applications: Application[]; count: number }>('/applications', {
       params,
     })
@@ -221,8 +215,7 @@ function selectGroup(group: Group) {
 }
 
 function rowClicked(_event: Event, row: { item: Application }) {
-  const id = getIdOfItem(row.item)
-  router.push({ name: 'application', params: { application_id: id } })
+  router.push({ name: 'application', params: { application_id: row.item._id } })
 }
 
 function formatDate(date: Neo4jDate): string {

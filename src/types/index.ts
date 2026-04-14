@@ -3,8 +3,7 @@ export type { User } from '@/schemas/user'
 export type {
   Field,
   Hanko,
-  Approval,
   Recipient,
   Application,
 } from '@/schemas/application'
-export type { TemplateField, Template } from '@/schemas/template'
+export type { Template } from '@/schemas/template'

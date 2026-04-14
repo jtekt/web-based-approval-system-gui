@@ -1,12 +1,12 @@
-import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { SnackbarMessage } from 'vuetify/lib/components/VSnackbarQueue/VSnackbarQueue.mjs'
 
 type SnackbarObject = Exclude<SnackbarMessage, string>
 
-export const useToast = defineStore('toasts', () => {
-  const queue = ref<SnackbarMessage[]>([])
+// shared state (singleton across app)
+const queue = ref<SnackbarMessage[]>([])
 
+export function useToast() {
   function add(message: SnackbarMessage) {
     queue.value.push(message)
   }
@@ -47,5 +47,12 @@ export const useToast = defineStore('toasts', () => {
     })
   }
 
-  return { queue, add, success, error, info, warning }
-})
+  return {
+    queue,
+    add,
+    success,
+    error,
+    info,
+    warning,
+  }
+}

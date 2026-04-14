@@ -120,9 +120,9 @@ import { useRoute } from 'vue-router'
 import type { Application, Field, Hanko } from '@/types'
 import { useDateUtils } from '@/composables/useDateUtils'
 import UserChip from '@/components/UserChip.vue'
-import PrivacySettings from './PrivacySettings.vue'
 import { env } from '@/utils/env'
 import { useAuth } from '@/composables/useAuth'
+import PrivacySettings from './PrivacySettings.vue'
 
 const props = defineProps<{ modelValue: Application }>()
 const emit = defineEmits<{

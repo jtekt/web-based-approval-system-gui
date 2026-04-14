@@ -1,8 +1,8 @@
 <template>
   <!-- Page title -->
-  <div class="text-h4 mb-4">
+  <h2 class="text-h4 mb-4">
     {{ $t('New submission') }}
-  </div>
+  </h2>
 
   <!-- Application info -->
   <v-card class="mb-4">
@@ -139,7 +139,7 @@
                   @selection="addToRecipients"
                   :groupManagerApiUrl="GROUP_MANAGER_API_URL"
                   :group-manager-front-url="VITE_EMPLOYEE_MANAGER_FRONT_URL"
-                  :accessToken="get_token()"
+                  :accessToken="accessToken"
                 />
               </v-card-text>
 
@@ -206,17 +206,18 @@ import NewApplicationTemplateDetails from '@/components/new_application/NewAppli
 import GroupChip from '@/components/GroupChip.vue'
 import type { Application, Field, Group, Recipient, Template } from '@/types'
 import { env } from '@/utils/env'
-import Cookies from 'js-cookie'
 import { localStorageRecipientsKey } from '@/constants'
-import axios from 'axios'
 import z from 'zod'
 import { FieldSchema } from '@/schemas/application'
 import api from '@/api'
+import { useAuth } from '@/composables/useAuth'
 
 // ---- Setup ----
 
 const route = useRoute()
 const router = useRouter()
+
+const {accessToken} = useAuth()
 
 const application_form_templates = ref<Template[]>([])
 const selected_form = ref<Template | null>(null)
@@ -364,12 +365,6 @@ async function recreateApplicationContent(): Promise<void> {
   } catch (err) {
     console.error(err)
   }
-}
-
-function get_token() {
-  return (
-    Cookies.get('jwt') || Cookies.get('token') || localStorage.getItem('jwt')
-  )
 }
 
 // ---- Lifecycle ----

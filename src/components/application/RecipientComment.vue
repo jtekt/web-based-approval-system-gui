@@ -62,8 +62,8 @@ import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import api from '@/api'
 import { useAuth } from '@/composables/useAuth'
+import { useToast } from '@/composables/useToast'
 import type { Recipient } from '@/types'
-import { useToast } from '@/stores/toast'
 
 const props = defineProps<{ recipient: Recipient }>()
 const emit = defineEmits<{ comment_updated: [] }>()

@@ -54,7 +54,7 @@
       </v-container>
     </v-main>
 
-    <v-snackbar-queue v-model="toasts.queue" />
+    <v-snackbar-queue v-model="toasts.queue.value" />
   </v-app>
 </template>
 
@@ -64,7 +64,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useDisplay, useTheme } from 'vuetify'
 import LocaleSelector from '@/components/LocaleSelector.vue'
-import { useToast } from './stores/toast'
+import { useToast } from './composables/useToast'
 import { useAuth } from './composables/useAuth'
 import api from './api'
 

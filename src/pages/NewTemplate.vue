@@ -33,12 +33,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
-import { useIdUtils } from '@/composables/useIdUtils'
 import api from '@/api'
+import type { Template } from '@/types'
 
 const router = useRouter()
-const { getIdOfItem } = useIdUtils()
 
 const label = ref('')
 const formRef = ref<{ validate: () => Promise<{ valid: boolean }> } | null>(
@@ -55,11 +53,11 @@ async function createTemplate() {
   if (!result?.valid) return
 
   try {
-    const { data } = await api.post<{ _id?: string }>('/templates', {
+    const { data } = await api.post<Template>('/templates', {
       label: label.value,
     })
-    const templateId = getIdOfItem(data)
-    router.push({ name: 'template', params: { template_id: templateId } })
+
+    router.push({ name: 'template', params: { template_id: data._id } })
   } catch (err) {
     console.error(err)
   }
