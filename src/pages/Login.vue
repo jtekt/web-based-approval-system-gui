@@ -1,6 +1,6 @@
 <template>
   <v-row align="center" justify="center" class="fill-height">
-    <v-col cols="12" sm="8">
+    <v-col cols="12" sm="8" md="6">
       <v-card>
         <v-card-title class="pt-6 px-6">{{ $t('Login') }}</v-card-title>
         <v-card-text class="px-6 pb-6">

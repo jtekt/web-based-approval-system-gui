@@ -21,6 +21,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import api from '@/api'
 
 const props = defineProps<{
@@ -31,6 +32,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{ 'update:modelValue': [value: string | null] }>()
 
+const { t } = useI18n()
 const loading = ref(false)
 
 async function fileUpload(file: File | File[] | null) {
@@ -44,7 +46,7 @@ async function fileUpload(file: File | File[] | null) {
     })
     emit('update:modelValue', data.file_id)
   } catch (error) {
-    alert('Upload failed')
+    alert(t('Upload failed'))
     console.error(error)
   } finally {
     loading.value = false

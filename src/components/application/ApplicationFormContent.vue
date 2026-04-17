@@ -116,7 +116,7 @@
                       {{
                         userHasStampedAttachment(String(field.value))
                           ? $t('Stamped')
-                          : $t('Not stamped')
+                          : $t('Not stamped yet')
                       }}
                     </v-chip>
                   </div>

@@ -6,7 +6,7 @@
     <!-- TODO: Improve this page -->
     <template #title>{{ $t('About') }}</template>
     <v-card-text>
-      A GUI for 申請マネージャー v{{ version }}
+      {{ $t('App description', { version }) }}
       <v-data-table hide-default-footer :headers="headers" :items="settings" />
     </v-card-text>
   </v-card>
@@ -14,15 +14,17 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import packageJson from '../../package.json'
 import { env } from '@/utils/env'
 
+const { t } = useI18n()
 const version = packageJson.version
 
-const headers = [
-  { title: 'Setting', key: 'name' },
-  { title: 'Value', key: 'value' },
-]
+const headers = computed(() => [
+  { title: t('Setting'), key: 'name' },
+  { title: t('Value'), key: 'value' },
+])
 
 const settings = computed(() => [
   {

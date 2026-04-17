@@ -43,6 +43,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { Application, Group } from '@/types'
 import GroupChip from '@/components/GroupChip.vue'
 import AddGroupDialog from '@/components/AddGroupDialog.vue'
@@ -53,6 +54,7 @@ import { useToast } from '@/composables/useToast'
 const props = defineProps<{ modelValue: Application }>()
 const emit = defineEmits<{ 'update:modelValue': [value: Application] }>()
 
+const { t } = useI18n()
 const { currentUser } = useAuth()
 const toast = useToast()
 
@@ -87,7 +89,7 @@ async function updatePrivacy() {
     application.value.private = previous
     localPrivate.value = previous
 
-    toast.error('Failed to update application privacy')
+    toast.error(t('Failed to update application privacy'))
     console.error(error)
   } finally {
     loading.value = false
@@ -109,7 +111,7 @@ async function shareWithGroup(group: Group) {
     application.value.visibility = visibility
     emit('update:modelValue', { ...application.value })
   } catch (error) {
-    toast.error('Failed to share with group')
+    toast.error(t('Failed to share with group'))
     console.error(error)
   }
 }
@@ -125,7 +127,7 @@ async function removeVisibilityGroup(group: Group) {
 
     emit('update:modelValue', { ...application.value })
   } catch (error) {
-    toast.error('Failed to remove group visibility')
+    toast.error(t('Failed to remove group visibility'))
     console.error(error)
   }
 }

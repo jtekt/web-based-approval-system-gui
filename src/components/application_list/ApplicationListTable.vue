@@ -90,38 +90,39 @@ function get_applications() {
   loading.value = true
   error.value = null
 
-  const state = route.query.state || "pending"
+  const state = route.query.state || 'pending'
 
   const params = {
     start_index: (options.value.page - 1) * options.value.itemsPerPage,
     batch_size: options.value.itemsPerPage,
     relationship: relationship_lookup[props.direction],
     state,
-    type: env.VITE_PDF_MODE && "PDF"
+    type: env.VITE_PDF_MODE && 'PDF',
   }
 
   api
-    .get('/applications', { params })
+    .get<{
+      count: number
+      applications: Application[]
+      start_index: number
+      batch_size: number
+    }>('/applications', { params })
     .then(({ data }) => {
       const parsed = PagedApplicationsSchema(ApplicationSchema).safeParse(data)
 
-      const items: Application[] = parsed.success
+      const items = parsed.success
         ? parsed.data.applications
-        : (data as { applications: Application[] }).applications
+        : data.applications
 
-      application_count.value = parsed.success
-        ? parsed.data.count
-        : (data as { count: number }).count
+      application_count.value = parsed.success ? parsed.data.count : data.count
 
       applications.value = items.map((app) => {
         const current_recipient = app.recipients
           .slice()
           .sort((a, b) => a.submission.flow_index - b.submission.flow_index)
-          .find((r: Recipient) => !r.approval)
+          .find((r) => !r.approval)
 
-        const approval_count = app.recipients.filter(
-          (r: Recipient) => r.approval
-        ).length
+        const approval_count = app.recipients.filter((r) => r.approval).length
 
         const progress = app.recipients.length
           ? (100 * approval_count) / app.recipients.length

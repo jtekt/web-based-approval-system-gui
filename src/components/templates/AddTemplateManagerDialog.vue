@@ -25,19 +25,24 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import type { User } from '@/types'
 import UserSearchPicker from '@/components/UserSearchPicker.vue'
 import api from '@/api'
+import { useToast } from '@/composables/useToast'
 
 const emit = defineEmits<{ selection: [user: User] }>()
 
+const { t } = useI18n()
 const route = useRoute()
+const toast = useToast()
+
 const dialog = ref(false)
 const loading = ref(false)
 
 async function userSelected(user: User) {
   const displayName = user.display_name ?? user.username ?? ''
-  if (!confirm(`Make user ${displayName} manager of this template?`)) return
+  if (!confirm(t('Make manager confirmation', { name: displayName }))) return
   loading.value = true
   try {
     const templateId = route.params.template_id
@@ -47,7 +52,7 @@ async function userSelected(user: User) {
     emit('selection', user)
     dialog.value = false
   } catch (error) {
-    alert('Failed')
+    toast.error(t('Failed to add manager'))
     console.error(error)
   } finally {
     loading.value = false

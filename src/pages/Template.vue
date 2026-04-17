@@ -1,147 +1,132 @@
 <template>
-  <v-card :loading="loading" class="mb-4">
-    <v-toolbar flat>
-      <v-btn exact icon :to="{ name: 'templates' }">
-        <v-icon>mdi-arrow-left</v-icon>
-      </v-btn>
-      <v-toolbar-title>{{ template?.label ?? $t('Template') }}</v-toolbar-title>
-      <v-spacer />
-      <template v-if="userIsManager">
-        <v-btn
-          variant="text"
-          color="error"
-          :loading="deleting"
-          @click="deleteTemplate"
-        >
-          <v-icon start>mdi-delete</v-icon>
-          <span>{{ $t('Delete') }}</span>
-        </v-btn>
-        <v-btn variant="text" :loading="saving" @click="updateTemplate">
-          <v-icon start>mdi-content-save</v-icon>
-          <span>{{ $t('Save') }}</span>
-        </v-btn>
-      </template>
-    </v-toolbar>
-    <v-divider />
-
-    <template v-if="template">
-      <v-card-text>
-        <v-row>
-          <v-col>
-            <v-text-field
-              :readonly="!userIsManager"
-              :label="$t('Template name')"
-              v-model="template.label"
-            />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
-            <v-textarea
-              :label="$t('Description')"
-              auto-grow
-              rows="1"
-              :readonly="!userIsManager"
-              v-model="template.description"
-            />
-          </v-col>
-        </v-row>
-
-        <!-- Visibility -->
-        <v-row align="center">
-          <v-col cols="auto">{{ $t('Visibility') }}</v-col>
-          <v-col cols="auto"
-            ><v-chip label >{{ $t('You') }}</v-chip></v-col
-          >
-          <v-col
-            cols="auto"
-            v-for="(group, index) in template.groups"
-            :key="`group_${index}`"
-          >
-            <GroupChip
-              :group="group"
-              :closable="userIsManager"
-              @click:close="removeGroup(index)"
-            />
-          </v-col>
-          <v-col cols="auto">
-            <AddGroupDialog v-if="userIsManager" @selection="addGroup" />
-          </v-col>
-        </v-row>
-
-        <!-- Managers -->
-        <v-row align="center">
-          <v-col cols="auto">{{ $t('Managers') }}</v-col>
-          <v-col
-            cols="auto"
-            v-for="(manager, index) in template.managers"
-            :key="`manager_${index}`"
-          >
-            <UserChip :user="manager" />
-          </v-col>
-          <v-col cols="auto">
-            <AddTemplateManagerDialog
-              v-if="userIsManager"
-              @selection="addManager"
-            />
-          </v-col>
-        </v-row>
-      </v-card-text>
+  <v-card :loading="loading">
+    <template #prepend>
+      <v-icon>mdi-file-document-multiple-outline</v-icon>
     </template>
-  </v-card>
-
-  <v-card v-if="template">
-    <v-toolbar flat>
-      <v-toolbar-title>{{ $t('Fields') }}</v-toolbar-title>
-      <v-spacer />
-      <v-btn v-if="userIsManager" @click="addField">
-        <v-icon start>mdi-plus</v-icon>
-        <span>{{ $t('Add field') }}</span>
+    <template #title>
+      {{ template?.label ?? $t('Template') }}
+    </template>
+    <template #append v-if="userIsManager">
+      <v-btn :loading="saving" @click="updateTemplate" class="mr-2">
+        <v-icon start>mdi-content-save</v-icon>
+        <span>{{ $t('Save') }}</span>
       </v-btn>
-    </v-toolbar>
+      <v-btn color="error" :loading="deleting" @click="deleteTemplate">
+        <v-icon start>mdi-delete</v-icon>
+        <span>{{ $t('Delete') }}</span>
+      </v-btn>
+    </template>
+
     <v-divider />
-    <v-card-text>
-      <v-row
-        align="start"
-        v-for="(field, index) in template.fields"
-        :key="`field_${index}`"
-      >
-        <v-col>
-          <v-text-field
-            :readonly="!userIsManager"
-            :label="$t('Field name')"
-            v-model="field.label"
+
+    <v-card-text v-if="template">
+      <v-text-field
+        :readonly="!userIsManager"
+        :label="$t('Template name')"
+        v-model="template.label"
+      />
+      <v-textarea
+        :label="$t('Description')"
+        auto-grow
+        rows="3"
+        :readonly="!userIsManager"
+        v-model="template.description"
+      />
+
+      <!-- Visibility -->
+      <v-row align="center">
+        <v-col cols="auto">{{ $t('Visibility') }}</v-col>
+        <v-col cols="auto">
+          <v-chip label>{{ $t('You') }}</v-chip>
+        </v-col>
+        <v-col
+          cols="auto"
+          v-for="(group, index) in template.groups"
+          :key="`group_${index}`"
+        >
+          <GroupChip
+            :group="group"
+            :closable="userIsManager"
+            @click:close="removeGroup(index)"
           />
         </v-col>
-        <v-col>
-          <v-select
-            :readonly="!userIsManager"
-            :items="fieldTypes"
-            item-title="label"
-            item-value="type"
-            v-model="field.type"
-            label="Type"
+        <v-col cols="auto">
+          <AddGroupDialog v-if="userIsManager" @selection="addGroup" />
+        </v-col>
+      </v-row>
+
+      <!-- Managers -->
+      <v-row align="center">
+        <v-col cols="auto">{{ $t('Managers') }}</v-col>
+        <v-col
+          cols="auto"
+          v-for="(manager, index) in template.managers"
+          :key="`manager_${index}`"
+        >
+          <UserChip :user="manager" />
+        </v-col>
+        <v-col cols="auto">
+          <AddTemplateManagerDialog
+            v-if="userIsManager"
+            @selection="addManager"
           />
-        </v-col>
-        <v-col v-if="userIsManager" cols="auto">
-          <v-btn icon :disabled="index === 0" @click="moveField(index, -1)">
-            <v-icon>mdi-arrow-up</v-icon>
-          </v-btn>
-          <v-btn
-            icon
-            :disabled="index === template.fields.length - 1"
-            @click="moveField(index, 1)"
-          >
-            <v-icon>mdi-arrow-down</v-icon>
-          </v-btn>
-        </v-col>
-        <v-col v-if="userIsManager" cols="auto">
-          <v-btn icon color="error" @click="deleteField(index)">
-            <v-icon>mdi-delete</v-icon>
-          </v-btn>
         </v-col>
       </v-row>
     </v-card-text>
+    <v-card variant="text" v-if="template">
+      <template #title>{{ $t('Fields') }}</template>
+      <template #append>
+        <v-btn v-if="userIsManager" @click="addField">
+          <v-icon start>mdi-plus</v-icon>
+          <span>{{ $t('Add field') }}</span>
+        </v-btn>
+      </template>
+      
+      <v-divider />
+
+      <v-card-text>
+        <v-row
+          align="start"
+          v-for="(field, index) in template.fields"
+          :key="`field_${index}`"
+        >
+          <v-col>
+            <v-text-field
+              :readonly="!userIsManager"
+              :label="$t('Field name')"
+              v-model="field.label"
+            />
+          </v-col>
+          <v-col>
+            <v-select
+              :readonly="!userIsManager"
+              :items="fieldTypes"
+              item-title="label"
+              item-value="type"
+              v-model="field.type"
+              :label="t('Type')"
+            />
+          </v-col>
+          <v-col v-if="userIsManager" cols="auto">
+            <v-btn icon :disabled="index === 0" @click="moveField(index, -1)">
+              <v-icon>mdi-arrow-up</v-icon>
+            </v-btn>
+            <v-btn
+              icon
+              :disabled="index === template.fields.length - 1"
+              @click="moveField(index, 1)"
+            >
+              <v-icon>mdi-arrow-down</v-icon>
+            </v-btn>
+          </v-col>
+          <v-col v-if="userIsManager" cols="auto">
+            <v-btn icon color="error" @click="deleteField(index)">
+              <v-icon>mdi-delete</v-icon>
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-card-text>
+    </v-card>
   </v-card>
 
   <v-dialog v-model="confirmState.open" max-width="420">

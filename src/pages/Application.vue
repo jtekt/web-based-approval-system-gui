@@ -137,8 +137,8 @@
       <v-card-text>{{ dialog.message }}</v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn text @click="dialog.visible = false">Cancel</v-btn>
-        <v-btn color="primary" @click="dialogConfirm">OK</v-btn>
+        <v-btn text @click="dialog.visible = false">{{ $t('Cancel') }}</v-btn>
+        <v-btn color="primary" @click="dialogConfirm">{{ $t('OK') }}</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -147,6 +147,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
 import HelpDialog from '@/components/application/HelpDialog.vue'
 import EmailButton from '@/components/application/EmailButton.vue'
@@ -162,6 +163,7 @@ import RecipientComment from '@/components/application/RecipientComment.vue'
 
 const router = useRouter()
 const route = useRoute()
+const { t } = useI18n()
 const toast = useToast()
 const { currentUser } = useAuth()
 
@@ -252,8 +254,8 @@ async function getApplication() {
       }
     }
   } catch (err: any) {
-    toast.error('Failed to load application')
-    error.value = 'Application not found'
+    toast.error(t('Failed to load application'))
+    error.value = t('Application not found')
   } finally {
     loading.value = false
   }
@@ -277,44 +279,44 @@ function dialogConfirm() {
 }
 
 function openApproveDialog() {
-  openDialog('Approve', 'Approve this application?', approveApplication)
+  openDialog(t('Approve'), t('Approve application'), approveApplication)
 }
 
 function openRejectDialog() {
-  openDialog('Reject', 'Reject this application?', rejectApplication)
+  openDialog(t('Reject'), t('Reject application'), rejectApplication)
 }
 
 function openDeleteDialog() {
-  openDialog('Delete', 'Delete this application?', deleteApplication)
+  openDialog(t('Delete'), t('Delete this application form'), deleteApplication)
 }
 
 async function approveApplication() {
   try {
     await api.post(`/applications/${route.params.application_id}/approve`)
-    toast.success('Application approved')
+    toast.success(t('Application approved'))
     await getApplication()
   } catch {
-    toast.error('Error approving application')
+    toast.error(t('Error approving application'))
   }
 }
 
 async function rejectApplication() {
   try {
     await api.post(`/applications/${route.params.application_id}/reject`)
-    toast.success('Application rejected')
+    toast.success(t('Application rejected'))
     await getApplication()
   } catch {
-    toast.error('Error rejecting application')
+    toast.error(t('Error rejecting application'))
   }
 }
 
 async function deleteApplication() {
   try {
     await api.delete(`/applications/${route.params.application_id}`)
-    toast.success('Application deleted')
+    toast.success(t('Application deleted'))
     router.push({ name: 'submitted_applications' })
   } catch {
-    toast.error('Error deleting application')
+    toast.error(t('Error deleting application'))
   }
 }
 

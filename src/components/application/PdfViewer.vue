@@ -4,9 +4,9 @@
       <div class="flex-fill">
         <v-tooltip location="bottom">
           <template #activator="{ props }">
-            <span v-bind="props">PDF Reader</span>
+            <span v-bind="props">{{ $t('PDF Reader') }}</span>
           </template>
-          <span>ハンコを押したい所をクリックしてください</span>
+          <span>{{ $t('Click here to place a stamp') }}</span>
         </v-tooltip>
       </div>
 
@@ -149,6 +149,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { PDFDocument } from 'pdf-lib'
 import VuePdfEmbed from 'vue-pdf-embed'
 import type { Application, Hanko } from '@/types'
@@ -167,6 +168,7 @@ const emit = defineEmits<{
   reject: []
 }>()
 
+const { t } = useI18n()
 const { currentUser } = useAuth()
 const route = useRoute()
 
@@ -309,7 +311,7 @@ async function viewPdf(fileId: string) {
     shownPdf.value = undefined
     filename.value = null
     pageNumber.value = 1
-    loadError.value = 'Failed to download file from server'
+    loadError.value = t('Failed to download file')
   } finally {
     loading.value = false
   }
@@ -321,7 +323,7 @@ async function loadPdf(buffer: ArrayBuffer) {
     pdfDoc.value = await PDFDocument.load(buffer)
     await loadPdfHankos()
   } catch {
-    loadError.value = 'This file cannot be opened'
+    loadError.value = t('This file cannot be opened')
   }
 }
 
@@ -401,7 +403,7 @@ async function loadPdfHankos() {
 async function pdfClicked(event: PointerEvent) {
   if (!currentUserCanStamp.value) return
   if (!pdfDoc.value || !pdfContainer.value) return
-  if (!confirm('Apply Hanko here?')) return
+  if (!confirm(t('Apply stamp here?'))) return
 
   saveHankoSize()
 
@@ -448,7 +450,7 @@ async function approveApplication(body: { attachment_hankos: Hanko[] }) {
     emit('pdf_stamped')
   } catch (err) {
     console.error(err)
-    alert('Error approving application')
+    alert(t('Error approving application'))
   }
 }
 
@@ -459,7 +461,7 @@ async function updateHankos(body: { attachment_hankos: Hanko[] }) {
     emit('pdf_stamped')
   } catch (err) {
     console.error(err)
-    alert('Error updating hankos')
+    alert(t('Error updating stamps'))
   }
 }
 

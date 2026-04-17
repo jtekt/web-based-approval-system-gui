@@ -116,14 +116,14 @@
       </template>
 
       <template #append>
-        <v-btn color="error" @click="add_recipient_dialog = true">
+        <v-btn @click="add_recipient_dialog = true" class="mr-2">
           <v-icon start>mdi-account-plus</v-icon>
           {{ $t('Add recipient') }}
         </v-btn>
 
         <v-btn @click="saveRecipients">
           <v-icon start>mdi-content-save</v-icon>
-          Save
+          {{ $t('Save') }}
         </v-btn>
       </template>
 
@@ -203,6 +203,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
 import { UserPicker, type User } from '@moreillon/group-manager-vue-picker'
 import NewApplicationApprovalFlow from '@/components/new_application/NewApplicationApprovalFlow.vue'
@@ -223,6 +224,7 @@ import { useAuth } from '@/composables/useAuth'
 const route = useRoute()
 const router = useRouter()
 
+const { t } = useI18n()
 const { accessToken } = useAuth()
 
 const defaultPDFForm: Template = {
@@ -326,7 +328,7 @@ function addToRecipients(newRecipient: User): void {
   const exists = recipients.value.find(
     (r) => (r._id || r.properties?._id) === newRecipient._id
   )
-  if (exists) return alert('Duplicates not allowed')
+  if (exists) return alert(t('Duplicates not allowed'))
 
   // TODO validate here
   recipients.value.push({ ...newRecipient, submission: { flow_index: 0 } })
@@ -346,7 +348,7 @@ function saveRecipients(): void {
     localStorageRecipientsKey,
     JSON.stringify(recipients.value)
   )
-  alert('承認フローが保存されました')
+  alert(t('Approval flow saved'))
 }
 
 function getRecipientsFromLocalStorage(): Recipient[] {

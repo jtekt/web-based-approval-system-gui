@@ -1,12 +1,10 @@
 <template>
-  <v-card max-width="500" class="mx-auto">
-    <v-toolbar flat>
-      <v-btn exact icon :to="{ name: 'templates' }">
-        <v-icon>mdi-arrow-left</v-icon>
-      </v-btn>
-      <v-toolbar-title>{{ $t('New template') }}</v-toolbar-title>
-    </v-toolbar>
-    <v-divider />
+  <v-card
+    max-width="30rem"
+    class="mx-auto"
+    prepend-icon="mdi-file-document-plus-outline"
+  >
+    <template #title>{{ $t('New template') }}</template>
     <v-card-text>
       <v-form ref="formRef" @submit.prevent="createTemplate">
         <v-row align="center">
@@ -35,7 +33,9 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api'
 import type { Template } from '@/types'
+import { useAuth } from '@/composables/useAuth'
 
+const { currentUser } = useAuth()
 const router = useRouter()
 
 const label = ref('')
@@ -55,6 +55,7 @@ async function createTemplate() {
   try {
     const { data } = await api.post<Template>('/templates', {
       label: label.value,
+      managers: [currentUser.value?._id]
     })
 
     router.push({ name: 'template', params: { template_id: data._id } })
