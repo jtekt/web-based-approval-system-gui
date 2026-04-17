@@ -1,44 +1,42 @@
 <template>
-  <div class="px-4">
-    <v-switch
-      :disabled="!isUserApplicant || loading"
-      :label="$t('Confidential')"
-      v-model="localPrivate"
-      @change="updatePrivacy"
-      hide-details
-    />
-  </div>
+  <v-list-item>
+    <v-row>
+      <v-col cols="4" class="d-flex align-center text-medium-emphasis">{{
+        $t('Confidential')
+      }}</v-col>
+      <v-col cols="8">
+        <v-switch
+          :disabled="!isUserInFlow || loading"
+          v-model="localPrivate"
+          @change="updatePrivacy"
+          hide-details
+        />
+      </v-col>
+    </v-row>
+  </v-list-item>
   <template v-if="application.private">
+    <v-divider />
     <v-list-item>
-      <v-list-item-title>
-        {{ $t('Visibility') }}
-      </v-list-item-title>
+      <v-row>
+        <v-col cols="4" class="d-flex align-center text-medium-emphasis">
+          {{ $t('Visibility') }}
+        </v-col>
+        <v-col cols="8" class="d-flex flex-column align-start ga-2">
+          <v-chip label>
+            {{ $t('Approval flow') }}
+          </v-chip>
 
-      <div class="align-end">
-        <v-row>
-          <v-col cols="auto">
-            <v-chip outlined label>
-              {{ $t('Approval flow') }}
-            </v-chip>
-          </v-col>
-
-          <v-col
-            cols="auto"
+          <GroupChip
             v-for="group in application.visibility"
             :key="group._id"
-          >
-            <GroupChip
-              :group="group"
-              :closable="isUserApplicant"
-              @click:close="removeVisibilityGroup(group)"
-            />
-          </v-col>
+            :group="group"
+            :closable="isUserInFlow"
+            @click:close="removeVisibilityGroup(group)"
+          />
 
-          <v-col cols="auto" v-if="isUserApplicant">
-            <AddGroupDialog @selection="shareWithGroup" />
-          </v-col>
-        </v-row>
-      </div>
+          <AddGroupDialog v-if="isUserInFlow" @selection="shareWithGroup" />
+        </v-col>
+      </v-row>
     </v-list-item>
   </template>
 </template>
@@ -67,8 +65,10 @@ const application = computed({
 
 const localPrivate = ref(application.value.private)
 
-const isUserApplicant = computed(() =>
-  application.value.recipients.some((r) => r._id === currentUser.value?._id)
+const isUserInFlow = computed(
+  () =>
+    application.value.applicant._id === currentUser.value?._id ||
+    application.value.recipients.some((r) => r._id === currentUser.value?._id)
 )
 
 async function updatePrivacy() {

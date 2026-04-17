@@ -1,12 +1,12 @@
 <template>
   <div class="button_wrapper">
-    <v-btn icon @click="emailButtonClicked">
-      <div class="email_button_content">
+    <v-btn icon size="large" @click="emailButtonClicked">
+      <div class="d-flex flex-column align-center">
         <v-icon v-if="submission?.notified">mdi-email-check</v-icon>
         <v-icon v-else>mdi-email</v-icon>
-        <div class="user_name">
+        <span class="user_name">
           {{ user.family_name ?? user.last_name ?? '' }}
-        </div>
+        </span>
       </div>
     </v-btn>
   </div>
@@ -64,13 +64,6 @@ async function markRecipientAsNotified(recipient: Recipient) {
 </script>
 
 <style scoped>
-.email_button_content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
 .user_name {
   max-width: 80px;
   overflow-x: hidden;

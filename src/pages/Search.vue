@@ -1,89 +1,80 @@
 <template>
   <v-card>
-    <v-card-title>{{ $t('Search') }}</v-card-title>
+    <template #prepend>
+      <v-icon>mdi-magnify</v-icon>
+    </template>
+    <template #title>{{ $t('Search') }}</template>
     <v-card-text>
-      <v-card variant="outlined">
-        <v-card-title>{{ $t('Filters') }}</v-card-title>
-        <v-form @submit.prevent="search">
-          <v-card-text>
-            <v-row>
-              <v-col>
-                <v-text-field :label="$t('Stamp ID')" v-model="hankoId" />
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col>
-                <v-text-field
-                  :label="$t('Application ID')"
-                  v-model="applicationId"
-                />
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col>
-                <v-combobox
-                  :label="$t('Application type')"
-                  :items="applicationTypes"
-                  v-model="applicationType"
-                />
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col>
-                <DatePicker :label="$t('From')" v-model="startDate" />
-              </v-col>
-              <v-col>
-                <DatePicker :label="$t('To')" v-model="endDate" />
-              </v-col>
-            </v-row>
-            <v-row align="center">
-              <v-col cols="auto">{{ $t('Applicant') }}{{ $t('Group') }}</v-col>
-              <v-col cols="auto">
-                <v-chip
-                  v-if="selectedGroup"
-                  closable
-                  @click:close="selectedGroup = null"
-                  >{{ selectedGroup.name }}</v-chip
-                >
-                <AddGroupDialog v-else @selection="selectGroup" />
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col>
-                <v-select
-                  :label="$t('Relationship')"
-                  :items="relationshipTypes"
-                  item-title="text"
-                  item-value="value"
-                  v-model="relationshipType"
-                />
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col>
-                <v-select
-                  :label="$t('Approval state')"
-                  :items="approvalStates"
-                  item-title="text"
-                  item-value="value"
-                  v-model="approvalState"
-                />
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col>
-                <v-btn type="submit">
-                  <v-icon start>mdi-magnify</v-icon>
-                  <span>{{ $t('Search') }}</span>
-                </v-btn>
-              </v-col>
-            </v-row>
-          </v-card-text>
-        </v-form>
-      </v-card>
-    </v-card-text>
+      <v-card-title>{{ $t('Filters') }}</v-card-title>
+      <v-form @submit.prevent="search">
+        <v-card-text>
+          <v-row>
+            <v-col cols="12" md="6">
+              <v-text-field :label="$t('Stamp ID')" v-model="hankoId" />
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-text-field
+                :label="$t('Application ID')"
+                v-model="applicationId"
+              />
+            </v-col>
+            <v-col cols="12" lg="6">
+              <v-combobox
+                :label="$t('Application type')"
+                :items="applicationTypes"
+                v-model="applicationType"
+              />
+            </v-col>
+            <v-col cols="6" lg="3">
+              <DatePicker :label="$t('From')" v-model="startDate" />
+            </v-col>
+            <v-col cols="6" lg="3">
+              <DatePicker :label="$t('To')" v-model="endDate" />
+            </v-col>
+          </v-row>
+          <v-row align="center">
+            <v-col cols="auto">{{ $t('Applicant') }}{{ $t('Group') }}</v-col>
+            <v-col cols="auto">
+              <v-chip
+                v-if="selectedGroup"
+                closable
+                @click:close="selectedGroup = null"
+                >{{ selectedGroup.name }}</v-chip
+              >
+              <AddGroupDialog v-else @selection="selectGroup" />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="12" md="6">
+              <v-select
+                :label="$t('Relationship')"
+                :items="relationshipTypes"
+                item-title="text"
+                item-value="value"
+                v-model="relationshipType"
+              />
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-select
+                :label="$t('Approval state')"
+                :items="approvalStates"
+                item-title="text"
+                item-value="value"
+                v-model="approvalState"
+              />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-btn type="submit">
+                <v-icon start>mdi-magnify</v-icon>
+                <span>{{ $t('Search') }}</span>
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-card-text>
+      </v-form>
 
-    <v-card-text>
       <v-data-table-server
         :loading="loading"
         :items="applications"
@@ -113,6 +104,7 @@ import DatePicker from '@/components/DatePicker.vue'
 import api from '@/api'
 import type { Application, Group } from '@/types'
 import type { Neo4jDate } from '@/types'
+import { env } from '@/utils/env'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -181,7 +173,7 @@ function getApplications() {
     hanko_id: hankoId.value || undefined,
     application_id: applicationId.value || undefined,
     relationship: relationshipType.value || undefined,
-    type: applicationType.value || undefined,
+    type: env.VITE_PDF_MODE ? 'PDF' : applicationType.value || undefined,
     start_date: startDate.value || undefined,
     end_date: endDate.value || undefined,
     group_id: selectedGroup.value?._id || undefined,

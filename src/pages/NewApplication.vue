@@ -1,195 +1,203 @@
 <template>
-  <!-- Page title -->
-  <h2 class="text-h4 mb-4">
-    {{ $t('New submission') }}
-  </h2>
+  <v-card>
+    <template #title>
+      {{ $t('New submission') }}
+    </template>
 
-  <!-- Application info -->
-  <v-card class="mb-4">
-    <v-toolbar flat>
-      <v-card-title class="mt-2 text-h6">
+    <v-card variant="text">
+      <template #title>
         {{ $t('Application info') }}
-      </v-card-title>
-    </v-toolbar>
-
-    <v-card-text>
-      <template v-if="!env.VITE_PDF_MODE">
-        <!-- Copy mode -->
-        <v-row v-if="copy_of">
-          <v-col>
-            <v-text-field
-              :model-value="applicationForm?.label"
-              :label="$t('Type')"
-              :suffix="`(${$t('Resubmission of', {
-                id: copy_of,
-              })})`"
-              readonly
-              variant="filled"
-            />
-          </v-col>
-
-          <v-col cols="auto">
-            <v-btn :to="{ name: 'new_application' }" class="mt-4">
-              <v-icon start>mdi-restore</v-icon>
-              {{ $t('Start from scratch') }}
-            </v-btn>
-          </v-col>
-        </v-row>
-        <!-- Normal mode -->
-        <v-row v-else>
-          <v-col>
-            <v-autocomplete
-              :items="applicationFormTemplates"
-              item-title="label"
-              return-object
-              v-model="applicationForm"
-              :label="$t('Type')"
-            />
-          </v-col>
-        </v-row>
       </template>
 
-      <v-row>
-        <v-col>
-          <v-text-field v-model="title" :label="$t('Title')" />
-        </v-col>
-      </v-row>
-
-      <v-row align="center">
-        <v-col cols="auto">
-          <v-switch :label="$t('Confidential')" v-model="confidential" />
-        </v-col>
-      </v-row>
-
-      <v-row v-if="confidential" align="center">
-        <v-col cols="auto">{{ $t('Visibility') }}</v-col>
-
-        <v-col cols="auto">
-          <v-chip>
-            {{ $t('Approval flow') }}
-          </v-chip>
-        </v-col>
-
-        <v-col cols="auto" class="d-flex flex-wrap">
-          <GroupChip
-            v-for="group in groups"
-            :key="group._id"
-            :group="group"
-            closable
-            @click:close="removeGroup"
-          />
-        </v-col>
-
-        <v-col cols="auto">
-          <AddGroupDialog @selection="addGroup" />
-        </v-col>
-      </v-row>
-    </v-card-text>
-  </v-card>
-
-  <!-- Content -->
-  <v-card class="mb-4">
-    <v-toolbar flat>
-      <v-card-title>
-        {{ $t('Application content') }}
-      </v-card-title>
-    </v-toolbar>
-
-    <v-card-text v-if="!applicationForm">
-      {{ $t('Please select an application type') }}
-    </v-card-text>
-
-    <template v-else>
-      <NewApplicationTemplateDetails
-        v-if="!env.VITE_PDF_MODE"
-        :selected-form="applicationForm"
-      />
-      <NewApplicationFormData v-model="applicationForm.fields" />
-    </template>
-  </v-card>
-
-  <!-- Approval flow -->
-  <v-card class="mb-4">
-    <v-toolbar flat align="center">
-      <v-card-title>
-        {{ $t('Approval flow') }}
-      </v-card-title>
-      
-      <v-spacer />
-
-      <v-col cols="auto">
-        <!-- dialog unchanged -->
-        <v-dialog v-model="add_recipient_dialog">
-          <template #activator="{ props }">
-            <v-btn v-bind="props" color="error">
-              <v-icon start>mdi-account-plus</v-icon>
-              {{ $t('Add recipient') }}
-            </v-btn>
-          </template>
-
-          <v-card>
-            <v-card-title class="text-h5">
-              {{ $t('Add recipient') }}
-            </v-card-title>
-
-            <v-card-text>
-              <UserPicker
-                class="max-h-[300px] overflow-auto"
-                @selection="addToRecipients"
-                :groupManagerApiUrl="GROUP_MANAGER_API_URL"
-                :group-manager-front-url="VITE_EMPLOYEE_MANAGER_FRONT_URL"
-                :accessToken="accessToken"
+      <template #text>
+        <template v-if="!env.VITE_PDF_MODE">
+          <!-- Copy mode -->
+          <v-row v-if="copy_of">
+            <v-col>
+              <v-text-field
+                :model-value="applicationForm?.label"
+                :label="$t('Type')"
+                :suffix="`(${$t('Resubmission of', { id: copy_of })})`"
+                readonly
               />
-            </v-card-text>
+            </v-col>
 
-            <v-card-text v-if="recipients.length">
-              <NewApplicationApprovalFlow :recipients="recipients" />
-            </v-card-text>
-
-            <v-card-text v-else>
-              {{ $t('No recipient selected') }}
-            </v-card-text>
-
-            <v-card-actions>
-              <v-spacer />
-              <v-btn variant="text" @click="add_recipient_dialog = false">
-                {{ $t('Close') }}
+            <v-col cols="auto">
+              <v-btn :to="{ name: 'new_application' }">
+                <v-icon start>mdi-restore</v-icon>
+                {{ $t('Start from scratch') }}
               </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-      </v-col>
+            </v-col>
+          </v-row>
 
-      <v-col cols="auto">
+          <!-- Normal mode -->
+          <v-row v-else>
+            <v-col>
+              <v-autocomplete
+                :items="applicationFormTemplates"
+                item-title="label"
+                return-object
+                v-model="applicationForm"
+                :label="$t('Type')"
+              />
+            </v-col>
+          </v-row>
+        </template>
+
+        <v-text-field v-model="title" :label="$t('Title')" />
+
+        <v-switch
+          :label="$t('Confidential')"
+          v-model="confidential"
+        />
+
+        <v-expand-transition>
+          <div v-if="confidential">
+            <v-row align="center">
+              <v-col cols="auto">
+                {{ $t('Visibility') }}
+              </v-col>
+
+              <v-col cols="auto">
+                <v-chip>
+                  {{ $t('Approval flow') }}
+                </v-chip>
+              </v-col>
+
+              <v-col class="d-flex flex-wrap">
+                <GroupChip
+                  v-for="group in groups"
+                  :key="group._id"
+                  :group="group"
+                  closable
+                  @click:close="removeGroup"
+                />
+              </v-col>
+
+              <v-col cols="auto">
+                <AddGroupDialog @selection="addGroup" />
+              </v-col>
+            </v-row>
+          </div>
+        </v-expand-transition>
+      </template>
+    </v-card>
+
+    <v-divider />
+
+    <v-card variant="text">
+      <template #title>
+        {{ $t('Application content') }}
+      </template>
+
+      <template #text>
+        <div v-if="!applicationForm">
+          {{ $t('Please select an application type') }}
+        </div>
+
+        <template v-else>
+          <NewApplicationTemplateDetails
+            v-if="!env.VITE_PDF_MODE"
+            :selected-form="applicationForm"
+          />
+          <NewApplicationFormData v-model="applicationForm.fields" />
+        </template>
+      </template>
+    </v-card>
+
+    <v-divider />
+
+    <!-- ===================== -->
+    <!-- APPROVAL FLOW -->
+    <!-- ===================== -->
+    <v-card variant="text">
+      <template #title>
+        {{ $t('Approval flow') }}
+      </template>
+
+      <template #append>
+        <v-btn color="error" @click="add_recipient_dialog = true">
+          <v-icon start>mdi-account-plus</v-icon>
+          {{ $t('Add recipient') }}
+        </v-btn>
+
         <v-btn @click="saveRecipients">
           <v-icon start>mdi-content-save</v-icon>
           Save
         </v-btn>
-      </v-col>
-    </v-toolbar>
+      </template>
 
-    <v-card-text v-if="recipients.length">
-      <NewApplicationApprovalFlow :recipients="recipients" />
-    </v-card-text>
+      <template #text>
+        <div v-if="recipients.length">
+          <NewApplicationApprovalFlow :recipients="recipients" />
+        </div>
 
-    <v-card-text v-else>
-      {{ $t('Please select the recipients of this application') }}
-    </v-card-text>
+        <div v-else>
+          {{ $t('Please select the recipients of this application') }}
+        </div>
+      </template>
+    </v-card>
+
+    <v-divider />
+
+    <!-- ===================== -->
+    <!-- SUBMIT -->
+    <!-- ===================== -->
+    <v-card variant="text">
+      <template #actions>
+        <v-spacer />
+
+        <v-btn
+          size="x-large"
+          :loading="submitting"
+          color="error"
+          :disabled="!application_valid"
+          @click="submit"
+        >
+          <v-icon start>mdi-send</v-icon>
+          {{ $t('Submit application') }}
+        </v-btn>
+
+        <v-spacer />
+      </template>
+    </v-card>
   </v-card>
 
-  <!-- Submit -->
-  <div class="text-center py-10">
-    <v-btn
-      size="x-large"
-      :loading="submitting"
-      color="error"
-      :disabled="!application_valid"
-      @click="submit"
-    >
-      <v-icon start>mdi-send</v-icon>
-      {{ $t('Submit application') }}
-    </v-btn>
-  </div>
+  <!-- ===================== -->
+  <!-- DIALOG -->
+  <!-- ===================== -->
+  <v-dialog v-model="add_recipient_dialog">
+    <v-card>
+      <v-card-title class="text-h5">
+        {{ $t('Add recipient') }}
+      </v-card-title>
+
+      <v-card-text>
+        <UserPicker
+          class="max-h-[300px] overflow-auto"
+          @selection="addToRecipients"
+          :groupManagerApiUrl="GROUP_MANAGER_API_URL"
+          :group-manager-front-url="VITE_EMPLOYEE_MANAGER_FRONT_URL"
+          :accessToken="accessToken"
+        />
+      </v-card-text>
+
+      <v-card-text v-if="recipients.length">
+        <NewApplicationApprovalFlow :recipients="recipients" />
+      </v-card-text>
+
+      <v-card-text v-else>
+        {{ $t('No recipient selected') }}
+      </v-card-text>
+
+      <v-card-actions>
+        <v-spacer />
+        <v-btn variant="text" @click="add_recipient_dialog = false">
+          {{ $t('Close') }}
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
@@ -221,8 +229,14 @@ const defaultPDFForm: Template = {
   label: 'pdf',
   fields: [
     {
-      label: 'pdf',
+      label: 'file',
       type: 'pdf',
+      value: null,
+    },
+    {
+      type: 'text',
+      label: 'Applicant comment',
+      value: '',
     },
   ],
   groups: [],

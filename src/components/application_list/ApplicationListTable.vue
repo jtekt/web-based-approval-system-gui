@@ -90,11 +90,13 @@ function get_applications() {
   loading.value = true
   error.value = null
 
+  const state = route.query.state || "pending"
+
   const params = {
     start_index: (options.value.page - 1) * options.value.itemsPerPage,
     batch_size: options.value.itemsPerPage,
     relationship: relationship_lookup[props.direction],
-    state: route.query.state,
+    state,
     type: env.VITE_PDF_MODE && "PDF"
   }
 

@@ -1,35 +1,36 @@
 <template>
   <v-card>
-    <v-toolbar flat>
-      <v-toolbar-title class="text-h4">{{ cardTitle }}</v-toolbar-title>
-      <v-spacer />
+    <template #prepend>
+      <v-icon>
+        {{ cardIcon }}
+      </v-icon>
+    </template>
+    <template #title>{{ cardTitle }}</template>
+    <template #append>
       <v-btn color="primary" :to="{ name: 'new_application' }">
         <v-icon start>mdi-plus</v-icon>
         <span>{{ $t('New application') }}</span>
       </v-btn>
-      <template #extension>
-        <v-tabs v-model="tab" align-tabs="title">
-          <v-tab
-            v-for="table in currentTables"
-            :key="table.state"
-            :value="table.state"
-          >
-            <v-icon start>{{ table.icon }}</v-icon>
-            <span>{{ table.title }}</span>
-          </v-tab>
-        </v-tabs>
-      </template>
-    </v-toolbar>
+    </template>
+
+    <v-tabs v-model="tab">
+      <v-tab
+        v-for="table in currentTables"
+        :key="table.state"
+        :value="table.state"
+      >
+        <v-icon start>{{ table.icon }}</v-icon>
+        <span>{{ table.title }}</span>
+      </v-tab>
+    </v-tabs>
 
     <v-divider />
 
-    <v-card-text>
-      <ApplicationListTable
-        v-if="currentTable"
-        :direction="direction"
-        :headers="currentTable.headers"
-      />
-    </v-card-text>
+    <ApplicationListTable
+      v-if="currentTable"
+      :direction="direction"
+      :headers="currentTable.headers"
+    />
   </v-card>
 </template>
 
@@ -48,12 +49,17 @@ const router = useRouter()
 const cardTitle = computed(() =>
   props.direction === 'submitted' ? t('Outbox') : t('Inbox')
 )
+const cardIcon = computed(() =>
+  props.direction === 'submitted'
+    ? 'mdi-inbox-arrow-up'
+    : 'mdi-inbox-arrow-down'
+)
 
 const tab = computed({
   get: () => (route.query.state as string) || 'pending',
   set: (state: string) => {
     const query = { ...route.query }
-    if (state && state !== 'pending') query.state = state
+    if (state) query.state = state
     else delete query.state
     router.replace({ query })
   },

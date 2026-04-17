@@ -1,134 +1,147 @@
 <template>
   <v-card :loading="loading">
+    <template #title>
+      {{ application?.title || $t('Application') }}
+    </template>
+    <template v-if="isUserApplicant" #append>
+      <HelpDialog />
+
+      <v-btn variant="text" @click="goToResubmit">
+        <v-icon start>mdi-restore</v-icon>
+        {{ $t('Re-submit') }}
+      </v-btn>
+
+      <v-btn
+        variant="text"
+        :disabled="isApplicationFullyApproved"
+        color="error"
+        @click="openDeleteDialog"
+      >
+        <v-icon start>mdi-delete</v-icon>
+        {{ $t('Delete') }}
+      </v-btn>
+    </template>
     <template v-if="application && !error">
-      <v-toolbar flat>
-        <v-toolbar-title>
-          {{ application?.title || $t('Application') }}
-        </v-toolbar-title>
+      <v-row>
+        <v-col cols="12" md="6">
+          <ApplicationFormContent
+            v-model="application"
+            @pdfSelected="viewPdf"
+          />
 
-        <v-spacer />
+          <v-divider />
+        </v-col>
 
-        <HelpDialog />
-
-        <template v-if="isUserApplicant">
-          <v-btn variant="text" @click="goToResubmit">
-            <v-icon start>mdi-restore</v-icon>
-            {{ $t('Re-submit') }}
-          </v-btn>
-
-          <v-btn
-            variant="text"
-            :disabled="isApplicationFullyApproved"
-            color="error"
-            @click="openDeleteDialog"
-          >
-            <v-icon start>mdi-delete</v-icon>
-            {{ $t('Delete') }}
-          </v-btn>
-        </template>
-      </v-toolbar>
-
-      <v-divider />
-
-      <v-container fluid>
-        <v-row>
-          <v-col>
-            <ApplicationFormContent
-              v-model="application"
-              @pdfSelected="viewPdf"
-            />
-          </v-col>
-
-          <v-col>
-            <v-row
-              v-if="!env.VITE_PDF_MODE && isCurrentRecipientCurrentUser"
-              class="mb-3"
-            >
-              <v-spacer />
-
-              <v-col cols="auto">
-                <v-btn color="success" @click="openApproveDialog">
-                  <v-icon start>mdi-check</v-icon>
-                  {{ $t('Approve') }}
-                </v-btn>
-              </v-col>
-
-              <v-col cols="auto">
-                <v-btn color="error" @click="openRejectDialog">
-                  <v-icon start>mdi-close</v-icon>
-                  {{ $t('Reject') }}
-                </v-btn>
-              </v-col>
-            </v-row>
-
-            <v-row justify="end" align="end" class="flex-wrap-reverse">
-              <template v-if="isUserRecipient && !currentRecipient">
-                <v-col cols="auto">
-                  <EmailButton
-                    :application="application"
-                    :user="application.applicant"
-                  />
-                </v-col>
-
-                <v-col cols="auto">
-                  <v-icon>mdi-arrow-left</v-icon>
-                </v-col>
-              </template>
-
-              <template
-                v-for="(recipient, index) in orderedRecipients"
-                :key="`recipient_${index}`"
+        <v-col cols="12" md="6">
+          <v-card variant="text">
+            <template #title>
+              {{ $t('Approval') }}
+            </template>
+            <template #text>
+              <v-row
+                v-if="!env.VITE_PDF_MODE && isCurrentRecipientCurrentUser"
+                class="mb-3"
               >
-                <v-col cols="auto" v-if="index > 0">
-                  <v-icon>mdi-arrow-left</v-icon>
+                <v-spacer />
+
+                <v-col cols="auto">
+                  <v-btn color="success" @click="openApproveDialog">
+                    <v-icon start>mdi-check</v-icon>
+                    {{ $t('Approve') }}
+                  </v-btn>
                 </v-col>
 
                 <v-col cols="auto">
-                  <WebHankoContainer
-                    :recipient="recipient"
-                    :application="application"
-                    @reject="openRejectDialog"
-                  />
+                  <v-btn color="error" @click="openRejectDialog">
+                    <v-icon start>mdi-close</v-icon>
+                    {{ $t('Reject') }}
+                  </v-btn>
                 </v-col>
-              </template>
-            </v-row>
+              </v-row>
 
-            <RecipientComments
-              :application="application"
-              @comment_updated="getApplication"
-            />
-          </v-col>
-        </v-row>
-      </v-container>
+              <v-row
+                class="d-flex align-center justify-end flex-wrap-reverse"
+                no-gutters
+              >
+                <!-- Initial email + arrow -->
+                <template v-if="isUserRecipient && !currentRecipient">
+                  <div class="d-flex align-center">
+                    <EmailButton
+                      :application="application"
+                      :user="application.applicant"
+                    />
+                    <v-icon class="mx-2">mdi-arrow-left</v-icon>
+                  </div>
+                </template>
 
-      <v-card-text>
-        <PdfViewer
-          v-if="selected_file_id"
-          :key="selected_file_id"
-          :selected-file-id="selected_file_id"
-          :application="application"
-          @pdf_stamped="getApplication"
-        />
-      </v-card-text>
+                <!-- Recipients -->
+                <template
+                  v-for="(recipient, index) in orderedRecipients"
+                  :key="`recipient_${index}`"
+                >
+                  <div class="d-flex align-center">
+                    <template v-if="index > 0">
+                      <v-icon class="mx-2">mdi-arrow-left</v-icon>
+                    </template>
+
+                    <WebHankoContainer
+                      :recipient="recipient"
+                      :application="application"
+                      @reject="openRejectDialog"
+                    />
+                  </div>
+                </template>
+              </v-row>
+            </template>
+          </v-card>
+
+          <v-divider />
+
+          <v-card variant="text">
+            <template #title>
+              {{ $t('Recipient comments') }}
+            </template>
+            <template #text>
+              <v-list>
+                <RecipientComment
+                  v-for="(recipient, index) in orderedRecipients"
+                  :key="`comment_${index}`"
+                  :recipient="recipient"
+                  @comment_updated="getApplication"
+                />
+              </v-list>
+            </template>
+          </v-card>
+
+          <v-divider />
+        </v-col>
+      </v-row>
+      <PdfViewer
+        v-if="selected_file_id"
+        :key="selected_file_id"
+        :selected-file-id="selected_file_id"
+        :application="application"
+        @pdf_stamped="getApplication"
+      />
     </template>
 
-    <v-card-text v-if="error" class="text-center text-h6 text-error">
+    <v-card-text v-else-if="error" class="text-center text-h6 text-error">
       {{ error }}
     </v-card-text>
-
-    <!-- Dialog -->
-    <v-dialog v-model="dialog.visible" max-width="400">
-      <v-card>
-        <v-card-title>{{ dialog.title }}</v-card-title>
-        <v-card-text>{{ dialog.message }}</v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn text @click="dialog.visible = false">Cancel</v-btn>
-          <v-btn color="primary" @click="dialogConfirm">OK</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </v-card>
+
+  <!-- Dialog -->
+  <v-dialog v-model="dialog.visible" max-width="400">
+    <v-card>
+      <v-card-title>{{ dialog.title }}</v-card-title>
+      <v-card-text>{{ dialog.message }}</v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn text @click="dialog.visible = false">Cancel</v-btn>
+        <v-btn color="primary" @click="dialogConfirm">OK</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
@@ -138,14 +151,14 @@ import { useRouter, useRoute } from 'vue-router'
 import HelpDialog from '@/components/application/HelpDialog.vue'
 import EmailButton from '@/components/application/EmailButton.vue'
 import PdfViewer from '@/components/application/PdfViewer.vue'
-import RecipientComments from '@/components/application/RecipientComments.vue'
 import ApplicationFormContent from '@/components/application/ApplicationFormContent.vue'
-import type { Application, Hanko } from '@/types'
+import type { Application } from '@/types'
 import api from '@/api'
 import { env } from '@/utils/env'
 import { useAuth } from '@/composables/useAuth'
 import { useToast } from '@/composables/useToast'
 import WebHankoContainer from '@/components/application/WebHankoContainer.vue'
+import RecipientComment from '@/components/application/RecipientComment.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -247,7 +260,7 @@ async function getApplication() {
 }
 
 function viewPdf(file_id: string) {
-  selected_file_id.value = file_id
+  selected_file_id.value = selected_file_id.value === file_id ? null : file_id
 }
 
 function openDialog(

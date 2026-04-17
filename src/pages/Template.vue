@@ -1,5 +1,5 @@
 <template>
-  <v-card :loading="loading">
+  <v-card :loading="loading" class="mb-4">
     <v-toolbar flat>
       <v-btn exact icon :to="{ name: 'templates' }">
         <v-icon>mdi-arrow-left</v-icon>
@@ -51,7 +51,7 @@
         <v-row align="center">
           <v-col cols="auto">{{ $t('Visibility') }}</v-col>
           <v-col cols="auto"
-            ><v-chip label variant="outlined">{{ $t('You') }}</v-chip></v-col
+            ><v-chip label >{{ $t('You') }}</v-chip></v-col
           >
           <v-col
             cols="auto"
@@ -87,69 +87,63 @@
           </v-col>
         </v-row>
       </v-card-text>
-
-      <!-- Fields -->
-      <v-card-text>
-        <v-card variant="outlined">
-          <v-toolbar flat>
-            <v-toolbar-title>{{ $t('Fields') }}</v-toolbar-title>
-            <v-spacer />
-            <v-btn v-if="userIsManager" @click="addField">
-              <v-icon start>mdi-plus</v-icon>
-              <span>{{ $t('Add field') }}</span>
-            </v-btn>
-          </v-toolbar>
-          <v-divider />
-          <v-card-text>
-            <v-row
-              align="baseline"
-              v-for="(field, index) in template.fields"
-              :key="`field_${index}`"
-            >
-              <v-col>
-                <v-text-field
-                  :readonly="!userIsManager"
-                  :label="$t('Field name')"
-                  v-model="field.label"
-                />
-              </v-col>
-              <v-col>
-                <v-select
-                  :readonly="!userIsManager"
-                  :items="fieldTypes"
-                  item-title="label"
-                  item-value="type"
-                  v-model="field.type"
-                  label="Type"
-                />
-              </v-col>
-              <v-col v-if="userIsManager" cols="auto">
-                <v-btn
-                  icon
-                  :disabled="index === 0"
-                  @click="moveField(index, -1)"
-                >
-                  <v-icon>mdi-arrow-up</v-icon>
-                </v-btn>
-                <v-btn
-                  icon
-                  :disabled="index === template.fields.length - 1"
-                  @click="moveField(index, 1)"
-                >
-                  <v-icon>mdi-arrow-down</v-icon>
-                </v-btn>
-              </v-col>
-              <v-col v-if="userIsManager" cols="auto">
-                <v-btn icon color="error" @click="deleteField(index)">
-                  <v-icon>mdi-delete</v-icon>
-                </v-btn>
-              </v-col>
-            </v-row>
-          </v-card-text>
-        </v-card>
-      </v-card-text>
     </template>
   </v-card>
+
+  <v-card v-if="template">
+    <v-toolbar flat>
+      <v-toolbar-title>{{ $t('Fields') }}</v-toolbar-title>
+      <v-spacer />
+      <v-btn v-if="userIsManager" @click="addField">
+        <v-icon start>mdi-plus</v-icon>
+        <span>{{ $t('Add field') }}</span>
+      </v-btn>
+    </v-toolbar>
+    <v-divider />
+    <v-card-text>
+      <v-row
+        align="start"
+        v-for="(field, index) in template.fields"
+        :key="`field_${index}`"
+      >
+        <v-col>
+          <v-text-field
+            :readonly="!userIsManager"
+            :label="$t('Field name')"
+            v-model="field.label"
+          />
+        </v-col>
+        <v-col>
+          <v-select
+            :readonly="!userIsManager"
+            :items="fieldTypes"
+            item-title="label"
+            item-value="type"
+            v-model="field.type"
+            label="Type"
+          />
+        </v-col>
+        <v-col v-if="userIsManager" cols="auto">
+          <v-btn icon :disabled="index === 0" @click="moveField(index, -1)">
+            <v-icon>mdi-arrow-up</v-icon>
+          </v-btn>
+          <v-btn
+            icon
+            :disabled="index === template.fields.length - 1"
+            @click="moveField(index, 1)"
+          >
+            <v-icon>mdi-arrow-down</v-icon>
+          </v-btn>
+        </v-col>
+        <v-col v-if="userIsManager" cols="auto">
+          <v-btn icon color="error" @click="deleteField(index)">
+            <v-icon>mdi-delete</v-icon>
+          </v-btn>
+        </v-col>
+      </v-row>
+    </v-card-text>
+  </v-card>
+
   <v-dialog v-model="confirmState.open" max-width="420">
     <v-card>
       <v-card-title class="text-h6">

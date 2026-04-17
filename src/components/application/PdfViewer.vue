@@ -1,81 +1,124 @@
 <template>
-  <v-card variant="outlined" :loading="loading">
-    <v-toolbar flat>
-      <v-tooltip location="bottom">
-        <template #activator="{ props }">
-          <v-toolbar-title v-bind="props">PDF Reader</v-toolbar-title>
-        </template>
-        <span>ハンコを押したい所をクリックしてください</span>
-      </v-tooltip>
+  <v-card :loading="loading" variant="text">
+    <v-toolbar class="px-4">
+      <div class="flex-fill">
+        <v-tooltip location="bottom">
+          <template #activator="{ props }">
+            <span v-bind="props">PDF Reader</span>
+          </template>
+          <span>ハンコを押したい所をクリックしてください</span>
+        </v-tooltip>
+      </div>
 
-      <v-spacer />
+      <div>
+        <v-btn
+          type="button"
+          icon
+          :disabled="pageNumber <= 1"
+          @click="previousPage"
+        >
+          <v-icon>mdi-arrow-left</v-icon>
+        </v-btn>
+        <v-menu open-on-hover>
+          <template #activator="{ props }">
+            <v-btn type="button" variant="text" v-bind="props"
+              >{{ pageNumber }}/{{ pageCount }}</v-btn
+            >
+          </template>
+          <v-list>
+            <v-list-item
+              v-for="p in pageCount"
+              :key="p"
+              :title="String(p)"
+              @click="pageNumber = p"
+            />
+          </v-list>
+        </v-menu>
+        <v-btn
+          type="button"
+          icon
+          :disabled="pageNumber >= pageCount"
+          @click="nextPage"
+        >
+          <v-icon>mdi-arrow-right</v-icon>
+        </v-btn>
+      </div>
 
-      <v-btn
-        type="button"
-        icon
-        :disabled="pageNumber <= 1"
-        @click="previousPage"
-      >
-        <v-icon>mdi-arrow-left</v-icon>
-      </v-btn>
-      <v-menu open-on-hover>
-        <template #activator="{ props }">
-          <v-btn type="button" variant="text" v-bind="props"
-            >{{ pageNumber }}/{{ pageCount }}</v-btn
-          >
-        </template>
-        <v-list>
-          <v-list-item
-            v-for="p in pageCount"
-            :key="p"
-            :title="String(p)"
-            @click="pageNumber = p"
-          />
-        </v-list>
-      </v-menu>
-      <v-btn
-        type="button"
-        icon
-        :disabled="pageNumber >= pageCount"
-        @click="nextPage"
-      >
-        <v-icon>mdi-arrow-right</v-icon>
-      </v-btn>
+      <row class="flex-fill" align="end">
+        <v-menu
+          v-if="currentUserCanStamp"
+          :close-on-content-click="false"
+          open-on-hover
+          location="bottom end"
+          offset="8"
+        >
+          <template #activator="{ props }">
+            <v-btn density="comfortable" class="mr-2" v-bind="props">
+              <v-icon start>mdi-resize</v-icon>
+              {{ $t('Stamp size') }}
+            </v-btn>
+          </template>
 
-      <v-spacer />
+          <v-card min-width="260" class="pa-4" elevation="6" rounded="lg">
+            <!-- Header -->
+            <div class="d-flex align-center justify-space-between mb-3">
+              <span class="text-subtitle-2 font-weight-medium">
+                {{ $t('Stamp size') }}
+              </span>
+              <v-chip size="small" color="primary" variant="tonal">
+                {{ hankoScaleSlider }}
+              </v-chip>
+            </div>
 
-      <v-menu
-        v-if="currentUserCanStamp"
-        :close-on-content-click="false"
-        open-on-hover
-      >
-        <template #activator="{ props }">
-          <v-btn variant="text" class="mr-2" v-bind="props">
-            <v-icon>mdi-resize</v-icon>
-            <span>{{ $t('Stamp size') }}</span>
-          </v-btn>
-        </template>
-        <v-card>
-          <v-sheet class="pt-16 px-5">
+            <!-- Slider -->
             <v-slider
               v-model.number="hankoScaleSlider"
               min="1"
               max="100"
-              step="2"
-              thumb-label="always"
+              step="1"
+              hide-details
+              thumb-label
+              color="primary"
             />
-          </v-sheet>
-        </v-card>
-      </v-menu>
 
-      <v-btn variant="text" @click="downloadPdf">
-        <v-icon>mdi-download</v-icon>
-        <span>{{ $t('Download') }}</span>
-      </v-btn>
+            <!-- Optional quick presets -->
+            <div class="d-flex justify-space-between mt-3">
+              <v-btn
+                size="x-small"
+                variant="text"
+                @click="hankoScaleSlider = 25"
+                >25%</v-btn
+              >
+              <v-btn
+                size="x-small"
+                variant="text"
+                @click="hankoScaleSlider = 50"
+                >50%</v-btn
+              >
+              <v-btn
+                size="x-small"
+                variant="text"
+                @click="hankoScaleSlider = 75"
+                >75%</v-btn
+              >
+              <v-btn
+                size="x-small"
+                variant="text"
+                @click="hankoScaleSlider = 100"
+                >100%</v-btn
+              >
+            </div>
+          </v-card>
+        </v-menu>
+
+        <v-btn variant="text" @click="downloadPdf">
+          <v-icon>mdi-download</v-icon>
+          <span>{{ $t('Download') }}</span>
+        </v-btn>
+      </row>
     </v-toolbar>
-    <v-divider />
 
-    <div class="pdf_container" ref="pdfContainer">
+    <div v-if="!loadError" class="pdf_container" ref="pdfContainer">
       <vue-pdf-embed
         v-if="pdfSource"
         :source="pdfSource"
@@ -96,7 +139,7 @@
     </div>
 
     <div
-      v-if="loadError"
+      v-else
       class="text-error text-center pa-5 text-h6"
       v-html="loadError"
     />
@@ -193,7 +236,7 @@ const currentUserCanStamp = computed(() => {
 const hankoScale = computed(() => hankoScaleSlider.value / 1000)
 
 const pdfSource = computed(() => {
-  return shownPdf.value ? { data: shownPdf.value } : null
+  return shownPdf.value ? { data: new Uint8Array(shownPdf.value) } : null
 })
 
 /* -----------------------------
@@ -285,14 +328,15 @@ async function loadPdf(buffer: ArrayBuffer) {
 /* -----------------------------
  * Hanko rendering
  * ----------------------------- */
-function svgToPngDataUrl(svgString: string): string {
+async function svgToPngDataUrl(svgString: string) {
   const canvas = document.createElement('canvas')
   const context = canvas.getContext('2d')
 
   canvas.width = 1000
   canvas.height = 1500
 
-  Canvg.fromString(context!, svgString).start()
+  const v = Canvg.fromString(context!, svgString)
+  await v.render()
 
   return canvas.toDataURL('image/png')
 }
@@ -323,7 +367,7 @@ async function loadPdfHankos() {
 
     try {
       const svg = generateWebHankoSvg(recipient)
-      const pngUrl = svgToPngDataUrl(svg)
+      const pngUrl = await svgToPngDataUrl(svg)
       const base64 = pngUrl.split(',')[1]
       const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0))
 
@@ -453,7 +497,9 @@ function hideNewHanko() {
 function downloadPdf() {
   if (!shownPdf.value) return
 
-  const blob = new Blob([shownPdf.value], {
+  const buffer = new Uint8Array(shownPdf.value).buffer
+
+  const blob = new Blob([buffer], {
     type: 'application/pdf',
   })
 
@@ -468,7 +514,8 @@ function downloadPdf() {
 <style scoped>
 .pdf_container {
   position: relative;
-  background: #f5f5f5;
+  background: #d6d6d6;
+  padding: 24px 16px;
 }
 
 .new_hanko {
@@ -485,12 +532,5 @@ function downloadPdf() {
   height: 100%;
   z-index: 3;
   cursor: pointer;
-}
-
-:deep(.vue-pdf-embed__page) {
-  margin: 8px;
-  box-shadow: 0 0px 4px 0px rgba(0, 0, 0, 0.1);
-  border: 1px solid #ddd;
-  background: white;
 }
 </style>

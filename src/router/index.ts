@@ -9,7 +9,7 @@ declare module 'vue-router' {
 }
 
 const router = createRouter({
-  history: createWebHistory(env.VITE_BASE_URL),
+  history: createWebHistory(),
   routes: [
     {
       path: '/login',

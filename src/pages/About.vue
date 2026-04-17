@@ -1,11 +1,12 @@
 <template>
   <v-card>
-    <v-card-title class="text-h4">申請マネージャ</v-card-title>
-    <v-card-subtitle>v{{ version }}</v-card-subtitle>
+    <template #prepend>
+      <v-icon>mdi-information-outline</v-icon>
+    </template>
+    <!-- TODO: Improve this page -->
+    <template #title>{{ $t('About') }}</template>
     <v-card-text>
-      A GUI for 申請マネージャー developed and maintained by Maxime MOREILLON.
-    </v-card-text>
-    <v-card-text>
+      A GUI for 申請マネージャー v{{ version }}
       <v-data-table hide-default-footer :headers="headers" :items="settings" />
     </v-card-text>
   </v-card>

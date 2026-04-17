@@ -1,19 +1,19 @@
 <template>
   <v-card>
-    <v-toolbar flat>
-      <v-toolbar-title>{{ $t('Templates') }}</v-toolbar-title>
-      <v-spacer />
+    <template #prepend>
+      <v-icon>mdi-file-document-multiple-outline</v-icon>
+    </template>
+    <template #title>{{ $t('Templates') }}</template>
+    <template #append>
       <v-btn color="primary" :to="{ name: 'new_template' }">
         <v-icon start>mdi-plus</v-icon>
         <span>{{ $t('Create template') }}</span>
       </v-btn>
-      <template #extension>
-        <v-tabs v-model="tab" align-tabs="title">
-          <v-tab value="mine">{{ $t('My templates') }}</v-tab>
-          <v-tab value="shared">{{ $t('Templates shared with me') }}</v-tab>
-        </v-tabs>
-      </template>
-    </v-toolbar>
+    </template>
+    <v-tabs v-model="tab">
+      <v-tab value="mine">{{ $t('My templates') }}</v-tab>
+      <v-tab value="shared">{{ $t('Templates shared with me') }}</v-tab>
+    </v-tabs>
 
     <v-divider />
 

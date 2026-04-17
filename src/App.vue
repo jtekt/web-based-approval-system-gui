@@ -49,7 +49,7 @@
 
     <!-- Main Content -->
     <v-main>
-      <v-container fluid>
+      <v-container>
         <router-view />
       </v-container>
     </v-main>
@@ -67,6 +67,7 @@ import LocaleSelector from '@/components/LocaleSelector.vue'
 import { useToast } from './composables/useToast'
 import { useAuth } from './composables/useAuth'
 import api from './api'
+import { env } from './utils/env'
 
 const toasts = useToast()
 const { currentUser, logout } = useAuth()
@@ -126,12 +127,16 @@ const navItems = computed(() => [
     to: { name: 'search' },
     icon: 'mdi-magnify',
   },
-  {
-    name: 'templates',
-    title: t('Templates'),
-    to: { name: 'templates' },
-    icon: 'mdi-file-document-multiple-outline',
-  },
+  ...(env.VITE_PDF_MODE
+    ? []
+    : [
+        {
+          name: 'templates',
+          title: t('Templates'),
+          to: { name: 'templates' },
+          icon: 'mdi-file-document-multiple-outline',
+        },
+      ]),
   {
     name: 'about',
     title: t('About'),
@@ -156,11 +161,17 @@ onMounted(async () => {
   if (route.meta?.public || !isAuthenticated.value) return
 
   try {
+    const params: Record<string, string> = {
+      relationship: 'SUBMITTED_TO',
+      state: 'pending',
+    }
+
+    if (env.VITE_PDF_MODE) {
+      params.type = 'PDF'
+    }
+
     const { data } = await api.get<{ count: number }>('/applications', {
-      params: {
-        relationship: 'SUBMITTED_TO',
-        state: 'pending',
-      },
+      params,
     })
 
     receivedApplications.value = data.count

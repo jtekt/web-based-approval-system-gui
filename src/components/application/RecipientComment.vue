@@ -1,59 +1,63 @@
 <template>
-  <v-list-item v-if="decision" lines="two">
-    <!-- TITLE -->
-    <template #title>
-      <!-- EDIT MODE -->
-      <v-textarea
-        v-if="editing"
-        ref="commentTextArea"
-        v-model="newComment"
-        variant="outlined"
-        auto-grow
-        density="compact"
-        :rows="1"
-        hide-details
-        @keydown.enter.prevent="updateComment"
-        @keydown.esc="disableEditing"
-      />
+    <v-list-item v-if="decision" lines="two">
+      <!-- TITLE -->
+      <template #title>
+        <!-- EDIT MODE -->
+        <v-textarea
+          v-if="editing"
+          ref="commentTextArea"
+          v-model="newComment"
+          variant="outlined"
+          auto-grow
+          density="compact"
+          :rows="1"
+          hide-details
+          @keydown.enter.prevent="updateComment"
+          @keydown.esc="disableEditing"
+        />
 
-      <!-- VIEW MODE -->
-      <div v-else class="text-body-2" :class="{ 'text-disabled': !hasComment }">
-        {{ hasComment ? recipientComment : t('No comment') }}
-      </div>
-    </template>
-
-    <!-- SUBTITLE -->
-    <template #subtitle>
-      {{ recipient.display_name ?? '' }}
-    </template>
-
-    <!-- ACTIONS -->
-    <template #append>
-      <template v-if="editing">
-        <v-btn icon @click="disableEditing">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-
-        <v-btn
-          icon
-          :loading="loading"
-          :disabled="!isDirty"
-          @click="updateComment"
+        <!-- VIEW MODE -->
+        <div
+          v-else
+          class="text-body-2"
+          :class="{ 'text-disabled': !hasComment }"
         >
-          <v-icon>mdi-content-save</v-icon>
-        </v-btn>
+          {{ hasComment ? recipientComment : t('No comment') }}
+        </div>
       </template>
 
-      <v-btn
-        v-else-if="recipientIsUser"
-        icon
-        variant="text"
-        @click="enableEditing"
-      >
-        <v-icon size="small">mdi-pencil</v-icon>
-      </v-btn>
-    </template>
-  </v-list-item>
+      <!-- SUBTITLE -->
+      <template #subtitle>
+        {{ recipient.display_name ?? '' }}
+      </template>
+
+      <!-- ACTIONS -->
+      <template #append>
+        <template v-if="editing">
+          <v-btn icon @click="disableEditing">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+
+          <v-btn
+            icon
+            :loading="loading"
+            :disabled="!isDirty"
+            @click="updateComment"
+          >
+            <v-icon>mdi-content-save</v-icon>
+          </v-btn>
+        </template>
+
+        <v-btn
+          v-else-if="recipientIsUser"
+          icon
+          variant="text"
+          @click="enableEditing"
+        >
+          <v-icon size="small">mdi-pencil</v-icon>
+        </v-btn>
+      </template>
+    </v-list-item>
 </template>
 
 <script setup lang="ts">
