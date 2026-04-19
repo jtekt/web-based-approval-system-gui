@@ -11,6 +11,7 @@ variables:
   APPLICATION_NAME_STAGING: ${APPLICATION_NAME}-staging
   CONTAINER_IMAGE_STAGING: ${AWS_ECR_PUBLIC_URL}/${APPLICATION_NAME_STAGING}
   CONTAINER_IMAGE_TAGGED_STAGING: ${CONTAINER_IMAGE_STAGING}:${CI_COMMIT_SHORT_SHA}
+  K8S_ENV_NAME_STAGING: ${APPLICATION_NAME_STAGING}-env
 
   K8S_NODEPORT: 32725
   K8S_NODEPORT_LEGACY: 32723
@@ -81,6 +82,9 @@ deploy_staging:
   tags:
     - dind
   script:
+    # Create staging env
+    - kubectl create secret generic $K8S_ENV_NAME_STAGING --from-env-file=$STAGING_ENV --dry-run=client -o yaml | kubectl apply -f -
+    
     - envsubst < kubernetes_manifest_staging.yml | kubectl apply -f -
      # Validate deployment rollout status
     - kubectl rollout status deployment/$APPLICATION_NAME_STAGING --timeout=600s
