@@ -19,7 +19,7 @@ spec:
             - containerPort: 80
           envFrom:
             - secretRef:
-                name: environment-variables-staging
+                name: ${K8S_ENV_NAME_STAGING}
 ---
 apiVersion: v1
 kind: Service
