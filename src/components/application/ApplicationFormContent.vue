@@ -1,217 +1,274 @@
 <template>
-  <div>
-    <div class="text-h6">{{ $t("Application info") }}</div>
+  <v-card variant="text">
+    <template #title>
+      {{ $t('Application info') }}
+    </template>
 
-    <v-list dense>
-      <v-divider />
-      <v-list-item>
-        <v-list-item-content> ID </v-list-item-content>
-        <v-list-item-content class="align-end text-caption">
-          {{ get_id_of_item(application) }}
-        </v-list-item-content>
-      </v-list-item>
-      <v-divider />
-      <v-list-item>
-        <v-list-item-content>
-          {{ $t("Title") }}
-        </v-list-item-content>
-        <v-list-item-content class="align-end">
-          {{ application.title }}
-        </v-list-item-content>
-      </v-list-item>
-
-      <v-divider />
-      <v-list-item>
-        <v-list-item-content>
-          {{ $t("Type") }}
-        </v-list-item-content>
-        <v-list-item-content class="align-end">
-          {{ application.type }}
-        </v-list-item-content>
-      </v-list-item>
-
-      <v-divider />
-      <v-list-item>
-        <v-list-item-content>
-          {{ $t("Date") }}
-        </v-list-item-content>
-        <v-list-item-content class="align-end">
-          {{ format_date_neo4j(application.creation_date) }}
-        </v-list-item-content>
-      </v-list-item>
-
-      <v-divider />
-      <v-list-item>
-        <v-list-item-content>
-          {{ $t("Applicant") }}
-        </v-list-item-content>
-        <v-list-item-content class="align-end">
-          <div>
-            <UserChip :user="application.applicant" />
-          </div>
-        </v-list-item-content>
-      </v-list-item>
-
-      <v-divider />
-
-      <PrivacySettings v-model="application" />
-    </v-list>
-
-    <!-- application form data, i.e. content  -->
-    <div class="text-h6">{{ $t("Application content") }}</div>
-
-    <v-list dense v-if="application.forbidden">
-      <v-list-item>
-        <v-list-item-content class="red--text">
-          {{ $t("Confidential") }}
-        </v-list-item-content>
-      </v-list-item>
-    </v-list>
-
-    <v-list dense v-else>
-      <template v-for="(field, index) in application.form_data">
-        <v-divider :key="`field_${index}_divider`" />
-
-        <v-list-item :key="`field_${index}_item`">
-          <v-list-item-content>{{ field.label }}</v-list-item-content>
-
-          <v-list-item-content class="align-end" v-if="field.type === 'pdf'">
-            <template v-if="field.value">
-              <template v-if="user_as_recipient">
-                <div
-                  class="green--text text-center mb-2"
-                  v-if="user_has_stamped_attachment(field.value)"
-                >
-                  {{ $t("Stamped") }}
-                </div>
-
-                <div class="red--text text-center mb-2" v-else>
-                  {{ $t("Not stamped yet") }}
-                </div>
-              </template>
-
-              <v-btn @click="$emit('pdfSelected', field.value)" block>
-                <v-icon>mdi-eye</v-icon>
-              </v-btn>
-            </template>
-          </v-list-item-content>
-
-          <v-list-item-content
-            class="align-end"
-            v-else-if="field.type === 'file'"
-          >
-            <v-btn
-              v-if="field.value"
-              @click="download_attachment(field.value)"
-              block
+    <template #text>
+      <v-list>
+        <v-divider />
+        <v-list-item>
+          <v-row>
+            <v-col cols="4" class="d-flex align-center text-medium-emphasis"
+              >ID</v-col
             >
-              <v-icon>mdi-download</v-icon>
-            </v-btn>
-          </v-list-item-content>
-
-          <v-list-item-content
-            class="align-end"
-            v-else-if="field.type === 'checkbox'"
-          >
-            <v-icon v-if="field.value">mdi-check</v-icon>
-            <v-icon v-else>mdi-close</v-icon>
-          </v-list-item-content>
-
-          <v-list-item-content
-            class="align-end"
-            v-else-if="field.type === 'link'"
-          >
-            <a :href="field.value" target="_blank">
-              {{ field.value }}
-            </a>
-          </v-list-item-content>
-
-          <v-list-item-content
-            class="align-end"
-            v-else-if="field.type === 'application'"
-          >
-            <a
-              class="field_link"
-              :href="`/applications/${field.value}`"
-              target="_blank"
-            >
-              {{ field.value }}
-            </a>
-          </v-list-item-content>
-
-          <v-list-item-content class="align-end application_field_value" v-else>
-            {{ field.value || "-" }}
-          </v-list-item-content>
+            <v-col cols="8" class="text-body-small">{{
+              application._id
+            }}</v-col>
+          </v-row>
         </v-list-item>
-      </template>
-    </v-list>
-  </div>
+        <v-divider />
+        <v-list-item>
+          <v-row>
+            <v-col cols="4" class="d-flex align-center text-medium-emphasis">{{
+              $t('Title')
+            }}</v-col>
+            <v-col cols="8" class="text-body-2">{{ application.title }}</v-col>
+          </v-row>
+        </v-list-item>
+        <v-divider />
+        <v-list-item>
+          <v-row>
+            <v-col cols="4" class="d-flex align-center text-medium-emphasis">{{
+              $t('Type')
+            }}</v-col>
+            <v-col cols="8">{{ application.type }}</v-col>
+          </v-row>
+        </v-list-item>
+        <v-divider />
+        <v-list-item>
+          <v-row>
+            <v-col cols="4" class="d-flex align-center text-medium-emphasis">{{
+              $t('Date')
+            }}</v-col>
+            <v-col cols="8">
+              {{
+                application.creation_date
+                  ? formatDateNeo4j(application.creation_date)
+                  : '-'
+              }}
+            </v-col>
+          </v-row>
+        </v-list-item>
+        <v-divider />
+        <v-list-item>
+          <v-row>
+            <v-col cols="4" class="d-flex align-center text-medium-emphasis">{{
+              $t('Applicant')
+            }}</v-col>
+            <v-col cols="8">
+              <UserChip :user="application.applicant" />
+            </v-col>
+          </v-row>
+        </v-list-item>
+        <v-divider />
+
+        <!-- PRIVACY -->
+        <PrivacySettings v-model="application" />
+      </v-list>
+    </template>
+  </v-card>
+
+  <v-divider />
+
+  <v-card variant="text">
+    <template #title>
+      {{ $t('Application content') }}
+    </template>
+
+    <template #text>
+      <!-- CONFIDENTIAL -->
+      <v-alert
+        v-if="application.forbidden"
+        type="error"
+        variant="tonal"
+        density="compact"
+        class="mb-3"
+      >
+        {{ $t('Confidential') }}
+      </v-alert>
+
+      <!-- FIELDS -->
+      <v-list v-else density="comfortable">
+        <template v-for="(field, index) in formData" :key="`field_${index}`">
+          <v-divider />
+          <v-list-item>
+            <v-row>
+              <!-- LABEL -->
+              <v-col cols="6" class="d-flex align-center text-medium-emphasis">
+                {{ field.label }}
+              </v-col>
+
+              <!-- VALUE / ACTION -->
+              <v-col cols="6" class="text-right">
+                <!-- PDF -->
+                <template v-if="field.type === 'pdf' && field.value">
+                  <div v-if="userAsRecipient" class="mb-1">
+                    <v-chip
+                      size="x-small"
+                      :color="
+                        userHasStampedAttachment(String(field.value))
+                          ? 'success'
+                          : 'error'
+                      "
+                      variant="tonal"
+                    >
+                      {{
+                        userHasStampedAttachment(String(field.value))
+                          ? $t('Stamped')
+                          : $t('Not stamped yet')
+                      }}
+                    </v-chip>
+                  </div>
+
+                  <v-btn
+                    variant="tonal"
+                    @click="$emit('pdfSelected', String(field.value))"
+                  >
+                    <v-icon>mdi-eye</v-icon>
+                  </v-btn>
+                </template>
+
+                <!-- FILE -->
+                <template v-else-if="field.type === 'file' && field.value">
+                  <v-btn
+                    size="small"
+                    variant="text"
+                    @click="downloadAttachment(String(field.value))"
+                  >
+                    <v-icon start>mdi-download</v-icon>
+                    {{ $t('Download') }}
+                  </v-btn>
+                </template>
+
+                <!-- CHECKBOX -->
+                <template v-else-if="field.type === 'checkbox'">
+                  <v-icon :color="field.value ? 'success' : 'error'">
+                    {{ field.value ? 'mdi-check-circle' : 'mdi-close-circle' }}
+                  </v-icon>
+                </template>
+
+                <!-- LINK -->
+                <template v-else-if="field.type === 'link' && field.value">
+                  <a
+                    :href="String(field.value)"
+                    target="_blank"
+                    class="text-primary text-decoration-none"
+                  >
+                    {{ field.value }}
+                  </a>
+                </template>
+
+                <!-- APPLICATION -->
+                <template
+                  v-else-if="field.type === 'application' && field.value"
+                >
+                  <a
+                    :href="`/applications/${field.value}`"
+                    target="_blank"
+                    class="text-primary text-decoration-none"
+                  >
+                    {{ field.value }}
+                  </a>
+                </template>
+
+                <!-- DEFAULT -->
+                <template v-else>
+                  <span
+                    v-if="field.value"
+                    class="application_field_value text-body-2"
+                  >
+                    {{ field.value }}
+                  </span>
+                  <v-icon v-else color="grey">mdi-minus-circle</v-icon>
+                </template>
+              </v-col>
+            </v-row>
+          </v-list-item>
+        </template>
+      </v-list>
+    </template>
+  </v-card>
 </template>
 
-<script>
-import applicationUtils from "@/mixins/applicationUtils.js"
-import IdUtils from "@/mixins/IdUtils.js"
-import dateUtils from "@/mixins/dateUtils.js"
-import PrivacySettings from "@/components/application/PrivacySettings.vue"
-import UserChip from "../UserChip.vue"
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+import type { Application, Field, Hanko } from '@/types'
+import { useDateUtils } from '@/composables/useDateUtils'
+import UserChip from '@/components/UserChip.vue'
+import { env } from '@/utils/env'
+import { useAuth } from '@/composables/useAuth'
+import PrivacySettings from './PrivacySettings.vue'
 
-const { VUE_APP_SHINSEI_MANAGER_URL } = process.env
+const props = defineProps<{ modelValue: Application }>()
+const emit = defineEmits<{
+  'update:modelValue': [value: Application]
+  pdfSelected: [fileId: string]
+}>()
 
-export default {
-  components: {
-    PrivacySettings,
-    UserChip,
-  },
-  props: {
-    value: Object,
-  },
-  mixins: [IdUtils, dateUtils, applicationUtils],
+const route = useRoute()
+const { formatDateNeo4j } = useDateUtils()
+const { currentUser } = useAuth()
 
-  data() {
-    return {
-      application: this.value,
+const application = computed({
+  get: () => props.modelValue,
+  set: (val: Application) => emit('update:modelValue', val),
+})
+
+const userAsRecipient = computed(() => {
+  if (!currentUser.value) return null
+
+  return (
+    application.value.recipients?.find(
+      (r) => r._id === currentUser.value?._id
+    ) ?? null
+  )
+})
+
+const formData = computed<Field[]>(() => {
+  const fd = application.value.form_data
+
+  let parsed: Field[] = []
+
+  if (!fd) return []
+
+  if (typeof fd === 'string') {
+    try {
+      parsed = JSON.parse(fd) as Field[]
+    } catch {
+      return []
     }
-  },
-  watch: {
-    application: {
-      deep: true,
-      handler() {
-        this.$emit("update", this.application)
-      },
-    },
-  },
-  methods: {
-    download_attachment(file_id) {
-      const url = `${VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/files/${file_id}`
-      window.open(url, "_blank")
-    },
-    user_has_stamped_attachment(file_id) {
-      if (!this.user_as_recipient) return false
+  } else {
+    parsed = fd
+  }
 
-      const found_approval = this.user_as_recipient.approval
+  if (!env.VITE_PDF_MODE) return parsed
 
-      if (!found_approval) return
+  return parsed.filter((field) => field.type !== 'pdf')
+})
 
-      let attachment_hankos = found_approval.attachment_hankos
+function downloadAttachment(fileId: string) {
+  const base = env.VITE_SHINSEI_MANAGER_URL
+  const appId = route.params.application_id as string
+  window.open(`${base}/applications/${appId}/files/${fileId}`, '_blank')
+}
 
-      if (typeof attachment_hankos === "string") {
-        try {
-          attachment_hankos = JSON.parse(attachment_hankos)
-        } catch (e) {
-          console.error("Failed to parse attachment hankos")
-        }
-      }
+function userHasStampedAttachment(fileId: string): boolean {
+  if (!userAsRecipient.value) return false
+  const approval = userAsRecipient.value.approval
+  if (!approval) return false
 
-      if (!attachment_hankos) return
-
-      return !!attachment_hankos.find((a) => a.file_id === file_id)
-    },
-  },
-  computed: {
-    application_id() {
-      return this.$route.params.application_id
-    },
-  },
+  let hankos = approval.attachment_hankos
+  if (!hankos) return false
+  if (typeof hankos === 'string') {
+    try {
+      hankos = JSON.parse(hankos) as Hanko[]
+    } catch {
+      return false
+    }
+  }
+  return hankos.some((h) => h.file_id === fileId)
 }
 </script>
 

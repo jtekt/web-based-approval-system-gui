@@ -1,135 +1,185 @@
 <template>
-  <AppTemplate :options="options" @user="user_changed($event)" @tokens="handle_tokens_event($event)">
-    <template v-slot:nav>
-      <v-list dense nav>
-        <v-list-item>
+  <v-app>
+    <!-- Top App Bar -->
+    <v-app-bar color="black" flat>
+      <v-app-bar-nav-icon
+        v-if="isAuthenticated && isMobile"
+        @click="drawer = !drawer"
+      />
+
+      <v-app-bar-title>申請マネージャー</v-app-bar-title>
+
+      <template #append>
+        <div class="d-flex align-center">
+          <v-btn icon @click="toggleTheme">
+            <v-icon>mdi-theme-light-dark</v-icon>
+          </v-btn>
+
           <LocaleSelector />
-        </v-list-item>
-        <v-divider />
+
+          <v-btn v-show="isAuthenticated" icon @click="handelLogout">
+            <v-icon>mdi-logout</v-icon>
+          </v-btn>
+        </div>
+      </template>
+    </v-app-bar>
+
+    <!-- Drawer -->
+    <v-navigation-drawer
+      v-if="isAuthenticated"
+      v-model="drawer"
+      :permanent="isAuthenticated && !isMobile"
+      :temporary="isAuthenticated && isMobile"
+    >
+      <v-list nav density="compact">
         <v-list-item
-          v-for="(item, index) in nav"
-          :key="`nav_item_${index}`"
+          v-for="item in navItems"
+          :key="item.name"
           :to="item.to"
+          :prepend-icon="item.icon"
+          :title="item.title"
           exact
         >
-          <v-list-item-icon>
-            <v-icon>{{ item.icon }}</v-icon>
-          </v-list-item-icon>
-
-          <v-list-item-content>
-            <v-list-item-title>
-              <v-badge v-if="item.count" :content="item.count" color="#c00000">
-                {{ item.title }}
-              </v-badge>
-              <span v-else>{{ item.title }}</span>
-            </v-list-item-title>
-          </v-list-item-content>
+          <template v-if="item.badge" #append>
+            <v-badge :content="item.badge" color="primary" inline />
+          </template>
         </v-list-item>
       </v-list>
-    </template>
-  </AppTemplate>
+    </v-navigation-drawer>
+
+    <!-- Main Content -->
+    <v-main>
+      <v-container>
+        <router-view />
+      </v-container>
+    </v-main>
+
+    <v-snackbar-queue v-model="toasts.queue.value" />
+  </v-app>
 </template>
 
-<script>
-import AppTemplate from "@moreillon/vue_application_template_vuetify"
-import LocaleSelector from "./components/LocaleSelector.vue"
+<script setup lang="ts">
+import { ref, computed, watch, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import { useDisplay, useTheme } from 'vuetify'
+import LocaleSelector from '@/components/LocaleSelector.vue'
+import { useToast } from './composables/useToast'
+import { useAuth } from './composables/useAuth'
+import api from './api'
+import { env } from './utils/env'
 
-const {
-  NODE_ENV,
-  VUE_APP_LOGIN_URL,
-  VUE_APP_IDENTIFICATION_URL,
-  VUE_APP_PASSWORD_RESET_URL,
-  VUE_APP_LOGIN_HINT,
-  VUE_APP_HOMEPAGE_URL,
-  VUE_APP_OIDC_AUTHORITY,
-  VUE_APP_OIDC_CLIENT_ID,
-  VUE_APP_OIDC_AUDIENCE,
-} = process.env
+const toasts = useToast()
+const { currentUser, logout } = useAuth()
 
-export default {
-  name: "App",
+const { t } = useI18n()
+const router = useRouter()
+const route = useRoute()
+const theme = useTheme()
+const display = useDisplay()
 
-  components: {
-    AppTemplate,
-    LocaleSelector,
-  },
+const isAuthenticated = computed(() => !!currentUser.value)
+const isMobile = computed(() => display.mdAndDown.value)
 
-  data() {
-    return {
-      options: {
-        title: "申請マネージャー",
-        skip_greetings: NODE_ENV === "development",
-        login_url: VUE_APP_LOGIN_URL,
-        identification_url: VUE_APP_IDENTIFICATION_URL,
-        password_reset_url: VUE_APP_PASSWORD_RESET_URL,
-        login_hint: VUE_APP_LOGIN_HINT,
-        homepage_url: VUE_APP_HOMEPAGE_URL,
+const drawer = ref(false)
 
-        header_logo: require("@/assets/jtekt_logo_negative.jpg"),
-        authentication_logo: require("@/assets/jtekt_logo.jpg"),
-        colors: { app_bar: "#000" },
-        author: "Maxime Moreillon - JTEKT Corporation",
-        oidc: {
-          authority: VUE_APP_OIDC_AUTHORITY,
-          client_id: VUE_APP_OIDC_CLIENT_ID,
-          extraQueryParams: {
-            audience: VUE_APP_OIDC_AUDIENCE,
-          },
-        },
-      },
+/**
+ * Keep drawer in sync with auth + screen size
+ */
+watch(
+  [isAuthenticated, isMobile],
+  ([auth, mobile]) => {
+    if (!auth) {
+      drawer.value = false
+    } else {
+      drawer.value = !mobile // open on desktop, closed on mobile
     }
   },
-  methods: {
-    user_changed(user) {
-      this.$store.commit("set_current_user", user)
-      this.$store.commit("check_pending_applications")
-    },
-    handle_tokens_event(tokens) {
-      this.$store.commit("set_tokens", tokens)
-    },
-  },
-  computed: {
-    nav() {
-      return [
-        {
-          title: this.$t("New application"),
-          to: { name: "new_application" },
-          icon: "mdi-plus",
-        },
-        {
-          title: this.$t("Outbox"),
-          to: { name: "submitted_applications" },
-          icon: "mdi-inbox-arrow-up",
-        },
-        {
-          title: this.$t("Inbox"),
-          to: { name: "received_applications" },
-          icon: "mdi-inbox-arrow-down",
-          count: this.$store.state.received_pending_application_count,
-        },
-        {
-          title: this.$t("Search"),
-          to: { name: "search" },
-          icon: "mdi-magnify",
-        },
-        {
-          title: this.$t("Templates"),
-          to: { name: "templates" },
-          icon: "mdi-file-document-multiple-outline",
-        },
-        {
-          title: this.$t("About"),
-          to: { name: "about" },
-          icon: "mdi-information-outline",
-        },
-      ]
-    },
-  },
-}
-</script>
+  { immediate: true }
+)
 
-<style>
-.header_logo {
-  border-right: 1px solid white;
+const receivedApplications = ref(0)
+
+const navItems = computed(() => [
+  {
+    name: 'new_application',
+    title: t('New application'),
+    to: { name: 'new_application' },
+    icon: 'mdi-plus',
+  },
+  {
+    name: 'submitted_applications',
+    title: t('Outbox'),
+    to: { name: 'submitted_applications' },
+    icon: 'mdi-inbox-arrow-up',
+  },
+  {
+    name: 'received_applications',
+    title: t('Inbox'),
+    to: { name: 'received_applications' },
+    icon: 'mdi-inbox-arrow-down',
+    badge:
+      receivedApplications.value > 0 ? receivedApplications.value : undefined,
+  },
+  {
+    name: 'search',
+    title: t('Search'),
+    to: { name: 'search' },
+    icon: 'mdi-magnify',
+  },
+  ...(env.VITE_PDF_MODE
+    ? []
+    : [
+        {
+          name: 'templates',
+          title: t('Templates'),
+          to: { name: 'templates' },
+          icon: 'mdi-file-document-multiple-outline',
+        },
+      ]),
+  {
+    name: 'about',
+    title: t('About'),
+    to: { name: 'about' },
+    icon: 'mdi-information-outline',
+  },
+])
+
+function handelLogout() {
+  logout()
+  router.push({ name: 'login' })
 }
-</style>
+
+function toggleTheme() {
+  theme.toggle()
+  localStorage.setItem('theme', theme.current.value.dark ? 'dark' : 'light')
+}
+
+onMounted(async () => {
+  await router.isReady()
+
+  if (route.meta?.public || !isAuthenticated.value) return
+
+  try {
+    const params: Record<string, string> = {
+      relationship: 'SUBMITTED_TO',
+      state: 'pending',
+    }
+
+    if (env.VITE_PDF_MODE) {
+      params.type = 'PDF'
+    }
+
+    const { data } = await api.get<{ count: number }>('/applications', {
+      params,
+    })
+
+    receivedApplications.value = data.count
+  } catch (err: unknown) {
+    const error = err as { response?: { status: number } }
+    if (error.response?.status === 401) {
+      router.push({ name: 'login' })
+    }
+  }
+})
+</script>

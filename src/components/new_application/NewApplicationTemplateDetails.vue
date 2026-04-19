@@ -1,70 +1,59 @@
 <template>
-  <v-expansion-panels
-    v-if="selected_form && !this.$route.query.copy_of"
-    flat
-    accordion
-  >
+  <v-expansion-panels v-if="selectedForm && !copyOf" variant="accordion" flat>
     <v-expansion-panel>
-      <v-expansion-panel-header>
-        {{ $t("Type") }}: {{ selected_form.label }} ({{
-          $t("Click for more info")
+      <v-expansion-panel-title>
+        {{ $t('Type') }}: {{ selectedForm.label }} ({{
+          $t('Click for more info')
         }})
-      </v-expansion-panel-header>
-      <v-expansion-panel-content>
-        <v-row align="baseline">
-          <!-- TODO: use managers instead -->
-          <v-col cols="auto">
-            {{ $t("Template author") }}
-          </v-col>
-
-          <UserChip
-            v-for="(manager, index) in selected_form.managers"
+      </v-expansion-panel-title>
+      <v-expansion-panel-text>
+        <v-row align="center">
+          <v-col cols="auto">{{ $t('Template author') }}</v-col>
+          <v-col
+            v-for="(manager, index) in selectedForm.managers"
             :key="`manager_${index}`"
-            class="mr-2"
-            :user="manager"
-          />
-
-          <v-spacer />
-        </v-row>
-
-        <v-row>
-          <v-col cols="12" class="form_description">
-            {{ selected_form.description }}
+            cols="auto"
+          >
+            <UserChip :user="manager" />
           </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="12" class="form_description">{{
+            selectedForm.description
+          }}</v-col>
         </v-row>
         <v-row>
           <v-col cols="auto">
             <router-link
               :to="{
                 name: 'template',
-                params: { template_id: selected_form._id },
+                params: { template_id: selectedForm._id },
               }"
             >
-              {{ $t("Template page") }}
+              {{ $t('Template page') }}
             </router-link>
           </v-col>
         </v-row>
-        <v-divider class="mt-4"></v-divider>
-      </v-expansion-panel-content>
+        <v-divider class="mt-4" />
+      </v-expansion-panel-text>
     </v-expansion-panel>
   </v-expansion-panels>
 </template>
 
-<script>
-import UserChip from "../UserChip.vue"
+<script setup lang="ts">
+import { useRoute } from 'vue-router'
+import { computed } from 'vue'
+import type { Template } from '@/types'
+import UserChip from '@/components/UserChip.vue'
 
-export default {
-  name: "NewApplicationTemplateDetails",
-  components: {
-    UserChip,
-  },
-  props: {
-    selected_form: Object,
-  },
-  data() {
-    return {}
-  },
-  methods: {},
-  computed: {},
-}
+defineProps<{ selectedForm: Template }>()
+
+const route = useRoute()
+const copyOf = computed(() => route.query.copy_of)
 </script>
+
+<style scoped>
+.form_description {
+  white-space: pre-line;
+}
+</style>
