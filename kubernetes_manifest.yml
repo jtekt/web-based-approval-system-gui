@@ -20,8 +20,6 @@ spec:
           envFrom:
             - secretRef:
                 name: environment-variables
-          imagePullSecrets:
-            - name: ecr-credentials
 ---
 apiVersion: v1
 kind: Service
