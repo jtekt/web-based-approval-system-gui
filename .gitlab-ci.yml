@@ -9,7 +9,7 @@ variables:
 
   # Staging envs
   APPLICATION_NAME_STAGING: ${APPLICATION_NAME}-staging
-  CONTAINER_IMAGE_STAGING: ${AWS_ECR_PUBLIC_URL}/${APPLICATION_NAME_STAGING}
+  CONTAINER_IMAGE_STAGING: ${AWS_ECR_URL}/${APPLICATION_NAME_STAGING}
   CONTAINER_IMAGE_TAGGED_STAGING: ${CONTAINER_IMAGE_STAGING}:${CI_COMMIT_SHORT_SHA}
   K8S_ENV_NAME_STAGING: ${APPLICATION_NAME_STAGING}-env
 
@@ -61,12 +61,9 @@ build_staging:
   rules:
     - if: $CI_COMMIT_BRANCH == "staging"
     - when: never
-  tags:
-    - dind
   before_script:
-    - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${AWS_ECR_PUBLIC_URL}
     - >
-      aws ecr-public create-repository --region us-east-1 --repository-name ${APPLICATION_NAME_STAGING}
+      aws ecr create-repository --repository-name ${APPLICATION_NAME_STAGING}
       || echo "Repository might have already existed"
   script:
     - docker build -t ${CONTAINER_IMAGE_TAGGED_STAGING} .
@@ -79,8 +76,6 @@ deploy_staging:
   rules:
     - if: $CI_COMMIT_BRANCH == "staging"
     - when: never
-  tags:
-    - dind
   script:
     # Create staging env
     - kubectl create secret generic $K8S_ENV_NAME_STAGING --from-env-file=$STAGING_ENV --dry-run=client -o yaml | kubectl apply -f -
