@@ -1,6 +1,6 @@
 <template>
   <div class="button_wrapper">
-    <v-btn icon size="large" @click="emailButtonClicked">
+    <v-btn icon size="x-large" variant="flat" @click="emailButtonClicked">
       <div class="d-flex flex-column align-center">
         <v-icon v-if="submission?.notified">mdi-email-check</v-icon>
         <v-icon v-else>mdi-email</v-icon>

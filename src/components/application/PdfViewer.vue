@@ -159,6 +159,7 @@ import { generateWebHankoSvg } from '@/utils/webHankos'
 import api from '@/api'
 import { useAuth } from '@/composables/useAuth'
 import { Canvg } from 'canvg'
+import { useToast } from '@/composables/useToast'
 
 const props = defineProps<{
   application: Application
@@ -173,6 +174,7 @@ const emit = defineEmits<{
 const { t } = useI18n()
 const { currentUser } = useAuth()
 const route = useRoute()
+const toast = useToast()
 
 /* -----------------------------
  * Core state
@@ -452,7 +454,7 @@ async function approveApplication(body: { attachment_hankos: Hanko[] }) {
     emit('pdf_stamped')
   } catch (err) {
     console.error(err)
-    alert(t('Error approving application'))
+    toast.error(t('Error approving application'))
   }
 }
 
@@ -463,7 +465,7 @@ async function updateHankos(body: { attachment_hankos: Hanko[] }) {
     emit('pdf_stamped')
   } catch (err) {
     console.error(err)
-    alert(t('Error updating stamps'))
+    toast.error(t('Error updating stamps'))
   }
 }
 

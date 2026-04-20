@@ -81,20 +81,22 @@
           <span>{{ $t('Add field') }}</span>
         </v-btn>
       </template>
-      
+
       <v-divider />
 
       <v-card-text>
         <v-row
-          align="start"
           v-for="(field, index) in template.fields"
           :key="`field_${index}`"
+          align="center"
+          density="comfortable"
         >
           <v-col>
             <v-text-field
               :readonly="!userIsManager"
               :label="$t('Field name')"
               v-model="field.label"
+              hide-details
             />
           </v-col>
           <v-col>
@@ -105,25 +107,30 @@
               item-value="type"
               v-model="field.type"
               :label="t('Type')"
+              hide-details
             />
           </v-col>
-          <v-col v-if="userIsManager" cols="auto">
-            <v-btn icon :disabled="index === 0" @click="moveField(index, -1)">
-              <v-icon>mdi-arrow-up</v-icon>
-            </v-btn>
-            <v-btn
-              icon
-              :disabled="index === template.fields.length - 1"
-              @click="moveField(index, 1)"
-            >
-              <v-icon>mdi-arrow-down</v-icon>
-            </v-btn>
-          </v-col>
-          <v-col v-if="userIsManager" cols="auto">
-            <v-btn icon color="error" @click="deleteField(index)">
-              <v-icon>mdi-delete</v-icon>
-            </v-btn>
-          </v-col>
+          <template v-if="userIsManager">
+            <v-col cols="auto">
+              <v-btn icon :disabled="index === 0" @click="moveField(index, -1)">
+                <v-icon>mdi-arrow-up</v-icon>
+              </v-btn>
+            </v-col>
+            <v-col cols="auto">
+              <v-btn
+                icon
+                :disabled="index === template.fields.length - 1"
+                @click="moveField(index, 1)"
+              >
+                <v-icon>mdi-arrow-down</v-icon>
+              </v-btn>
+            </v-col>
+            <v-col cols="auto">
+              <v-btn icon color="error" @click="deleteField(index)">
+                <v-icon>mdi-delete</v-icon>
+              </v-btn>
+            </v-col>
+          </template>
         </v-row>
       </v-card-text>
     </v-card>
@@ -308,7 +315,6 @@ function moveField(index: number, step: number) {
 function deleteField(index: number) {
   confirmState.value = {
     open: true,
-    // TODO: in18
     title: t('Delete field'),
     message: t('Are you sure you want to delete this field?'),
     loading: false,
