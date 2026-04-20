@@ -39,6 +39,7 @@ import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import ApplicationListTable from '@/components/application_list/ApplicationListTable.vue'
+import { env } from '@/utils/env'
 
 const props = defineProps<{ direction: string }>()
 
@@ -79,11 +80,17 @@ const submittedTables = computed(() => [
     state: 'pending',
     icon: 'mdi-progress-clock',
     headers: [
-      { title: t('Date'), key: 'creation_date' },
-      { title: t('Type'), key: 'type' },
-      { title: t('Title'), key: 'title' },
-      { title: '%', key: 'progress', width: '10ch' },
-      { title: t('Current recipient'), key: 'current_recipient' },
+      { title: t('Date'), key: 'creation_date', sortable: false },
+      ...(env.VITE_PDF_ONLY
+        ? []
+        : [{ title: t('Type'), key: 'type', sortable: false }]),
+      { title: t('Title'), key: 'title', sortable: false },
+      { title: '%', key: 'progress', width: '10ch', sortable: false },
+      {
+        title: t('Current recipient'),
+        key: 'current_recipient',
+        sortable: false,
+      },
     ],
   },
   {
@@ -91,11 +98,17 @@ const submittedTables = computed(() => [
     state: 'rejected',
     icon: 'mdi-close-circle-outline',
     headers: [
-      { title: t('Date'), key: 'creation_date' },
-      { title: t('Type'), key: 'type' },
-      { title: t('Title'), key: 'title' },
-      { title: '%', key: 'progress', width: '10ch' },
-      { title: t('Current recipient'), key: 'current_recipient' },
+      { title: t('Date'), key: 'creation_date', sortable: false },
+      ...(env.VITE_PDF_ONLY
+        ? []
+        : [{ title: t('Type'), key: 'type', sortable: false }]),
+      { title: t('Title'), key: 'title', sortable: false },
+      { title: '%', key: 'progress', width: '10ch', sortable: false },
+      {
+        title: t('Current recipient'),
+        key: 'current_recipient',
+        sortable: false,
+      },
     ],
   },
   {
@@ -103,9 +116,11 @@ const submittedTables = computed(() => [
     state: 'approved',
     icon: 'mdi-check-circle-outline',
     headers: [
-      { title: t('Date'), key: 'creation_date' },
-      { title: t('Type'), key: 'type' },
-      { title: t('Title'), key: 'title' },
+      { title: t('Date'), key: 'creation_date', sortable: false },
+      ...(env.VITE_PDF_ONLY
+        ? []
+        : [{ title: t('Type'), key: 'type', sortable: false }]),
+      { title: t('Title'), key: 'title', sortable: false },
     ],
   },
 ])
@@ -116,10 +131,12 @@ const receivedTables = computed(() => [
     state: 'pending',
     icon: 'mdi-progress-clock',
     headers: [
-      { title: t('Date'), key: 'creation_date' },
-      { title: t('Type'), key: 'type' },
-      { title: t('Title'), key: 'title' },
-      { title: t('Applicant'), key: 'applicant' },
+      { title: t('Date'), key: 'creation_date', sortable: false },
+      ...(env.VITE_PDF_ONLY
+        ? []
+        : [{ title: t('Type'), key: 'type', sortable: false }]),
+      { title: t('Title'), key: 'title', sortable: false },
+      { title: t('Applicant'), key: 'applicant', sortable: false },
     ],
   },
   {
@@ -127,10 +144,12 @@ const receivedTables = computed(() => [
     state: 'rejected',
     icon: 'mdi-close-circle-outline',
     headers: [
-      { title: t('Date'), key: 'creation_date' },
-      { title: t('Type'), key: 'type' },
-      { title: t('Title'), key: 'title' },
-      { title: t('Applicant'), key: 'applicant' },
+      { title: t('Date'), key: 'creation_date', sortable: false },
+      ...(env.VITE_PDF_ONLY
+        ? []
+        : [{ title: t('Type'), key: 'type', sortable: false }]),
+      { title: t('Title'), key: 'title', sortable: false },
+      { title: t('Applicant'), key: 'applicant', sortable: false },
     ],
   },
   {
@@ -138,10 +157,12 @@ const receivedTables = computed(() => [
     state: 'approved',
     icon: 'mdi-check-circle-outline',
     headers: [
-      { title: t('Date'), key: 'creation_date' },
-      { title: t('Type'), key: 'type' },
-      { title: t('Title'), key: 'title' },
-      { title: t('Applicant'), key: 'applicant' },
+      { title: t('Date'), key: 'creation_date', sortable: false },
+      ...(env.VITE_PDF_ONLY
+        ? []
+        : [{ title: t('Type'), key: 'type', sortable: false }]),
+      { title: t('Title'), key: 'title', sortable: false },
+      { title: t('Applicant'), key: 'applicant', sortable: false },
     ],
   },
 ])

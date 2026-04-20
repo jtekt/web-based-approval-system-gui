@@ -21,6 +21,8 @@
         {{ $t('Delete') }}
       </v-btn>
     </template>
+    <v-divider />
+    
     <template v-if="application && !error">
       <v-row>
         <v-col cols="12" md="6">
