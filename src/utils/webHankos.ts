@@ -6,8 +6,6 @@ export function generateWebHankoSvg(recipient: Recipient): string {
     approval,
     first_name,
     first_name_kanji,
-    last_name,
-    last_name_kanji,
     family_name,
     family_name_kanji,
   } = recipient
@@ -16,8 +14,7 @@ export function generateWebHankoSvg(recipient: Recipient): string {
 
   const { _id, date } = approval
 
-  const lastName =
-    last_name ?? last_name_kanji ?? family_name ?? family_name_kanji ?? ''
+  const lastName = family_name ?? family_name_kanji ?? ''
   const firstName = first_name ?? first_name_kanji ?? ''
   const fullName = `${lastName} ${firstName}`.trim()
   const approverDisplayedName = fullName.length <= 6 ? fullName : lastName
