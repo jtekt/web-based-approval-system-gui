@@ -20,8 +20,8 @@ spec:
           envFrom:
             - secretRef:
                 name: ${K8S_ENV_NAME_STAGING}
-          imagePullSecrets:
-            - name: ecr-credentials
+      imagePullSecrets:
+        - name: ecr-credentials
 ---
 apiVersion: v1
 kind: Service
