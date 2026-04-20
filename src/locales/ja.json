@@ -132,6 +132,7 @@
   "Approval flow saved": "承認フローが保存されました",
   "PDF Reader": "PDF リーダー",
   "Click here to place a stamp": "ハンコを押したい所をクリックしてください",
+  "Hanko size too small": "印鑑のサイズが小さすぎます。サイズを大きくしてください。",
   "Apply stamp here?": "ここにハンコを押しますか？",
   "Error updating stamps": "ハンコの更新中にエラーが発生しました",
   "Failed to download file": "サーバーからファイルのダウンロードに失敗しました",

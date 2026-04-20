@@ -133,6 +133,7 @@
   "Approval flow saved": "Approval flow saved",
   "PDF Reader": "PDF Reader",
   "Click here to place a stamp": "Click here to place a stamp",
+  "Hanko size too small": "Stamp size is too small. Please increase it.",
   "Apply stamp here?": "Apply stamp here?",
   "Error updating stamps": "Error updating stamps",
   "Failed to download file": "Failed to download file from server",

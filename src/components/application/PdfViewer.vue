@@ -10,7 +10,7 @@
             <span>{{ $t('Click here to place a stamp') }}</span>
           </v-tooltip>
         </v-col>
-  
+
         <v-col cols="4" class="d-flex justify-center align-center">
           <v-btn
             type="button"
@@ -44,7 +44,7 @@
             <v-icon>mdi-arrow-right</v-icon>
           </v-btn>
         </v-col>
-  
+
         <v-col cols="4">
           <v-menu
             v-if="currentUserCanStamp"
@@ -59,7 +59,7 @@
                 {{ $t('Stamp size') }}
               </v-btn>
             </template>
-  
+
             <v-card min-width="260" class="pa-4" elevation="6" rounded="lg">
               <!-- Header -->
               <div class="d-flex align-center justify-space-between mb-3">
@@ -70,18 +70,18 @@
                   {{ hankoScaleSlider }}
                 </v-chip>
               </div>
-  
+
               <!-- Slider -->
               <v-slider
                 v-model.number="hankoScaleSlider"
-                min="1"
+                :min="MIN_HANKO_SIZE"
                 max="100"
                 step="1"
                 hide-details
                 thumb-label
                 color="primary"
               />
-  
+
               <!-- Optional quick presets -->
               <div class="d-flex justify-space-between mt-3">
                 <v-btn
@@ -111,7 +111,7 @@
               </div>
             </v-card>
           </v-menu>
-  
+
           <v-btn variant="text" @click="downloadPdf">
             <v-icon>mdi-download</v-icon>
             <span>{{ $t('Download') }}</span>
@@ -175,6 +175,8 @@ const { t } = useI18n()
 const { currentUser } = useAuth()
 const route = useRoute()
 const toast = useToast()
+
+const MIN_HANKO_SIZE = 25
 
 /* -----------------------------
  * Core state
@@ -407,6 +409,11 @@ async function loadPdfHankos() {
 async function pdfClicked(event: PointerEvent) {
   if (!currentUserCanStamp.value) return
   if (!pdfDoc.value || !pdfContainer.value) return
+
+  if (hankoScale.value < MIN_HANKO_SIZE / 1000) {
+    toast.error(t('Hanko size too small'))
+    return
+  }
   if (!confirm(t('Apply stamp here?'))) return
 
   saveHankoSize()
