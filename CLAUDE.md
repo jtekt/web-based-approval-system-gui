@@ -62,7 +62,7 @@ Pages make API calls directly using the `api` axios instance (no Vuex/Pinia). Sh
 
 ### PDF handling
 
-When `VITE_PDF_MODE=true`, applications can include file attachments. `PdfViewer.vue` and `pdf-lib` handle rendering and stamping hankos onto PDFs. The `WebHanko` / `WebHankoContainer` components manage the hanko UI.
+When `VITE_PDF_ONLY=true`, applications can include file attachments. `PdfViewer.vue` and `pdf-lib` handle rendering and stamping hankos onto PDFs. The `WebHanko` / `WebHankoContainer` components manage the hanko UI.
 
 ### Internationalization
 

@@ -39,7 +39,7 @@
             </template>
             <template #text>
               <v-row
-                v-if="!env.VITE_PDF_MODE && isCurrentRecipientCurrentUser"
+                v-if="!env.VITE_PDF_ONLY && isCurrentRecipientCurrentUser"
                 class="mb-3"
               >
                 <v-spacer />
@@ -243,7 +243,7 @@ async function getApplication() {
 
     application.value = data
 
-    if (env.VITE_PDF_MODE && Array.isArray(data.form_data)) {
+    if (env.VITE_PDF_ONLY && Array.isArray(data.form_data)) {
       const pdfField = data.form_data.find((f) => f.type === 'pdf' && f.value)
       if (pdfField) {
         const newId = String(pdfField.value)

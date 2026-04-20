@@ -243,7 +243,7 @@ const formData = computed<Field[]>(() => {
     parsed = fd
   }
 
-  if (!env.VITE_PDF_MODE) return parsed
+  if (!env.VITE_PDF_ONLY) return parsed
 
   return parsed.filter((field) => field.type !== 'pdf')
 })

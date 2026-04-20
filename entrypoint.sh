@@ -8,7 +8,7 @@ for file in $ROOT_DIR/assets/*.js* $ROOT_DIR/index.html;
 do
   echo "Processing $file ...";
 
-  sed -i 's|VITE_PDF_MODE_PLACEHOLDER|'${VITE_PDF_MODE}'|g' $file
+  sed -i 's|VITE_PDF_ONLY_PLACEHOLDER|'${VITE_PDF_ONLY}'|g' $file
 
   sed -i 's|VITE_SHINSEI_MANAGER_URL_PLACEHOLDER|'${VITE_SHINSEI_MANAGER_URL}'|g' $file
   
