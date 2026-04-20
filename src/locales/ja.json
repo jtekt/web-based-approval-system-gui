@@ -82,6 +82,7 @@
   "Recipient comments": "捺印者のコメント",
   "This file cannot be opened": "ファイル開けませんでした",
   "Click the email icon of the next recipient to send a notification email": "回覧はメールマークをクリックして作成されたメールを送信してください",
+  "leave_confirm": "未送信のメールがあります。本当にページを離れますか？",
   "Stamped": "ハンコを押しました",
   "Not stamped yet": "まだハンコを押してません",
   "Start from scratch": "やり直し",

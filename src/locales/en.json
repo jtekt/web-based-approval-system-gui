@@ -82,6 +82,7 @@
   "Recipient comments": "Recipient comments",
   "This file cannot be opened": "This file cannot be opened",
   "Click the email icon of the next recipient to send a notification email": "Click the email icon of the next recipient to send a notification email",
+  "leave_confirm": "You still have unsent emails. Are you sure you want to leave?",
   "Stamped": "Stamped",
   "Not stamped yet": "Not stamped yet",
   "Groups": "Groups",

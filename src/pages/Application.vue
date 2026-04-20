@@ -21,6 +21,18 @@
         {{ $t('Delete') }}
       </v-btn>
     </template>
+    <v-alert
+      v-if="emailRequired"
+      density="compact"
+      type="warning"
+      :text="
+        $t(
+          'Click the email icon of the next recipient to send a notification email'
+        )
+      "
+      closable
+      @click:close="removeRequiredEmail(applicationId)"
+    />
     <v-divider />
 
     <template v-if="application && !error">
@@ -146,7 +158,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter, useRoute, onBeforeRouteLeave } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
 import HelpDialog from '@/components/application/HelpDialog.vue'
@@ -160,12 +172,18 @@ import { useAuth } from '@/composables/useAuth'
 import { useToast } from '@/composables/useToast'
 import WebHankoContainer from '@/components/application/WebHankoContainer.vue'
 import RecipientComment from '@/components/application/RecipientComment.vue'
+import { useRequiredEmail } from '@/composables/useRequiredEmail'
 
 const router = useRouter()
 const route = useRoute()
 const { t } = useI18n()
 const toast = useToast()
 const { currentUser } = useAuth()
+const {
+  requiredEmails,
+  add: addRequiredEmail,
+  remove: removeRequiredEmail,
+} = useRequiredEmail()
 
 const application = ref<Application | null>(null)
 const loading = ref(false)
@@ -178,6 +196,8 @@ const dialog = ref({
   message: '',
   action: null as null | (() => Promise<void>),
 })
+
+const applicationId = computed(() => route.params.application_id as string)
 
 const orderedRecipients = computed(() => {
   if (!application.value) return []
@@ -228,13 +248,19 @@ const isApplicationFullyApproved = computed(() => {
   return total === approved
 })
 
+const emailRequired = computed(() =>
+  requiredEmails.value.find(
+    (item) => item.applicationId === applicationId.value
+  )
+)
+
 async function getApplication() {
   loading.value = true
   error.value = null
 
   try {
     const { data } = await api.get<Application>(
-      `/applications/${route.params.application_id}`
+      `/applications/${applicationId.value}`
     )
 
     if (data.form_data && typeof data.form_data === 'string') {
@@ -292,7 +318,8 @@ function openDeleteDialog() {
 
 async function approveApplication() {
   try {
-    await api.post(`/applications/${route.params.application_id}/approve`)
+    await api.post(`/applications/${applicationId.value}/approve`)
+    addRequiredEmail(applicationId.value)
     toast.success(t('Application approved'))
     await getApplication()
   } catch {
@@ -302,7 +329,8 @@ async function approveApplication() {
 
 async function rejectApplication() {
   try {
-    await api.post(`/applications/${route.params.application_id}/reject`)
+    await api.post(`/applications/${applicationId.value}/reject`)
+    addRequiredEmail(applicationId.value)
     toast.success(t('Application rejected'))
     await getApplication()
   } catch {
@@ -312,7 +340,8 @@ async function rejectApplication() {
 
 async function deleteApplication() {
   try {
-    await api.delete(`/applications/${route.params.application_id}`)
+    removeRequiredEmail(applicationId.value)
+    await api.delete(`/applications/${applicationId.value}`)
     toast.success(t('Application deleted'))
     router.push({ name: 'submitted_applications' })
   } catch {
@@ -327,5 +356,17 @@ function goToResubmit() {
   })
 }
 
-onMounted(getApplication)
+onBeforeRouteLeave(() => {
+  if (!emailRequired.value) return true
+
+  if (window.confirm(t('leave_confirm'))) {
+    removeRequiredEmail(applicationId.value)
+    return true
+  }
+  return false
+})
+
+onMounted(() => {
+  getApplication()
+})
 </script>
