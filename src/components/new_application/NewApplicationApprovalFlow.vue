@@ -19,7 +19,7 @@ const props = defineProps<{ recipients: User[] }>()
 
 function recipientName(user: User): string {
   const u = user
-  return u.display_name ?? u.name_kanji ?? u.full_name ?? u.username ?? ''
+  return u.display_name ?? u.name_kanji ?? u.username ?? ''
 }
 
 function deleteRecipient(index: number) {

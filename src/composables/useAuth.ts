@@ -131,7 +131,7 @@ async function identify(): Promise<boolean> {
 async function login(identifier: string, password: string): Promise<void> {
   authMode.value = 'jwt'
 
-  const { data } = await api.post(import.meta.env.VITE_LOGIN_URL, {
+  const { data } = await api.post(env.VITE_LOGIN_URL, {
     identifier,
     password,
   })
