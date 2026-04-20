@@ -151,5 +151,24 @@
   "Failed to remove group visibility": "Failed to remove group visibility",
   "Upload failed": "Upload failed",
   "Failed to add manager": "Failed to add manager",
-  "Make manager confirmation": "Make {name} manager of this template?"
+  "Make manager confirmation": "Make {name} manager of this template?",
+  "help": {
+    "button": "Help",
+    "title": "Help",
+    "features": {
+      "title": "Features",
+      "description": "You can stamp (resize supported) on the attached PDF."
+    },
+    "steps": {
+      "title": "Workflow",
+      "step1": "1. Place a stamp anywhere on the PDF displayed at the bottom of the page (resizable).",
+      "step2": "2. Press the email creation button to automatically generate an email to the next recipient.",
+      "step3": "3. Send the generated email (Outlook) manually.",
+      "step4": "4. The workflow is complete. Close the browser using the × button."
+    },
+    "download": {
+      "title": "Download Stamped File",
+      "description": "Download the stamped file using the download button at the top of the PDF viewer."
+    }
+  }
 }

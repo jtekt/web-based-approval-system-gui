@@ -150,5 +150,24 @@
   "Failed to remove group visibility": "グループ公開設定の削除に失敗しました",
   "Upload failed": "アップロードに失敗しました",
   "Failed to add manager": "担当者の追加に失敗しました",
-  "Make manager confirmation": "{name} をこのテンプレートの担当者にしますか？"
+  "Make manager confirmation": "{name} をこのテンプレートの担当者にしますか？",
+  "help": {
+    "button": "ヘルプ",
+    "title": "ヘルプ",
+    "features": {
+      "title": "機能",
+      "description": "添付のPDFに捺印（サイズ変更も可能）が可能です。"
+    },
+    "steps": {
+      "title": "回付手順",
+      "step1": "1．ページ下部に表示されているPDF上の任意の場所に捺印します。（サイズ変更可能）",
+      "step2": "2．メール作成ボタンを押すと、自動で次の回付者へメールが作成されます。",
+      "step3": "3．作成されたメール（Outlook）をご自身で送信して下さい。",
+      "step4": "4．以上で回付作業は終了です。ブラウザの×のボタンで閉じて下さい。"
+    },
+    "download": {
+      "title": "捺印済みファイルのダウンロード手順",
+      "description": "ページに表示されているPDF上部にあるダウンロードから捺印済みのファイルをダウンロードします。"
+    }
+  }
 }
