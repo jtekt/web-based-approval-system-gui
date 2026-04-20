@@ -1,57 +1,52 @@
 {
-  "name": "shinsei_manager_gui",
-  "version": "1.5.8",
-  "private": true,
-  "author": "Maxime Moreillon",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "run-p type-check \"build-only {@}\" --",
-    "preview": "vite preview",
-    "build-only": "vite build",
-    "type-check": "vue-tsc --build --force",
-    "lint": "eslint",
-    "lint:fix": "eslint --fix",
-    "mcp": "ruler apply",
-    "mcp:revert": "ruler revert"
-  },
-  "dependencies": {
-    "@mdi/font": "7.4.47",
-    "@moreillon/group-manager-vue-picker": "^0.0.2",
-    "axios": "^1.15.0",
-    "canvg": "^4.0.3",
-    "oidc-client-ts": "^3.1.0",
-    "pdf-lib": "^1.17.1",
-    "qrcode-svg": "^1.1.0",
-    "vue": "^3.5.30",
-    "vue-i18n": "^11.3.0",
-    "vue-pdf-embed": "^2.1.0",
-    "vue-router": "^5.0.3",
-    "vuedraggable": "^4.1.0",
-    "vuetify": "^4.0.2",
-    "zod": "^4.3.6"
-  },
-  "devDependencies": {
-    "@intellectronica/ruler": "^0.3.37",
-    "@tsconfig/node22": "^22.0.5",
-    "@types/node": "^24.12.0",
-    "@types/qrcode-svg": "^1.1.3",
-    "@vitejs/plugin-vue": "^6.0.5",
-    "@vue/tsconfig": "^0.9.0",
-    "eslint": "^9.39.4",
-    "eslint-config-vuetify": "^4.3.4",
-    "npm-run-all2": "^8.0.4",
-    "sass-embedded": "^1.98.0",
-    "typescript": "~5.9.3",
-    "unplugin-fonts": "^1.4.0",
-    "vite": "^8.0.0",
-    "vite-plugin-vuetify": "^2.1.3",
-    "vue-tsc": "^3.2.5"
-  },
-  "overrides": {
-    "unplugin-fonts": {
-      "vite": "^8.0.0"
-    }
-  },
-  "license": "MIT"
+    "name": "shinsei_manager_gui",
+    "version": "1.5.8",
+    "private": true,
+    "author": "Maxime Moreillon",
+    "scripts": {
+        "serve": "NODE_OPTIONS=--openssl-legacy-provider vue-cli-service serve",
+        "dev": "NODE_OPTIONS=--openssl-legacy-provider vue-cli-service serve",
+        "build": "vue-cli-service build",
+        "lint": "vue-cli-service lint",
+        "i18n:report": "vue-cli-service i18n:report --src \"./src/**/*.?(js|vue)\" --locales \"./src/locales/**/*.json\""
+    },
+    "dependencies": {
+        "@moreillon/vue_application_template_vuetify": "^3.6.2",
+        "@moreillon/vue_group_picker": "^5.0.12",
+        "@moreillon/vue_user_picker": "^5.0.10",
+        "axios": "^0.24.0",
+        "canvg": "^3.0.10",
+        "core-js": "^3.22.2",
+        "pdf-lib": "^1.17.1",
+        "qrcode": "^1.5.0",
+        "qrcode-svg": "^1.1.0",
+        "vue": "^2.6.11",
+        "vue-axios": "^3.4.1",
+        "vue-cookies": "^1.8.6",
+        "vue-i18n": "^8.26.3",
+        "vue-pdf": "^4.3.0",
+        "vue-router": "^3.2.0",
+        "vuedraggable": "^2.24.3",
+        "vuetify": "^2.6.4",
+        "vuex": "^3.4.0",
+        "xlsx": "^0.17.5"
+    },
+    "devDependencies": {
+        "@intlify/vue-i18n-loader": "^1.1.0",
+        "@vue/cli-plugin-babel": "^4.5.17",
+        "@vue/cli-plugin-eslint": "^4.5.17",
+        "@vue/cli-plugin-router": "^4.5.17",
+        "@vue/cli-plugin-vuex": "^4.5.17",
+        "@vue/cli-service": "^4.5.17",
+        "babel-eslint": "^10.1.0",
+        "eslint": "^6.7.2",
+        "eslint-plugin-vue": "^6.2.2",
+        "sass": "~1.32.0",
+        "sass-loader": "^10.2.1",
+        "vue-cli-plugin-i18n": "~2.3.1",
+        "vue-cli-plugin-vuetify": "^2.4.8",
+        "vue-template-compiler": "^2.6.11",
+        "vuetify-loader": "^1.7.0"
+    },
+    "license": "MIT"
 }

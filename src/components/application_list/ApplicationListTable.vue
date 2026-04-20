@@ -1,149 +1,160 @@
 <template>
-  <v-data-table-server
-    v-model:options="options"
-    :loading="loading"
-    :items="applications"
-    :headers="headers"
-    :items-length="application_count"
-    @click:row="row_clicked"
-  >
-    <template #body v-if="error">
-      <tr>
-        <td :colspan="headers.length" class="text-error pa-4">
-          An error occurred while loading data
-        </td>
-      </tr>
-    </template>
+    <v-data-table
+        disable-sort
+        :loading="loading"
+        :items="applications"
+        :headers="headers"
+        :options.sync="options"
+        :server-items-length="application_count"
+        @click:row="row_clicked($event)"
+    >
+        <template v-slot:body v-if="error">
+            <div class="error_message">An error occured while loading data</div>
+        </template>
 
-    <template #item.creation_date="{ item }">
-      <span>
-        {{ item.creation_date ? formatDateNeo4j(item.creation_date) : '' }}
-      </span>
-    </template>
+        <template v-slot:item.creation_date="{ item }">
+            <span>{{ format_date_neo4j(item.creation_date) }}</span>
+        </template>
 
-    <template #item.progress="{ item }">
-      <v-progress-linear :model-value="item.progress" height="8" rounded />
-    </template>
+        <template v-slot:item.progress="{ item }">
+            <v-progress-linear :value="item.progress" height="0.5em" rounded />
+        </template>
 
-    <template #item.current_recipient="{ item }">
-      <UserChip
-        v-if="item.current_recipient"
-        :user="item.current_recipient"
-        :link="false"
-      />
-    </template>
+        <template v-slot:item.current_recipient="{ item }">
+            <UserChip
+                :user="item.current_recipient"
+                :link="false"
+                v-if="item.current_recipient"
+            />
+        </template>
 
-    <template #item.applicant="{ item }">
-      <UserChip :user="item.applicant" :link="false" />
-    </template>
-  </v-data-table-server>
+        <template v-slot:item.applicant="{ item }">
+            <UserChip :user="item.applicant" :link="false" />
+        </template>
+    </v-data-table>
 </template>
 
-<script setup lang="ts">
-import { ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import type { Application, Recipient } from '@/types'
-import { useDateUtils } from '@/composables/useDateUtils'
-import { ApplicationSchema } from '@/schemas/application'
-import { PagedApplicationsSchema } from '@/schemas/common'
-import UserChip from '@/components/UserChip.vue'
-import api from '@/api'
-import { env } from '@/utils/env'
+<script>
+import IdUtils from '@/mixins/IdUtils.js'
+import dateUtils from '@/mixins/dateUtils.js'
+import UserChip from '../UserChip.vue'
 
-const props = defineProps<{
-  direction: string
-  headers: { title: string; key: string; width?: string }[]
-}>()
+export default {
+    name: 'ApplicationListTable',
+    components: {
+        UserChip,
+    },
+    props: {
+        direction: String,
+        title: String,
+        headers: {
+            type: Array,
+            default() {
+                return [{ text: 'Title', value: 'properties.title' }]
+            },
+        },
+    },
+    mixins: [IdUtils, dateUtils],
+    data() {
+        return {
+            loading: false,
+            options: {},
+            applications: [],
+            application_count: 0,
+            error: null,
+            relationship_lookup: {
+                submitted: 'SUBMITTED_BY',
+                received: 'SUBMITTED_TO',
+            },
+        }
+    },
 
-const route = useRoute()
-const router = useRouter()
-const { formatDateNeo4j } = useDateUtils()
+    mounted() {
+        // this.get_applications()
+    },
+    watch: {
+        options: {
+            handler() {
+                this.get_applications()
+            },
+            deep: true,
+        },
+        direction() {
+            this.get_applications()
+        },
+        state() {
+            this.get_applications()
+        },
+    },
+    methods: {
+        get_applications() {
+            this.loading = true
 
-const loading = ref(false)
-const applications = ref<Application[]>([])
-const application_count = ref(0)
-const error = ref<string | null>(null)
+            this.applications = []
 
-const options = ref({
-  page: 1,
-  itemsPerPage: 10,
-})
+            const { page, itemsPerPage } = this.options
 
-const relationship_lookup: Record<string, string> = {
-  submitted: 'SUBMITTED_BY',
-  received: 'SUBMITTED_TO',
-}
+            const params = {
+                start_index: (page - 1) * itemsPerPage,
+                batch_size: itemsPerPage,
+                type: this.type,
+                relationship: this.relationship_lookup[this.direction],
+                state: this.$route.query.state || 'pending',
+            }
 
-/**
- * SINGLE SOURCE OF TRUTH
- * This is the ONLY place that triggers API calls
- */
-watch(
-  [options, () => route.query.state, () => props.direction],
-  () => {
-    get_applications()
-  },
-  { deep: true }
-)
+            this.axios
+                .get(`/applications`, { params })
+                .then(({ data }) => {
+                    this.applications = data.applications
+                    this.application_count = data.count
+                    this.applications.forEach((application) => {
+                        // Adding current recipient and progress to application
+                        // This should better be done somewhere else
 
-function get_applications() {
-  loading.value = true
-  error.value = null
+                        application.current_recipient = application.recipients
+                            .slice()
+                            .sort(
+                                (a, b) =>
+                                    a.submission.flow_index -
+                                    b.submission.flow_index
+                            )
+                            .find((recipient) => !recipient.approval)
 
-  const state = route.query.state || 'pending'
-
-  const params = {
-    start_index: (options.value.page - 1) * options.value.itemsPerPage,
-    batch_size: options.value.itemsPerPage,
-    relationship: relationship_lookup[props.direction],
-    state,
-    type: env.VITE_PDF_MODE && 'PDF',
-  }
-
-  api
-    .get<{
-      count: number
-      applications: Application[]
-      start_index: number
-      batch_size: number
-    }>('/applications', { params })
-    .then(({ data }) => {
-      const parsed = PagedApplicationsSchema(ApplicationSchema).safeParse(data)
-
-      const items = parsed.success
-        ? parsed.data.applications
-        : data.applications
-
-      application_count.value = parsed.success ? parsed.data.count : data.count
-
-      applications.value = items.map((app) => {
-        const current_recipient = app.recipients
-          .slice()
-          .sort((a, b) => a.submission.flow_index - b.submission.flow_index)
-          .find((r) => !r.approval)
-
-        const approval_count = app.recipients.filter((r) => r.approval).length
-
-        const progress = app.recipients.length
-          ? (100 * approval_count) / app.recipients.length
-          : 0
-
-        return { ...app, current_recipient, progress }
-      })
-    })
-    .catch((err) => {
-      console.error(err)
-      error.value = String(err)
-    })
-    .finally(() => {
-      loading.value = false
-    })
-}
-
-function row_clicked(_event: Event, row: { item: Application }) {
-  router.push({
-    name: 'application',
-    params: { application_id: row.item._id },
-  })
+                        application.progress =
+                            (100 *
+                                application.recipients.filter(
+                                    (recipient) => recipient.approval
+                                ).length) /
+                            application.recipients.length
+                    })
+                })
+                .catch((error) => {
+                    console.error(error)
+                    this.error = error
+                })
+                .finally(() => {
+                    this.loading = false
+                })
+        },
+        row_clicked(application) {
+            const application_id = this.get_id_of_item(application)
+            this.$router.push({
+                name: 'application',
+                params: { application_id },
+            })
+        },
+    },
+    computed: {
+        state() {
+            return this.$route.query.state
+        },
+    },
 }
 </script>
+
+<style scoped>
+.error_message {
+    padding: 0.5em;
+    color: #c00000;
+}
+</style>

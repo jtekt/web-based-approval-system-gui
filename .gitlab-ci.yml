@@ -2,25 +2,21 @@ stages:
   - build
   - deploy
 
+image: moreillon/ci-dind:4bca50d7
+services:
+  - name: docker:19.03.12-dind
+
 variables:
   APPLICATION_NAME: shinsei-manager-front
   CONTAINER_IMAGE: ${AWS_ECR_PUBLIC_URL}/${APPLICATION_NAME}
   CONTAINER_IMAGE_TAGGED: ${CONTAINER_IMAGE}:${CI_COMMIT_TAG}
-
-  # Staging envs
-  APPLICATION_NAME_STAGING: ${APPLICATION_NAME}-staging
-  CONTAINER_IMAGE_STAGING: ${AWS_ECR_URL}/${APPLICATION_NAME_STAGING}
-  CONTAINER_IMAGE_TAGGED_STAGING: ${CONTAINER_IMAGE_STAGING}:${CI_COMMIT_SHORT_SHA}
-  K8S_ENV_NAME_STAGING: ${APPLICATION_NAME_STAGING}-env
-
   K8S_NODEPORT: 32725
   K8S_NODEPORT_LEGACY: 32723
 
 build:
   stage: build
-  rules:
-    - if: $CI_COMMIT_TAG
-    - when: never
+  only:
+    - tags
   tags:
     - dind
   before_script:
@@ -41,49 +37,14 @@ build:
 
 deploy:
   stage: deploy
-  needs:
-    - build
-  rules:
-    - if: $CI_COMMIT_TAG
-    - when: never
+  only:
+    - tags
+  tags:
+    - dind
   script:
     # create/update the deployment
     - envsubst < kubernetes_manifest.yml | kubectl apply -f -
   environment:
     name: production
     kubernetes:
-      namespace: ${KUBERNETES_NAMESPACE}
-
-# STAGING (staging branch)
-
-build_staging:
-  stage: build
-  rules:
-    - if: $CI_COMMIT_BRANCH == "staging"
-    - when: never
-  before_script:
-    - >
-      aws ecr create-repository --repository-name ${APPLICATION_NAME_STAGING}
-      || echo "Repository might have already existed"
-  script:
-    - docker build -t ${CONTAINER_IMAGE_TAGGED_STAGING} .
-    - docker push ${CONTAINER_IMAGE_TAGGED_STAGING}
-
-deploy_staging:
-  stage: deploy
-  needs:
-    - build_staging
-  rules:
-    - if: $CI_COMMIT_BRANCH == "staging"
-    - when: never
-  script:
-    # Create staging env
-    - kubectl create secret generic $K8S_ENV_NAME_STAGING --from-env-file=$STAGING_ENV --dry-run=client -o yaml | kubectl apply -f -
-    
-    - envsubst < kubernetes_manifest_staging.yml | kubectl apply -f -
-     # Validate deployment rollout status
-    - kubectl rollout status deployment/$APPLICATION_NAME_STAGING --timeout=600s
-  environment:
-    name: production
-    kubernetes:
-      namespace: ${KUBERNETES_NAMESPACE}
+      namespace: ${KUBERNETES_NAMESPACE} # Obtained from GitLab
