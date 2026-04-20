@@ -1,24 +1,13 @@
 import { ref, computed } from 'vue'
 import api from '@/api'
-import {
-  User as OidcUser,
-} from 'oidc-client-ts'
+import { User as OidcUser } from 'oidc-client-ts'
 import { oidcManager } from '@/oidc'
+import { env } from '@/utils/env'
+import type { User } from '@/types'
 
 /* =========================
  * Types
  * ========================= */
-
-interface User {
-  _id?: string
-  username?: string
-  preferred_username?: string
-  display_name?: string
-  isAdmin?: boolean
-  profile?: Omit<User, 'profile'>
-  properties?: { _id?: string }
-  avatar_src?: string
-}
 
 interface Tokens {
   access_token?: string
@@ -66,58 +55,71 @@ async function getOidcUser(): Promise<OidcUser | null> {
   }
 }
 
-function mapOidcProfile(user: OidcUser): User {
-  return {
-    preferred_username: user.profile?.preferred_username,
-    display_name: user.profile?.name,
-    username: user.profile?.email,
-  }
-}
-
 /* =========================
  * Core Logic
  * ========================= */
 
 async function identify(): Promise<boolean> {
-  // ---- 1. Try OIDC session ----
-  const oidcUser = await getOidcUser()
+  const identificationUrl = env.VITE_IDENTIFICATION_URL
 
-  if (oidcUser && !oidcUser.expired) {
-    authMode.value = 'oidc'
+  // --- helper: apply auth header + tokens ---
+  const applyAuth = (
+    mode: 'oidc' | 'jwt',
+    accessToken: string,
+    idToken?: string
+  ) => {
+    authMode.value = mode
 
     tokens.value = {
-      access_token: oidcUser.access_token,
-      id_token: oidcUser.id_token,
+      access_token: accessToken,
+      ...(idToken ? { id_token: idToken } : {}),
     }
 
-    api.defaults.headers.common['Authorization'] =
-      `Bearer ${oidcUser.access_token}`
+    api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
+  }
 
-    currentUser.value = mapOidcProfile(oidcUser)
+  // --- helper: fetch current user ---
+  const fetchCurrentUser = async () => {
+    const { data } = await api.get<User>(identificationUrl)
 
-    return true
+    currentUser.value = {
+      _id: data._id,
+      username: data.username,
+      display_name: data.display_name ?? data.username ?? '',
+    }
+  }
+
+  // ---- 1. Try OIDC ----
+  try {
+    const oidcUser = await getOidcUser()
+
+    if (oidcUser && !oidcUser.expired) {
+      applyAuth('oidc', oidcUser.access_token, oidcUser.id_token)
+
+      await fetchCurrentUser()
+
+      return true
+    }
+  } catch (err) {
+    console.warn('OIDC session failed, falling back to JWT', err)
   }
 
   // ---- 2. Fallback to JWT ----
   const jwt = getStoredJwt()
   if (!jwt) return false
 
-  authMode.value = 'jwt'
-
-  tokens.value = { access_token: jwt }
-  api.defaults.headers.common['Authorization'] = `Bearer ${jwt}`
-
-  const identificationUrl = import.meta.env.VITE_IDENTIFICATION_URL
-  if (!identificationUrl) return true
+  applyAuth('jwt', jwt)
 
   try {
-    const { data } = await api.get(identificationUrl)
-    currentUser.value = data?.profile ?? data
+    await fetchCurrentUser()
     return true
   } catch (error: any) {
-    if ([401, 403].includes(error.response?.status)) {
+    const status = error?.response?.status
+
+    if (status === 401 || status === 403) {
       await logout()
     }
+
     return false
   }
 }
@@ -142,28 +144,28 @@ async function login(identifier: string, password: string): Promise<void> {
 }
 
 async function loginWithOidc(): Promise<void> {
-  if(!oidcManager) return
+  if (!oidcManager) return
   authMode.value = 'oidc'
   await oidcManager.signinRedirect()
 }
 
 /* =========================
  * OIDC Callback Handler
-* ========================= */
+ * ========================= */
 
 async function handleOidcCallback(): Promise<void> {
-  if(!oidcManager) return
+  if (!oidcManager) return
   await oidcManager.signinRedirectCallback()
   await identify()
 }
 
 /* =========================
-* Logout
-* ========================= */
+ * Logout
+ * ========================= */
 
 async function logout(): Promise<void> {
   if (authMode.value === 'oidc') {
-    if(!oidcManager) return
+    if (!oidcManager) return
     try {
       await oidcManager.signoutRedirect()
     } catch {
@@ -197,13 +199,6 @@ oidcManager?.events.addAccessTokenExpired(() => {
 export function useAuth() {
   const accessToken = computed(() => tokens.value?.access_token)
 
-  const currentUserId = computed(() => {
-    const user = currentUser.value
-    if (!user) return undefined
-
-    return user._id || user.preferred_username || user.properties?._id
-  })
-
   const isAuthenticated = computed(() => !!accessToken.value)
 
   const isOidc = computed(() => authMode.value === 'oidc')
@@ -211,7 +206,7 @@ export function useAuth() {
 
   // Backward compatibility
   function setCurrentUser(user: User | null) {
-    currentUser.value = user?.profile ?? user
+    currentUser.value = user
   }
 
   function setTokens(newTokens: Tokens | null) {
@@ -223,7 +218,6 @@ export function useAuth() {
     currentUser,
     tokens,
     accessToken,
-    currentUserId,
     isAuthenticated,
     isOidc,
     isJwt,

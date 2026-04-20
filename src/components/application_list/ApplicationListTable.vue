@@ -41,7 +41,7 @@
 
     <template #item.applicant="{ item }">
       <div @click.stop>
-        <UserChip :user="item.applicant"/>
+        <UserChip :user="item.applicant" />
       </div>
     </template>
   </v-data-table-server>
@@ -60,7 +60,7 @@ import { env } from '@/utils/env'
 
 const props = defineProps<{
   direction: string
-  headers: { title: string; key: string; width?: string }[]
+  headers: { title: string; key: string; width?: string; }[]
 }>()
 
 const route = useRoute()

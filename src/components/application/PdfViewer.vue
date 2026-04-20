@@ -1,121 +1,123 @@
 <template>
   <v-card :loading="loading" variant="text">
     <v-toolbar class="px-4">
-      <div class="flex-fill">
-        <v-tooltip location="bottom">
-          <template #activator="{ props }">
-            <span v-bind="props">{{ $t('PDF Reader') }}</span>
-          </template>
-          <span>{{ $t('Click here to place a stamp') }}</span>
-        </v-tooltip>
-      </div>
-
-      <div>
-        <v-btn
-          type="button"
-          icon
-          :disabled="pageNumber <= 1"
-          @click="previousPage"
-        >
-          <v-icon>mdi-arrow-left</v-icon>
-        </v-btn>
-        <v-menu open-on-hover>
-          <template #activator="{ props }">
-            <v-btn type="button" variant="text" v-bind="props"
-              >{{ pageNumber }}/{{ pageCount }}</v-btn
-            >
-          </template>
-          <v-list>
-            <v-list-item
-              v-for="p in pageCount"
-              :key="p"
-              :title="String(p)"
-              @click="pageNumber = p"
-            />
-          </v-list>
-        </v-menu>
-        <v-btn
-          type="button"
-          icon
-          :disabled="pageNumber >= pageCount"
-          @click="nextPage"
-        >
-          <v-icon>mdi-arrow-right</v-icon>
-        </v-btn>
-      </div>
-
-      <row class="flex-fill" align="end">
-        <v-menu
-          v-if="currentUserCanStamp"
-          :close-on-content-click="false"
-          open-on-hover
-          location="bottom end"
-          offset="8"
-        >
-          <template #activator="{ props }">
-            <v-btn density="comfortable" class="mr-2" v-bind="props">
-              <v-icon start>mdi-resize</v-icon>
-              {{ $t('Stamp size') }}
-            </v-btn>
-          </template>
-
-          <v-card min-width="260" class="pa-4" elevation="6" rounded="lg">
-            <!-- Header -->
-            <div class="d-flex align-center justify-space-between mb-3">
-              <span class="text-subtitle-2 font-weight-medium">
+      <v-row align="center">
+        <v-col cols="4">
+          <v-tooltip location="bottom">
+            <template #activator="{ props }">
+              <span v-bind="props">{{ $t('PDF Reader') }}</span>
+            </template>
+            <span>{{ $t('Click here to place a stamp') }}</span>
+          </v-tooltip>
+        </v-col>
+  
+        <v-col cols="4" class="d-flex justify-center align-center">
+          <v-btn
+            type="button"
+            icon
+            :disabled="pageNumber <= 1"
+            @click="previousPage"
+          >
+            <v-icon>mdi-arrow-left</v-icon>
+          </v-btn>
+          <v-menu open-on-hover>
+            <template #activator="{ props }">
+              <v-btn type="button" variant="text" v-bind="props"
+                >{{ pageNumber }}/{{ pageCount }}</v-btn
+              >
+            </template>
+            <v-list>
+              <v-list-item
+                v-for="p in pageCount"
+                :key="p"
+                :title="String(p)"
+                @click="pageNumber = p"
+              />
+            </v-list>
+          </v-menu>
+          <v-btn
+            type="button"
+            icon
+            :disabled="pageNumber >= pageCount"
+            @click="nextPage"
+          >
+            <v-icon>mdi-arrow-right</v-icon>
+          </v-btn>
+        </v-col>
+  
+        <v-col cols="4">
+          <v-menu
+            v-if="currentUserCanStamp"
+            :close-on-content-click="false"
+            open-on-hover
+            location="bottom end"
+            offset="8"
+          >
+            <template #activator="{ props }">
+              <v-btn density="comfortable" class="mr-2" v-bind="props">
+                <v-icon start>mdi-resize</v-icon>
                 {{ $t('Stamp size') }}
-              </span>
-              <v-chip size="small" color="primary" variant="tonal">
-                {{ hankoScaleSlider }}
-              </v-chip>
-            </div>
-
-            <!-- Slider -->
-            <v-slider
-              v-model.number="hankoScaleSlider"
-              min="1"
-              max="100"
-              step="1"
-              hide-details
-              thumb-label
-              color="primary"
-            />
-
-            <!-- Optional quick presets -->
-            <div class="d-flex justify-space-between mt-3">
-              <v-btn
-                size="x-small"
-                variant="text"
-                @click="hankoScaleSlider = 25"
-                >25%</v-btn
-              >
-              <v-btn
-                size="x-small"
-                variant="text"
-                @click="hankoScaleSlider = 50"
-                >50%</v-btn
-              >
-              <v-btn
-                size="x-small"
-                variant="text"
-                @click="hankoScaleSlider = 75"
-                >75%</v-btn
-              >
-              <v-btn
-                size="x-small"
-                variant="text"
-                @click="hankoScaleSlider = 100"
-                >100%</v-btn
-              >
-            </div>
-          </v-card>
-        </v-menu>
-
-        <v-btn variant="text" @click="downloadPdf">
-          <v-icon>mdi-download</v-icon>
-          <span>{{ $t('Download') }}</span>
-        </v-btn>
-      </row>
+              </v-btn>
+            </template>
+  
+            <v-card min-width="260" class="pa-4" elevation="6" rounded="lg">
+              <!-- Header -->
+              <div class="d-flex align-center justify-space-between mb-3">
+                <span class="text-subtitle-2 font-weight-medium">
+                  {{ $t('Stamp size') }}
+                </span>
+                <v-chip size="small" color="primary" variant="tonal">
+                  {{ hankoScaleSlider }}
+                </v-chip>
+              </div>
+  
+              <!-- Slider -->
+              <v-slider
+                v-model.number="hankoScaleSlider"
+                min="1"
+                max="100"
+                step="1"
+                hide-details
+                thumb-label
+                color="primary"
+              />
+  
+              <!-- Optional quick presets -->
+              <div class="d-flex justify-space-between mt-3">
+                <v-btn
+                  size="x-small"
+                  variant="text"
+                  @click="hankoScaleSlider = 25"
+                  >25%</v-btn
+                >
+                <v-btn
+                  size="x-small"
+                  variant="text"
+                  @click="hankoScaleSlider = 50"
+                  >50%</v-btn
+                >
+                <v-btn
+                  size="x-small"
+                  variant="text"
+                  @click="hankoScaleSlider = 75"
+                  >75%</v-btn
+                >
+                <v-btn
+                  size="x-small"
+                  variant="text"
+                  @click="hankoScaleSlider = 100"
+                  >100%</v-btn
+                >
+              </div>
+            </v-card>
+          </v-menu>
+  
+          <v-btn variant="text" @click="downloadPdf">
+            <v-icon>mdi-download</v-icon>
+            <span>{{ $t('Download') }}</span>
+          </v-btn>
+        </v-col>
+      </v-row>
     </v-toolbar>
 
     <div v-if="!loadError" class="pdf_container" ref="pdfContainer">

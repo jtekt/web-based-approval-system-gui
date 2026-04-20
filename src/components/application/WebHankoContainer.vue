@@ -79,13 +79,13 @@ const showEmailButton = computed(() => {
 const userProfileUrl = computed(() => {
   const base = env.VITE_EMPLOYEE_MANAGER_FRONT_URL
   if (!base) return '#'
-  return `${base}/users/${props.recipient.username}`
+  return `${base}/users/${props.recipient._id}`
 })
 
 const recipientDisplayedName = computed(() => {
   const r = props.recipient
   if (r.display_name && r.display_name.length <= 6) return r.display_name
-  return r.last_name ?? r.display_name ?? ''
+  return r.family_name ?? r.family_name_kanji ?? r.display_name ?? ''
 })
 </script>
 

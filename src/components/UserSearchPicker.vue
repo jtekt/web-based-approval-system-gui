@@ -13,7 +13,7 @@
     @update:model-value="onSelect"
   >
     <template #item="{ item, props: itemProps }">
-      <v-list-item v-bind="itemProps" :title="displayName(item)" />
+      <v-list-item v-bind="itemProps" :title="item.display_name" />
     </template>
   </v-autocomplete>
 </template>
@@ -30,10 +30,6 @@ const search = ref('')
 const items = ref<User[]>([])
 const loading = ref(false)
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
-
-function displayName(item: User): string {
-  return item.display_name ?? item.username ?? item.preferred_username ?? ''
-}
 
 watch(search, (val) => {
   if (!val || val.length < 2) {

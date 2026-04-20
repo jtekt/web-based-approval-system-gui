@@ -5,7 +5,7 @@
         <v-icon v-if="submission?.notified">mdi-email-check</v-icon>
         <v-icon v-else>mdi-email</v-icon>
         <span class="user_name">
-          {{ user.family_name ?? user.last_name ?? '' }}
+          {{ user.family_name ?? user.family_name_romaji ?? user.family_name_kanji ?? '' }}
         </span>
       </div>
     </v-btn>
