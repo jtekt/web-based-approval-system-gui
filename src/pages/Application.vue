@@ -61,14 +61,7 @@
             </template>
             <template #text>
               <v-row class="d-flex align-center justify-end" no-gutters>
-                <!-- Initial email + arrow -->
-                <template
-                  v-if="
-                    isUserRecipient &&
-                    !currentRecipient &&
-                    !isApplicationFullyApproved
-                  "
-                >
+                <template v-if="isUserRecipient && !currentRecipient">
                   <div class="d-flex align-center">
                     <EmailButton
                       :application="application"
@@ -105,15 +98,20 @@
             <template #title>
               {{ $t('Recipient comments') }}
             </template>
+
             <template #text>
-              <v-list>
-                <RecipientComment
+              <v-row no-gutters>
+                <v-col
                   v-for="(recipient, index) in orderedRecipients"
                   :key="`comment_${index}`"
-                  :recipient="recipient"
-                  @comment_updated="getApplication"
-                />
-              </v-list>
+                  cols="12"
+                >
+                  <RecipientComment
+                    :recipient="recipient"
+                    @comment_updated="getApplication"
+                  />
+                </v-col>
+              </v-row>
             </template>
           </v-card>
         </v-col>

@@ -31,18 +31,15 @@
     </template>
 
     <template #item.current_recipient="{ item }">
-      <div @click.stop>
-        <UserChip
-          v-if="item.current_recipient"
-          :user="item.current_recipient"
-        />
-      </div>
+      <UserChip
+        v-if="item.current_recipient"
+        :user="item.current_recipient"
+        :link="false"
+      />
     </template>
 
     <template #item.applicant="{ item }">
-      <div @click.stop>
-        <UserChip :user="item.applicant" />
-      </div>
+      <UserChip :user="item.applicant" :link="false" />
     </template>
   </v-data-table-server>
 </template>
@@ -60,7 +57,7 @@ import { env } from '@/utils/env'
 
 const props = defineProps<{
   direction: string
-  headers: { title: string; key: string; width?: string; }[]
+  headers: { title: string; key: string; width?: string }[]
 }>()
 
 const route = useRoute()
