@@ -127,7 +127,7 @@ const navItems = computed(() => [
     to: { name: 'search' },
     icon: 'mdi-magnify',
   },
-  ...(env.VITE_PDF_MODE
+  ...(env.VITE_PDF_ONLY
     ? []
     : [
         {
@@ -166,7 +166,7 @@ onMounted(async () => {
       state: 'pending',
     }
 
-    if (env.VITE_PDF_MODE) {
+    if (env.VITE_PDF_ONLY) {
       params.type = 'PDF'
     }
 

@@ -10,7 +10,7 @@
       </template>
 
       <template #text>
-        <template v-if="!env.VITE_PDF_MODE">
+        <template v-if="!env.VITE_PDF_ONLY">
           <!-- Copy mode -->
           <v-row v-if="copy_of">
             <v-col>
@@ -97,7 +97,7 @@
 
         <template v-else>
           <NewApplicationTemplateDetails
-            v-if="!env.VITE_PDF_MODE"
+            v-if="!env.VITE_PDF_ONLY"
             :selected-form="applicationForm"
           />
           <NewApplicationFormData v-model="applicationForm.fields" />
@@ -247,7 +247,7 @@ const defaultPDFForm: Template = {
 
 const applicationFormTemplates = ref<Template[]>([])
 const applicationForm = ref<Template | null>(
-  env.VITE_PDF_MODE ? defaultPDFForm : null
+  env.VITE_PDF_ONLY ? defaultPDFForm : null
 )
 
 const title = ref<string>('')
@@ -275,7 +275,7 @@ const application_valid = computed<boolean>(() => {
 // ---- Methods ----
 
 async function getTemplates(): Promise<void> {
-  if (env.VITE_PDF_MODE) return
+  if (env.VITE_PDF_ONLY) return
 
   try {
     const { data } = await api.get<Template[]>('/templates')
@@ -302,7 +302,7 @@ async function submit(): Promise<void> {
     const group_ids = groups.value.map((g) => g._id || g.properties?._id)
     const form_data = applicationForm.value?.fields
 
-    const type = env.VITE_PDF_MODE ? 'PDF' : applicationForm.value?.label
+    const type = env.VITE_PDF_ONLY ? 'PDF' : applicationForm.value?.label
 
     const body = {
       title: title.value,
@@ -386,8 +386,8 @@ async function recreateApplicationContent(): Promise<void> {
       .sort((a, b) => a.submission.flow_index - b.submission.flow_index)
 
     applicationForm.value = {
-      label: env.VITE_PDF_MODE ? 'pdf' : data.type,
-      fields: env.VITE_PDF_MODE ? [] : parseFormData(data.form_data),
+      label: env.VITE_PDF_ONLY ? 'pdf' : data.type,
+      fields: env.VITE_PDF_ONLY ? [] : parseFormData(data.form_data),
       managers: [],
       groups: data.visibility || [],
     }

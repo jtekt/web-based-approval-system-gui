@@ -173,7 +173,7 @@ function getApplications() {
     hanko_id: hankoId.value || undefined,
     application_id: applicationId.value || undefined,
     relationship: relationshipType.value || undefined,
-    type: env.VITE_PDF_MODE ? 'PDF' : applicationType.value || undefined,
+    type: env.VITE_PDF_ONLY ? 'PDF' : applicationType.value || undefined,
     start_date: startDate.value || undefined,
     end_date: endDate.value || undefined,
     group_id: selectedGroup.value?._id || undefined,

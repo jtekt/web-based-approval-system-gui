@@ -97,7 +97,7 @@ function get_applications() {
     batch_size: options.value.itemsPerPage,
     relationship: relationship_lookup[props.direction],
     state,
-    type: env.VITE_PDF_MODE && 'PDF',
+    type: env.VITE_PDF_ONLY && 'PDF',
   }
 
   api

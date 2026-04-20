@@ -1,7 +1,10 @@
 import { z } from 'zod'
 
 const envSchema = z.object({
-  VITE_PDF_MODE: z.stringbool().optional(),
+  VITE_PDF_ONLY: z.preprocess(
+    (v) => (v === '' ? undefined : v),
+    z.stringbool().optional()
+  ),
 
   VITE_SHINSEI_MANAGER_URL: z.url().default('http://localhost:8000'),
 
