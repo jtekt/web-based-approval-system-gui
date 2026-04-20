@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${APPLICATION_NAME_STAGING}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ${APPLICATION_NAME_STAGING}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ${APPLICATION_NAME_STAGING}
+    spec:
+      containers:
+        - name: ${APPLICATION_NAME_STAGING}
+          image: ${CONTAINER_IMAGE_TAGGED_STAGING}
+          ports:
+            - containerPort: 80
+          envFrom:
+            - secretRef:
+                name: ${K8S_ENV_NAME_STAGING}
+      imagePullSecrets:
+        - name: ecr-credentials
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${APPLICATION_NAME_STAGING}
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: ${APPLICATION_NAME_STAGING}
+  ports:
+    - port: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ${APPLICATION_NAME_STAGING}
+spec:
+  rules:
+    - host: shinsei-staging.jtektrnd.net
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ${APPLICATION_NAME_STAGING}
+                port:
+                  number: 80

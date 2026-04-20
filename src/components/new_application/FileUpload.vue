@@ -1,69 +1,55 @@
 <template>
-    <div>
-        <v-file-input
-            v-if="!value"
-            :loading="loading"
-            :accept="accept"
-            @change="file_upload($event)"
-            :label="label"
-        />
-
-        <v-text-field
-            v-else
-            :label="label"
-            readonly
-            prepend-icon="mdi-paperclip-check"
-            :value="$t('Upload OK')"
-            clearable
-            @click:clear="file_id = null"
-        />
-    </div>
+  <div>
+    <v-file-input
+      v-if="!modelValue"
+      :loading="loading"
+      :accept="accept"
+      @update:model-value="fileUpload"
+      :label="label"
+    />
+    <v-text-field
+      v-else
+      :label="label"
+      readonly
+      prepend-icon="mdi-paperclip-check"
+      :model-value="$t('Upload OK')"
+      clearable
+      @click:clear="$emit('update:modelValue', null)"
+    />
+  </div>
 </template>
 
-<script>
-export default {
-    name: 'FileUpload',
-    props: {
-        value: String,
-        accept: String,
-        label: String,
-    },
-    components: {},
-    data() {
-        return {
-            loading: false,
-        }
-    },
-    methods: {
-        async file_upload(file) {
-            if (!file) return
-            this.loading = true
-            const formData = new FormData()
-            formData.append('file_to_upload', file)
-            const headers = { 'Content-Type': 'multipart/form-data' }
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import api from '@/api'
 
-            try {
-                const { data } = await this.axios.post(`/files`, formData, {
-                    headers,
-                })
-                this.file_id = data.file_id
-            } catch (error) {
-                alert(`Upload failed`)
-                console.error(error)
-            } finally {
-                this.loading = false
-            }
-        },
-    },
-    computed: {
-        file_id: {
-            get() {
-                return this.value
-            },
-            set(newVal) {
-                this.$emit('input', newVal)
-            },
-        },
-    },
+const props = defineProps<{
+  modelValue?: string | null
+  accept?: string
+  label?: string
+}>()
+
+const emit = defineEmits<{ 'update:modelValue': [value: string | null] }>()
+
+const { t } = useI18n()
+const loading = ref(false)
+
+async function fileUpload(file: File | File[] | null) {
+  if (!file || Array.isArray(file)) return
+  loading.value = true
+  const formData = new FormData()
+  formData.append('file_to_upload', file)
+  try {
+    const { data } = await api.post<{ file_id: string }>('/files', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    emit('update:modelValue', data.file_id)
+  } catch (error) {
+    alert(t('Upload failed'))
+    console.error(error)
+  } finally {
+    loading.value = false
+  }
 }
 </script>
