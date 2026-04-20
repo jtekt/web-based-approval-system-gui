@@ -3,8 +3,10 @@
     <template #prepend>
       <v-icon>mdi-information-outline</v-icon>
     </template>
-    <!-- TODO: Improve this page -->
     <template #title>{{ $t('About') }}</template>
+
+    <v-divider />
+    
     <v-card-text>
       {{ $t('App description', { version }) }}
       <v-data-table hide-default-footer :headers="headers" :items="settings" />
@@ -28,6 +30,10 @@ const headers = computed(() => [
 
 const settings = computed(() => [
   {
+    name: 'PDF only',
+    value: env.VITE_PDF_ONLY ? "true" : "false",
+  },
+  {
     name: 'Shinsei manager API',
     value: env.VITE_SHINSEI_MANAGER_URL,
   },
@@ -50,6 +56,10 @@ const settings = computed(() => [
   {
     name: 'Identification URL',
     value: env.VITE_IDENTIFICATION_URL,
+  },
+  {
+    name: 'Password Reset URL',
+    value: env.VITE_PASSWORD_RESET_URL,
   },
   { name: 'OIDC Authority', value: env.VITE_OIDC_AUTHORITY },
   { name: 'OIDC Client ID', value: env.VITE_OIDC_CLIENT_ID },

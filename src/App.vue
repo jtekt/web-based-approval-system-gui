@@ -1,37 +1,28 @@
 <template>
   <v-app>
     <!-- Top App Bar -->
-    <v-app-bar color="black" flat>
-      <v-app-bar-nav-icon
-        v-if="isAuthenticated && isMobile"
-        @click="drawer = !drawer"
-      />
+    <v-app-bar color="black">
+      <v-app-bar-nav-icon v-if="!route.meta.public" @click="drawer = !drawer" />
 
       <v-app-bar-title>申請マネージャー</v-app-bar-title>
 
       <template #append>
         <div class="d-flex align-center">
-          <v-btn icon @click="toggleTheme">
-            <v-icon>mdi-theme-light-dark</v-icon>
-          </v-btn>
-
           <LocaleSelector />
 
-          <v-btn v-show="isAuthenticated" icon @click="handelLogout">
-            <v-icon>mdi-logout</v-icon>
-          </v-btn>
+          <ThemeToggle />
+
+          <v-btn v-if="!route.meta.public" icon="mdi-logout" @click="handleLogout" />
         </div>
       </template>
     </v-app-bar>
 
     <!-- Drawer -->
     <v-navigation-drawer
-      v-if="isAuthenticated"
+      v-if="!route.meta.public"
       v-model="drawer"
-      :permanent="isAuthenticated && !isMobile"
-      :temporary="isAuthenticated && isMobile"
     >
-      <v-list nav density="compact">
+      <v-list nav>
         <v-list-item
           v-for="item in navItems"
           :key="item.name"
@@ -62,12 +53,13 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useDisplay, useTheme } from 'vuetify'
+import { useTheme } from 'vuetify'
 import LocaleSelector from '@/components/LocaleSelector.vue'
 import { useToast } from './composables/useToast'
 import { useAuth } from './composables/useAuth'
 import api from './api'
 import { env } from './utils/env'
+import ThemeToggle from './components/ThemeToggle.vue'
 
 const toasts = useToast()
 const { currentUser, logout } = useAuth()
@@ -76,10 +68,8 @@ const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
 const theme = useTheme()
-const display = useDisplay()
 
 const isAuthenticated = computed(() => !!currentUser.value)
-const isMobile = computed(() => display.mdAndDown.value)
 
 const drawer = ref(false)
 
@@ -87,12 +77,12 @@ const drawer = ref(false)
  * Keep drawer in sync with auth + screen size
  */
 watch(
-  [isAuthenticated, isMobile],
-  ([auth, mobile]) => {
+  isAuthenticated,
+  (auth) => {
     if (!auth) {
       drawer.value = false
     } else {
-      drawer.value = !mobile // open on desktop, closed on mobile
+      drawer.value = true
     }
   },
   { immediate: true }
@@ -145,14 +135,9 @@ const navItems = computed(() => [
   },
 ])
 
-function handelLogout() {
+function handleLogout() {
   logout()
   router.push({ name: 'login' })
-}
-
-function toggleTheme() {
-  theme.toggle()
-  localStorage.setItem('theme', theme.current.value.dark ? 'dark' : 'light')
 }
 
 onMounted(async () => {
@@ -163,7 +148,7 @@ onMounted(async () => {
   try {
     const params: Record<string, string> = {
       relationship: 'SUBMITTED_TO',
-      state: 'pending',
+      state: 'pending'
     }
 
     if (env.VITE_PDF_ONLY) {

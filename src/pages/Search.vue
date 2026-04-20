@@ -4,6 +4,9 @@
       <v-icon>mdi-magnify</v-icon>
     </template>
     <template #title>{{ $t('Search') }}</template>
+
+    <v-divider />
+
     <v-card-text>
       <v-card-title>{{ $t('Filters') }}</v-card-title>
       <v-form @submit.prevent="search">

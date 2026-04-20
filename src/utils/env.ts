@@ -12,8 +12,6 @@ const envSchema = z.object({
   VITE_GROUP_MANAGER_API_URL: z.url(),
   VITE_EMPLOYEE_MANAGER_FRONT_URL: z.url(),
 
-  VITE_HOMEPAGE_URL: z.string().optional(),
-
   VITE_LOGIN_URL: z.url(),
   VITE_IDENTIFICATION_URL: z.url(),
   VITE_PASSWORD_RESET_URL: z.url(),

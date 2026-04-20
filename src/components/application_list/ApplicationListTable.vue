@@ -22,19 +22,27 @@
     </template>
 
     <template #item.progress="{ item }">
-      <v-progress-linear :model-value="item.progress" height="8" rounded />
-    </template>
-
-    <template #item.current_recipient="{ item }">
-      <UserChip
-        v-if="item.current_recipient"
-        :user="item.current_recipient"
-        :link="false"
+      <v-progress-linear
+        color="primary"
+        :model-value="item.progress"
+        height="8"
+        rounded
       />
     </template>
 
+    <template #item.current_recipient="{ item }">
+      <div @click.stop>
+        <UserChip
+          v-if="item.current_recipient"
+          :user="item.current_recipient"
+        />
+      </div>
+    </template>
+
     <template #item.applicant="{ item }">
-      <UserChip :user="item.applicant" :link="false" />
+      <div @click.stop>
+        <UserChip :user="item.applicant"/>
+      </div>
     </template>
   </v-data-table-server>
 </template>
@@ -42,7 +50,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import type { Application, Recipient } from '@/types'
+import type { Application } from '@/types'
 import { useDateUtils } from '@/composables/useDateUtils'
 import { ApplicationSchema } from '@/schemas/application'
 import { PagedApplicationsSchema } from '@/schemas/common'
