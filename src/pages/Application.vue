@@ -60,11 +60,11 @@
               </v-row>
 
               <v-row
-                class="d-flex align-center justify-end flex-wrap-reverse"
+                class="d-flex align-center justify-end"
                 no-gutters
               >
                 <!-- Initial email + arrow -->
-                <template v-if="isUserRecipient && !currentRecipient">
+                <template v-if="isUserRecipient && !currentRecipient && !isApplicationFullyApproved">
                   <div class="d-flex align-center">
                     <EmailButton
                       :application="application"
