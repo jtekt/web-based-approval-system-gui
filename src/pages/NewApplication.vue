@@ -4,6 +4,8 @@
       {{ $t('New submission') }}
     </template>
 
+    <v-divider />
+
     <v-card variant="text">
       <template #title>
         {{ $t('Application info') }}
@@ -46,10 +48,7 @@
 
         <v-text-field v-model="title" :label="$t('Title')" />
 
-        <v-switch
-          :label="$t('Confidential')"
-          v-model="confidential"
-        />
+        <v-switch :label="$t('Confidential')" v-model="confidential" />
 
         <v-expand-transition>
           <div v-if="confidential">
@@ -218,6 +217,7 @@ import z from 'zod'
 import { FieldSchema } from '@/schemas/application'
 import api from '@/api'
 import { useAuth } from '@/composables/useAuth'
+import { useToast } from '@/composables/useToast'
 
 // ---- Setup ----
 
@@ -226,6 +226,7 @@ const router = useRouter()
 
 const { t } = useI18n()
 const { accessToken } = useAuth()
+const toast = useToast()
 
 const defaultPDFForm: Template = {
   label: 'pdf',
@@ -295,9 +296,7 @@ async function submit(): Promise<void> {
   submitting.value = true
 
   try {
-    const recipients_ids = recipients.value.map(
-      (r) => r._id || r.properties?._id
-    )
+    const recipients_ids = recipients.value.map((r) => r._id)
 
     const group_ids = groups.value.map((g) => g._id || g.properties?._id)
     const form_data = applicationForm.value?.fields
@@ -316,21 +315,18 @@ async function submit(): Promise<void> {
     const { data } = await api.post<Application>('/applications', body)
 
     router.push({ name: 'application', params: { application_id: data._id } })
-  } catch (err) {
+  } catch (err: any) {
     console.error(err)
-    alert(err)
+    toast.error(err.message)
   } finally {
     submitting.value = false
   }
 }
 
 function addToRecipients(newRecipient: User): void {
-  const exists = recipients.value.find(
-    (r) => (r._id || r.properties?._id) === newRecipient._id
-  )
-  if (exists) return alert(t('Duplicates not allowed'))
+  const exists = recipients.value.find((r) => r._id === newRecipient._id)
+  if (exists) return toast.error(t('Duplicates not allowed'))
 
-  // TODO validate here
   recipients.value.push({ ...newRecipient, submission: { flow_index: 0 } })
 }
 
@@ -348,7 +344,7 @@ function saveRecipients(): void {
     localStorageRecipientsKey,
     JSON.stringify(recipients.value)
   )
-  alert(t('Approval flow saved'))
+  toast.success(t('Approval flow saved'))
 }
 
 function getRecipientsFromLocalStorage(): Recipient[] {

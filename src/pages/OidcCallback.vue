@@ -26,15 +26,13 @@ import { useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 
 const router = useRouter()
-const { handleOidcCallback, identify } = useAuth()
+const { handleOidcCallback } = useAuth()
 
 const error = ref<string | null>(null)
 
 onMounted(async () => {
   try {
     await handleOidcCallback()
-
-    await identify()
 
     // Optional: restore redirect path if you stored one before login
     const redirectPath = sessionStorage.getItem('post_login_redirect')

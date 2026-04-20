@@ -22,7 +22,7 @@
       </v-btn>
     </template>
     <v-divider />
-    
+
     <template v-if="application && !error">
       <v-row>
         <v-col cols="12" md="6">
@@ -31,7 +31,7 @@
             @pdfSelected="viewPdf"
           />
 
-          <v-divider />
+          <v-divider md="hidden" />
         </v-col>
 
         <v-col cols="12" md="6">
@@ -39,13 +39,11 @@
             <template #title>
               {{ $t('Approval') }}
             </template>
-            <template #text>
+            <template #append>
               <v-row
+                density="compact"
                 v-if="!env.VITE_PDF_ONLY && isCurrentRecipientCurrentUser"
-                class="mb-3"
               >
-                <v-spacer />
-
                 <v-col cols="auto">
                   <v-btn color="success" @click="openApproveDialog">
                     <v-icon start>mdi-check</v-icon>
@@ -60,13 +58,17 @@
                   </v-btn>
                 </v-col>
               </v-row>
-
-              <v-row
-                class="d-flex align-center justify-end"
-                no-gutters
-              >
+            </template>
+            <template #text>
+              <v-row class="d-flex align-center justify-end" no-gutters>
                 <!-- Initial email + arrow -->
-                <template v-if="isUserRecipient && !currentRecipient && !isApplicationFullyApproved">
+                <template
+                  v-if="
+                    isUserRecipient &&
+                    !currentRecipient &&
+                    !isApplicationFullyApproved
+                  "
+                >
                   <div class="d-flex align-center">
                     <EmailButton
                       :application="application"
@@ -114,8 +116,6 @@
               </v-list>
             </template>
           </v-card>
-
-          <v-divider />
         </v-col>
       </v-row>
       <PdfViewer
