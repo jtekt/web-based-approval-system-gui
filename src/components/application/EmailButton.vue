@@ -5,7 +5,12 @@
         <v-icon v-if="submission?.notified">mdi-email-check</v-icon>
         <v-icon v-else>mdi-email</v-icon>
         <span class="user_name">
-          {{ user.family_name ?? user.family_name_romaji ?? user.family_name_kanji ?? '' }}
+          {{
+            user.family_name ??
+            user.family_name_romaji ??
+            user.family_name_kanji ??
+            ''
+          }}
         </span>
       </div>
     </v-btn>
@@ -20,6 +25,8 @@ import {
   generateEmailToApplicant,
 } from '@/utils/emails'
 import api from '@/api'
+import { useRequiredEmail } from '@/composables/useRequiredEmail'
+import { computed } from 'vue'
 
 const props = defineProps<{
   user: Recipient
@@ -27,17 +34,21 @@ const props = defineProps<{
 }>()
 
 const route = useRoute()
+const { remove: removeRequiredEmail } = useRequiredEmail()
 
 const submission = props.user.submission
 
-const applicationId = route.params.application_id
+const applicationId = computed(() => route.params.application_id as string)
 
 function emailButtonClicked() {
-  if (submission) {
-    sendEmailToRecipient(props.user)
-  } else {
-    sendEmailToApplicant()
-  }
+  // Remove required
+  removeRequiredEmail(applicationId.value)
+
+  // if (submission) {
+  //   sendEmailToRecipient(props.user)
+  // } else {
+  //   sendEmailToApplicant()
+  // }
 }
 
 function sendEmailToRecipient(recipient: Recipient) {

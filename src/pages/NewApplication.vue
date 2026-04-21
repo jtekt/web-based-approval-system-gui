@@ -201,7 +201,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
 import { UserPicker, type User } from '@moreillon/group-manager-vue-picker'
@@ -218,6 +218,7 @@ import { FieldSchema } from '@/schemas/application'
 import api from '@/api'
 import { useAuth } from '@/composables/useAuth'
 import { useToast } from '@/composables/useToast'
+import { useRequiredEmail } from '@/composables/useRequiredEmail'
 
 // ---- Setup ----
 
@@ -227,6 +228,7 @@ const router = useRouter()
 const { t } = useI18n()
 const { accessToken } = useAuth()
 const toast = useToast()
+const { add: addRequiredEmail } = useRequiredEmail()
 
 const defaultPDFForm: Template = {
   label: 'pdf',
@@ -261,6 +263,7 @@ const submitting = ref<boolean>(false)
 
 const GROUP_MANAGER_API_URL = env.VITE_GROUP_MANAGER_API_URL
 const VITE_EMPLOYEE_MANAGER_FRONT_URL = env.VITE_EMPLOYEE_MANAGER_FRONT_URL
+
 // ---- Computed ----
 
 const copy_of = computed<string | null>(() => {
@@ -313,6 +316,12 @@ async function submit(): Promise<void> {
     }
 
     const { data } = await api.post<Application>('/applications', body)
+
+    if (!data._id) {
+      return toast.error("Error creating application")
+    }
+    
+    addRequiredEmail(data._id)
 
     router.push({ name: 'application', params: { application_id: data._id } })
   } catch (err: any) {
