@@ -110,3 +110,62 @@ spec:
                 name: ${APPLICATION_NAME_STAGING}-pdf
                 port:
                   number: 80
+# --------
+# PDF Toggle deployment
+# --------
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${APPLICATION_NAME_STAGING}-pdf-toggle
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ${APPLICATION_NAME_STAGING}-pdf-toggle
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ${APPLICATION_NAME_STAGING}-pdf-toggle
+    spec:
+      containers:
+        - name: ${APPLICATION_NAME_STAGING}-pdf-toggle
+          image: ${CONTAINER_IMAGE_TAGGED_STAGING}
+          ports:
+            - containerPort: 80
+          envFrom:
+            - secretRef:
+                name: ${K8S_ENV_NAME_STAGING}
+          env:
+            - name: VITE_PDF_TOGGLE
+              value: "true"
+      imagePullSecrets:
+        - name: ecr-credentials
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${APPLICATION_NAME_STAGING}-pdf-toggle
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: ${APPLICATION_NAME_STAGING}-pdf-toggle
+  ports:
+    - port: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ${APPLICATION_NAME_STAGING}-pdf-toggle
+spec:
+  rules:
+    - host: shinsei-pdf-toggle-staging.jtektrnd.net
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ${APPLICATION_NAME_STAGING}-pdf-toggle
+                port:
+                  number: 80

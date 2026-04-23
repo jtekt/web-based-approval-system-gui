@@ -53,7 +53,7 @@ import { ApplicationSchema } from '@/schemas/application'
 import { PagedApplicationsSchema } from '@/schemas/common'
 import UserChip from '@/components/UserChip.vue'
 import api from '@/api'
-import { env } from '@/utils/env'
+import { useMode } from '@/composables/useMode'
 
 const props = defineProps<{
   direction: string
@@ -63,6 +63,7 @@ const props = defineProps<{
 const route = useRoute()
 const router = useRouter()
 const { formatDateNeo4j } = useDateUtils()
+const {mode} = useMode()
 
 const loading = ref(false)
 const applications = ref<Application[]>([])
@@ -102,7 +103,7 @@ function get_applications() {
     batch_size: options.value.itemsPerPage,
     relationship: relationship_lookup[props.direction],
     state,
-    type: env.VITE_PDF_ONLY && 'PDF',
+    type: mode.value === 'PDF' && 'PDF',
   }
 
   api
