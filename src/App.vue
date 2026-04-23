@@ -84,11 +84,7 @@ const drawer = ref(false)
 watch(
   isAuthenticated,
   (auth) => {
-    if (!auth) {
-      drawer.value = false
-    } else {
-      drawer.value = true
-    }
+    drawer.value = !!auth
   },
   { immediate: true }
 )
@@ -145,9 +141,7 @@ function handleLogout() {
   router.push({ name: 'login' })
 }
 
-onMounted(async () => {
-  await router.isReady()
-
+async function fetchReceivedApplications() {
   if (route.meta?.public || !isAuthenticated.value) return
 
   try {
@@ -164,6 +158,8 @@ onMounted(async () => {
       params,
     })
 
+    console.log(data)
+
     receivedApplications.value = data.count
   } catch (err: unknown) {
     const error = err as { response?: { status: number } }
@@ -171,5 +167,13 @@ onMounted(async () => {
       router.push({ name: 'login' })
     }
   }
-})
+}
+
+watch(
+  mode,
+  () => {
+    fetchReceivedApplications()
+  },
+  { immediate: true }
+)
 </script>

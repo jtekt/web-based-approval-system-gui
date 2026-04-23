@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { env } from '@/utils/env'
 import { useAuth } from '@/composables/useAuth'
 
 declare module 'vue-router' {

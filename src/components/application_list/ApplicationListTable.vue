@@ -63,7 +63,7 @@ const props = defineProps<{
 const route = useRoute()
 const router = useRouter()
 const { formatDateNeo4j } = useDateUtils()
-const {mode} = useMode()
+const { mode } = useMode()
 
 const loading = ref(false)
 const applications = ref<Application[]>([])
@@ -85,7 +85,7 @@ const relationship_lookup: Record<string, string> = {
  * This is the ONLY place that triggers API calls
  */
 watch(
-  [options, () => route.query.state, () => props.direction],
+  [options, () => route.query.state, () => props.direction, mode],
   () => {
     get_applications()
   },
@@ -97,13 +97,14 @@ function get_applications() {
   error.value = null
 
   const state = route.query.state || 'pending'
+  const type = mode.value === 'PDF' ? 'PDF' : undefined
 
   const params = {
     start_index: (options.value.page - 1) * options.value.itemsPerPage,
     batch_size: options.value.itemsPerPage,
     relationship: relationship_lookup[props.direction],
     state,
-    type: mode.value === 'PDF' && 'PDF',
+    type,
   }
 
   api
