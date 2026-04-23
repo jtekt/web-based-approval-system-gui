@@ -9,6 +9,7 @@ do
   echo "Processing $file ...";
 
   sed -i 's|VITE_PDF_ONLY_PLACEHOLDER|'${VITE_PDF_ONLY}'|g' $file
+  sed -i 's|VITE_PDF_TOGGLE_PLACEHOLDER|'${VITE_PDF_TOGGLE}'|g' $file
 
   sed -i 's|VITE_SHINSEI_MANAGER_URL_PLACEHOLDER|'${VITE_SHINSEI_MANAGER_URL}'|g' $file
   
