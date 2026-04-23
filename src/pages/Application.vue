@@ -54,7 +54,7 @@
             <template #append>
               <v-row
                 density="compact"
-                v-if="!env.VITE_PDF_ONLY && isCurrentRecipientCurrentUser"
+                v-if="mode !== 'PDF' && isCurrentRecipientCurrentUser"
               >
                 <v-col cols="auto">
                   <v-btn color="success" @click="openApproveDialog">
@@ -167,12 +167,12 @@ import PdfViewer from '@/components/application/PdfViewer.vue'
 import ApplicationFormContent from '@/components/application/ApplicationFormContent.vue'
 import type { Application } from '@/types'
 import api from '@/api'
-import { env } from '@/utils/env'
 import { useAuth } from '@/composables/useAuth'
 import { useToast } from '@/composables/useToast'
 import WebHankoContainer from '@/components/application/WebHankoContainer.vue'
 import RecipientComment from '@/components/application/RecipientComment.vue'
 import { useRequiredEmail } from '@/composables/useRequiredEmail'
+import { useMode } from '@/composables/useMode'
 
 const router = useRouter()
 const route = useRoute()
@@ -184,6 +184,7 @@ const {
   add: addRequiredEmail,
   remove: removeRequiredEmail,
 } = useRequiredEmail()
+const {mode} = useMode()
 
 const application = ref<Application | null>(null)
 const loading = ref(false)
@@ -269,7 +270,7 @@ async function getApplication() {
 
     application.value = data
 
-    if (env.VITE_PDF_ONLY && Array.isArray(data.form_data)) {
+    if (mode.value === 'PDF' && Array.isArray(data.form_data)) {
       const pdfField = data.form_data.find((f) => f.type === 'pdf' && f.value)
       if (pdfField) {
         const newId = String(pdfField.value)
