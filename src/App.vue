@@ -8,7 +8,9 @@
 
       <template #append>
         <div class="d-flex align-center ga-2">
-          <ModeToggle />
+          <template v-if="!route.meta.public">
+            <ModeToggle />
+          </template>
 
           <LocaleSelector />
 
