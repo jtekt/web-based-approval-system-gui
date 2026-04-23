@@ -7,21 +7,24 @@
       <v-app-bar-title>申請マネージャー</v-app-bar-title>
 
       <template #append>
-        <div class="d-flex align-center">
+        <div class="d-flex align-center ga-2">
+          <ModeToggle />
+
           <LocaleSelector />
 
           <ThemeToggle />
 
-          <v-btn v-if="!route.meta.public" icon="mdi-logout" @click="handleLogout" />
+          <v-btn
+            v-if="!route.meta.public"
+            icon="mdi-logout"
+            @click="handleLogout"
+          />
         </div>
       </template>
     </v-app-bar>
 
     <!-- Drawer -->
-    <v-navigation-drawer
-      v-if="!route.meta.public"
-      v-model="drawer"
-    >
+    <v-navigation-drawer v-if="!route.meta.public" v-model="drawer">
       <v-list nav>
         <v-list-item
           v-for="item in navItems"
@@ -53,13 +56,13 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useTheme } from 'vuetify'
 import LocaleSelector from '@/components/LocaleSelector.vue'
 import { useToast } from './composables/useToast'
 import { useAuth } from './composables/useAuth'
 import api from './api'
-import { env } from './utils/env'
 import ThemeToggle from './components/ThemeToggle.vue'
+import { useMode } from './composables/useMode'
+import ModeToggle from './components/ModeToggle.vue'
 
 const toasts = useToast()
 const { currentUser, logout } = useAuth()
@@ -67,7 +70,7 @@ const { currentUser, logout } = useAuth()
 const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
-const theme = useTheme()
+const { mode } = useMode()
 
 const isAuthenticated = computed(() => !!currentUser.value)
 
@@ -117,7 +120,7 @@ const navItems = computed(() => [
     to: { name: 'search' },
     icon: 'mdi-magnify',
   },
-  ...(env.VITE_PDF_ONLY
+  ...(mode.value !== 'PDF'
     ? []
     : [
         {
@@ -148,10 +151,10 @@ onMounted(async () => {
   try {
     const params: Record<string, string> = {
       relationship: 'SUBMITTED_TO',
-      state: 'pending'
+      state: 'pending',
     }
 
-    if (env.VITE_PDF_ONLY) {
+    if (mode.value === 'PDF') {
       params.type = 'PDF'
     }
 

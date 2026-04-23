@@ -108,9 +108,11 @@ import api from '@/api'
 import type { Application, Group } from '@/types'
 import type { Neo4jDate } from '@/types'
 import { env } from '@/utils/env'
+import { useMode } from '@/composables/useMode'
 
 const { t } = useI18n()
 const router = useRouter()
+const { mode } = useMode()
 
 const loading = ref(false)
 const applications = ref<Application[]>([])
@@ -176,7 +178,7 @@ function getApplications() {
     hanko_id: hankoId.value || undefined,
     application_id: applicationId.value || undefined,
     relationship: relationshipType.value || undefined,
-    type: env.VITE_PDF_ONLY ? 'PDF' : applicationType.value || undefined,
+    type: mode.value === 'PDF' ? 'PDF' : applicationType.value || undefined,
     start_date: startDate.value || undefined,
     end_date: endDate.value || undefined,
     group_id: selectedGroup.value?._id || undefined,

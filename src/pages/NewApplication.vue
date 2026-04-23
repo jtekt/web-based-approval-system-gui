@@ -12,7 +12,7 @@
       </template>
 
       <template #text>
-        <template v-if="!env.VITE_PDF_ONLY">
+        <template v-if="mode !== 'PDF'">
           <!-- Copy mode -->
           <v-row v-if="copy_of">
             <v-col>
@@ -96,7 +96,7 @@
 
         <template v-else>
           <NewApplicationTemplateDetails
-            v-if="!env.VITE_PDF_ONLY"
+            v-if="mode !== 'PDF'"
             :selected-form="applicationForm"
           />
           <NewApplicationFormData v-model="applicationForm.fields" />
@@ -201,7 +201,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
-import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
 import { UserPicker, type User } from '@moreillon/group-manager-vue-picker'
@@ -219,6 +219,7 @@ import api from '@/api'
 import { useAuth } from '@/composables/useAuth'
 import { useToast } from '@/composables/useToast'
 import { useRequiredEmail } from '@/composables/useRequiredEmail'
+import { useMode } from '@/composables/useMode'
 
 // ---- Setup ----
 
@@ -229,6 +230,7 @@ const { t } = useI18n()
 const { accessToken } = useAuth()
 const toast = useToast()
 const { add: addRequiredEmail } = useRequiredEmail()
+const { mode } = useMode()
 
 const defaultPDFForm: Template = {
   label: 'pdf',
@@ -250,7 +252,7 @@ const defaultPDFForm: Template = {
 
 const applicationFormTemplates = ref<Template[]>([])
 const applicationForm = ref<Template | null>(
-  env.VITE_PDF_ONLY ? defaultPDFForm : null
+  mode.value === 'PDF' ? defaultPDFForm : null
 )
 
 const title = ref<string>('')
@@ -279,7 +281,7 @@ const application_valid = computed<boolean>(() => {
 // ---- Methods ----
 
 async function getTemplates(): Promise<void> {
-  if (env.VITE_PDF_ONLY) return
+  if (mode.value === 'PDF') return
 
   try {
     const { data } = await api.get<Template[]>('/templates')
@@ -304,7 +306,7 @@ async function submit(): Promise<void> {
     const group_ids = groups.value.map((g) => g._id || g.properties?._id)
     const form_data = applicationForm.value?.fields
 
-    const type = env.VITE_PDF_ONLY ? 'PDF' : applicationForm.value?.label
+    const type = mode.value === 'PDF' ? 'PDF' : applicationForm.value?.label
 
     const body = {
       title: title.value,
@@ -318,9 +320,9 @@ async function submit(): Promise<void> {
     const { data } = await api.post<Application>('/applications', body)
 
     if (!data._id) {
-      return toast.error("Error creating application")
+      return toast.error('Error creating application')
     }
-    
+
     addRequiredEmail(data._id)
 
     router.push({ name: 'application', params: { application_id: data._id } })
@@ -391,8 +393,8 @@ async function recreateApplicationContent(): Promise<void> {
       .sort((a, b) => a.submission.flow_index - b.submission.flow_index)
 
     applicationForm.value = {
-      label: env.VITE_PDF_ONLY ? 'pdf' : data.type,
-      fields: env.VITE_PDF_ONLY ? [] : parseFormData(data.form_data),
+      label: mode.value === 'PDF' ? 'pdf' : data.type,
+      fields: mode.value === 'PDF' ? [] : parseFormData(data.form_data),
       managers: [],
       groups: data.visibility || [],
     }

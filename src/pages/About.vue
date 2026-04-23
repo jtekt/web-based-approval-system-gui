@@ -34,6 +34,10 @@ const settings = computed(() => [
     value: env.VITE_PDF_ONLY ? "true" : "false",
   },
   {
+    name: 'PDF Toggle',
+    value: env.VITE_PDF_TOGGLE ? "true" : "false",
+  },
+  {
     name: 'Shinsei manager API',
     value: env.VITE_SHINSEI_MANAGER_URL,
   },
