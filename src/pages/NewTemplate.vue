@@ -33,9 +33,9 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api'
 import type { Template } from '@/types'
-import { useAuth } from '@/composables/useAuth'
+import { useAuth } from '@jtekt/vuetify-auth'
 
-const { currentUser } = useAuth()
+const { session } = useAuth()
 const router = useRouter()
 
 const label = ref('')
@@ -55,7 +55,7 @@ async function createTemplate() {
   try {
     const { data } = await api.post<Template>('/templates', {
       label: label.value,
-      managers: [currentUser.value?._id]
+      managers: [session.value?.user.id],
     })
 
     router.push({ name: 'template', params: { template_id: data._id } })

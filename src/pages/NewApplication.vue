@@ -177,7 +177,7 @@
           @selection="addToRecipients"
           :groupManagerApiUrl="GROUP_MANAGER_API_URL"
           :group-manager-front-url="VITE_EMPLOYEE_MANAGER_FRONT_URL"
-          :accessToken="accessToken"
+          :accessToken="session?.accessToken"
         />
       </v-card-text>
 
@@ -216,8 +216,8 @@ import { localStorageRecipientsKey } from '@/constants'
 import z from 'zod'
 import { FieldSchema } from '@/schemas/application'
 import api from '@/api'
-import { useAuth } from '@/composables/useAuth'
-import { useToast } from '@/composables/useToast'
+import { useAuth } from '@jtekt/vuetify-auth'
+import { useToast } from '@jtekt/vue-feedback-kit'
 import { useRequiredEmail } from '@/composables/useRequiredEmail'
 import { useMode } from '@/composables/useMode'
 
@@ -227,7 +227,7 @@ const route = useRoute()
 const router = useRouter()
 
 const { t } = useI18n()
-const { accessToken } = useAuth()
+const { session } = useAuth()
 const toast = useToast()
 const { add: addRequiredEmail } = useRequiredEmail()
 const { mode } = useMode()
@@ -320,7 +320,8 @@ async function submit(): Promise<void> {
     const { data } = await api.post<Application>('/applications', body)
 
     if (!data._id) {
-      return toast.error('Error creating application')
+      toast.error('Error creating application')
+      return
     }
 
     addRequiredEmail(data._id)
@@ -336,7 +337,10 @@ async function submit(): Promise<void> {
 
 function addToRecipients(newRecipient: User): void {
   const exists = recipients.value.find((r) => r._id === newRecipient._id)
-  if (exists) return toast.error(t('Duplicates not allowed'))
+  if (exists) {
+    toast.error(t('Duplicates not allowed'))
+    return
+  }
 
   recipients.value.push({ ...newRecipient, submission: { flow_index: 0 } })
 }

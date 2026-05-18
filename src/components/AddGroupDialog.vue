@@ -11,10 +11,11 @@
       <v-card-title>{{ $t('Add a group') }}</v-card-title>
       <v-card-text>
         <GroupPicker
+          v-if="session"
           class="group-picker"
           :groupManagerApiUrl="GROUP_MANAGER_API_URL"
           :group-manager-front-url="VITE_EMPLOYEE_MANAGER_FRONT_URL"
-          :accessToken="accessToken"
+          :accessToken="session?.accessToken"
           @selection="onSelection"
         />
       </v-card-text>
@@ -35,12 +36,12 @@ import {
   type GroupItem,
 } from '@moreillon/group-manager-vue-picker'
 import { env } from '@/utils/env'
-import { useAuth } from '@/composables/useAuth'
+import { useAuth } from '@jtekt/vuetify-auth'
 
 const GROUP_MANAGER_API_URL = env.VITE_GROUP_MANAGER_API_URL
 const VITE_EMPLOYEE_MANAGER_FRONT_URL = env.VITE_EMPLOYEE_MANAGER_FRONT_URL
 
-const {accessToken} = useAuth()
+const { session } = useAuth()
 
 const emit = defineEmits<{ selection: [group: GroupItem] }>()
 

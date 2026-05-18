@@ -198,7 +198,7 @@ import type { Application, Field, Hanko } from '@/types'
 import { useDateUtils } from '@/composables/useDateUtils'
 import UserChip from '@/components/UserChip.vue'
 import { env } from '@/utils/env'
-import { useAuth } from '@/composables/useAuth'
+import { useAuth } from '@jtekt/vuetify-auth'
 import PrivacySettings from './PrivacySettings.vue'
 import { useMode } from '@/composables/useMode'
 
@@ -210,7 +210,7 @@ const emit = defineEmits<{
 
 const route = useRoute()
 const { formatDateNeo4j } = useDateUtils()
-const { currentUser } = useAuth()
+const { session } = useAuth()
 const { mode } = useMode()
 
 const application = computed({
@@ -219,11 +219,11 @@ const application = computed({
 })
 
 const userAsRecipient = computed(() => {
-  if (!currentUser.value) return null
+  if (!session.value) return null
 
   return (
     application.value.recipients?.find(
-      (r) => r._id === currentUser.value?._id
+      (r) => r._id === session.value?.user?.id
     ) ?? null
   )
 })

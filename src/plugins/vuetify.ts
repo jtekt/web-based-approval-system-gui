@@ -6,32 +6,32 @@ const savedTheme = localStorage.getItem('theme') ?? 'light'
 
 export default createVuetify({
   icons: {
-    defaultSet: "mdi",
+    defaultSet: 'mdi',
   },
   defaults: {
     VSwitch: {
-      color: "primary",
+      color: 'primary',
     },
     VTextField: {
-      variant: "underlined",
+      variant: 'underlined',
     },
     VTextarea: {
-      variant: "underlined",
+      variant: 'underlined',
     },
     VCombobox: {
-      variant: "outlined",
+      variant: 'outlined',
     },
     VAutocomplete: {
-      variant: "outlined",
+      variant: 'outlined',
     },
     VSelect: {
-      variant: "outlined",
+      variant: 'outlined',
     },
     VFileInput: {
-      variant: "outlined",
+      variant: 'outlined',
     },
     VTabs: {
-      color: "primary",
+      color: 'primary',
     },
   },
   theme: {
@@ -39,15 +39,15 @@ export default createVuetify({
     themes: {
       light: {
         colors: {
-          primary: "#b00000",
-          background: "#f5f5f5",
+          primary: '#b00000',
+          background: '#f5f5f5',
         },
       },
       dark: {
         colors: {
-          primary: "#b02222",
+          primary: '#b02222',
         },
       },
     },
   },
-});
+})

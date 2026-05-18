@@ -24,14 +24,14 @@ import type { Recipient, Application } from '@/types'
 import WebHanko from '@/components/WebHanko.vue'
 import EmailButton from './EmailButton.vue'
 import { env } from '@/utils/env'
-import { useAuth } from '@/composables/useAuth'
+import { useAuth } from '@jtekt/vuetify-auth'
 
 const props = defineProps<{
   recipient: Recipient
   application: Application
 }>()
 
-const { currentUser } = useAuth()
+const { session } = useAuth()
 
 /* -----------------------------
  * Current recipient (first pending)
@@ -46,16 +46,16 @@ const currentRecipient = computed(() => {
  * User roles
  * ----------------------------- */
 const userAsRecipient = computed(() => {
-  if (!currentUser.value) return null
+  if (!session.value?.user) return null
   return (
     props.application.recipients.find(
-      (r) => r._id === currentUser.value?._id
+      (r) => r._id === session.value?.user?.id
     ) ?? null
   )
 })
 
 const userIsApplicant = computed(() => {
-  return props.application.applicant?._id === currentUser.value?._id
+  return props.application.applicant?._id === session.value?.user?.id
 })
 
 /* -----------------------------

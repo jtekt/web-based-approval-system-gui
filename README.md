@@ -14,9 +14,9 @@ Thus, the validity of those seals can be verified even if those are included in 
 
 ## Environment variables
 
-| Variable                   | Description                             |
-| -------------------------- | --------------------------------------- |
-| VITE_SHINSEI_MANAGER_URL   | URL of the Shinsei-manager API          |
-| VITE_LOGIN_URL             | URL used for user login                 |
-| VITE_IDENTIFICATION_URL    | URL used to identify users              |
-| VITE_GROUP_MANAGER_API_URL | URL of the group management service API |
+| Variable                       | Description                             |
+| ------------------------------ | --------------------------------------- |
+| VITE_SHINSEI_MANAGER_URL       | URL of the Shinsei-manager API          |
+| VITE_LEGACY_LOGIN_URL          | URL used for user login                 |
+| VITE_LEGACY_IDENTIFICATION_URL | URL used to identify users              |
+| VITE_GROUP_MANAGER_API_URL     | URL of the group management service API |

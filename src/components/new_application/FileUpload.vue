@@ -21,7 +21,7 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import api from '@/api'
-import { useToast } from '@/composables/useToast'
+import { useToast } from '@jtekt/vue-feedback-kit'
 
 const props = defineProps<{
   modelValue?: string | null

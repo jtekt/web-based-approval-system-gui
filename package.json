@@ -16,6 +16,8 @@
     "mcp:revert": "ruler revert"
   },
   "dependencies": {
+    "@jtekt/vue-feedback-kit": "^1.0.0",
+    "@jtekt/vuetify-auth": "^0.1.0",
     "@mdi/font": "7.4.47",
     "@moreillon/group-manager-vue-picker": "^0.0.2",
     "axios": "^1.15.0",

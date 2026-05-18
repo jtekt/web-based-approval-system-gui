@@ -167,8 +167,8 @@ import PdfViewer from '@/components/application/PdfViewer.vue'
 import ApplicationFormContent from '@/components/application/ApplicationFormContent.vue'
 import type { Application } from '@/types'
 import api from '@/api'
-import { useAuth } from '@/composables/useAuth'
-import { useToast } from '@/composables/useToast'
+import { useAuth } from '@jtekt/vuetify-auth'
+import { useToast } from '@jtekt/vue-feedback-kit'
 import WebHankoContainer from '@/components/application/WebHankoContainer.vue'
 import RecipientComment from '@/components/application/RecipientComment.vue'
 import { useRequiredEmail } from '@/composables/useRequiredEmail'
@@ -178,13 +178,13 @@ const router = useRouter()
 const route = useRoute()
 const { t } = useI18n()
 const toast = useToast()
-const { currentUser } = useAuth()
+const { session } = useAuth()
 const {
   requiredEmails,
   add: addRequiredEmail,
   remove: removeRequiredEmail,
 } = useRequiredEmail()
-const {mode} = useMode()
+const { mode } = useMode()
 
 const application = ref<Application | null>(null)
 const loading = ref(false)
@@ -208,9 +208,9 @@ const orderedRecipients = computed(() => {
 })
 
 const currentRecipient = computed(() => {
+  console.log(application.value)
   if (!application.value) return null
   if (application.value.recipients.some((r) => r.refusal)) return null
-
   return (
     [...application.value.recipients]
       .sort((a, b) => a.submission.flow_index - b.submission.flow_index)
@@ -219,22 +219,22 @@ const currentRecipient = computed(() => {
 })
 
 const isUserApplicant = computed(() => {
-  if (!application.value || !currentUser.value) return false
-  return application.value.applicant?._id === currentUser.value._id
+  if (!application.value || !session.value?.user) return false
+  return application.value.applicant?._id === session.value.user.id
 })
 
 const isUserRecipient = computed(() => {
-  if (!isUserApplicant.value || !application.value || !currentUser.value)
+  if (!isUserApplicant.value || !application.value || !session.value?.user)
     return false
   return application.value.recipients.some(
-    (r) => r._id === currentUser.value?._id
+    (r) => r._id === session.value?.user.id
   )
 })
 
 const isCurrentRecipientCurrentUser = computed(() => {
-  if (!isUserRecipient || !currentRecipient.value || !currentUser.value)
+  if (!isUserRecipient || !currentRecipient.value || !session.value?.user)
     return false
-  return currentRecipient.value._id === currentUser.value._id
+  return currentRecipient.value._id === session.value.user.id
 })
 
 const isApplicationFullyApproved = computed(() => {

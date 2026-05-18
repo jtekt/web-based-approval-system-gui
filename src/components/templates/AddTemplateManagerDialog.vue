@@ -29,7 +29,7 @@ import { useI18n } from 'vue-i18n'
 import type { User } from '@/types'
 import UserSearchPicker from '@/components/UserSearchPicker.vue'
 import api from '@/api'
-import { useToast } from '@/composables/useToast'
+import { useToast } from '@jtekt/vue-feedback-kit'
 
 const emit = defineEmits<{ selection: [user: User] }>()
 
