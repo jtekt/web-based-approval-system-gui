@@ -7,21 +7,21 @@
       <v-app-bar-title>申請マネージャー</v-app-bar-title>
 
       <template #append>
-        <div class="d-flex align-center ga-2">
-          <template v-if="!route.meta.public">
-            <ModeToggle />
-          </template>
-
-          <LocaleSelector />
-
-          <ThemeToggle />
-
-          <v-btn
-            v-if="!route.meta.public"
-            icon="mdi-logout"
-            @click="handleLogout"
-          />
+        <div v-if="!route.meta.public" class="mr-2">
+          <ModeToggle />
         </div>
+
+        <LocaleSelector />
+
+        <ThemeToggle />
+
+        <v-btn v-if="VITE_APPS_URL" :href="VITE_APPS_URL" icon="mdi-apps" />
+
+        <v-btn
+          v-if="!route.meta.public"
+          icon="mdi-logout"
+          @click="handleLogout"
+        />
       </template>
     </v-app-bar>
 
@@ -49,32 +49,28 @@
         <router-view />
       </v-container>
     </v-main>
-
-    <v-snackbar-queue v-model="toasts.queue.value" />
   </v-app>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import LocaleSelector from '@/components/LocaleSelector.vue'
-import { useToast } from './composables/useToast'
-import { useAuth } from './composables/useAuth'
 import api from './api'
 import ThemeToggle from './components/ThemeToggle.vue'
 import { useMode } from './composables/useMode'
 import ModeToggle from './components/ModeToggle.vue'
+import { useAuth } from '@jtekt/vuetify-auth'
 
-const toasts = useToast()
-const { currentUser, logout } = useAuth()
+const { VITE_APPS_URL } = import.meta.env
+
+const { session, logout, isLoading } = useAuth()
 
 const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
 const { mode } = useMode()
-
-const isAuthenticated = computed(() => !!currentUser.value)
 
 const drawer = ref(false)
 
@@ -82,9 +78,15 @@ const drawer = ref(false)
  * Keep drawer in sync with auth + screen size
  */
 watch(
-  isAuthenticated,
-  (auth) => {
-    drawer.value = !!auth
+  [session, isLoading],
+  ([auth, loading]) => {
+    if (loading) return
+
+    if (auth?.accessToken) {
+      api.defaults.headers.common.Authorization = `Bearer ${auth.accessToken}`
+    } else {
+      delete api.defaults.headers.common.Authorization
+    }
   },
   { immediate: true }
 )
@@ -138,12 +140,9 @@ const navItems = computed(() => [
 
 function handleLogout() {
   logout()
-  router.push({ name: 'login' })
 }
 
 async function fetchReceivedApplications() {
-  if (route.meta?.public || !isAuthenticated.value) return
-
   try {
     const params: Record<string, string> = {
       relationship: 'SUBMITTED_TO',
@@ -158,8 +157,6 @@ async function fetchReceivedApplications() {
       params,
     })
 
-    console.log(data)
-
     receivedApplications.value = data.count
   } catch (err: unknown) {
     const error = err as { response?: { status: number } }
@@ -169,11 +166,13 @@ async function fetchReceivedApplications() {
   }
 }
 
-watch(
-  mode,
-  () => {
-    fetchReceivedApplications()
-  },
-  { immediate: true }
-)
+watch([mode, session, route], ([_, session, routeMeta]) => {
+  const isPublic = routeMeta.meta?.public
+  if (!session || isPublic) {
+    receivedApplications.value = 0
+    return
+  }
+
+  fetchReceivedApplications()
+})
 </script>

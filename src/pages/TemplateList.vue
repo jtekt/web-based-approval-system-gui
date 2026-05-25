@@ -90,12 +90,12 @@ import { useI18n } from 'vue-i18n'
 import type { Template } from '@/types'
 import UserChip from '@/components/UserChip.vue'
 import GroupChip from '@/components/GroupChip.vue'
-import { useAuth } from '@/composables/useAuth'
+import { useAuth } from '@jtekt/vuetify-auth'
 import api from '@/api'
 
 const { t } = useI18n()
 const router = useRouter()
-const { currentUser } = useAuth()
+const { session } = useAuth()
 
 const tab = ref('mine')
 const templates = ref<Template[]>([])
@@ -109,13 +109,13 @@ const headers = computed(() => [
 
 const myTemplates = computed(() =>
   templates.value.filter((tmpl) =>
-    tmpl.managers.some((m) => m._id === currentUser.value?._id)
+    tmpl.managers.some((m) => m._id === session.value?.user.id)
   )
 )
 
 const sharedTemplates = computed(() =>
   templates.value.filter(
-    (tmpl) => !tmpl.managers.some((m) => m._id === currentUser.value?._id)
+    (tmpl) => !tmpl.managers.some((m) => m._id === session.value?.user.id)
   )
 )
 

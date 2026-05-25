@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { useAuth } from '@/composables/useAuth'
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -10,25 +9,6 @@ declare module 'vue-router' {
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    {
-      path: '/login',
-      name: 'login',
-      component: () => import('@/pages/Login.vue'),
-      meta: { public: true },
-    },
-    {
-      path: '/oidc-callback',
-      name: 'oidc_callback',
-      component: () => import('@/pages/OidcCallback.vue'),
-      meta: { public: true },
-    },
-    {
-      path: '/password-reset',
-      name: 'password_reset',
-      component: () => import('@/pages/PasswordReset.vue'),
-      meta: { public: true },
-    },
-
     {
       path: '/',
       redirect: { name: 'submitted_applications' },
@@ -86,25 +66,6 @@ const router = createRouter({
       component: () => import('@/pages/NotFound.vue'),
     },
   ],
-})
-
-router.beforeEach(async (to) => {
-  const { tokens, identify } = useAuth()
-
-  if (to.meta.public) {
-    // Redirect away from login if already authenticated
-    if (to.name === 'Login' && tokens.value) {
-      return { name: 'UserGroups', params: { user_id: 'self' } }
-    }
-    return true
-  }
-
-  if (tokens.value) return true
-
-  const success = await identify()
-  if (success) return true
-
-  return { name: 'login', query: { redirect: to.fullPath } }
 })
 
 export default router

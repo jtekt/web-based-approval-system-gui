@@ -8,7 +8,11 @@
     rounded="xl"
     class="d-flex align-center"
   >
-    <v-btn size="40" value="ALL" icon="mdi-file-document-multiple-outline"></v-btn>
+    <v-btn
+      size="40"
+      value="ALL"
+      icon="mdi-file-document-multiple-outline"
+    ></v-btn>
     <v-btn size="40" value="PDF" icon="mdi-file-pdf-box"></v-btn>
   </v-btn-toggle>
 </template>

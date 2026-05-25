@@ -6,16 +6,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import { useTheme } from "vuetify";
+import { computed } from 'vue'
+import { useTheme } from 'vuetify'
 
-const theme = useTheme();
+const theme = useTheme()
 
-const isDark = computed(() => theme.global.current.value.dark);
+const isDark = computed(() => theme.global.current.value.dark)
 
 function toggle() {
-  const next = isDark.value ? "light" : "dark";
-  theme.change(next);
-  localStorage.setItem("theme", next);
+  const next = isDark.value ? 'light' : 'dark'
+  theme.change(next)
+  localStorage.setItem('theme', next)
 }
 </script>

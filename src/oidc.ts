@@ -23,7 +23,6 @@ function createUserManager(): UserManager | null {
   return new UserManager(settings)
 }
 
-
 export const oidcManager = createUserManager()
 
 export const oidcEnabled = authority && client_id && !!oidcManager

@@ -174,13 +174,13 @@ import GroupChip from '@/components/GroupChip.vue'
 import AddGroupDialog from '@/components/AddGroupDialog.vue'
 import AddTemplateManagerDialog from '@/components/templates/AddTemplateManagerDialog.vue'
 import api from '@/api'
-import { useAuth } from '@/composables/useAuth'
-import { useToast } from '@/composables/useToast'
+import { useAuth } from '@jtekt/vuetify-auth'
+import { useToast } from '@jtekt/vue-feedback-kit'
 
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
-const { currentUser } = useAuth()
+const { session } = useAuth()
 const toast = useToast()
 
 const template = ref<Template | null>(null)
@@ -204,8 +204,8 @@ const confirmState = ref<{
 const templateId = computed(() => route.params.template_id as string)
 
 const userIsManager = computed(() => {
-  if (!template.value || !currentUser.value) return false
-  return template.value.managers.some((m) => m._id === currentUser.value?._id)
+  if (!template.value || !session.value?.user) return false
+  return template.value.managers.some((m) => m._id === session.value?.user.id)
 })
 
 const fieldTypes = computed(() => [

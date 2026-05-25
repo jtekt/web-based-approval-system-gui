@@ -42,16 +42,11 @@ All env vars are validated at startup via Zod in `src/utils/env.ts`. Import `env
 
 ### Authentication
 
-`src/composables/useAuth.ts` holds **module-level singleton state** (`currentUser`, `tokens`) shared across the whole app — not a Pinia store. Auth supports two modes:
-
-1. **JWT** — stored in `localStorage` or cookie, set as `Authorization: Bearer` header on the axios instance
-2. **OIDC** — optional, enabled when `VITE_OIDC_AUTHORITY` and `VITE_OIDC_CLIENT_ID` are set; handled via `oidc-client-ts` in `src/oidc.ts`
-
-The router guard in `src/router/index.ts` calls `identify()` on every non-public route and redirects to `/login` if unauthenticated.
+Uses `@jtekt/vuetify-auth`
 
 ### Data flow
 
-Pages make API calls directly using the `api` axios instance (no Vuex/Pinia). Shared UI feedback goes through `useToast()` composable (`src/composables/useToast.ts`), which maintains a singleton queue rendered by Vuetify's `VSnackbarQueue`.
+Pages make API calls directly using the `api` axios instance (no Vuex/Pinia). Shared UI feedback goes through `useToast()` from package `@jtekt/vue-feedback-kit`.
 
 ### Domain model
 

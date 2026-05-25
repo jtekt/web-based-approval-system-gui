@@ -48,14 +48,14 @@ import type { Application, Group } from '@/types'
 import GroupChip from '@/components/GroupChip.vue'
 import AddGroupDialog from '@/components/AddGroupDialog.vue'
 import api from '@/api'
-import { useAuth } from '@/composables/useAuth'
-import { useToast } from '@/composables/useToast'
+import { useAuth } from '@jtekt/vuetify-auth'
+import { useToast } from '@jtekt/vue-feedback-kit'
 
 const props = defineProps<{ modelValue: Application }>()
 const emit = defineEmits<{ 'update:modelValue': [value: Application] }>()
 
 const { t } = useI18n()
-const { currentUser } = useAuth()
+const { session } = useAuth()
 const toast = useToast()
 
 const loading = ref(false)
@@ -69,8 +69,8 @@ const localPrivate = ref(application.value.private)
 
 const isUserInFlow = computed(
   () =>
-    application.value.applicant._id === currentUser.value?._id ||
-    application.value.recipients.some((r) => r._id === currentUser.value?._id)
+    application.value.applicant._id === session.value?.user?.id ||
+    application.value.recipients.some((r) => r._id === session.value?.user?.id)
 )
 
 async function updatePrivacy() {

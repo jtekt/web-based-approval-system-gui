@@ -79,9 +79,9 @@ deploy_staging:
   script:
     # Create staging env
     - kubectl create secret generic $K8S_ENV_NAME_STAGING --from-env-file=$STAGING_ENV --dry-run=client -o yaml | kubectl apply -f -
-    
+
     - envsubst < kubernetes_manifest_staging.yml | kubectl apply -f -
-     # Validate deployment rollout status
+      # Validate deployment rollout status
     - kubectl rollout status deployment/$APPLICATION_NAME_STAGING --timeout=600s
   environment:
     name: production

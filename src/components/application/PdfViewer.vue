@@ -157,9 +157,9 @@ import VuePdfEmbed from 'vue-pdf-embed'
 import type { Application, Hanko } from '@/types'
 import { generateWebHankoSvg } from '@/utils/webHankos'
 import api from '@/api'
-import { useAuth } from '@/composables/useAuth'
+import { useAuth } from '@jtekt/vuetify-auth'
 import { Canvg } from 'canvg'
-import { useToast } from '@/composables/useToast'
+import { useConfirm, useToast } from '@jtekt/vue-feedback-kit'
 
 const props = defineProps<{
   application: Application
@@ -172,9 +172,10 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-const { currentUser } = useAuth()
+const { session } = useAuth()
 const route = useRoute()
 const toast = useToast()
+const confirm = useConfirm()
 
 const MIN_HANKO_SIZE = 25
 
@@ -212,10 +213,10 @@ const newHankoStyle = ref<{
  * Computed
  * ----------------------------- */
 const userAsRecipient = computed(() => {
-  if (!currentUser.value) return null
+  if (!session.value) return null
   return (
     props.application.recipients.find(
-      (r) => r?._id === currentUser.value?._id
+      (r) => r?._id === session.value?.user?.id
     ) ?? null
   )
 })
@@ -414,7 +415,8 @@ async function pdfClicked(event: PointerEvent) {
     toast.error(t('Hanko size too small'))
     return
   }
-  if (!confirm(t('Apply stamp here?'))) return
+  const ok = await confirm({ text: t('Apply stamp here?') })
+  if (!ok) return
 
   saveHankoSize()
 

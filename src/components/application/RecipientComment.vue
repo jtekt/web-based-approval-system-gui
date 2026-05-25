@@ -69,8 +69,8 @@ import { ref, computed, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import api from '@/api'
-import { useAuth } from '@/composables/useAuth'
-import { useToast } from '@/composables/useToast'
+import { useAuth } from '@jtekt/vuetify-auth'
+import { useToast } from '@jtekt/vue-feedback-kit'
 import type { Recipient } from '@/types'
 
 const props = defineProps<{ recipient: Recipient }>()
@@ -78,7 +78,7 @@ const emit = defineEmits<{ comment_updated: [] }>()
 
 const { t } = useI18n()
 const route = useRoute()
-const { currentUser } = useAuth()
+const { session } = useAuth()
 const toast = useToast()
 
 const editing = ref(false)
@@ -93,7 +93,7 @@ const decision = computed(
 )
 
 const recipientIsUser = computed(() => {
-  return !!currentUser.value && props.recipient._id === currentUser.value._id
+  return !!session.value?.user && props.recipient._id === session.value.user.id
 })
 
 const recipientComment = computed(() => {
