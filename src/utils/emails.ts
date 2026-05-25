@@ -1,4 +1,4 @@
-import type { Application, Recipient, User } from '@/types'
+import type { Application, User } from '@/types'
 
 function applicationIsRejected(application: Application): boolean {
   return application.recipients.some((r) => !!r.refusal)
