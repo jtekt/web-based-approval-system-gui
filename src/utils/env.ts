@@ -17,11 +17,9 @@ const envSchema = z
     VITE_GROUP_MANAGER_API_URL: z.url(),
     VITE_EMPLOYEE_MANAGER_FRONT_URL: z.url(),
 
-    VITE_LEGACY_LOGIN_URL: z.url(),
-    VITE_LEGACY_IDENTIFICATION_URL: z.url(),
-    VITE_LEGACY_PASSWORD_RESET_URL: z.url(),
-
-    VITE_LOGIN_HINT: z.string().optional(),
+    VITE_LEGACY_LOGIN_URL: z.url().optional(),
+    VITE_LEGACY_IDENTIFICATION_URL: z.url().optional(),
+    VITE_LEGACY_PASSWORD_RESET_URL: z.url().optional(),
 
     VITE_OIDC_AUTHORITY: z.string().optional(),
     VITE_OIDC_CLIENT_ID: z.string().optional(),
