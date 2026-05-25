@@ -14,9 +14,18 @@ Thus, the validity of those seals can be verified even if those are included in 
 
 ## Environment variables
 
-| Variable                       | Description                             |
-| ------------------------------ | --------------------------------------- |
-| VITE_SHINSEI_MANAGER_URL       | URL of the Shinsei-manager API          |
-| VITE_LEGACY_LOGIN_URL          | URL used for user login                 |
-| VITE_LEGACY_IDENTIFICATION_URL | URL used to identify users              |
-| VITE_GROUP_MANAGER_API_URL     | URL of the group management service API |
+| Variable                        | Description                                         |
+| ------------------------------- | --------------------------------------------------- |
+| VITE_PDF_ONLY                   | Enables PDF-only mode                               |
+| VITE_PDF_TOGGLE                 | Enables PDF toggle feature                          |
+| VITE_SHINSEI_MANAGER_URL        | URL of the Shinsei-manager API                      |
+| VITE_GROUP_MANAGER_API_URL      | URL of the group management service API             |
+| VITE_EMPLOYEE_MANAGER_API_URL   | URL of the employee management service API          |
+| VITE_EMPLOYEE_MANAGER_FRONT_URL | URL of the employee management frontend             |
+| VITE_LOGIN_URL                  | URL used for user login                             |
+| VITE_IDENTIFICATION_URL         | URL used to identify users                          |
+| VITE_PASSWORD_RESET_URL         | URL used for password reset                         |
+| VITE_LOGIN_HINT                 | Default login hint value for authentication         |
+| VITE_OIDC_AUTHORITY             | OIDC provider authority URL                         |
+| VITE_OIDC_CLIENT_ID             | OIDC client ID                                      |
+| VITE_OIDC_AUDIENCE              | OIDC audience identifier                            |
