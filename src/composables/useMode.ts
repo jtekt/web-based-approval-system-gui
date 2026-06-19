@@ -38,13 +38,11 @@ export function useMode() {
     set: (value: Mode) => {
       // Hard lock
       if (env.VITE_PDF_ONLY) {
-        console.log('[mode] Change blocked: VITE_PDF_ONLY is enabled')
         return
       }
 
       // Toggle gate
       if (!env.VITE_PDF_TOGGLE) {
-        console.log('[mode] Change blocked: VITE_PDF_TOGGLE is disabled')
         return
       }
 

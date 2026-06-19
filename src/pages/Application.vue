@@ -208,7 +208,6 @@ const orderedRecipients = computed(() => {
 })
 
 const currentRecipient = computed(() => {
-  console.log(application.value)
   if (!application.value) return null
   if (application.value.recipients.some((r) => r.refusal)) return null
   return (
