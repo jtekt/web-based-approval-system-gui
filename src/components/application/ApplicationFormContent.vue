@@ -181,9 +181,50 @@ export default {
     },
   },
   methods: {
-    download_attachment(file_id) {
+    async download_attachment(file_id) {
       const url = `${VUE_APP_SHINSEI_MANAGER_URL}/applications/${this.application_id}/files/${file_id}`
-      window.open(url, "_blank")
+
+      try {
+        const response = await this.axios.get(url, {
+          responseType: "blob",
+        })
+
+        const blob = new Blob([response.data])
+
+        const downloadUrl = window.URL.createObjectURL(blob)
+
+        const link = document.createElement("a")
+        link.href = downloadUrl
+
+        // Get filename from response header
+        const disposition = response.headers["content-disposition"]
+
+        let filename = "download"
+
+        if (disposition) {
+          const utf8Match = disposition.match(/filename\*=UTF-8''([^;]+)/i)
+
+          if (utf8Match) {
+            filename = decodeURIComponent(utf8Match[1])
+          } else {
+            const filenameMatch = disposition.match(/filename="?([^"]+)"?/i)
+
+            if (filenameMatch) {
+              filename = decodeURIComponent(filenameMatch[1])
+            }
+          }
+        }
+
+        link.download = filename
+
+        document.body.appendChild(link)
+        link.click()
+
+        link.remove()
+        window.URL.revokeObjectURL(downloadUrl)
+      } catch (error) {
+        console.error("Failed to download attachment", error)
+      }
     },
     user_has_stamped_attachment(file_id) {
       if (!this.user_as_recipient) return false
