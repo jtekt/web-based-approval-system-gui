@@ -120,7 +120,7 @@ const navItems = computed(() => [
     to: { name: 'search' },
     icon: 'mdi-magnify',
   },
-  ...(mode.value !== 'PDF'
+  ...(mode.value === 'PDF'
     ? []
     : [
         {
