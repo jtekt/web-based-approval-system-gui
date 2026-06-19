@@ -100,7 +100,7 @@
               </v-col>
 
               <!-- VALUE / ACTION -->
-              <v-col cols="6" class="text-right">
+              <v-col cols="6" class="d-flex align-center justify-end">
                 <!-- PDF -->
                 <template v-if="field.type === 'pdf' && field.value">
                   <div v-if="userAsRecipient" class="mb-1">
@@ -133,7 +133,7 @@
                 <template v-else-if="field.type === 'file' && field.value">
                   <v-btn
                     size="small"
-                    variant="text"
+                    variant="tonal"
                     @click="downloadAttachment(String(field.value))"
                   >
                     <v-icon start>mdi-download</v-icon>
@@ -201,6 +201,7 @@ import { env } from '@/utils/env'
 import { useAuth } from '@jtekt/vuetify-auth'
 import PrivacySettings from './PrivacySettings.vue'
 import { useMode } from '@/composables/useMode'
+import api from '@/api'
 
 const props = defineProps<{ modelValue: Application }>()
 const emit = defineEmits<{
@@ -250,10 +251,51 @@ const formData = computed<Field[]>(() => {
   return parsed.filter((field) => field.type !== 'pdf')
 })
 
-function downloadAttachment(fileId: string) {
+async function downloadAttachment(fileId: string) {
   const base = env.VITE_SHINSEI_MANAGER_URL
   const appId = route.params.application_id as string
-  window.open(`${base}/applications/${appId}/files/${fileId}`, '_blank')
+  const url =`${base}/applications/${appId}/files/${fileId}`
+  try {
+    const response = await api.get(url, {
+      responseType: 'blob',
+    })
+
+    const blob = new Blob([response.data])
+
+    const downloadUrl = window.URL.createObjectURL(blob)
+
+    const link = document.createElement('a')
+    link.href = downloadUrl
+
+    // Get filename from response header
+    const disposition = response.headers['content-disposition']
+
+    let filename = 'download'
+
+    if (disposition) {
+      const utf8Match = disposition.match(/filename\*=UTF-8''([^;]+)/i)
+
+      if (utf8Match) {
+        filename = decodeURIComponent(utf8Match[1])
+      } else {
+        const filenameMatch = disposition.match(/filename="?([^"]+)"?/i)
+
+        if (filenameMatch) {
+          filename = decodeURIComponent(filenameMatch[1])
+        }
+      }
+    }
+
+    link.download = filename
+
+    document.body.appendChild(link)
+    link.click()
+
+    link.remove()
+    window.URL.revokeObjectURL(downloadUrl)
+  } catch (error) {
+    console.error('Failed to download attachment', error)
+  }
 }
 
 function userHasStampedAttachment(fileId: string): boolean {
