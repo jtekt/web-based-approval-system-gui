@@ -6,9 +6,6 @@ variables:
   APPLICATION_NAME: shinsei-manager-front
   CONTAINER_IMAGE: ${AWS_ECR_URL}/${APPLICATION_NAME}
 
-  # Staging
-  K8S_ENV_NAME_STAGING: ${APPLICATION_NAME}-staging-env
-
 # --------
 # Production (git tag on master)
 # --------
