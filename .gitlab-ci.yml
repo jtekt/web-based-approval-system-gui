@@ -62,11 +62,13 @@ deploy_staging:
     - when: never
   script:
     # Deploy staging
-    - IMAGE_TAG=${CI_COMMIT_SHORT_SHA} envsubst < kustomize/overlays/staging/kustomization.yml | kubectl apply -k -
+    - (cd kustomize/overlays/staging && IMAGE_TAG=${CI_COMMIT_SHORT_SHA} envsubst < kustomization.yml > kustomization.subst.yml && mv kustomization.subst.yml kustomization.yml && kubectl apply -k .)
+    
     # Deploy staging PDF
-    - IMAGE_TAG=${CI_COMMIT_SHORT_SHA} envsubst < kustomize/overlays/staging-pdf/kustomization.yml | kubectl apply -k -
+    - (cd kustomize/overlays/staging-pdf && IMAGE_TAG=${CI_COMMIT_SHORT_SHA} envsubst < kustomization.yml > kustomization.subst.yml && mv kustomization.subst.yml kustomization.yml && kubectl apply -k .)
+    
     # Deploy staging PDF Toggle
-    - IMAGE_TAG=${CI_COMMIT_SHORT_SHA} envsubst < kustomize/overlays/staging-pdf-toggle/kustomization.yml | kubectl apply -k -
+    - (cd kustomize/overlays/staging-pdf-toggle && IMAGE_TAG=${CI_COMMIT_SHORT_SHA} envsubst < kustomization.yml > kustomization.subst.yml && mv kustomization.subst.yml kustomization.yml && kubectl apply -k .)
 
     # Rollout deployments
     - kubectl rollout status deployment/${APPLICATION_NAME}-staging --timeout=600s
