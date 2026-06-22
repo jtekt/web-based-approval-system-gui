@@ -3,6 +3,7 @@ kind: Kustomization
 
 resources:
   - ../../base
+  - ./ingress.yml
 
 nameSuffix: -staging
 
@@ -16,7 +17,3 @@ images:
   - name: placeholder
     newName: ${CONTAINER_IMAGE}
     newTag: ${IMAGE_TAG}
-
-patches:
-  - path: secret-patch.yml
-  - path: ingress-patch.yml

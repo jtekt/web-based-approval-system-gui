@@ -3,6 +3,7 @@ kind: Kustomization
 
 resources:
   - ../../base
+  - ./ingress.yml
 
 nameSuffix: -staging-pdf-toggle
 
@@ -18,6 +19,4 @@ images:
     newTag: ${IMAGE_TAG}
 
 patches:
-  - path: secret-patch.yml
-  - path: ingress-patch.yml
   - path: env-patch.yml

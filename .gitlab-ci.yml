@@ -64,9 +64,6 @@ deploy_staging:
     - if: $CI_COMMIT_BRANCH == "staging"
     - when: never
   script:
-    # Sync the K8s secret from the env file
-    - kubectl create secret generic ${K8S_ENV_NAME_STAGING} --from-env-file=${STAGING_ENV} --dry-run=client -o yaml | kubectl apply -f -
-
     # Deploy staging
     - IMAGE_TAG=${CI_COMMIT_SHORT_SHA} envsubst < kustomize/overlays/staging/kustomization.yml | kubectl apply -k -
     # Deploy staging PDF
