@@ -1,0 +1,22 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+  - ./ingress.yml
+
+nameSuffix: -staging-pdf
+
+# Inject and update labels across resources, selectors, and service references
+labels:
+  - pairs:
+      app.kubernetes.io/name: ${APPLICATION_NAME}-staging-pdf
+    includeSelectors: true
+
+images:
+  - name: placeholder
+    newName: ${CONTAINER_IMAGE}
+    newTag: ${IMAGE_TAG}
+    
+patches:
+  - path: env-patch.yml

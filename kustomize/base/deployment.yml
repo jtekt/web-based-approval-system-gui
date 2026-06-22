@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shinsei-manager-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: shinsei-manager-frontend
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: shinsei-manager-frontend
+    spec:
+      containers:
+        - name: shinsei-manager-frontend
+          image: placeholder
+          ports:
+            - containerPort: 80
+          env:
+            - name: VITE_APPS_URL
+              value: https://apps.jtektrnd.net/
+
+            - name: VITE_SHINSEI_MANAGER_URL
+              value: https://approvals-api.jtektrnd.net
+
+            - name: VITE_EMPLOYEE_MANAGER_API_URL
+              value: https://employees-api.jtektrnd.net
+            - name: VITE_GROUP_MANAGER_API_URL
+              value: https://groups-api.jtektrnd.net
+            - name: VITE_EMPLOYEE_MANAGER_FRONT_URL
+              value: https://employees.jtektrnd.net
+
+            - name: VITE_LEGACY_LOGIN_URL
+              value: https://employees-api.jtektrnd.net/v3/auth/login
+            - name: VITE_LEGACY_IDENTIFICATION_URL
+              value: https://employees-api.jtektrnd.net/v3/users/self
+            - name: VITE_LEGACY_PASSWORD_RESET_URL
+              value: https://employees.jtektrnd.net/password_reset
+
+            - name: VITE_OIDC_AUTHORITY
+              value: https://keycloak.jtektrnd.net/realms/jtekt
+            - name: VITE_OIDC_CLIENT_ID
+              value: public
+
+      imagePullSecrets:
+        - name: ecr-credentials
