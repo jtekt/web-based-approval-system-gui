@@ -35,7 +35,7 @@ deploy:
     - when: never
   script:
     - IMAGE_TAG=${CI_COMMIT_TAG} envsubst < kustomize/overlays/prod/kustomization.yml | kubectl apply -k -
-    - kubectl rollout status deployment/shinsei --timeout=600s
+    - kubectl rollout status deployment/${APPLICATION_NAME} --timeout=600s
   environment:
     name: production
     kubernetes:
@@ -75,9 +75,9 @@ deploy_staging:
     - IMAGE_TAG=${CI_COMMIT_SHORT_SHA} envsubst < kustomize/overlays/staging-pdf-toggle/kustomization.yml | kubectl apply -k -
 
     # Rollout deployments
-    - kubectl rollout status deployment/shinsei-staging --timeout=600s
-    - kubectl rollout status deployment/shinsei-staging-pdf --timeout=600s
-    - kubectl rollout status deployment/shinsei-staging-pdf-toggle --timeout=600s
+    - kubectl rollout status deployment/${APPLICATION_NAME}-staging --timeout=600s
+    - kubectl rollout status deployment/${APPLICATION_NAME}-staging-pdf --timeout=600s
+    - kubectl rollout status deployment/${APPLICATION_NAME}-staging-pdf-toggle --timeout=600s
   environment:
     name: production
     kubernetes:
