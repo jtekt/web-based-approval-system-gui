@@ -48,7 +48,7 @@ build_staging:
     - if: $CI_COMMIT_BRANCH == "staging"
     - when: never
   before_script:
-    - aws ecr create-repository --repository-name ${APPLICATION_NAME_STAGING} || echo "Repository might have already existed"
+    - aws ecr create-repository --repository-name ${APPLICATION_NAME} || echo "Repository might have already existed"
   script:
     - docker build -t ${CONTAINER_IMAGE}:${CI_COMMIT_SHORT_SHA} .
     - docker push ${CONTAINER_IMAGE}:${CI_COMMIT_SHORT_SHA}
