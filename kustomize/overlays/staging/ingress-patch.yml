@@ -4,7 +4,7 @@ metadata:
   name: shinsei-manager-frontend
 spec:
   rules:
-    - host: shinsei-staging.jtektrnd.net
+    - host: approvals-staging.jtektrnd.net
       http:
         paths:
           - path: /
