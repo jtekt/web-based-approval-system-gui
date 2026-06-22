@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: shinsei-manager-frontend
+spec:
+  rules:
+    - host: shinsei-staging-pdf-toggle.jtektrnd.net
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: shinsei-manager-frontend
+                port:
+                  number: 80

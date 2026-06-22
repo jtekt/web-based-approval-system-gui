@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shinsei-manager-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: shinsei-manager-frontend
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: shinsei-manager-frontend
+    spec:
+      containers:
+        - name: shinsei-manager-frontend
+          image: placeholder
+          ports:
+            - containerPort: 80
+          envFrom:
+            - secretRef:
+                name: environment-variables
+      imagePullSecrets:
+        - name: ecr-credentials

@@ -4,17 +4,14 @@ stages:
 
 variables:
   APPLICATION_NAME: shinsei-manager-front
-  CONTAINER_IMAGE: ${AWS_ECR_PUBLIC_URL}/${APPLICATION_NAME}
-  CONTAINER_IMAGE_TAGGED: ${CONTAINER_IMAGE}:${CI_COMMIT_TAG}
+  CONTAINER_IMAGE: ${AWS_ECR_URL}/${APPLICATION_NAME}
 
-  # Staging envs
-  APPLICATION_NAME_STAGING: ${APPLICATION_NAME}-staging
-  CONTAINER_IMAGE_STAGING: ${AWS_ECR_URL}/${APPLICATION_NAME_STAGING}
-  CONTAINER_IMAGE_TAGGED_STAGING: ${CONTAINER_IMAGE_STAGING}:${CI_COMMIT_SHORT_SHA}
-  K8S_ENV_NAME_STAGING: ${APPLICATION_NAME_STAGING}-env
+  # Staging
+  K8S_ENV_NAME_STAGING: ${APPLICATION_NAME}-staging-env
 
-  K8S_NODEPORT: 32725
-  K8S_NODEPORT_LEGACY: 32723
+# --------
+# Production (git tag on master)
+# --------
 
 build:
   stage: build
@@ -24,20 +21,10 @@ build:
   tags:
     - dind
   before_script:
-    # Registry login
-    - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${AWS_ECR_PUBLIC_URL}
-    # Create repository in ECR if it does not exist yet
-    - >
-      aws ecr-public create-repository --region us-east-1 --repository-name ${APPLICATION_NAME}
-      || echo "Repository might have already existed"
+    - aws ecr create-repository --repository-name ${APPLICATION_NAME} || echo "Repository might have already existed"
   script:
-    # Building
-    - docker build -t ${CONTAINER_IMAGE} .
-    # Tagging
-    - docker tag ${CONTAINER_IMAGE} ${CONTAINER_IMAGE_TAGGED}
-    # Pushing
-    - docker push ${CONTAINER_IMAGE}
-    - docker push ${CONTAINER_IMAGE_TAGGED}
+    - docker build -t ${CONTAINER_IMAGE}:${CI_COMMIT_TAG} .
+    - docker push ${CONTAINER_IMAGE}:${CI_COMMIT_TAG}
 
 deploy:
   stage: deploy
@@ -47,14 +34,16 @@ deploy:
     - if: $CI_COMMIT_TAG
     - when: never
   script:
-    # create/update the deployment
-    - envsubst < kubernetes_manifest.yml | kubectl apply -f -
+    - IMAGE_TAG=${CI_COMMIT_TAG} envsubst < kustomize/overlays/prod/kustomization.yml | kubectl apply -k -
+    - kubectl rollout status deployment/shinsei --timeout=600s
   environment:
     name: production
     kubernetes:
       namespace: ${KUBERNETES_NAMESPACE}
 
-# STAGING (staging branch)
+# --------
+# Staging (staging branch)
+# --------
 
 build_staging:
   stage: build
@@ -62,12 +51,10 @@ build_staging:
     - if: $CI_COMMIT_BRANCH == "staging"
     - when: never
   before_script:
-    - >
-      aws ecr create-repository --repository-name ${APPLICATION_NAME_STAGING}
-      || echo "Repository might have already existed"
+    - aws ecr create-repository --repository-name ${APPLICATION_NAME_STAGING} || echo "Repository might have already existed"
   script:
-    - docker build -t ${CONTAINER_IMAGE_TAGGED_STAGING} .
-    - docker push ${CONTAINER_IMAGE_TAGGED_STAGING}
+    - docker build -t ${CONTAINER_IMAGE}:${CI_COMMIT_SHORT_SHA} .
+    - docker push ${CONTAINER_IMAGE}:${CI_COMMIT_SHORT_SHA}
 
 deploy_staging:
   stage: deploy
@@ -77,12 +64,20 @@ deploy_staging:
     - if: $CI_COMMIT_BRANCH == "staging"
     - when: never
   script:
-    # Create staging env
-    - kubectl create secret generic $K8S_ENV_NAME_STAGING --from-env-file=$STAGING_ENV --dry-run=client -o yaml | kubectl apply -f -
+    # Sync the K8s secret from the env file
+    - kubectl create secret generic ${K8S_ENV_NAME_STAGING} --from-env-file=${STAGING_ENV} --dry-run=client -o yaml | kubectl apply -f -
 
-    - envsubst < kubernetes_manifest_staging.yml | kubectl apply -f -
-      # Validate deployment rollout status
-    - kubectl rollout status deployment/$APPLICATION_NAME_STAGING --timeout=600s
+    # Deploy staging
+    - IMAGE_TAG=${CI_COMMIT_SHORT_SHA} envsubst < kustomize/overlays/staging/kustomization.yml | kubectl apply -k -
+    # Deploy staging PDF
+    - IMAGE_TAG=${CI_COMMIT_SHORT_SHA} envsubst < kustomize/overlays/staging-pdf/kustomization.yml | kubectl apply -k -
+    # Deploy staging PDF Toggle
+    - IMAGE_TAG=${CI_COMMIT_SHORT_SHA} envsubst < kustomize/overlays/staging-pdf-toggle/kustomization.yml | kubectl apply -k -
+
+    # Rollout deployments
+    - kubectl rollout status deployment/shinsei-staging --timeout=600s
+    - kubectl rollout status deployment/shinsei-staging-pdf --timeout=600s
+    - kubectl rollout status deployment/shinsei-staging-pdf-toggle --timeout=600s
   environment:
     name: production
     kubernetes:

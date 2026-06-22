@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: shinsei-manager-frontend
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: shinsei-manager-frontend
+  ports:
+    - port: 80
