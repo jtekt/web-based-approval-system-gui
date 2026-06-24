@@ -38,6 +38,5 @@ function deleteRecipient(index: number) {
 .flow_item {
   display: flex;
   align-items: center;
-  margin: 1em 0;
 }
 </style>

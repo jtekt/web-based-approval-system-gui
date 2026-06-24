@@ -6,10 +6,6 @@ const envSchema = z
       (v) => (v === '' ? undefined : v),
       z.stringbool().optional()
     ),
-    VITE_PDF_TOGGLE: z.preprocess(
-      (v) => (v === '' ? undefined : v),
-      z.stringbool().optional()
-    ),
 
     VITE_SHINSEI_MANAGER_URL: z.url().default('http://localhost:8000'),
 
@@ -24,18 +20,6 @@ const envSchema = z
     VITE_OIDC_AUTHORITY: z.string().optional(),
     VITE_OIDC_CLIENT_ID: z.string().optional(),
     VITE_OIDC_AUDIENCE: z.string().optional(),
-  })
-  .transform((data) => {
-    if (data.VITE_PDF_ONLY === true) {
-      console.log(
-        '[env] VITE_PDF_ONLY is true → forcing VITE_PDF_TOGGLE to false'
-      )
-      return {
-        ...data,
-        VITE_PDF_TOGGLE: false,
-      }
-    }
-    return data
   })
 
 export const env = envSchema.parse(import.meta.env)

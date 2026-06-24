@@ -54,7 +54,7 @@
             <template #append>
               <v-row
                 density="compact"
-                v-if="mode !== 'PDF' && isCurrentRecipientCurrentUser"
+                v-if="!env.VITE_PDF_ONLY && isCurrentRecipientCurrentUser"
               >
                 <v-col cols="auto">
                   <v-btn color="success" @click="openApproveDialog">
@@ -172,7 +172,7 @@ import { useToast } from '@jtekt/vue-feedback-kit'
 import WebHankoContainer from '@/components/application/WebHankoContainer.vue'
 import RecipientComment from '@/components/application/RecipientComment.vue'
 import { useRequiredEmail } from '@/composables/useRequiredEmail'
-import { useMode } from '@/composables/useMode'
+import { env } from '@/utils/env'
 
 const router = useRouter()
 const route = useRoute()
@@ -184,7 +184,6 @@ const {
   add: addRequiredEmail,
   remove: removeRequiredEmail,
 } = useRequiredEmail()
-const { mode } = useMode()
 
 const application = ref<Application | null>(null)
 const loading = ref(false)
@@ -269,7 +268,7 @@ async function getApplication() {
 
     application.value = data
 
-    if (mode.value === 'PDF' && Array.isArray(data.form_data)) {
+    if (env.VITE_PDF_ONLY && Array.isArray(data.form_data)) {
       const pdfField = data.form_data.find((f) => f.type === 'pdf' && f.value)
       if (pdfField) {
         const newId = String(pdfField.value)

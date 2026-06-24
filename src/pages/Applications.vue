@@ -39,14 +39,13 @@ import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import ApplicationListTable from '@/components/application_list/ApplicationListTable.vue'
-import { useMode } from '@/composables/useMode'
+import { env } from '@/utils/env';
 
 const props = defineProps<{ direction: string }>()
 
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
-const { mode } = useMode()
 
 const cardTitle = computed(() =>
   props.direction === 'submitted' ? t('Outbox') : t('Inbox')
@@ -82,7 +81,7 @@ const submittedTables = computed(() => [
     icon: 'mdi-progress-clock',
     headers: [
       { title: t('Date'), key: 'creation_date', sortable: false },
-      ...(mode.value === 'PDF'
+      ...(env.VITE_PDF_ONLY
         ? []
         : [{ title: t('Type'), key: 'type', sortable: false }]),
       { title: t('Title'), key: 'title', sortable: false },
@@ -100,7 +99,7 @@ const submittedTables = computed(() => [
     icon: 'mdi-close-circle-outline',
     headers: [
       { title: t('Date'), key: 'creation_date', sortable: false },
-      ...(mode.value === 'PDF'
+      ...(env.VITE_PDF_ONLY
         ? []
         : [{ title: t('Type'), key: 'type', sortable: false }]),
       { title: t('Title'), key: 'title', sortable: false },
@@ -118,7 +117,7 @@ const submittedTables = computed(() => [
     icon: 'mdi-check-circle-outline',
     headers: [
       { title: t('Date'), key: 'creation_date', sortable: false },
-      ...(mode.value === 'PDF'
+      ...(env.VITE_PDF_ONLY
         ? []
         : [{ title: t('Type'), key: 'type', sortable: false }]),
       { title: t('Title'), key: 'title', sortable: false },
@@ -133,7 +132,7 @@ const receivedTables = computed(() => [
     icon: 'mdi-progress-clock',
     headers: [
       { title: t('Date'), key: 'creation_date', sortable: false },
-      ...(mode.value === 'PDF'
+      ...(env.VITE_PDF_ONLY
         ? []
         : [{ title: t('Type'), key: 'type', sortable: false }]),
       { title: t('Title'), key: 'title', sortable: false },
@@ -146,7 +145,7 @@ const receivedTables = computed(() => [
     icon: 'mdi-close-circle-outline',
     headers: [
       { title: t('Date'), key: 'creation_date', sortable: false },
-      ...(mode.value === 'PDF'
+      ...(env.VITE_PDF_ONLY
         ? []
         : [{ title: t('Type'), key: 'type', sortable: false }]),
       { title: t('Title'), key: 'title', sortable: false },
@@ -159,7 +158,7 @@ const receivedTables = computed(() => [
     icon: 'mdi-check-circle-outline',
     headers: [
       { title: t('Date'), key: 'creation_date', sortable: false },
-      ...(mode.value === 'PDF'
+      ...(env.VITE_PDF_ONLY
         ? []
         : [{ title: t('Type'), key: 'type', sortable: false }]),
       { title: t('Title'), key: 'title', sortable: false },

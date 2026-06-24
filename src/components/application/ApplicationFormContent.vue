@@ -200,7 +200,6 @@ import UserChip from '@/components/UserChip.vue'
 import { env } from '@/utils/env'
 import { useAuth } from '@jtekt/vuetify-auth'
 import PrivacySettings from './PrivacySettings.vue'
-import { useMode } from '@/composables/useMode'
 import api from '@/api'
 
 const props = defineProps<{ modelValue: Application }>()
@@ -212,7 +211,6 @@ const emit = defineEmits<{
 const route = useRoute()
 const { formatDateNeo4j } = useDateUtils()
 const { session } = useAuth()
-const { mode } = useMode()
 
 const application = computed({
   get: () => props.modelValue,
@@ -246,7 +244,7 @@ const formData = computed<Field[]>(() => {
     parsed = fd
   }
 
-  if (mode.value !== 'PDF') return parsed
+  if (!env.VITE_PDF_ONLY) return parsed
 
   return parsed.filter((field) => field.type !== 'pdf')
 })

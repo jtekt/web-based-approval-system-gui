@@ -53,7 +53,7 @@ import { ApplicationSchema } from '@/schemas/application'
 import { PagedApplicationsSchema } from '@/schemas/common'
 import UserChip from '@/components/UserChip.vue'
 import api from '@/api'
-import { useMode } from '@/composables/useMode'
+import { env } from '@/utils/env'
 
 const props = defineProps<{
   direction: string
@@ -63,7 +63,6 @@ const props = defineProps<{
 const route = useRoute()
 const router = useRouter()
 const { formatDateNeo4j } = useDateUtils()
-const { mode } = useMode()
 
 const loading = ref(false)
 const applications = ref<Application[]>([])
@@ -85,7 +84,7 @@ const relationship_lookup: Record<string, string> = {
  * This is the ONLY place that triggers API calls
  */
 watch(
-  [options, () => route.query.state, () => props.direction, mode],
+  [options, () => route.query.state, () => props.direction],
   () => {
     get_applications()
   },
@@ -97,7 +96,7 @@ function get_applications() {
   error.value = null
 
   const state = route.query.state || 'pending'
-  const type = mode.value === 'PDF' ? 'PDF' : undefined
+  const type = env.VITE_PDF_ONLY ? 'PDF' : undefined
 
   const params = {
     start_index: (options.value.page - 1) * options.value.itemsPerPage,
