@@ -3,7 +3,7 @@ stages:
   - deploy
 
 variables:
-  APPLICATION_NAME: shinsei-manager-front
+  APPLICATION_NAME: shinsei-manager-frontend
   CONTAINER_IMAGE: ${AWS_ECR_URL}/${APPLICATION_NAME}
 
 # --------
