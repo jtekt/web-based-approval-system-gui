@@ -173,7 +173,7 @@
 
       <v-card-text>
         <UserPicker
-          class="max-h-[300px] overflow-auto"
+          style="max-height: 60vh"
           @selection="addToRecipients"
           :groupManagerApiUrl="GROUP_MANAGER_API_URL"
           :group-manager-front-url="VITE_EMPLOYEE_MANAGER_FRONT_URL"

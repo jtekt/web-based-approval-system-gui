@@ -21,7 +21,7 @@
       />
       <v-textarea
         v-else-if="field.type === 'text'"
-        rows="3"
+        rows="1"
         auto-grow
         :label="field.label"
         v-model="field.value"
