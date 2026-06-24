@@ -44,11 +44,11 @@ function emailButtonClicked() {
   // Remove required
   removeRequiredEmail(applicationId.value)
 
-  // if (submission) {
-  //   sendEmailToRecipient(props.user)
-  // } else {
-  //   sendEmailToApplicant()
-  // }
+  if (submission) {
+    sendEmailToRecipient(props.user)
+  } else {
+    sendEmailToApplicant()
+  }
 }
 
 function sendEmailToRecipient(recipient: Recipient) {
@@ -63,7 +63,7 @@ function sendEmailToApplicant() {
 async function markRecipientAsNotified(recipient: Recipient) {
   try {
     const recipientId = recipient._id
-    const url = `/applications/${applicationId}/recipients/${recipientId}/notifications`
+    const url = `/applications/${applicationId.value}/recipients/${recipientId}/notifications`
     await api.post(url)
     if (recipient.submission) {
       recipient.submission.notified = true
