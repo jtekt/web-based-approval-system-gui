@@ -61,19 +61,19 @@ deploy_staging:
     - if: $CI_COMMIT_BRANCH == "staging"
     - when: never
   script:
+    # Delete deployments first to handle immutable selector field
+    - kubectl delete deployment/${APPLICATION_NAME}-staging --ignore-not-found=true
+    - kubectl delete deployment/${APPLICATION_NAME}-staging-pdf --ignore-not-found=true
+
     # Deploy staging
     - (cd kustomize/overlays/staging && IMAGE_TAG=${CI_COMMIT_SHORT_SHA} envsubst < kustomization.yml > kustomization.subst.yml && mv kustomization.subst.yml kustomization.yml && kubectl apply -k .)
-    
+
     # Deploy staging PDF
     - (cd kustomize/overlays/staging-pdf && IMAGE_TAG=${CI_COMMIT_SHORT_SHA} envsubst < kustomization.yml > kustomization.subst.yml && mv kustomization.subst.yml kustomization.yml && kubectl apply -k .)
-    
-    # Deploy staging PDF Toggle
-    - (cd kustomize/overlays/staging-pdf-toggle && IMAGE_TAG=${CI_COMMIT_SHORT_SHA} envsubst < kustomization.yml > kustomization.subst.yml && mv kustomization.subst.yml kustomization.yml && kubectl apply -k .)
 
     # Rollout deployments
     - kubectl rollout status deployment/${APPLICATION_NAME}-staging --timeout=600s
     - kubectl rollout status deployment/${APPLICATION_NAME}-staging-pdf --timeout=600s
-    - kubectl rollout status deployment/${APPLICATION_NAME}-staging-pdf-toggle --timeout=600s
   environment:
     name: production
     kubernetes:
