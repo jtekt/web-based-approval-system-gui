@@ -61,10 +61,6 @@ deploy_staging:
     - if: $CI_COMMIT_BRANCH == "staging"
     - when: never
   script:
-    # Delete deployments first to handle immutable selector field
-    - kubectl delete deployment/${APPLICATION_NAME}-staging --ignore-not-found=true
-    - kubectl delete deployment/${APPLICATION_NAME}-staging-pdf --ignore-not-found=true
-
     # Deploy staging
     - (cd kustomize/overlays/staging && IMAGE_TAG=${CI_COMMIT_SHORT_SHA} envsubst < kustomization.yml > kustomization.subst.yml && mv kustomization.subst.yml kustomization.yml && kubectl apply -k .)
 
