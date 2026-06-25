@@ -21,7 +21,7 @@
                 v-model="applicationId"
               />
             </v-col>
-            <v-col cols="12" lg="6">
+            <v-col v-if="!env.VITE_PDF_ONLY" cols="12" lg="6">
               <v-combobox
                 :label="$t('Application type')"
                 :items="applicationTypes"
@@ -108,11 +108,9 @@ import api from '@/api'
 import type { Application, Group } from '@/types'
 import type { Neo4jDate } from '@/types'
 import { env } from '@/utils/env'
-import { useMode } from '@/composables/useMode'
 
 const { t } = useI18n()
 const router = useRouter()
-const { mode } = useMode()
 
 const loading = ref(false)
 const applications = ref<Application[]>([])
@@ -121,7 +119,7 @@ const page = ref(1)
 const itemsPerPage = ref(10)
 
 const applicationTypes = ref<string[]>([])
-const applicationType = ref<string | null>(null)
+const applicationType = ref<string | null>(env.VITE_PDF_ONLY ? "PDF" : null)
 const applicationId = ref<string | null>(null)
 const hankoId = ref<string | null>(null)
 const relationshipType = ref<string | null>(null)
@@ -178,7 +176,7 @@ function getApplications() {
     hanko_id: hankoId.value || undefined,
     application_id: applicationId.value || undefined,
     relationship: relationshipType.value || undefined,
-    type: mode.value === 'PDF' ? 'PDF' : applicationType.value || undefined,
+    type: applicationType.value || undefined,
     start_date: startDate.value || undefined,
     end_date: endDate.value || undefined,
     group_id: selectedGroup.value?._id || undefined,

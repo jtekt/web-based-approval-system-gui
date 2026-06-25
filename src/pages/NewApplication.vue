@@ -12,39 +12,36 @@
       </template>
 
       <template #text>
-        <template v-if="mode !== 'PDF'">
-          <!-- Copy mode -->
-          <v-row v-if="copy_of">
-            <v-col>
-              <v-text-field
-                :model-value="applicationForm?.label"
-                :label="$t('Type')"
-                :suffix="`(${$t('Resubmission of', { id: copy_of })})`"
-                readonly
-              />
-            </v-col>
+        <!-- Copy mode -->
+        <v-row v-if="copy_of">
+          <v-col>
+            <v-text-field
+              :model-value="applicationForm?.label"
+              :label="$t('Type')"
+              :suffix="`(${$t('Resubmission of', { id: copy_of })})`"
+              readonly
+            />
+          </v-col>
 
-            <v-col cols="auto">
-              <v-btn :to="{ name: 'new_application' }">
-                <v-icon start>mdi-restore</v-icon>
-                {{ $t('Start from scratch') }}
-              </v-btn>
-            </v-col>
-          </v-row>
+          <v-col cols="auto">
+            <v-btn :to="{ name: 'new_application' }">
+              <v-icon start>mdi-restore</v-icon>
+              {{ $t('Start from scratch') }}
+            </v-btn>
+          </v-col>
+        </v-row>
 
-          <!-- Normal mode -->
-          <v-row v-else>
-            <v-col>
-              <v-autocomplete
-                :items="applicationFormTemplates"
-                item-title="label"
-                return-object
-                v-model="applicationForm"
-                :label="$t('Type')"
-              />
-            </v-col>
-          </v-row>
-        </template>
+        <v-row v-if="!env.VITE_PDF_ONLY && !copy_of">
+          <v-col>
+            <v-autocomplete
+              :items="applicationFormTemplates"
+              item-title="label"
+              return-object
+              v-model="applicationForm"
+              :label="$t('Type')"
+            />
+          </v-col>
+        </v-row>
 
         <v-text-field v-model="title" :label="$t('Title')" />
 
@@ -96,7 +93,7 @@
 
         <template v-else>
           <NewApplicationTemplateDetails
-            v-if="mode !== 'PDF'"
+            v-if="!env.VITE_PDF_ONLY"
             :selected-form="applicationForm"
           />
           <NewApplicationFormData v-model="applicationForm.fields" />
@@ -219,7 +216,6 @@ import api from '@/api'
 import { useAuth } from '@jtekt/vuetify-auth'
 import { useToast } from '@jtekt/vue-feedback-kit'
 import { useRequiredEmail } from '@/composables/useRequiredEmail'
-import { useMode } from '@/composables/useMode'
 
 // ---- Setup ----
 
@@ -230,7 +226,6 @@ const { t } = useI18n()
 const { session } = useAuth()
 const toast = useToast()
 const { add: addRequiredEmail } = useRequiredEmail()
-const { mode } = useMode()
 
 const defaultPDFForm: Template = {
   label: 'pdf',
@@ -251,9 +246,7 @@ const defaultPDFForm: Template = {
 }
 
 const applicationFormTemplates = ref<Template[]>([])
-const applicationForm = ref<Template | null>(
-  mode.value === 'PDF' ? defaultPDFForm : null
-)
+const applicationForm = ref<Template | null>(null)
 
 const title = ref<string>('')
 const confidential = ref<boolean>(false)
@@ -281,8 +274,6 @@ const application_valid = computed<boolean>(() => {
 // ---- Methods ----
 
 async function getTemplates(): Promise<void> {
-  if (mode.value === 'PDF') return
-
   try {
     const { data } = await api.get<Template[]>('/templates')
     applicationFormTemplates.value = data
@@ -306,7 +297,7 @@ async function submit(): Promise<void> {
     const group_ids = groups.value.map((g) => g._id || g.properties?._id)
     const form_data = applicationForm.value?.fields
 
-    const type = mode.value === 'PDF' ? 'PDF' : applicationForm.value?.label
+    const type = env.VITE_PDF_ONLY ? 'PDF' : applicationForm.value?.label
 
     const body = {
       title: title.value,
@@ -375,6 +366,18 @@ async function recreateApplicationContent(): Promise<void> {
       `/applications/${copy_of.value}`
     )
 
+    // Validate data type
+    if (env.VITE_PDF_ONLY && data.type.toLowerCase() !== 'pdf') {
+      const query = { ...route.query }
+      delete query.copy_of
+
+      await router.replace({ query })
+
+      resetForm()
+
+      return
+    }
+
     title.value = data.title
     confidential.value = !!data.private
 
@@ -397,8 +400,8 @@ async function recreateApplicationContent(): Promise<void> {
       .sort((a, b) => a.submission.flow_index - b.submission.flow_index)
 
     applicationForm.value = {
-      label: mode.value === 'PDF' ? 'pdf' : data.type,
-      fields: mode.value === 'PDF' ? [] : parseFormData(data.form_data),
+      label: data.type,
+      fields: parseFormData(data.form_data),
       managers: [],
       groups: data.visibility || [],
     }
@@ -407,19 +410,34 @@ async function recreateApplicationContent(): Promise<void> {
   }
 }
 
+function resetForm() {
+  title.value = ''
+  groups.value = []
+  recipients.value = getRecipientsFromLocalStorage()
+
+  applicationForm.value = env.VITE_PDF_ONLY
+    ? structuredClone(defaultPDFForm)
+    : null
+}
+
 // ---- Lifecycle ----
 
 onMounted(async () => {
+  if (env.VITE_PDF_ONLY) return
   await getTemplates()
-  if (copy_of.value) await recreateApplicationContent()
 })
 
-watch(copy_of, (val) => {
-  if (!val) {
-    applicationForm.value = null
-    groups.value = []
-    recipients.value = getRecipientsFromLocalStorage()
-    title.value = ''
-  }
-})
+watch(
+  () => copy_of.value,
+  async (newCopyOf) => {
+    if (!newCopyOf) {
+      // Set the new form
+      applicationForm.value = env.VITE_PDF_ONLY ? defaultPDFForm : null
+      return
+    }
+
+    await recreateApplicationContent()
+  },
+  { immediate: true }
+)
 </script>

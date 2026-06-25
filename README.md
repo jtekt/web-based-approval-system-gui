@@ -17,7 +17,6 @@ Thus, the validity of those seals can be verified even if those are included in 
 | Variable                        | Description                                         |
 | ------------------------------- | --------------------------------------------------- |
 | VITE_PDF_ONLY                   | Enables PDF-only mode                               |
-| VITE_PDF_TOGGLE                 | Enables PDF toggle feature                          |
 | VITE_SHINSEI_MANAGER_URL        | URL of the Shinsei-manager API                      |
 | VITE_GROUP_MANAGER_API_URL      | URL of the group management service API             |
 | VITE_EMPLOYEE_MANAGER_API_URL   | URL of the employee management service API          |

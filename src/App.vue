@@ -7,10 +7,6 @@
       <v-app-bar-title>申請マネージャー</v-app-bar-title>
 
       <template #append>
-        <div v-if="!route.meta.public" class="mr-2">
-          <ModeToggle />
-        </div>
-
         <LocaleSelector />
 
         <ThemeToggle />
@@ -59,9 +55,8 @@ import { useI18n } from 'vue-i18n'
 import LocaleSelector from '@/components/LocaleSelector.vue'
 import api from './api'
 import ThemeToggle from './components/ThemeToggle.vue'
-import { useMode } from './composables/useMode'
-import ModeToggle from './components/ModeToggle.vue'
 import { useAuth } from '@jtekt/vuetify-auth'
+import { env } from './utils/env.ts'
 
 const { VITE_APPS_URL } = import.meta.env
 
@@ -70,7 +65,6 @@ const { session, logout, isLoading } = useAuth()
 const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
-const { mode } = useMode()
 
 const drawer = ref(false)
 
@@ -120,7 +114,7 @@ const navItems = computed(() => [
     to: { name: 'search' },
     icon: 'mdi-magnify',
   },
-  ...(mode.value === 'PDF'
+  ...(env.VITE_PDF_ONLY
     ? []
     : [
         {
@@ -149,7 +143,7 @@ async function fetchReceivedApplications() {
       state: 'pending',
     }
 
-    if (mode.value === 'PDF') {
+    if (env.VITE_PDF_ONLY) {
       params.type = 'PDF'
     }
 
@@ -166,7 +160,7 @@ async function fetchReceivedApplications() {
   }
 }
 
-watch([mode, session, route], ([_, session, routeMeta]) => {
+watch([session, route], ([session, routeMeta]) => {
   const isPublic = routeMeta.meta?.public
   if (!session || isPublic) {
     receivedApplications.value = 0
