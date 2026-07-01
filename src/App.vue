@@ -4,14 +4,14 @@
     <v-app-bar color="black">
       <v-app-bar-nav-icon v-if="!route.meta.public" @click="drawer = !drawer" />
 
-      <v-app-bar-title>申請マネージャー</v-app-bar-title>
+      <v-app-bar-title>{{ env.VITE_APP_TITLE }}</v-app-bar-title>
 
       <template #append>
         <LocaleSelector />
 
         <ThemeToggle />
 
-        <v-btn v-if="VITE_APPS_URL" :href="VITE_APPS_URL" icon="mdi-apps" />
+        <v-btn v-if="env.VITE_APPS_URL" :href="env.VITE_APPS_URL" icon="mdi-apps" />
 
         <v-btn
           v-if="!route.meta.public"
@@ -57,8 +57,6 @@ import api from './api'
 import ThemeToggle from './components/ThemeToggle.vue'
 import { useAuth } from '@jtekt/vuetify-auth'
 import { env } from './utils/env.ts'
-
-const { VITE_APPS_URL } = import.meta.env
 
 const { session, logout, isLoading } = useAuth()
 

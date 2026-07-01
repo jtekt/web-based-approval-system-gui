@@ -2,10 +2,14 @@ import { z } from 'zod'
 
 const envSchema = z
   .object({
+    VITE_APPS_URL: z.string().optional(),
+    
     VITE_PDF_ONLY: z.preprocess(
       (v) => (v === '' ? undefined : v),
       z.stringbool().optional()
     ),
+
+    VITE_APP_TITLE: z.string().optional().default("申請マネージャー"),
 
     VITE_SHINSEI_MANAGER_URL: z.url().default('http://localhost:8000'),
 
