@@ -9,7 +9,7 @@ do
   echo "Processing $file ...";
 
   sed -i 's|VITE_APPS_URL_PLACEHOLDER|'${VITE_APPS_URL}'|g' $file
-  sed -i 's|VITE_APP_TITLE_PLACEHOLDER|'${VITE_APP_TITLE}'|g' $file
+  sed -i "s|VITE_APP_TITLE_PLACEHOLDER|$VITE_APP_TITLE|g" "$file"
 
   sed -i 's|VITE_PDF_ONLY_PLACEHOLDER|'${VITE_PDF_ONLY}'|g' $file
 
