@@ -22,7 +22,7 @@ spec:
               value: https://apps.jtektrnd.net/
 
             - name: VITE_APP_TITLE
-              value: "申請マネージャー"
+              value: Shinsei Manager
 
             - name: VITE_SHINSEI_MANAGER_URL
               value: https://approvals-api.jtektrnd.net
