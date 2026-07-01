@@ -17,3 +17,6 @@ images:
   - name: placeholder
     newName: ${CONTAINER_IMAGE}
     newTag: ${IMAGE_TAG}
+
+patches:
+  - path: env-patch.yml
