@@ -9,4 +9,4 @@ spec:
         - name: shinsei-manager-frontend
           env:
             - name: VITE_APP_TITLE
-              value: Shinsei Manager (staging)
+              value: 申請マネージャー (staging)
