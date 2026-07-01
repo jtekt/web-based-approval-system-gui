@@ -10,3 +10,5 @@ spec:
           env:
             - name: VITE_PDF_ONLY
               value: "true"
+            - name: VITE_APP_TITLE
+              value: "電子捺印システム"
