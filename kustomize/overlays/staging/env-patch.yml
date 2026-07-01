@@ -8,7 +8,5 @@ spec:
       containers:
         - name: shinsei-manager-frontend
           env:
-            - name: VITE_PDF_ONLY
-              value: "true"
             - name: VITE_APP_TITLE
-              value: "電子捺印システム (staging)"
+              value: "申請マネージャ (staging)"
