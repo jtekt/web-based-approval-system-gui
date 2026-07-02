@@ -1,6 +1,6 @@
 import type { App } from 'vue'
 import vuetify from './vuetify'
-import i18n from './i18n'
+import { i18n } from './i18n'
 import router from '@/router'
 import { createAuthPlugin } from '@jtekt/vuetify-auth'
 import { createUI } from '@jtekt/vue-feedback-kit'
