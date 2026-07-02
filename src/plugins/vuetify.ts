@@ -1,6 +1,9 @@
 import { createVuetify } from 'vuetify'
 import '@mdi/font/css/materialdesignicons.css'
 import 'vuetify/styles'
+import { createVueI18nAdapter } from 'vuetify/locale/adapters/vue-i18n'
+import {  useI18n } from 'vue-i18n'
+import { i18n } from './i18n'
 
 const savedTheme = localStorage.getItem('theme') ?? 'light'
 
@@ -49,5 +52,8 @@ export default createVuetify({
         },
       },
     },
+  },
+  locale: {
+    adapter: createVueI18nAdapter({ i18n, useI18n }),
   },
 })
