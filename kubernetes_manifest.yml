@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-    name: shinsei-manager-front
+    name: shinsei-manager-front-vue2
 spec:
     replicas: 1
     selector:
         matchLabels:
-            app: shinsei-manager-front
+            app: shinsei-manager-front-vue2
     template:
         metadata:
             labels:
-                app: shinsei-manager-front
+                app: shinsei-manager-front-vue2
         spec:
             containers:
-                - name: shinsei-manager-front
+                - name: shinsei-manager-front-vue2
                   image: ${CONTAINER_IMAGE_TAGGED}
                   ports:
                       - containerPort: 80
@@ -28,7 +28,7 @@ metadata:
 spec:
     type: NodePort
     selector:
-        app: shinsei-manager-front
+        app: shinsei-manager-front-vue2
     ports:
         - port: 80
           nodePort: 32725
@@ -41,7 +41,7 @@ metadata:
 spec:
     type: NodePort
     selector:
-        app: shinsei-manager-front
+        app: shinsei-manager-front-vue2
     ports:
         - port: 80
           nodePort: 32723
