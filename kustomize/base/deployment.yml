@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: shinsei-manager-frontend
+  name: shinsei-manager-front
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: shinsei-manager-frontend
+      app.kubernetes.io/name: shinsei-manager-front
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: shinsei-manager-frontend
+        app.kubernetes.io/name: shinsei-manager-front
     spec:
       containers:
-        - name: shinsei-manager-frontend
+        - name: shinsei-manager-front
           image: placeholder
           ports:
             - containerPort: 80

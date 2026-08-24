@@ -3,8 +3,8 @@ stages:
   - deploy
 
 variables:
-  APPLICATION_NAME: shinsei-manager-frontend
-  CONTAINER_IMAGE: ${AWS_ECR_URL}/${APPLICATION_NAME}
+  APPLICATION_NAME: shinsei-manager-front
+  CONTAINER_IMAGE: ${AWS_ECR_PUBLIC_URL}/${APPLICATION_NAME}
 
 # --------
 # Production (git tag on master)
@@ -18,7 +18,7 @@ build:
   tags:
     - dind
   before_script:
-    - aws ecr create-repository --repository-name ${APPLICATION_NAME} || echo "Repository might have already existed"
+    - aws ecr-public create-repository --repository-name ${APPLICATION_NAME} || echo "Repository might have already existed"
   script:
     - docker build -t ${CONTAINER_IMAGE}:${CI_COMMIT_TAG} .
     - docker push ${CONTAINER_IMAGE}:${CI_COMMIT_TAG}
@@ -48,7 +48,7 @@ build_staging:
     - if: $CI_COMMIT_BRANCH == "staging"
     - when: never
   before_script:
-    - aws ecr create-repository --repository-name ${APPLICATION_NAME} || echo "Repository might have already existed"
+    - aws ecr-public create-repository --repository-name ${APPLICATION_NAME} || echo "Repository might have already existed"
   script:
     - docker build -t ${CONTAINER_IMAGE}:${CI_COMMIT_SHORT_SHA} .
     - docker push ${CONTAINER_IMAGE}:${CI_COMMIT_SHORT_SHA}

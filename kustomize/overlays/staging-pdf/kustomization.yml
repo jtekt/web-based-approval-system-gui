@@ -10,7 +10,7 @@ nameSuffix: -staging-pdf
 # Inject and update labels across resources, selectors, and service references
 labels:
   - pairs:
-      app.kubernetes.io/name: ${APPLICATION_NAME}-staging-pdf
+      app.kubernetes.io/name: shinsei-manager-front-staging-pdf
     includeSelectors: true
 
 images:
