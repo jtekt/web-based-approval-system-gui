@@ -5,18 +5,18 @@ resources:
   - ../../base
   - ./ingress.yml
 
-nameSuffix: -staging-pdf
+nameSuffix: -pdf-staging
 
 # Inject and update labels across resources, selectors, and service references
 labels:
   - pairs:
-      app.kubernetes.io/name: ${APPLICATION_NAME}-staging-pdf
+      app.kubernetes.io/name: shinsei-manager-front-pdf-staging
     includeSelectors: true
 
 images:
   - name: placeholder
     newName: ${CONTAINER_IMAGE}
     newTag: ${IMAGE_TAG}
-    
+
 patches:
   - path: env-patch.yml

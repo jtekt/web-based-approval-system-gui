@@ -1,16 +1,16 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: shinsei-manager-frontend
+  name: shinsei-manager-front
 spec:
   rules:
-    - host: approvals-staging-pdf.jtektrnd.net
+    - host: approvals-pdf-staging.jtektrnd.net
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: shinsei-manager-frontend
+                name: shinsei-manager-front
                 port:
                   number: 80
