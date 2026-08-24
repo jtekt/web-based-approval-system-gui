@@ -65,11 +65,11 @@ deploy_staging:
     - (cd kustomize/overlays/staging && IMAGE_TAG=${CI_COMMIT_SHORT_SHA} envsubst < kustomization.yml > kustomization.subst.yml && mv kustomization.subst.yml kustomization.yml && kubectl apply -k .)
 
     # Deploy staging PDF
-    - (cd kustomize/overlays/staging-pdf && IMAGE_TAG=${CI_COMMIT_SHORT_SHA} envsubst < kustomization.yml > kustomization.subst.yml && mv kustomization.subst.yml kustomization.yml && kubectl apply -k .)
+    - (cd kustomize/overlays/pdf-staging && IMAGE_TAG=${CI_COMMIT_SHORT_SHA} envsubst < kustomization.yml > kustomization.subst.yml && mv kustomization.subst.yml kustomization.yml && kubectl apply -k .)
 
     # Rollout deployments
     - kubectl rollout status deployment/${APPLICATION_NAME}-staging --timeout=600s
-    - kubectl rollout status deployment/${APPLICATION_NAME}-staging-pdf --timeout=600s
+    - kubectl rollout status deployment/${APPLICATION_NAME}-pdf-staging --timeout=600s
   environment:
     name: production
     kubernetes:
