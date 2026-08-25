@@ -31,4 +31,4 @@ spec:
         app: shinsei-manager-front-vue2
     ports:
         - port: 80
-          nodePort: 32726
+          nodePort: 32725
