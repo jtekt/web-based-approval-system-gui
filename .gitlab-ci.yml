@@ -36,7 +36,10 @@ deploy:
 
     # Deploy production PDF
     - (cd kustomize/overlays/pdf-prod && IMAGE_TAG=${CI_COMMIT_TAG} envsubst < kustomization.yml > kustomization.subst.yml && mv kustomization.subst.yml kustomization.yml && kubectl apply -k .)
+
+    # Rollout deployments
     - kubectl rollout status deployment/${APPLICATION_NAME} --timeout=600s
+    - kubectl rollout status deployment/${APPLICATION_NAME}-pdf --timeout=600s
   environment:
     name: production
     kubernetes:

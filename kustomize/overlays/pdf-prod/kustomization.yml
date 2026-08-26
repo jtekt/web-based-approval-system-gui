@@ -5,6 +5,8 @@ resources:
   - ../../base
   - ./ingress.yml
 
+nameSuffix: -pdf
+
 labels:
   - pairs:
       app.kubernetes.io/name: shinsei-manager-front-pdf
