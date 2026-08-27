@@ -31,14 +31,14 @@ deploy:
     - if: $CI_COMMIT_TAG
     - when: never
   variables:
-    MODE: prod
+    ENVIRONMENT: prod
     IMAGE_TAG: ${CI_COMMIT_TAG}
   script:
     # Deploy production
-    - kubectl kustomize kustomize/overlays/${MODE} | envsubst | kubectl apply -f -
+    - kubectl kustomize kustomize/overlays/${ENVIRONMENT} | envsubst | kubectl apply -f -
 
     # Deploy production PDF
-    - kubectl kustomize kustomize/overlays/pdf-${MODE} | envsubst | kubectl apply -f -
+    - kubectl kustomize kustomize/overlays/pdf-${ENVIRONMENT} | envsubst | kubectl apply -f -
 
     # Rollout deployments
     - kubectl rollout status deployment/${APPLICATION_NAME} --timeout=600s
@@ -71,14 +71,14 @@ deploy_staging:
     - if: $CI_COMMIT_BRANCH == "staging"
     - when: never
   variables:
-    MODE: staging
+    ENVIRONMENT: staging
     IMAGE_TAG: ${CI_COMMIT_SHORT_SHA}
   script:
     # Deploy staging
-    - kubectl kustomize kustomize/overlays/${MODE} | envsubst | kubectl apply -f -
+    - kubectl kustomize kustomize/overlays/${ENVIRONMENT} | envsubst | kubectl apply -f -
 
     # Deploy staging PDF
-    - kubectl kustomize kustomize/overlays/pdf-${MODE} | envsubst | kubectl apply -f -
+    - kubectl kustomize kustomize/overlays/pdf-${ENVIRONMENT} | envsubst | kubectl apply -f -
 
     # Rollout deployments
     - kubectl rollout status deployment/${APPLICATION_NAME}-staging --timeout=600s
