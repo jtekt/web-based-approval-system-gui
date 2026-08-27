@@ -15,7 +15,6 @@ build:
     - if: $CI_COMMIT_BRANCH == "staging"
       variables:
         IMAGE_TAG: ${CI_COMMIT_SHORT_SHA}
-    - when: never
   tags:
     - dind
   before_script:
@@ -33,18 +32,13 @@ deploy:
       variables:
         ENVIRONMENT: prod
         IMAGE_TAG: ${CI_COMMIT_TAG}
-        NAME_SUFFIX: ""
     - if: $CI_COMMIT_BRANCH == "staging"
       variables:
         ENVIRONMENT: staging
         IMAGE_TAG: ${CI_COMMIT_SHORT_SHA}
-        NAME_SUFFIX: -staging
-    - when: never
   script:
     - kubectl kustomize kustomize/overlays/${ENVIRONMENT} | envsubst | kubectl apply -f -
     - kubectl kustomize kustomize/overlays/pdf-${ENVIRONMENT} | envsubst | kubectl apply -f -
-    - kubectl rollout status deployment/${APPLICATION_NAME}${NAME_SUFFIX} --timeout=600s
-    - kubectl rollout status deployment/${APPLICATION_NAME}-pdf${NAME_SUFFIX} --timeout=600s
   environment:
     name: production
     kubernetes:
