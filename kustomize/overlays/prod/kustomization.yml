@@ -1,8 +1,3 @@
 resources:
   - ../../base
   - ./ingress.yml
-
-images:
-  - name: placeholder
-    newName: ${CONTAINER_IMAGE}
-    newTag: ${IMAGE_TAG}

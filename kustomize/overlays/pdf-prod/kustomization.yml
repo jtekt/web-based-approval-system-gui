@@ -9,10 +9,5 @@ labels:
       app.kubernetes.io/name: shinsei-manager-front-pdf
     includeSelectors: true
 
-images:
-  - name: placeholder
-    newName: ${CONTAINER_IMAGE}
-    newTag: ${IMAGE_TAG}
-
 patches:
   - path: env-patch.yml
