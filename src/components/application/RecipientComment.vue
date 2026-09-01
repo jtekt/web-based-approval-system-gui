@@ -1,122 +1,143 @@
 <template>
-  <v-list-item two-line>
-    <template v-if="decision">
-      <v-list-item-content>
-        <v-list-item-subtitle>{{
-          recipient.display_name
-        }}</v-list-item-subtitle>
-        <v-list-item-title>
-          <v-textarea
-            ref="commentTextArea"
-            v-if="editing"
-            outlined
-            auto-grow
-            dense
-            :rows="1"
-            v-model="new_comment"
-          />
-          <v-textarea
-            v-else
-            solo
-            flat
-            readonly
-            auto-grow
-            dense
-            :rows="1"
-            :value="recipient_comment"
-          />
-        </v-list-item-title>
-      </v-list-item-content>
+  <v-card v-if="decision" variant="flat">
+    <v-card-text>
+      <v-row align="start" justify="space-between">
+        <!-- LEFT SIDE -->
+        <v-col>
+          <!-- NAME -->
+          <div class="text-body-large text-medium-emphasis">
+            {{ recipient.display_name ?? '' }}
+          </div>
 
-      <v-list-item-icon v-if="recipient_is_user">
-        <template v-if="editing">
-          <v-btn @click="disable_editing()" icon>
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
-          <v-btn :loading="loading" @click="update_comment()" icon>
-            <v-icon>mdi-content-save</v-icon>
-          </v-btn>
-        </template>
+          <!-- EDIT MODE -->
+          <template v-if="editing">
+            <v-textarea
+              ref="commentTextArea"
+              v-model="newComment"
+              variant="outlined"
+              auto-grow
+              density="compact"
+              :rows="2"
+              hide-details
+              @keydown.enter.ctrl.prevent="updateComment"
+              @keydown.esc="disableEditing"
+            />
+          </template>
 
-        <v-btn v-if="!editing" @click="enable_editing()" icon>
-          <v-icon>mdi-pencil</v-icon>
-        </v-btn>
-      </v-list-item-icon>
-    </template>
-  </v-list-item>
+          <!-- VIEW MODE -->
+          <template v-else>
+            <div
+              class="text-body-2"
+              :class="{ 'text-disabled': !hasComment }"
+              style="white-space: pre-wrap"
+            >
+              {{ hasComment ? recipientComment : t('No comment') }}
+            </div>
+          </template>
+        </v-col>
+
+        <!-- ACTIONS -->
+        <v-col cols="auto">
+          <v-row v-if="editing" gap="4">
+            <v-btn
+              icon="mdi-content-save"
+              size="small"
+              :loading="loading"
+              :disabled="!isDirty"
+              @click="updateComment"
+            />
+            <v-btn icon="mdi-close" size="small" @click="disableEditing" />
+          </v-row>
+
+          <template v-else>
+            <v-btn
+              v-if="recipientIsUser"
+              icon="mdi-pencil"
+              size="small"
+              variant="text"
+              @click="enableEditing"
+            />
+          </template>
+        </v-col>
+      </v-row>
+    </v-card-text>
+  </v-card>
 </template>
 
-<script>
-import IdUtils from "@/mixins/IdUtils.js"
+<script setup lang="ts">
+import { ref, computed, nextTick } from 'vue'
+import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import api from '@/api'
+import { useAuth } from '@jtekt/vuetify-auth'
+import { useToast } from '@jtekt/vue-feedback-kit'
+import type { Recipient } from '@/types'
 
-export default {
-  name: "ApprovalComment",
-  props: {
-    recipient: Object,
-  },
-  mixins: [IdUtils],
-  data() {
-    return {
-      editing: false,
-      loading: false,
-      new_comment: "",
-    }
-  },
-  methods: {
-    enable_editing() {
-      if (!this.recipient_is_user) return
-      this.new_comment = this.recipient_comment || ""
-      this.editing = true
-      setTimeout(() => {
-        this.$refs.commentTextArea.focus()
-      }, 10)
-    },
-    disable_editing() {
-      this.editing = false
-    },
-    update_comment() {
-      if (!this.recipient_is_user) return
-      this.loading = true
-      const url = `/applications/${this.application_id}/comment`
-      const body = { comment: this.new_comment || "No comment" }
-      this.axios
-        .put(url, body)
-        .then(() => {
-          this.disable_editing()
-          this.$emit("comment_updated")
-        })
-        .catch((error) => {
-          alert("Edit failed")
-          if (error.response) console.error(error.response.data)
-          else console.error(error)
-        })
-        .finally(() => {
-          this.loading = false
-        })
-    },
-  },
-  computed: {
-    application_id() {
-      return this.$route.params.application_id
-    },
-    recipient_is_user() {
-      if (!this.recipient) return false
+const props = defineProps<{ recipient: Recipient }>()
+const emit = defineEmits<{ comment_updated: [] }>()
 
-      return this.users_match(
-        this.recipient,
-        this.$store.state.current_user
-      )
-    },
-    decision() {
-      return this.recipient.approval || this.recipient.refusal
-    },
+const { t } = useI18n()
+const route = useRoute()
+const { session } = useAuth()
+const toast = useToast()
 
-    recipient_comment() {
-      if (!this.decision) return null
-      return this.decision.comment || this.$t("No comment")
-    },
-  },
+const editing = ref(false)
+const loading = ref(false)
+const newComment = ref('')
+const commentTextArea = ref<HTMLTextAreaElement | null>(null)
+
+const applicationId = computed(() => route.params.application_id as string)
+
+const decision = computed(
+  () => props.recipient.approval ?? props.recipient.refusal
+)
+
+const recipientIsUser = computed(() => {
+  return !!session.value?.user && props.recipient._id === session.value.user.id
+})
+
+const recipientComment = computed(() => {
+  return decision.value?.comment ?? ''
+})
+
+const hasComment = computed(() => recipientComment.value.trim().length > 0)
+
+const isDirty = computed(() => newComment.value !== recipientComment.value)
+
+function enableEditing() {
+  if (!recipientIsUser.value) return
+
+  newComment.value = recipientComment.value
+  editing.value = true
+
+  nextTick(() => {
+    commentTextArea.value?.focus()
+  })
+}
+
+function disableEditing() {
+  editing.value = false
+  newComment.value = recipientComment.value
+}
+
+async function updateComment() {
+  if (!recipientIsUser.value || !isDirty.value) return
+
+  loading.value = true
+  try {
+    const url = `/applications/${applicationId.value}/comment`
+
+    await api.put(url, {
+      comment: newComment.value.trim() || null, // ✅ send null, not "No comment"
+    })
+
+    editing.value = false
+    emit('comment_updated')
+  } catch (error) {
+    toast.error(t('Edit failed'))
+    console.error(error)
+  } finally {
+    loading.value = false
+  }
 }
 </script>
-
-<style scoped></style>

@@ -1,0 +1,14 @@
+resources:
+  - ../../base
+  - ./ingress.yml
+
+nameSuffix: -pdf-staging
+
+# Inject and update labels across resources, selectors, and service references
+labels:
+  - pairs:
+      app.kubernetes.io/name: shinsei-manager-front-pdf-staging
+    includeSelectors: true
+
+patches:
+  - path: env-patch.yml

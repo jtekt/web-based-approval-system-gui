@@ -1,0 +1,29 @@
+import { z } from 'zod'
+
+const envSchema = z
+  .object({
+    VITE_APPS_URL: z.string().optional(),
+    
+    VITE_PDF_ONLY: z.preprocess(
+      (v) => (v === '' ? undefined : v),
+      z.stringbool().optional()
+    ),
+
+    VITE_APP_TITLE: z.string().optional().default("申請マネージャー"),
+
+    VITE_SHINSEI_MANAGER_URL: z.url().default('http://localhost:8000'),
+
+    VITE_EMPLOYEE_MANAGER_API_URL: z.url(),
+    VITE_GROUP_MANAGER_API_URL: z.url(),
+    VITE_EMPLOYEE_MANAGER_FRONT_URL: z.url(),
+
+    VITE_LEGACY_LOGIN_URL: z.string().optional(),
+    VITE_LEGACY_IDENTIFICATION_URL: z.string().optional(),
+    VITE_LEGACY_PASSWORD_RESET_URL: z.string().optional(),
+
+    VITE_OIDC_AUTHORITY: z.string().optional(),
+    VITE_OIDC_CLIENT_ID: z.string().optional(),
+    VITE_OIDC_AUDIENCE: z.string().optional(),
+  })
+
+export const env = envSchema.parse(import.meta.env)

@@ -5,7 +5,6 @@ The application aims at replacing ハンコ (Hanko) - personal seals used to app
 
 In this GUI, this digital equivalent proof of approval takes the form of the following virtual seal, named web hanko:
 
-
 <p align="center">
   <img width="100" height="150" src="./docs/web_hanko.png">
 </p>
@@ -15,9 +14,17 @@ Thus, the validity of those seals can be verified even if those are included in 
 
 ## Environment variables
 
-| Variable  | Description |
-| ---  | --- |
-| VUE_APP_SHINSEI_MANAGER_URL  | URL of the Shinsei-manager API |
-| VUE_APP_LOGIN_URL | URL used for user login |
-| VUE_APP_IDENTIFICATION_URL | URL used to identify users |
-| VUE_APP_GROUP_MANAGER_API_URL | URL of the group management service API |
+| Variable                        | Description                                         |
+| ------------------------------- | --------------------------------------------------- |
+| VITE_PDF_ONLY                   | Enables PDF-only mode                               |
+| VITE_SHINSEI_MANAGER_URL        | URL of the Shinsei-manager API                      |
+| VITE_GROUP_MANAGER_API_URL      | URL of the group management service API             |
+| VITE_EMPLOYEE_MANAGER_API_URL   | URL of the employee management service API          |
+| VITE_EMPLOYEE_MANAGER_FRONT_URL | URL of the employee management frontend             |
+| VITE_LOGIN_URL                  | URL used for user login                             |
+| VITE_IDENTIFICATION_URL         | URL used to identify users                          |
+| VITE_PASSWORD_RESET_URL         | URL used for password reset                         |
+| VITE_LOGIN_HINT                 | Default login hint value for authentication         |
+| VITE_OIDC_AUTHORITY             | OIDC provider authority URL                         |
+| VITE_OIDC_CLIENT_ID             | OIDC client ID                                      |
+| VITE_OIDC_AUDIENCE              | OIDC audience identifier                            |
