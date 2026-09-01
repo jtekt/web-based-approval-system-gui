@@ -1,73 +1,50 @@
 <template>
-
-  <v-menu
-    ref="menu"
-    v-model="menu"
-    :close-on-content-click="false"
-    :return-value.sync="date"
-    transition="scale-transition"
-    offset-y
-    min-width="auto" >
-
-    <template v-slot:activator="{ on, attrs }">
-      <v-text-field
-        v-model="date"
-        :label="label"
-        prepend-icon="mdi-calendar"
-        readonly
-        v-bind="attrs"
-        v-on="on"
-        clearable/>
-    </template>
-
-    <v-date-picker
-      v-model="date"
-      no-title
-      scrollable
-      v-on:input="date_selected($event)">
-      <v-spacer />
-      <v-btn
-        text
-        color="primary"
-        @click="menu = false" >
-        Cancel
-      </v-btn>
-    </v-date-picker>
-
-  </v-menu>
+  <v-text-field
+    v-model="date"
+    :label="label"
+    prepend-icon="mdi-calendar"
+    readonly
+    clearable
+    @click="menu = true"
+  >
+    <v-menu v-model="menu" activator="parent" :close-on-content-click="false">
+      <v-date-picker
+        :model-value="pickerValue"
+        @update:model-value="dateSelected"
+        hide-header
+      />
+    </v-menu>
+  </v-text-field>
 </template>
 
-<script>
+<script setup lang="ts">
+import { ref, computed } from 'vue'
 
-export default {
-  name: 'DatePicker',
-  props: {
-    label: String,
-    value: String,
-  },
+const props = defineProps<{
+  modelValue?: string | null
+  label?: string
+}>()
 
-  data: () => ({
-    menu: false,
-  }),
+const emit = defineEmits<{ 'update:modelValue': [value: string | null] }>()
 
+const menu = ref(false)
 
-  methods: {
-    date_selected(event) {
-      this.$refs.menu.save(event)
-    }
+const date = computed({
+  get: () => props.modelValue ?? null,
+  set: (v) => emit('update:modelValue', v),
+})
 
-  },
-  computed: {
-    date: {
-      get() {
-        return this.value
-      },
-      set(newVal) {
-        this.$emit('input', newVal)
-      }
-    },
+const pickerValue = computed(() =>
+  props.modelValue ? new Date(props.modelValue) : null
+)
+
+function dateSelected(d: Date | null) {
+  if (!d) {
+    date.value = null
+  } else {
+    const iso = d.toISOString().split('T')[0]
+    date.value = iso
   }
-
-
+  menu.value = false
 }
 </script>
