@@ -45,6 +45,8 @@ spec:
               value: https://keycloak.jtektrnd.net/realms/jtekt
             - name: VITE_OIDC_CLIENT_ID
               value: public
+            - name: VITE_ENRICHMENT_ID
+              value: _id
 
       imagePullSecrets:
         - name: ecr-credentials
