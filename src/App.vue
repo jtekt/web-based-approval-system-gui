@@ -41,7 +41,10 @@
 
     <!-- Main Content -->
     <v-main>
-      <v-container>
+      <ConfirmDialog />
+      <Toaster />
+
+      <v-container fluid>
         <router-view />
       </v-container>
     </v-main>
@@ -55,6 +58,7 @@ import { useI18n } from 'vue-i18n'
 import LocaleSelector from '@/components/LocaleSelector.vue'
 import api from './api'
 import ThemeToggle from './components/ThemeToggle.vue'
+import {ConfirmDialog, Toaster} from '@jtekt/vue-feedback-kit'
 import { useAuth } from '@jtekt/vuetify-auth'
 import { env } from './utils/env.ts'
 
@@ -64,7 +68,7 @@ const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
 
-const drawer = ref(false)
+const drawer = ref(true)
 
 /**
  * Keep drawer in sync with auth + screen size
