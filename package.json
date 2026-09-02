@@ -16,7 +16,7 @@
     "mcp:revert": "ruler revert"
   },
   "dependencies": {
-    "@jtekt/vue-feedback-kit": "^1.0.0",
+    "@jtekt/vue-feedback-kit": "^1.2.0",
     "@jtekt/vuetify-auth": "^0.3.2",
     "@mdi/font": "7.4.47",
     "@moreillon/group-manager-vue-picker": "^0.0.2",
@@ -29,7 +29,7 @@
     "vue-pdf-embed": "^2.1.0",
     "vue-router": "^5.0.3",
     "vuedraggable": "^4.1.0",
-    "vuetify": "^4.0.2",
+    "vuetify": "^4.0.4",
     "zod": "^4.3.6"
   },
   "devDependencies": {
