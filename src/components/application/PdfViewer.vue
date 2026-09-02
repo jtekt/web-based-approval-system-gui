@@ -415,7 +415,7 @@ async function pdfClicked(event: PointerEvent) {
     toast.error(t('Hanko size too small'))
     return
   }
-  const ok = await confirm({ text: t('Apply stamp here?') })
+  const ok = await confirm(t('Apply stamp here?'))
   if (!ok) return
 
   saveHankoSize()
