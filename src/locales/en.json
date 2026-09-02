@@ -154,6 +154,7 @@
   "Upload failed": "Upload failed",
   "Failed to add manager": "Failed to add manager",
   "Make manager confirmation": "Make {name} manager of this template?",
+  "Are you sure you want to save this approval flow?": "Are you sure you want to save this approval flow?",
   "help": {
     "button": "Help",
     "title": "Help",

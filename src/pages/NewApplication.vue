@@ -214,7 +214,7 @@ import z from 'zod'
 import { FieldSchema } from '@/schemas/application'
 import api from '@/api'
 import { useAuth } from '@jtekt/vuetify-auth'
-import { useToast } from '@jtekt/vue-feedback-kit'
+import { useToast, useConfirm } from '@jtekt/vue-feedback-kit'
 import { useRequiredEmail } from '@/composables/useRequiredEmail'
 
 // ---- Setup ----
@@ -225,6 +225,7 @@ const router = useRouter()
 const { t } = useI18n()
 const { session } = useAuth()
 const toast = useToast()
+const confirm = useConfirm()
 const { add: addRequiredEmail } = useRequiredEmail()
 
 const defaultPDFForm: Template = {
@@ -345,7 +346,10 @@ function removeGroup(group: Group): void {
   groups.value = groups.value.filter((g) => g._id !== group._id)
 }
 
-function saveRecipients(): void {
+async function saveRecipients() {
+  const confirmed = await confirm(t('Are you sure you want to save this approval flow?'));
+  if (!confirmed) return;
+
   localStorage.setItem(
     localStorageRecipientsKey,
     JSON.stringify(recipients.value)
