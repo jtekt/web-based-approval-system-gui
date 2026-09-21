@@ -17,11 +17,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import packageJson from '../../package.json'
 import { env } from '@/utils/env'
 
 const { t } = useI18n()
-const version = packageJson.version
+const version = env.VITE_APP_VERSION
 
 const headers = computed(() => [
   { title: t('Setting'), key: 'name' },

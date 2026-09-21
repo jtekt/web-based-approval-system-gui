@@ -20,7 +20,7 @@ build:
   before_script:
     - aws ecr-public create-repository --repository-name ${APPLICATION_NAME} || echo "Repository might have already existed"
   script:
-    - docker build -t ${CONTAINER_IMAGE}:${IMAGE_TAG} .
+    - docker build --build-arg APP_VERSION=${IMAGE_TAG} -t ${CONTAINER_IMAGE}:${IMAGE_TAG} .
     - docker push ${CONTAINER_IMAGE}:${IMAGE_TAG}
 
 deploy:
