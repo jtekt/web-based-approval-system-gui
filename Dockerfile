@@ -4,6 +4,10 @@ COPY package*.json ./
 
 RUN npm install
 COPY ./ .
+
+ARG APP_VERSION=dev
+ENV VITE_APP_VERSION=$APP_VERSION
+
 RUN npm run build
 
 FROM nginx as production-stage
