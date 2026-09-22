@@ -1,66 +1,58 @@
 <template>
-  <v-card>
-    <template #prepend>
-      <v-icon>mdi-information-outline</v-icon>
-    </template>
-    <template #title>{{ $t('About') }}</template>
-
-    <v-divider />
-
+  <v-card
+    max-width="30rem"
+    class="mx-auto"
+    prepend-icon="mdi-information"
+    :title="env.VITE_APP_TITLE"
+  >
     <v-card-text>
-      {{ $t('App description', { version }) }}
-      <v-data-table hide-default-footer :headers="headers" :items="settings" />
+      <v-list>
+        <v-list-item :title="t('Version')" :subtitle="version" />
+        <v-divider />
+        <v-list-subheader>{{ t("Environment variables") }}</v-list-subheader>
+        <v-list-item
+          title="VITE_PDF_ONLY"
+          :subtitle="env.VITE_PDF_ONLY ? 'true' : 'false'"
+        />
+        <v-list-item
+          title="VITE_SHINSEI_MANAGER_URL"
+          :subtitle="env.VITE_SHINSEI_MANAGER_URL"
+        />
+        <v-list-item
+          title="VITE_EMPLOYEE_MANAGER_API_URL"
+          :subtitle="env.VITE_EMPLOYEE_MANAGER_API_URL"
+        />
+        <v-list-item
+          title="VITE_EMPLOYEE_MANAGER_FRONT_URL"
+          :subtitle="env.VITE_EMPLOYEE_MANAGER_FRONT_URL"
+        />
+        <v-list-item
+          title="VITE_GROUP_MANAGER_API_URL"
+          :subtitle="env.VITE_GROUP_MANAGER_API_URL"
+        />
+        <v-list-item
+          title="VITE_LEGACY_LOGIN_URL"
+          :subtitle="env.VITE_LEGACY_LOGIN_URL"
+        />
+        <v-list-item
+          title="VITE_LEGACY_IDENTIFICATION_URL"
+          :subtitle="env.VITE_LEGACY_IDENTIFICATION_URL"
+        />
+        <v-list-item
+          title="VITE_LEGACY_PASSWORD_RESET_URL"
+          :subtitle="env.VITE_LEGACY_PASSWORD_RESET_URL"
+        />
+        <v-list-item title="VITE_OIDC_AUTHORITY" :subtitle="env.VITE_OIDC_AUTHORITY" />
+        <v-list-item title="VITE_OIDC_CLIENT_ID" :subtitle="env.VITE_OIDC_CLIENT_ID" />
+      </v-list>
     </v-card-text>
   </v-card>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { env } from '@/utils/env'
 
 const { t } = useI18n()
-const version = env.VITE_APP_VERSION
-
-const headers = computed(() => [
-  { title: t('Setting'), key: 'name' },
-  { title: t('Value'), key: 'value' },
-])
-
-const settings = computed(() => [
-  {
-    name: 'PDF only',
-    value: env.VITE_PDF_ONLY ? 'true' : 'false',
-  },
-  {
-    name: 'Shinsei manager API',
-    value: env.VITE_SHINSEI_MANAGER_URL,
-  },
-  {
-    name: 'Employee manager API',
-    value: env.VITE_EMPLOYEE_MANAGER_API_URL,
-  },
-  {
-    name: 'Employee manager GUI',
-    value: env.VITE_EMPLOYEE_MANAGER_FRONT_URL,
-  },
-  {
-    name: 'Group manager API',
-    value: env.VITE_GROUP_MANAGER_API_URL,
-  },
-  {
-    name: 'Login URL',
-    value: env.VITE_LEGACY_LOGIN_URL,
-  },
-  {
-    name: 'Identification URL',
-    value: env.VITE_LEGACY_IDENTIFICATION_URL,
-  },
-  {
-    name: 'Password Reset URL',
-    value: env.VITE_LEGACY_PASSWORD_RESET_URL,
-  },
-  { name: 'OIDC Authority', value: env.VITE_OIDC_AUTHORITY },
-  { name: 'OIDC Client ID', value: env.VITE_OIDC_CLIENT_ID },
-])
+const version = env.VITE_APP_VERSION || 'dev'
 </script>
