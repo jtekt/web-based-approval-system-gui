@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import runtimeEnv from '@/runtimeEnv'
 
 const envSchema = z
   .object({
@@ -21,6 +22,7 @@ const envSchema = z
     VITE_LEGACY_LOGIN_URL: z.string().optional(),
     VITE_LEGACY_IDENTIFICATION_URL: z.string().optional(),
     VITE_LEGACY_PASSWORD_RESET_URL: z.string().optional(),
+    VITE_AUTH_ENRICHMENT_ID_FIELD: z.string().optional(),
 
     VITE_OIDC_AUTHORITY: z.string().optional(),
     VITE_OIDC_CLIENT_ID: z.string().optional(),
@@ -29,4 +31,4 @@ const envSchema = z
     VITE_APP_VERSION: z.string().optional(),
   })
 
-export const env = envSchema.parse(import.meta.env)
+export const env = envSchema.parse(runtimeEnv)
