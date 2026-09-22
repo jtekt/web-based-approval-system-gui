@@ -3,6 +3,7 @@ import { z } from 'zod'
 const envSchema = z
   .object({
     VITE_APPS_URL: z.string().optional(),
+    VITE_HELP_URL: z.string().optional(),
     
     VITE_PDF_ONLY: z.preprocess(
       (v) => (v === '' ? undefined : v),

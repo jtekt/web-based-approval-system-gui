@@ -20,6 +20,8 @@ spec:
           env:
             - name: VITE_APPS_URL
               value: https://apps.jtektrnd.net/
+            - name: VITE_HELP_URL
+              value: https://it-support-wordpress.jtektrnd.net/
 
             - name: VITE_APP_TITLE
               value: 申請マネージャー
