@@ -13,6 +13,8 @@
 
         <v-btn v-if="env.VITE_APPS_URL" :href="env.VITE_APPS_URL" icon="mdi-apps" />
 
+        <v-btn v-if="env.VITE_HELP_URL" :href="env.VITE_HELP_URL" icon="mdi-help" />
+
         <v-btn
           v-if="!route.meta.public"
           icon="mdi-logout"
