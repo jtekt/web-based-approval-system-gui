@@ -1,50 +1,21 @@
 <template>
   <v-card
-    max-width="30rem"
+    max-width="40rem"
     class="mx-auto"
     prepend-icon="mdi-information"
     :title="env.VITE_APP_TITLE"
+    :subtitle="version"
   >
     <v-card-text>
-      <v-list>
-        <v-list-item :title="t('Version')" :subtitle="version" />
-        <v-divider />
-        <v-list-subheader>{{ t("Environment variables") }}</v-list-subheader>
-        <v-list-item
-          title="VITE_PDF_ONLY"
-          :subtitle="env.VITE_PDF_ONLY ? 'true' : 'false'"
-        />
-        <v-list-item
-          title="VITE_SHINSEI_MANAGER_URL"
-          :subtitle="env.VITE_SHINSEI_MANAGER_URL"
-        />
-        <v-list-item
-          title="VITE_EMPLOYEE_MANAGER_API_URL"
-          :subtitle="env.VITE_EMPLOYEE_MANAGER_API_URL"
-        />
-        <v-list-item
-          title="VITE_EMPLOYEE_MANAGER_FRONT_URL"
-          :subtitle="env.VITE_EMPLOYEE_MANAGER_FRONT_URL"
-        />
-        <v-list-item
-          title="VITE_GROUP_MANAGER_API_URL"
-          :subtitle="env.VITE_GROUP_MANAGER_API_URL"
-        />
-        <v-list-item
-          title="VITE_LEGACY_LOGIN_URL"
-          :subtitle="env.VITE_LEGACY_LOGIN_URL"
-        />
-        <v-list-item
-          title="VITE_LEGACY_IDENTIFICATION_URL"
-          :subtitle="env.VITE_LEGACY_IDENTIFICATION_URL"
-        />
-        <v-list-item
-          title="VITE_LEGACY_PASSWORD_RESET_URL"
-          :subtitle="env.VITE_LEGACY_PASSWORD_RESET_URL"
-        />
-        <v-list-item title="VITE_OIDC_AUTHORITY" :subtitle="env.VITE_OIDC_AUTHORITY" />
-        <v-list-item title="VITE_OIDC_CLIENT_ID" :subtitle="env.VITE_OIDC_CLIENT_ID" />
-      </v-list>
+      <div class="text-subtitle-2 mb-2">{{ t("Environment variables") }}</div>
+      <v-table density="compact">
+        <tbody>
+          <tr v-for="envVar in envVars" :key="envVar.key">
+            <td>{{ envVar.key }}</td>
+            <td>{{ envVar.value }}</td>
+          </tr>
+        </tbody>
+      </v-table>
     </v-card-text>
   </v-card>
 </template>
@@ -55,4 +26,17 @@ import { env } from '@/utils/env'
 
 const { t } = useI18n()
 const version = env.VITE_APP_VERSION || 'dev'
+
+const envVars = [
+  { key: 'VITE_PDF_ONLY', value: env.VITE_PDF_ONLY ? 'true' : 'false' },
+  { key: 'VITE_SHINSEI_MANAGER_URL', value: env.VITE_SHINSEI_MANAGER_URL },
+  { key: 'VITE_EMPLOYEE_MANAGER_API_URL', value: env.VITE_EMPLOYEE_MANAGER_API_URL },
+  { key: 'VITE_EMPLOYEE_MANAGER_FRONT_URL', value: env.VITE_EMPLOYEE_MANAGER_FRONT_URL },
+  { key: 'VITE_GROUP_MANAGER_API_URL', value: env.VITE_GROUP_MANAGER_API_URL },
+  { key: 'VITE_LEGACY_LOGIN_URL', value: env.VITE_LEGACY_LOGIN_URL },
+  { key: 'VITE_LEGACY_IDENTIFICATION_URL', value: env.VITE_LEGACY_IDENTIFICATION_URL },
+  { key: 'VITE_LEGACY_PASSWORD_RESET_URL', value: env.VITE_LEGACY_PASSWORD_RESET_URL },
+  { key: 'VITE_OIDC_AUTHORITY', value: env.VITE_OIDC_AUTHORITY },
+  { key: 'VITE_OIDC_CLIENT_ID', value: env.VITE_OIDC_CLIENT_ID },
+]
 </script>
