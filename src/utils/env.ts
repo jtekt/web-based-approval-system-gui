@@ -27,8 +27,6 @@ const envSchema = z
     VITE_OIDC_AUTHORITY: z.string().optional(),
     VITE_OIDC_CLIENT_ID: z.string().optional(),
     VITE_OIDC_AUDIENCE: z.string().optional(),
-    
-    VITE_APP_VERSION: z.string().optional(),
   })
 
 export const env = envSchema.parse(runtimeEnv)

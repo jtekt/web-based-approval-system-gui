@@ -23,7 +23,7 @@ import { useI18n } from 'vue-i18n'
 import { env } from '@/utils/env'
 
 const { t } = useI18n()
-const version = env.VITE_APP_VERSION || 'dev'
+const version = import.meta.env.VITE_APP_VERSION || 'dev'
 
 const envVars = [
   { key: 'VITE_PDF_ONLY', value: env.VITE_PDF_ONLY ? 'true' : 'false' },
