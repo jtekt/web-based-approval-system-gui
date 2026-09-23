@@ -1,18 +1,19 @@
 import { createAuthPlugin } from '@jtekt/vuetify-auth'
 import router from '@/router'
+import { env } from '@/utils/env'
 
 export const auth = createAuthPlugin(
   {
     oidc: {
-      clientId: import.meta.env.VITE_OIDC_CLIENT_ID!,
-      authority: import.meta.env.VITE_OIDC_AUTHORITY!,
-      enrichmentEndpoint: import.meta.env.VITE_LEGACY_IDENTIFICATION_URL,
-      identifierLookupField: import.meta.env.VITE_ENRICHMENT_ID,
+      clientId: env.VITE_OIDC_CLIENT_ID!,
+      authority: env.VITE_OIDC_AUTHORITY!,
+      enrichmentEndpoint: env.VITE_LEGACY_IDENTIFICATION_URL,
+      identifierLookupField: env.VITE_AUTH_ENRICHMENT_ID_FIELD,
     },
     credentials: {
-      loginEndpoint: import.meta.env.VITE_LEGACY_LOGIN_URL!,
-      resetPasswordEndpoint: import.meta.env.VITE_LEGACY_PASSWORD_RESET_URL,
-      identifierLookupField: import.meta.env.VITE_ENRICHMENT_ID,
+      loginEndpoint: env.VITE_LEGACY_LOGIN_URL!,
+      resetPasswordEndpoint: env.VITE_LEGACY_PASSWORD_RESET_URL,
+      identifierLookupField: env.VITE_AUTH_ENRICHMENT_ID_FIELD,
     },
   },
   router

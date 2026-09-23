@@ -47,7 +47,7 @@ spec:
               value: https://keycloak.jtektrnd.net/realms/jtekt
             - name: VITE_OIDC_CLIENT_ID
               value: public
-            - name: VITE_ENRICHMENT_ID
+            - name: VITE_AUTH_ENRICHMENT_ID_FIELD
               value: _id
 
       imagePullSecrets:

@@ -72,6 +72,11 @@ const route = useRoute()
 
 const drawer = ref(true)
 
+// The static <title> in index.html is only a fallback shown before this
+// runs; VITE_APP_TITLE varies per deployment (e.g. PDF-only overlays use a
+// different product name), so it's applied here from the runtime env.
+document.title = env.VITE_APP_TITLE
+
 /**
  * Keep drawer in sync with auth + screen size
  */
