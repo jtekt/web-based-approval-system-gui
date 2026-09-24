@@ -15,8 +15,6 @@ build:
     - if: $CI_COMMIT_BRANCH == "staging"
       variables:
         IMAGE_TAG: ${CI_COMMIT_SHORT_SHA}
-  tags:
-    - dind
   before_script:
     - aws ecr-public create-repository --repository-name ${APPLICATION_NAME} || echo "Repository might have already existed"
   script:
