@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-ROOT_DIR=/app
+ROOT_DIR=/usr/share/nginx/html
 ENV_FILE="$ROOT_DIR/env.js"
 
 echo "Generating runtime environment config at $ENV_FILE"
