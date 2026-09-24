@@ -1,39 +1,23 @@
 <template>
   <v-select
-    prepend-inner-icon="mdi-translate"
-    :items="locales"
-    item-title="text"
-    item-value="value"
     v-model="locale"
-    hide-details
+    :items="locales"
+    prepend-inner-icon="mdi-translate"
     variant="outlined"
     density="compact"
+    max-width="150px"
+    hide-details
   />
 </template>
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { onMounted, watch } from 'vue'
 
-const { locale } = useI18n()
+// Saving the choice and updating <html lang> are handled in plugins/i18n.ts
+const { locale } = useI18n({ useScope: 'global' })
 
 const locales = [
-  { text: 'English', value: 'en' },
-  { text: '日本語', value: 'ja' },
+  { title: 'English', value: 'en' },
+  { title: '日本語', value: 'ja' },
 ]
-
-function saveLocale() {
-  localStorage.locale = locale.value
-
-  document.documentElement.lang = locale.value
-}
-
-onMounted(() => {
-  if (localStorage.locale) {
-    locale.value = localStorage.locale
-    document.documentElement.lang = locale.value
-  }
-})
-
-watch(locale, saveLocale)
 </script>
