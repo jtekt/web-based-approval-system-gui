@@ -1,44 +1,27 @@
-import { createVuetify } from 'vuetify'
-import '@mdi/font/css/materialdesignicons.css'
 import 'vuetify/styles'
+import '@mdi/font/css/materialdesignicons.css'
+import { watch } from 'vue'
+import { createVuetify } from 'vuetify'
 import { createVueI18nAdapter } from 'vuetify/locale/adapters/vue-i18n'
-import {  useI18n } from 'vue-i18n'
+import { useI18n } from 'vue-i18n'
 import { i18n } from './i18n'
 
-const savedTheme = localStorage.getItem('theme') ?? 'light'
+const THEME_STORAGE_KEY = 'theme'
 
-export default createVuetify({
-  icons: {
-    defaultSet: 'mdi',
-  },
+// Components and directives are auto-imported by vite-plugin-vuetify
+const vuetify = createVuetify({
   defaults: {
-    VSwitch: {
-      color: 'primary',
-    },
-    VTextField: {
-      variant: 'underlined',
-    },
-    VTextarea: {
-      variant: 'underlined',
-    },
-    VCombobox: {
-      variant: 'outlined',
-    },
-    VAutocomplete: {
-      variant: 'outlined',
-    },
-    VSelect: {
-      variant: 'outlined',
-    },
-    VFileInput: {
-      variant: 'outlined',
-    },
-    VTabs: {
-      color: 'primary',
-    },
+    VTextField: { variant: 'underlined' },
+    VTextarea: { variant: 'underlined' },
+    VSelect: { variant: 'outlined' },
+    VCombobox: { variant: 'outlined' },
+    VAutocomplete: { variant: 'outlined' },
+    VFileInput: { variant: 'outlined' },
+    VSwitch: { color: 'primary' },
+    VTabs: { color: 'primary' },
   },
   theme: {
-    defaultTheme: savedTheme,
+    defaultTheme: localStorage.getItem(THEME_STORAGE_KEY) || 'light',
     themes: {
       light: {
         colors: {
@@ -57,3 +40,10 @@ export default createVuetify({
     adapter: createVueI18nAdapter({ i18n, useI18n }),
   },
 })
+
+// Remember the user's theme choice
+watch(vuetify.theme.global.name, (name) => {
+  localStorage.setItem(THEME_STORAGE_KEY, name)
+})
+
+export default vuetify

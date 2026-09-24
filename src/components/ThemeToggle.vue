@@ -1,21 +1,13 @@
 <template>
   <v-btn
-    :icon="isDark ? 'mdi-weather-sunny' : 'mdi-weather-night'"
-    @click="toggle"
+    :icon="theme.global.current.value.dark ? 'mdi-weather-sunny' : 'mdi-weather-night'"
+    @click="theme.toggle()"
   />
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import { useTheme } from 'vuetify'
 
+// Saving the choice is handled in plugins/vuetify.ts
 const theme = useTheme()
-
-const isDark = computed(() => theme.global.current.value.dark)
-
-function toggle() {
-  const next = isDark.value ? 'light' : 'dark'
-  theme.change(next)
-  localStorage.setItem('theme', next)
-}
 </script>
