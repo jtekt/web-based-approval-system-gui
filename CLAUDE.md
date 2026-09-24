@@ -30,15 +30,15 @@ This is a Vue 3 + TypeScript SPA — a frontend for **Shinsei Manager**, a docum
 ### Stack
 
 - **Vue 3** with Composition API (`<script setup>`)
-- **Vuetify 4** (Material Design component library, primary color `#C00000`)
+- **Vuetify 4** (Material Design component library) — configured in `src/plugins/vuetify.ts`, shared with the other corporate-apps frontends (primary `#b00000`, dark `#b02222`)
 - **Vue Router 5** — lazy-loaded routes, navigation guard handles auth
-- **vue-i18n 11** — English/Japanese, locale persisted in `localStorage`
+- **vue-i18n 11** — English/Japanese, configured in `src/plugins/i18n.ts` (shared with the other frontends), which also persists the locale in `localStorage`
 - **axios** — single instance in `src/api.ts`, `baseURL` set to `VITE_SHINSEI_MANAGER_URL`
 - **Zod** — runtime schema validation for API response types
 
 ### Environment variables
 
-All env vars are validated at startup via Zod in `src/utils/env.ts`. Import `env` from there — never use `import.meta.env` directly elsewhere. Required vars include service URLs for `VITE_SHINSEI_MANAGER_URL`, `VITE_EMPLOYEE_MANAGER_API_URL`, `VITE_GROUP_MANAGER_API_URL`, and auth endpoints.
+All env vars are validated at startup via Zod in `src/utils/env.ts`, which parses `src/runtimeEnv.ts` (build-time `import.meta.env` overridden by the runtime `window.__ENV__` from `/env.js`). Import `env` from there — never use `import.meta.env` directly elsewhere. The one exception is the displayed version: `VITE_APP_VERSION` is read from `import.meta.env` in `src/pages/About.vue` so it cannot be overridden at runtime. Required vars include service URLs for `VITE_SHINSEI_MANAGER_URL`, `VITE_EMPLOYEE_MANAGER_API_URL`, `VITE_GROUP_MANAGER_API_URL`, and auth endpoints.
 
 ### Authentication
 
