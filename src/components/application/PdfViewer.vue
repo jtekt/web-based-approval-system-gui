@@ -152,7 +152,7 @@
 import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { PDFDocument } from 'pdf-lib'
+import { PDFDocument, degrees, type PDFPage } from 'pdf-lib'
 import VuePdfEmbed from 'vue-pdf-embed'
 import type { Application, Hanko } from '@/types'
 import { generateWebHankoSvg } from '@/utils/webHankos'
@@ -389,11 +389,20 @@ async function loadPdfHankos() {
         const scale = h.scale ?? hankoScale.value
         const dims = png.scale(scale)
 
+        // Counter-rotate by the page's /Rotate so the hanko appears upright.
+        // drawImage rotates around the image's corner: offset it so the
+        // hanko stays centred on its position.
+        const { rotation } = pageGeometry(page)
+        const angle = (rotation * Math.PI) / 180
+        const halfW = dims.width / 2
+        const halfH = dims.height / 2
+
         page.drawImage(png, {
-          x: h.position.x - dims.width / 2,
-          y: h.position.y - dims.height / 2,
+          x: h.position.x - (halfW * Math.cos(angle) - halfH * Math.sin(angle)),
+          y: h.position.y - (halfW * Math.sin(angle) + halfH * Math.cos(angle)),
           width: dims.width,
           height: dims.height,
+          rotate: degrees(rotation),
         })
       }
     } catch (e) {
@@ -402,6 +411,53 @@ async function loadPdfHankos() {
   }
 
   shownPdf.value = await pdfDoc.value.save()
+}
+
+/* -----------------------------
+ * Page geometry
+ *
+ * pdf.js shows each page cropped to its CropBox and rotated by its /Rotate.
+ * Hanko positions are stored in PDF user space, so clicks are converted.
+ * ----------------------------- */
+function pageGeometry(page: PDFPage) {
+  const box = page.getCropBox()
+  const rotation = ((page.getRotation().angle % 360) + 360) % 360
+  const sideways = rotation % 180 !== 0
+  return {
+    box,
+    rotation,
+    displayWidth: sideways ? box.height : box.width,
+  }
+}
+
+// u, v: fractions of the displayed page's width and height from its top left
+function displayToPdf(page: PDFPage, u: number, v: number) {
+  const { box, rotation } = pageGeometry(page)
+  const { x, y, width, height } = box
+  switch (rotation) {
+    case 90:
+      return { x: x + v * width, y: y + u * height }
+    case 180:
+      return { x: x + (1 - u) * width, y: y + v * height }
+    case 270:
+      return { x: x + (1 - v) * width, y: y + (1 - u) * height }
+    default:
+      return { x: x + u * width, y: y + (1 - v) * height }
+  }
+}
+
+function pageCanvas() {
+  return pdfContainer.value?.querySelector('canvas') ?? null
+}
+
+function clickOnPage(event: MouseEvent) {
+  const canvas = pageCanvas()
+  if (!canvas) return null
+  const rect = canvas.getBoundingClientRect()
+  const u = (event.clientX - rect.left) / rect.width
+  const v = (event.clientY - rect.top) / rect.height
+  if (u < 0 || u > 1 || v < 0 || v > 1) return null
+  return { u, v }
 }
 
 /* -----------------------------
@@ -415,24 +471,22 @@ async function pdfClicked(event: PointerEvent) {
     toast.error(t('Hanko size too small'))
     return
   }
+
+  // Ignore clicks on the padding around the page
+  const click = clickOnPage(event)
+  if (!click) return
+
   const ok = await confirm(t('Apply stamp here?'))
   if (!ok) return
 
   saveHankoSize()
 
   const page = pdfDoc.value.getPages()[pageNumber.value - 1]
-  const { width, height } = page.getSize()
-
-  const wrapperWidth = pdfContainer.value.offsetWidth
-  const wrapperHeight = pdfContainer.value.offsetHeight
-
-  const posX = width * (event.offsetX / wrapperWidth)
-  const posY = height - height * (event.offsetY / wrapperHeight)
 
   const newHanko: Hanko = {
     file_id: props.selectedFileId,
     page_number: pageNumber.value - 1,
-    position: { x: posX, y: posY },
+    position: displayToPdf(page, click.u, click.v),
     scale: hankoScale.value,
     date: new Date().toISOString(),
   }
@@ -484,11 +538,14 @@ async function updateHankos(body: { attachment_hankos: Hanko[] }) {
 function updateNewHankoPosition(event: MouseEvent) {
   if (!pdfDoc.value || !pdfContainer.value) return
 
-  const page = pdfDoc.value.getPages()[pageNumber.value - 1]
-  const { height } = page.getSize()
+  const canvas = pageCanvas()
+  if (!canvas) return
 
-  const wrapperHeight = pdfContainer.value.offsetHeight
-  const hankoHeight = (1500 * hankoScale.value * wrapperHeight) / height
+  // Same size as the drawn hanko: 1500 PDF units high at scale 1
+  const page = pdfDoc.value.getPages()[pageNumber.value - 1]
+  const { displayWidth } = pageGeometry(page)
+  const pixelsPerUnit = canvas.getBoundingClientRect().width / displayWidth
+  const hankoHeight = 1500 * hankoScale.value * pixelsPerUnit
 
   const ex = event.offsetX
   const ey = event.offsetY
