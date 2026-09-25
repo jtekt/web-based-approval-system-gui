@@ -2,7 +2,7 @@
   <v-card :loading="loading" variant="text">
     <v-toolbar class="px-4">
       <v-row align="center">
-        <v-col cols="4">
+        <v-col cols="auto">
           <v-tooltip location="bottom">
             <template #activator="{ props }">
               <span v-bind="props">{{ $t('PDF Reader') }}</span>
@@ -11,15 +11,15 @@
           </v-tooltip>
         </v-col>
 
-        <v-col cols="4" class="d-flex justify-center align-center">
+        <v-spacer />
+
+        <v-col cols="auto">
           <v-btn
             type="button"
-            icon
+            icon="mdi-arrow-left"
             :disabled="pageNumber <= 1"
             @click="previousPage"
-          >
-            <v-icon>mdi-arrow-left</v-icon>
-          </v-btn>
+          />
           <v-menu open-on-hover>
             <template #activator="{ props }">
               <v-btn type="button" variant="text" v-bind="props"
@@ -37,15 +37,15 @@
           </v-menu>
           <v-btn
             type="button"
-            icon
+            icon="mdi-arrow-right"
             :disabled="pageNumber >= pageCount"
             @click="nextPage"
-          >
-            <v-icon>mdi-arrow-right</v-icon>
-          </v-btn>
+          />
         </v-col>
 
-        <v-col cols="4">
+        <v-spacer />
+
+        <v-col cols="auto">
           <v-menu
             v-if="currentUserCanStamp"
             :close-on-content-click="false"
@@ -111,11 +111,14 @@
               </div>
             </v-card>
           </v-menu>
-
-          <v-btn variant="text" @click="downloadPdf">
-            <v-icon>mdi-download</v-icon>
-            <span>{{ $t('Download') }}</span>
-          </v-btn>
+        </v-col>
+        <v-col cols="auto">
+          <v-btn
+            variant="text"
+            @click="downloadPdf"
+            prepend-icon="mdi-download"
+            :text="$t('Download')"
+          />
         </v-col>
       </v-row>
     </v-toolbar>
