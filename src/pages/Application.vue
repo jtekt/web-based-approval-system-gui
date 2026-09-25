@@ -230,7 +230,7 @@ const isUserRecipient = computed(() => {
 })
 
 const isCurrentRecipientCurrentUser = computed(() => {
-  if (!isUserRecipient || !currentRecipient.value || !session.value?.user)
+  if (!isUserRecipient.value || !currentRecipient.value || !session.value?.user)
     return false
   return currentRecipient.value._id === session.value.user.id
 })
