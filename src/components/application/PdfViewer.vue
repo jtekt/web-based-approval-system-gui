@@ -247,14 +247,19 @@ const currentUserCanStamp = computed(() => {
 
 const hankoScale = computed(() => hankoScaleSlider.value / 1000)
 
+// The pdf.js worker runs from a blob: URL and fetches these itself, so a
+// relative URL cannot be resolved there: make them absolute
+const pdfjsAssetUrl = (dir: string) =>
+  new URL(`${import.meta.env.BASE_URL}pdfjs/${dir}/`, window.location.href).href
+
 const pdfSource = computed(() => {
   if (!shownPdf.value) return null
   // Without CMaps, pdf.js renders no text for non-embedded (e.g. Japanese) fonts
   return {
     data: new Uint8Array(shownPdf.value),
-    cMapUrl: `${import.meta.env.BASE_URL}pdfjs/cmaps/`,
+    cMapUrl: pdfjsAssetUrl('cmaps'),
     cMapPacked: true,
-    standardFontDataUrl: `${import.meta.env.BASE_URL}pdfjs/standard_fonts/`,
+    standardFontDataUrl: pdfjsAssetUrl('standard_fonts'),
   }
 })
 
