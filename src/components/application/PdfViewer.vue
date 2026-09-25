@@ -245,7 +245,14 @@ const currentUserCanStamp = computed(() => {
 const hankoScale = computed(() => hankoScaleSlider.value / 1000)
 
 const pdfSource = computed(() => {
-  return shownPdf.value ? { data: new Uint8Array(shownPdf.value) } : null
+  if (!shownPdf.value) return null
+  // Without CMaps, pdf.js renders no text for non-embedded (e.g. Japanese) fonts
+  return {
+    data: new Uint8Array(shownPdf.value),
+    cMapUrl: `${import.meta.env.BASE_URL}pdfjs/cmaps/`,
+    cMapPacked: true,
+    standardFontDataUrl: `${import.meta.env.BASE_URL}pdfjs/standard_fonts/`,
+  }
 })
 
 /* -----------------------------
