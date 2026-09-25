@@ -1,6 +1,7 @@
 resources:
   - ../../base
   - ./ingress.yml
+  - ./httproute.yml
 
 nameSuffix: -pdf-staging
 

@@ -1,3 +1,4 @@
 resources:
   - ../../base
   - ./ingress.yml
+  - ./httproute.yml
