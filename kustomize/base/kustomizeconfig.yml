@@ -1,0 +1,6 @@
+# HTTPRoute backendRefs reference Services: let kustomize rename them with nameSuffix/namePrefix
+nameReference:
+  - kind: Service
+    fieldSpecs:
+      - kind: HTTPRoute
+        path: spec/rules/backendRefs/name
