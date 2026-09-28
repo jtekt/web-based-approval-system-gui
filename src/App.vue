@@ -55,19 +55,19 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import LocaleSelector from '@/components/LocaleSelector.vue'
 import api from './api'
+import { useAxiosAuth } from '@/composables/useAxiosAuth'
 import ThemeToggle from './components/ThemeToggle.vue'
 import {ConfirmDialog, Toaster} from '@jtekt/vue-feedback-kit'
 import { useAuth } from '@jtekt/vuetify-auth'
 import { env } from './utils/env.ts'
 
-const { session, logout, isLoading } = useAuth()
+const { session, logout } = useAuth()
 
 const { t } = useI18n()
-const router = useRouter()
 const route = useRoute()
 
 const drawer = ref(true)
@@ -77,22 +77,7 @@ const drawer = ref(true)
 // different product name), so it's applied here from the runtime env.
 document.title = env.VITE_APP_TITLE
 
-/**
- * Keep drawer in sync with auth + screen size
- */
-watch(
-  [session, isLoading],
-  ([auth, loading]) => {
-    if (loading) return
-
-    if (auth?.accessToken) {
-      api.defaults.headers.common.Authorization = `Bearer ${auth.accessToken}`
-    } else {
-      delete api.defaults.headers.common.Authorization
-    }
-  },
-  { immediate: true }
-)
+useAxiosAuth(api)
 
 const receivedApplications = ref(0)
 
@@ -161,11 +146,8 @@ async function fetchReceivedApplications() {
     })
 
     receivedApplications.value = data.count
-  } catch (err: unknown) {
-    const error = err as { response?: { status: number } }
-    if (error.response?.status === 401) {
-      router.push({ name: 'login' })
-    }
+  } catch {
+    // Not shown to the user; a 401 already ends the session in useAxiosAuth
   }
 }
 
