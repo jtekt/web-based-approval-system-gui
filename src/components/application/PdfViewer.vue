@@ -112,6 +112,15 @@
             </v-card>
           </v-menu>
         </v-col>
+        <v-col cols="auto" v-if="showReject && isCurrentPendingApprover">
+          <v-btn
+            variant="text"
+            color="error"
+            prepend-icon="mdi-close"
+            :text="$t('Reject')"
+            @click="emit('reject')"
+          />
+        </v-col>
         <v-col cols="auto">
           <v-btn
             variant="text"
@@ -167,6 +176,7 @@ import { useConfirm, useToast } from '@jtekt/vue-feedback-kit'
 const props = defineProps<{
   application: Application
   selectedFileId: string
+  showReject?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -243,6 +253,11 @@ const currentUserCanStamp = computed(() => {
     : props.application.recipients.length
 
   return userAsRecipient.value.submission.flow_index <= currentFlowIndex
+})
+
+const isCurrentPendingApprover = computed(() => {
+  if (!currentRecipient.value || !session.value?.user) return false
+  return currentRecipient.value._id === session.value.user.id
 })
 
 const hankoScale = computed(() => hankoScaleSlider.value / 1000)
@@ -518,8 +533,7 @@ async function pdfClicked(event: PointerEvent) {
     hankos = JSON.parse(hankos) as Hanko[]
   }
 
-  hankos.push(newHanko)
-  updateHankos({ attachment_hankos: hankos })
+  updateHankos({ attachment_hankos: [...hankos, newHanko] })
 }
 
 /* -----------------------------
