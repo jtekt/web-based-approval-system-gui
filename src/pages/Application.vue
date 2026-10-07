@@ -52,10 +52,7 @@
               {{ $t('Approval') }}
             </template>
             <template #append>
-              <v-row
-                density="compact"
-                v-if="!env.VITE_PDF_ONLY && isCurrentRecipientCurrentUser"
-              >
+              <v-row density="compact" v-if="isCurrentRecipientCurrentUser && !env.VITE_PDF_ONLY">
                 <v-col cols="auto">
                   <v-btn color="success" @click="openApproveDialog">
                     <v-icon start>mdi-check</v-icon>
@@ -133,7 +130,9 @@
         :key="selected_file_id"
         :selected-file-id="selected_file_id"
         :application="application"
+        :show-reject="env.VITE_PDF_ONLY"
         @pdf_stamped="getApplication"
+        @reject="openRejectDialog"
       />
     </template>
 
@@ -222,16 +221,14 @@ const isUserApplicant = computed(() => {
 })
 
 const isUserRecipient = computed(() => {
-  if (!isUserApplicant.value || !application.value || !session.value?.user)
-    return false
+  if (!application.value || !session.value?.user) return false
   return application.value.recipients.some(
     (r) => r._id === session.value?.user.id
   )
 })
 
 const isCurrentRecipientCurrentUser = computed(() => {
-  if (!isUserRecipient.value || !currentRecipient.value || !session.value?.user)
-    return false
+  if (!currentRecipient.value || !session.value?.user) return false
   return currentRecipient.value._id === session.value.user.id
 })
 
@@ -268,13 +265,23 @@ async function getApplication() {
 
     application.value = data
 
-    if (env.VITE_PDF_ONLY && Array.isArray(data.form_data)) {
+    if (Array.isArray(data.form_data)) {
       const pdfField = data.form_data.find((f) => f.type === 'pdf' && f.value)
       if (pdfField) {
         const newId = String(pdfField.value)
+        const currentRecipientUser =
+          data.recipients.some((r) => r.refusal)
+            ? null
+            : [...data.recipients]
+                .sort((a, b) => a.submission.flow_index - b.submission.flow_index)
+                .find((r) => !r.approval && !r.refusal) || null
+        const isCurrentApprover =
+          currentRecipientUser?._id === session.value?.user?.id
 
-        if (selected_file_id.value !== newId) {
-          selected_file_id.value = newId
+        if (env.VITE_PDF_ONLY || isCurrentApprover) {
+          if (selected_file_id.value !== newId) {
+            selected_file_id.value = newId
+          }
         }
       }
     }
