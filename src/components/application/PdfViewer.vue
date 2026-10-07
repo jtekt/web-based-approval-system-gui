@@ -533,8 +533,7 @@ async function pdfClicked(event: PointerEvent) {
     hankos = JSON.parse(hankos) as Hanko[]
   }
 
-  hankos.push(newHanko)
-  updateHankos({ attachment_hankos: hankos })
+  updateHankos({ attachment_hankos: [...hankos, newHanko] })
 }
 
 /* -----------------------------
