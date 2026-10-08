@@ -112,15 +112,6 @@
             </v-card>
           </v-menu>
         </v-col>
-        <v-col cols="auto" v-if="showReject && isCurrentPendingApprover">
-          <v-btn
-            variant="text"
-            color="error"
-            prepend-icon="mdi-close"
-            :text="$t('Reject')"
-            @click="emit('reject')"
-          />
-        </v-col>
         <v-col cols="auto">
           <v-btn
             variant="text"
@@ -176,12 +167,10 @@ import { useConfirm, useToast } from '@jtekt/vue-feedback-kit'
 const props = defineProps<{
   application: Application
   selectedFileId: string
-  showReject?: boolean
 }>()
 
 const emit = defineEmits<{
   pdf_stamped: []
-  reject: []
 }>()
 
 const { t } = useI18n()
