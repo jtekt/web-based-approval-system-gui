@@ -45,7 +45,11 @@
 
         <v-text-field v-model="title" :label="$t('Title')" />
 
-        <v-switch :label="$t('Confidential')" v-model="confidential" />
+        <v-switch
+          v-if="!env.VITE_PDF_ONLY"
+          :label="$t('Confidential')"
+          v-model="confidential"
+        />
 
         <v-expand-transition>
           <div v-if="confidential">
@@ -250,7 +254,7 @@ const applicationFormTemplates = ref<Template[]>([])
 const applicationForm = ref<Template | null>(null)
 
 const title = ref<string>('')
-const confidential = ref<boolean>(false)
+const confidential = ref<boolean>(!!env.VITE_PDF_ONLY)
 const recipients = ref<Recipient[]>(getRecipientsFromLocalStorage())
 const groups = ref<Group[]>([])
 
@@ -304,7 +308,8 @@ async function submit(): Promise<void> {
       title: title.value,
       type,
       form_data,
-      private: confidential.value,
+      // Always true for PDF version, use toggle value for normal version
+      private: env.VITE_PDF_ONLY === true ? true : confidential.value,
       recipients_ids,
       group_ids,
     }
@@ -347,8 +352,10 @@ function removeGroup(group: Group): void {
 }
 
 async function saveRecipients() {
-  const confirmed = await confirm(t('Are you sure you want to save this approval flow?'));
-  if (!confirmed) return;
+  const confirmed = await confirm(
+    t('Are you sure you want to save this approval flow?')
+  )
+  if (!confirmed) return
 
   localStorage.setItem(
     localStorageRecipientsKey,
@@ -383,7 +390,8 @@ async function recreateApplicationContent(): Promise<void> {
     }
 
     title.value = data.title
-    confidential.value = !!data.private
+    // For PDF version, always set to true; for normal version, use the data value
+    confidential.value = env.VITE_PDF_ONLY === true ? true : !!data.private
 
     const parseFormData = (input: unknown): Field[] => {
       if (!input) return []
