@@ -1,5 +1,5 @@
 <template>
-  <v-list-item>
+  <v-list-item v-if="!env.VITE_PDF_ONLY">
     <v-row>
       <v-col cols="4" class="d-flex align-center text-medium-emphasis">{{
         $t('Confidential')
@@ -50,6 +50,7 @@ import AddGroupDialog from '@/components/AddGroupDialog.vue'
 import api from '@/api'
 import { useAuth } from '@jtekt/vuetify-auth'
 import { useToast } from '@jtekt/vue-feedback-kit'
+import { env } from '@/utils/env'
 
 const props = defineProps<{ modelValue: Application }>()
 const emit = defineEmits<{ 'update:modelValue': [value: Application] }>()
