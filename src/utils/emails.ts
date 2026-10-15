@@ -1,8 +1,9 @@
 import type { Application, User } from '@/types'
+import { env } from './env'
 
 // Get the app title from environment variable
-const APP_TITLE = import.meta.env.VITE_APP_TITLE || '申請マネージャー'
-const IS_PDF_ONLY = import.meta.env.VITE_PDF_ONLY === 'true'
+const APP_TITLE = env.VITE_APP_TITLE
+const IS_PDF_ONLY = !!env.VITE_PDF_ONLY
 
 function applicationIsRejected(application: Application): boolean {
   return application.recipients.some((r) => !!r.refusal)

@@ -309,7 +309,7 @@ async function submit(): Promise<void> {
       type,
       form_data,
       // Always true for PDF version, use toggle value for normal version
-      private: env.VITE_PDF_ONLY === true ? true : confidential.value,
+      private: !!env.VITE_PDF_ONLY || confidential.value,
       recipients_ids,
       group_ids,
     }
@@ -391,7 +391,7 @@ async function recreateApplicationContent(): Promise<void> {
 
     title.value = data.title
     // For PDF version, always set to true; for normal version, use the data value
-    confidential.value = env.VITE_PDF_ONLY === true ? true : !!data.private
+    confidential.value = !!env.VITE_PDF_ONLY || !!data.private
 
     const parseFormData = (input: unknown): Field[] => {
       if (!input) return []
