@@ -59,7 +59,6 @@ import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import LocaleSelector from '@/components/LocaleSelector.vue'
 import api from './api'
-import { useAxiosAuth } from '@/composables/useAxiosAuth'
 import ThemeToggle from './components/ThemeToggle.vue'
 import {ConfirmDialog, Toaster} from '@jtekt/vue-feedback-kit'
 import { useAuth } from '@jtekt/vuetify-auth'
@@ -76,8 +75,6 @@ const drawer = ref(true)
 // runs; VITE_APP_TITLE varies per deployment (e.g. PDF-only overlays use a
 // different product name), so it's applied here from the runtime env.
 document.title = env.VITE_APP_TITLE
-
-useAxiosAuth(api)
 
 const receivedApplications = ref(0)
 
@@ -147,7 +144,7 @@ async function fetchReceivedApplications() {
 
     receivedApplications.value = data.count
   } catch {
-    // Not shown to the user; a 401 already ends the session in useAxiosAuth
+    // Not shown to the user; the auth plugin handles session expiry
   }
 }
 
