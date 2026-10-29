@@ -18,7 +18,7 @@
     "@jtekt/vue-feedback-kit": "^1.2.0",
     "@jtekt/vuetify-auth": "^1.0.3",
     "@mdi/font": "7.4.47",
-    "@moreillon/group-manager-vue-picker": "^0.0.2",
+    "@jtekt/group-manager-vue-picker": "^0.0.3",
     "axios": "^1.15.0",
     "canvg": "^4.0.3",
     "pdf-lib": "^1.17.1",
