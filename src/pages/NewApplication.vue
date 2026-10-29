@@ -205,7 +205,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
-import { UserPicker, type User } from '@moreillon/group-manager-vue-picker'
+import { UserPicker, type User } from '@jtekt/group-manager-vue-picker'
 import NewApplicationApprovalFlow from '@/components/new_application/NewApplicationApprovalFlow.vue'
 import AddGroupDialog from '@/components/AddGroupDialog.vue'
 import NewApplicationFormData from '@/components/new_application/NewApplicationFormData.vue'

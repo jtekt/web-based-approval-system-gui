@@ -31,10 +31,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import {
-  GroupPicker,
-  type GroupItem,
-} from '@moreillon/group-manager-vue-picker'
+import { GroupPicker, type GroupItem } from '@jtekt/group-manager-vue-picker'
 import { env } from '@/utils/env'
 import { useAuth } from '@jtekt/vuetify-auth'
 
