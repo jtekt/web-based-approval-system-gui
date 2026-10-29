@@ -87,6 +87,12 @@
                 <v-btn
                   size="x-small"
                   variant="text"
+                  @click="hankoScaleSlider = 5"
+                  >5%</v-btn
+                >
+                <v-btn
+                  size="x-small"
+                  variant="text"
                   @click="hankoScaleSlider = 25"
                   >25%</v-btn
                 >
@@ -179,7 +185,7 @@ const route = useRoute()
 const toast = useToast()
 const confirm = useConfirm()
 
-const MIN_HANKO_SIZE = 25
+const MIN_HANKO_SIZE = 1
 
 /* -----------------------------
  * Core state
