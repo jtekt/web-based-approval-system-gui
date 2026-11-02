@@ -29,6 +29,9 @@ export const auth = createAuthPlugin(
       if (!session) {
         console.log('[SESSION] no session')
         delete api.defaults.headers.common['Authorization']
+        if (router.currentRoute.value.path !== '/login') {
+          router.push('/login')
+        }
         return
       }
 
@@ -38,6 +41,9 @@ export const auth = createAuthPlugin(
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`
       } else {
         delete api.defaults.headers.common['Authorization']
+        if (router.currentRoute.value.path !== '/login') {
+          router.push('/login')
+        }
       }
     },
   },
